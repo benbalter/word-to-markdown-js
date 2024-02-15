@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import convert from "./word-to-markdown.js";
+import convert from "./main.js";
 
 const program = new Command();
 program.name("w2m");

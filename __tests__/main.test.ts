@@ -1,4 +1,4 @@
-import { convert } from '../src/main.js';
+import convert from '../src/main.js';
 
 // Map of fixtures and expected Markdown output
 const expectations = {

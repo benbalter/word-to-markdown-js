@@ -41,7 +41,7 @@ function autoTableHeaders(html: string): string {
 function htmlToMd(html: string, options: object = {}): string {
   const turndownService = new TurndownService({ ...options, ...defaultTurndownOptions });
   turndownService.use(turndownPluginGfm.gfm);
-  return turndownService.turndown(html);
+  return turndownService.turndown(html).trim();
 }
 
 // Lint the Markdown and correct any issues
