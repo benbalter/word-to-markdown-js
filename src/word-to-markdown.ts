@@ -51,7 +51,7 @@ function lint(md: string): string {
 }
 
 // Converts a Word document to crisp, clean Markdown
-export async function convert(path: string, options: convertOptions = {}): Promise<string> {
+export default async function convert(path: string, options: convertOptions = {}): Promise<string> {
   const mammothResult = await mammoth.convertToHtml({ path: path }, options.mammoth);
   const html = autoTableHeaders(mammothResult.value);
   const md = htmlToMd(html, options.turndown);
