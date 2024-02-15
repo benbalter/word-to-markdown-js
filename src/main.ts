@@ -1,34 +1,60 @@
-/**
- * Some predefined delay values (in milliseconds).
- */
-export enum Delays {
-  Short = 500,
-  Medium = 2000,
-  Long = 5000,
+import TurndownService from '@joplin/turndown';
+import * as turndownPluginGfm from '@joplin/turndown-plugin-gfm';
+import * as mammoth from 'mammoth';
+import markdownlint from 'markdownlint';
+import markdownlintRuleHelpers from 'markdownlint-rule-helpers';
+import { parse } from 'node-html-parser';
+
+interface convertOptions {
+  mammoth?: object;
+  turndown?: object;
 }
 
-/**
- * Returns a Promise<string> that resolves after a given time.
- *
- * @param {string} name - A name.
- * @param {number=} [delay=Delays.Medium] - A number of milliseconds to delay resolution of the Promise.
- * @returns {Promise<string>}
- */
-function delayedHello(
-  name: string,
-  delay: number = Delays.Medium,
-): Promise<string> {
-  return new Promise((resolve: (value?: string) => void) =>
-    setTimeout(() => resolve(`Hello, ${name}`), delay),
-  );
+interface turndownOptions {
+  headingStyle?: "setext" | "atx";
+  codeBlockStyle?: "indented" | "fenced";
+  bulletListMarker?: "*" | "-" | "+";
 }
 
-// Please see the comment in the .eslintrc.json file about the suppressed rule!
-// Below is an example of how to use ESLint errors suppression. You can read more
-// at https://eslint.org/docs/latest/user-guide/configuring/rules#disabling-rules
+const defaultTurndownOptions: turndownOptions = {
+  headingStyle: 'atx',
+  codeBlockStyle: 'fenced',
+  bulletListMarker: "-"
+};
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export async function greeter(name: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-  // The name parameter should be of type string. Any is used only to trigger the rule.
-  return await delayedHello(name, Delays.Long);
+// Turndown will add an empty header if the first row
+// of the table isn't `<th>` elements. This function
+// converts the first row of a table to `<th>` elements
+// so that it renders correctly in Markdown.
+function autoTableHeaders(html: string): string {
+  const root = parse(html);
+  root.querySelectorAll('table').forEach((table) => {
+    const firstRow = table.querySelector("tr");
+    firstRow.querySelectorAll("td").forEach((cell) => {
+      cell.tagName = "th";
+    });
+  });
+  return root.toString();
+}
+
+// Convert HTML to GitHub-flavored Markdown
+function htmlToMd(html: string, options: object = {}): string {
+  const turndownService = new TurndownService({ ...options, ...defaultTurndownOptions });
+  turndownService.use(turndownPluginGfm.gfm);
+  return turndownService.turndown(html);
+}
+
+// Lint the Markdown and correct any issues
+function lint(md: string): string {
+  const lintResult = markdownlint.sync({ strings: { md } });
+  return markdownlintRuleHelpers.applyFixes(md, lintResult["md"]).trim();
+}
+
+// Converts a Word document to crisp, clean Markdown
+export async function convert(path: string, options: convertOptions = {}): Promise<string> {
+  const mammothResult = await mammoth.convertToHtml({ path: path }, options.mammoth);
+  const html = autoTableHeaders(mammothResult.value);
+  const md = htmlToMd(html, options.turndown);
+  const cleanedMd = lint(md);
+  return cleanedMd;
 }
