@@ -23,7 +23,7 @@ Convert Word documents to beautiful Markdown.
 
 ## How is this different from the original?
 
-TL;DR: This project is a complete rewrite, using modern tools and libraries, and is much faster and more reliable. The output should be the same or better.
+*TL;DR: This project is a complete rewrite, using modern tools and libraries, and is much faster and more reliable. The output should be the same or better. [Feedback welcome!](https://github.com/benbalter/word-to-markdown-js/issues/new)*
 
 ### The old way
 
@@ -46,7 +46,7 @@ Not only did this process require installing and shelling out to a huge binary (
 
 All three of these projects are actively maintained and heavily used, and allows us to convert the document faster, and entirely in JavaScript. Heck, I think theoretically, this could run in the browser for added privacy.
 
-It's still in beta, but so far, I've found the output to be better, with much less manual cleanup required.
+It's still in beta, but so far, I've found the output to be better, with much less manual cleanup required. Notice something is off? Please [open an issue](https://github.com/benbalter/word-to-markdown-js/issues/new).
 
 One note: This project does not yet attempt to guess heading levels based on font size. It could, but it's not yet implemented.
 
