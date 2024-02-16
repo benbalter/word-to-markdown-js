@@ -29,7 +29,7 @@ app.post('/raw', upload.single('doc'), async (req, res) => {
   return;
 });
 
-app.get('_healthcheck', (req, res) => {
+app.get('/_healthcheck', (_req, res) => {
   res.status(200).send('OK');
   return;
 });

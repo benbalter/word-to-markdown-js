@@ -53,7 +53,6 @@ function lint(md: string): string {
   return markdownlintRuleHelpers.applyFixes(md, lintResult["md"]).trim();
 }
 
-
 // Converts a Word document to crisp, clean Markdown
 export default async function convert(
   path: string,
