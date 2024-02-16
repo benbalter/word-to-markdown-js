@@ -23,6 +23,8 @@ Convert Word documents to beautiful Markdown.
 
 ## How is this different from the original?
 
+TL;DR: This project is a complete rewrite, using modern tools and libraries, and is much faster and more reliable. The output should be the same or better.
+
 ### The old way
 
 [The Original](https://github.com/benbalter/word-to-markdown) Word to Markdown is 10 years old. The conversion process was as follows:
