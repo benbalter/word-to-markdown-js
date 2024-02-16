@@ -9,48 +9,29 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-  AZURE_WEBAPP_NAME: word2md-beta
-  
 jobs:
   build:
     runs-on: 'ubuntu-latest'
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v2
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-    
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2 
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Log in to registry
+      uses: docker/login-action@v2
+      with:
+        registry: https://ghcr.io/
+        username: ${{ secrets.AzureAppService_ContainerUsername_48604bdeb6334a799d3b800be82b2ad4 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_0de77e36996b4e4cb896aebda5314680 }}
 
-      - name: Docker metadata
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      
-      - name: Build and push to docker
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=user/app:latest
-          cache-to: type=inline
+    - name: Build and push container image to registry
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        tags: ghcr.io/${{ secrets.AzureAppService_ContainerUsername_48604bdeb6334a799d3b800be82b2ad4 }}/benbalter/word-to-markdown-js:${{ github.sha }}
+        file: ./Dockerfile
 
   deploy:
     runs-on: ubuntu-latest
@@ -66,5 +47,5 @@ jobs:
       with:
         app-name: 'word2md-beta'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_fddae7cced8d41658d68938dd13072f5 }}
-        images: 'ghcr.io/${{ secrets.AzureAppService_ContainerUsername_5cda918782a74e999753bbe9d6765197 }}/benbalter/word-to-markdown-js:main'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_80ac71cab74643f190d0c94300256cf4 }}
+        images: 'ghcr.io/${{ secrets.AzureAppService_ContainerUsername_48604bdeb6334a799d3b800be82b2ad4 }}/benbalter/word-to-markdown-js:${{ github.sha }}'
