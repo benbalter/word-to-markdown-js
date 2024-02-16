@@ -25,7 +25,7 @@
     "fix": "eslint --fix --ext .ts . && prettier --write .",
     "build": "tsc",
     "lint": "eslint . --ext .ts --ext .mts",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage"
   },
   "author": "Ben Balter <ben@balter.com>",
   "license": "ISC",
