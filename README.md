@@ -47,3 +47,9 @@ All three of these projects are actively maintained and heavily used, and allows
 It's still in beta, but so far, I've found the output to be better, with much less manual cleanup required.
 
 One note: This project does not yet attempt to guess heading levels based on font size. It could, but it's not yet implemented.
+
+## Running Locally
+
+1. Clone the repo
+2. Run `npm install`
+3. Run `w2m path/to/your/file.docx`
