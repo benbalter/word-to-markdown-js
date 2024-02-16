@@ -66,4 +66,4 @@ jobs:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_6a424f6ebeb048e6a21d32d41d647b28 }}
-        images: '${{ env.registry }}${{ env.IMAGE_NAME }}:main'
+        images: '${{ env.REGISTRY }}${{ env.IMAGE_NAME }}:main'
