@@ -44,6 +44,7 @@
     "node": "20.10.0"
   },
   "bin": {
-    "w2m": "dist/cli.js"
-  }
+    "w2m": "build/src/cli.js"
+  },
+  "main": "build/src/main.js"
 }
