@@ -9,6 +9,11 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  AZURE_WEBAPP_NAME: word2md-beta
+  
 jobs:
   build:
     runs-on: 'ubuntu-latest'
