@@ -29,6 +29,11 @@ app.post('/raw', upload.single('doc'), async (req, res) => {
   return;
 });
 
+app.get('_healthcheck', (req, res) => {
+  res.status(200).send('OK');
+  return;
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
