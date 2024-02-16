@@ -3,7 +3,7 @@ name: Build image
 on:
   push:
     branches:
-      - 'main'
+      - 'mainz'
 
 env:
   REGISTRY: ghcr.io
@@ -59,7 +59,6 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'word2md-beta'
-          slot-name: 'production'
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main`
