@@ -23,14 +23,14 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: https://ghcr.io/
-        username: ${{ secrets.AzureAppService_ContainerUsername_812f13a6d2fa429c849055a4685b2065 }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_fefc8416033e4bd0a7f7067812824d90 }}
+        username: ${{ secrets.AzureAppService_ContainerUsername_d99ac42f129a404790ebe444d2209391 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_2c7b4f5c25614f379ba78da13b57508e }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: ghcr.io/${{ secrets.AzureAppService_ContainerUsername_812f13a6d2fa429c849055a4685b2065 }}/word-to-markdown-js:${{ github.sha }}
+        tags: ghcr.io/${{ secrets.AzureAppService_ContainerUsername_d99ac42f129a404790ebe444d2209391 }}/word-to-markdown-js:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
@@ -47,5 +47,5 @@ jobs:
       with:
         app-name: 'word2md-beta'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_58d77a0550834183879afde54af6a75d }}
-        images: 'ghcr.io/${{ secrets.AzureAppService_ContainerUsername_812f13a6d2fa429c849055a4685b2065 }}/word-to-markdown-js:${{ github.sha }}'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_6a424f6ebeb048e6a21d32d41d647b28 }}
+        images: 'ghcr.io/${{ secrets.AzureAppService_ContainerUsername_d99ac42f129a404790ebe444d2209391 }}/word-to-markdown-js:${{ github.sha }}'
