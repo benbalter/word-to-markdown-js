@@ -67,4 +67,4 @@ jobs:
         app-name: 'word2md-beta'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_fddae7cced8d41658d68938dd13072f5 }}
-        images: 'ghcr.io/${{ secrets.AzureAppService_ContainerUsername_5cda918782a74e999753bbe9d6765197 }}/benbalter/word-to-markdown-js:${{ github.sha }}'
+        images: 'ghcr.io/${{ secrets.AzureAppService_ContainerUsername_5cda918782a74e999753bbe9d6765197 }}/benbalter/word-to-markdown-js:main'
