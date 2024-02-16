@@ -11,15 +11,15 @@ interface convertOptions {
 }
 
 interface turndownOptions {
-  headingStyle?: "setext" | "atx";
-  codeBlockStyle?: "indented" | "fenced";
-  bulletListMarker?: "*" | "-" | "+";
+  headingStyle?: 'setext' | 'atx';
+  codeBlockStyle?: 'indented' | 'fenced';
+  bulletListMarker?: '*' | '-' | '+';
 }
 
 const defaultTurndownOptions: turndownOptions = {
   headingStyle: 'atx',
   codeBlockStyle: 'fenced',
-  bulletListMarker: "-"
+  bulletListMarker: '-',
 };
 
 // Turndown will add an empty header if the first row
@@ -29,9 +29,9 @@ const defaultTurndownOptions: turndownOptions = {
 function autoTableHeaders(html: string): string {
   const root = parse(html);
   root.querySelectorAll('table').forEach((table) => {
-    const firstRow = table.querySelector("tr");
-    firstRow.querySelectorAll("td").forEach((cell) => {
-      cell.tagName = "th";
+    const firstRow = table.querySelector('tr');
+    firstRow.querySelectorAll('td').forEach((cell) => {
+      cell.tagName = 'th';
     });
   });
   return root.toString();
@@ -39,7 +39,10 @@ function autoTableHeaders(html: string): string {
 
 // Convert HTML to GitHub-flavored Markdown
 function htmlToMd(html: string, options: object = {}): string {
-  const turndownService = new TurndownService({ ...options, ...defaultTurndownOptions });
+  const turndownService = new TurndownService({
+    ...options,
+    ...defaultTurndownOptions,
+  });
   turndownService.use(turndownPluginGfm.gfm);
   return turndownService.turndown(html).trim();
 }
@@ -50,9 +53,16 @@ function lint(md: string): string {
   return markdownlintRuleHelpers.applyFixes(md, lintResult["md"]).trim();
 }
 
+
 // Converts a Word document to crisp, clean Markdown
-export default async function convert(path: string, options: convertOptions = {}): Promise<string> {
-  const mammothResult = await mammoth.convertToHtml({ path: path }, options.mammoth);
+export default async function convert(
+  path: string,
+  options: convertOptions = {},
+): Promise<string> {
+  const mammothResult = await mammoth.convertToHtml(
+    { path: path },
+    options.mammoth,
+  );
   const html = autoTableHeaders(mammothResult.value);
   const md = htmlToMd(html, options.turndown);
   const cleanedMd = lint(md);

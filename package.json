@@ -23,6 +23,7 @@
     "typescript": "~5.3"
   },
   "scripts": {
+    "fix": "eslint --fix --ext .ts . && prettier --write .",
     "start": "node build/src/main.js",
     "clean": "rimraf coverage build tmp",
     "prebuild": "npm run lint",
@@ -30,7 +31,7 @@
     "build:watch": "tsc -w -p tsconfig.json",
     "build:release": "npm run clean && tsc -p tsconfig.release.json",
     "lint": "eslint . --ext .ts --ext .mts",
-    "test": "jest --coverage",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "prettier": "prettier --config .prettierrc --write .",
     "test:watch": "jest --watch"
   },

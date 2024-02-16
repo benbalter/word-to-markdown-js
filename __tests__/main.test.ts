@@ -9,15 +9,19 @@ const expectations = {
   p: 'This is paragraph text.',
   'multiple-headings':
     '# H1\n\nParagraph\n\n## H2\n\nParagraph\n\n### H3\n\nParagraph',
-  table: "| **Foo** | **Bar** |\n| --- | --- |\n| One | Two |\n| Three | Four |",
-  ul: "- One\n- Two\n- Three",
-  ol: "1. One\n2. Two\n3. Three",
-  "nested-ol": "1. One\n    1. Sub one\n    2. Sub two\n2. Two\n    1. Sub one\n        1. Sub sub one\n        2. Sub sub two\n    2. Sub two\n3. Three",
-  "nested-ul": "- One\n  - Sub one\n    - Sub sub one\n    - Sub sub two\n  - Sub two\n- Two",
-  "list-with-links": "[word-to-markdown](https://github.com/benbalter/word-to-markdown)\n\n- [word-to-markdown](https://github.com/benbalter/word-to-markdown)",
-  "comma after bold": "This is **bolded**, and text.",
-  "text after bold": "**This** is **bolded** _and_ text.", 
-  "file with space": "This is paragraph text."
+  table:
+    '| **Foo** | **Bar** |\n| --- | --- |\n| One | Two |\n| Three | Four |',
+  ul: '- One\n- Two\n- Three',
+  ol: '1. One\n2. Two\n3. Three',
+  'nested-ol':
+    '1. One\n    1. Sub one\n    2. Sub two\n2. Two\n    1. Sub one\n        1. Sub sub one\n        2. Sub sub two\n    2. Sub two\n3. Three',
+  'nested-ul':
+    '- One\n  - Sub one\n    - Sub sub one\n    - Sub sub two\n  - Sub two\n- Two',
+  'list-with-links':
+    '[word-to-markdown](https://github.com/benbalter/word-to-markdown)\n\n- [word-to-markdown](https://github.com/benbalter/word-to-markdown)',
+  'comma after bold': 'This is **bolded**, and text.',
+  'text after bold': '**This** is **bolded** _and_ text.',
+  'file with space': 'This is paragraph text.',
 };
 
 describe('main', () => {
