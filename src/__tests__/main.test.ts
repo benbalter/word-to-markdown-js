@@ -1,4 +1,4 @@
-import convert from '../src/main.js';
+import convert from '../main.js';
 
 // Map of fixtures and expected Markdown output
 const expectations = {
@@ -27,7 +27,7 @@ const expectations = {
 describe('main', () => {
   for (const [fixture, expected] of Object.entries(expectations)) {
     it(`should convert the "${fixture}" fixture to Markdown`, async () => {
-      const path = `__fixtures__/${fixture}.docx`;
+      const path = `src/__fixtures__/${fixture}.docx`;
       const md = await convert(path);
       expect(md).toEqual(expected);
     });
