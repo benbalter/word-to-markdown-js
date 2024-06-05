@@ -4,7 +4,6 @@ import * as mammoth from 'mammoth';
 import markdownlint from 'markdownlint';
 import markdownlintRuleHelpers from 'markdownlint-rule-helpers';
 import { parse } from 'node-html-parser';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 interface convertOptions {
   mammoth?: object;

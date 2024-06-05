@@ -18,7 +18,7 @@ app.post('/raw', upload.single('doc'), async (req: Request & { file: multer.File
     return;
   }
 
-    const md = await convert(req.file.path);
+  const md = await convert(req.file.path);
 
   res.status(200).send(md);
   return;

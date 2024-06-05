@@ -6,6 +6,7 @@ import remarkRehype from 'remark-rehype'
 import {unified} from 'unified'
 import remarkGfm from 'remark-gfm'
 import ClipboardJS from 'clipboard';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 async function handleFile() {
   const reader = new FileReader();
