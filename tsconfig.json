@@ -20,5 +20,5 @@
     "strictNullChecks": false,
     "esModuleInterop": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "__tests__/**/*"]
 }

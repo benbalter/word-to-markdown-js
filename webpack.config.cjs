@@ -1,20 +1,17 @@
-const webpack = require("webpack");
+const webpack = require('webpack');
 const nodeModulePrefixRe = /^node:/u;
 
 module.exports = {
-  entry: [
-    './src/index.ts',
-    './src/style.css'
-  ],
-  stats: {warnings:false},
+  entry: ['./src/index.ts', './src/style.css'],
+  stats: { warnings: false },
   module: {
-    unknownContextCritical: false, 
+    unknownContextCritical: false,
     rules: [
       { test: /\.ts$/, use: 'ts-loader', exclude: /node_modules/ },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader']
-      }
+        use: ['style-loader', 'css-loader'],
+      },
     ],
   },
   devServer: {
@@ -30,24 +27,24 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
     alias: {
-      "./main.js": "./main.ts",
+      './main.js': './main.ts',
     },
-    "fallback": {
-      "fs": false,
-      "os": false,
-      "path": false,
-      "util": false,
-      "url": require.resolve("url/")
-    }
+    fallback: {
+      fs: false,
+      os: false,
+      path: false,
+      util: false,
+      url: require.resolve('url/'),
+    },
   },
-  mode: "production",
-  "plugins": [
+  mode: 'production',
+  plugins: [
     new webpack.NormalModuleReplacementPlugin(
       nodeModulePrefixRe,
       (resource) => {
-        const module = resource.request.replace(nodeModulePrefixRe, "");
+        const module = resource.request.replace(nodeModulePrefixRe, '');
         resource.request = module;
-      }
+      },
     ),
   ],
 };

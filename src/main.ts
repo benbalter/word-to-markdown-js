@@ -50,7 +50,7 @@ function htmlToMd(html: string, options: object = {}): string {
 // Lint the Markdown and correct any issues
 function lint(md: string): string {
   const lintResult = markdownlint.sync({ strings: { md } });
-  return markdownlintRuleHelpers.applyFixes(md, lintResult["md"]).trim();
+  return markdownlintRuleHelpers.applyFixes(md, lintResult['md']).trim();
 }
 
 // Converts a Word document to crisp, clean Markdown
@@ -58,16 +58,13 @@ export default async function convert(
   input: string | ArrayBuffer,
   options: convertOptions = {},
 ): Promise<string> {
-  let inputObj: { path: string; } | { arrayBuffer: ArrayBuffer };
+  let inputObj: { path: string } | { arrayBuffer: ArrayBuffer };
   if (typeof input === 'string') {
     inputObj = { path: input };
   } else {
     inputObj = { arrayBuffer: input };
   }
-  const mammothResult = await mammoth.convertToHtml(
-    inputObj,
-    options.mammoth,
-  );
+  const mammothResult = await mammoth.convertToHtml(inputObj, options.mammoth);
   const html = autoTableHeaders(mammothResult.value);
   const md = htmlToMd(html, options.turndown);
   const cleanedMd = lint(md);

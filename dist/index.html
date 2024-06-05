@@ -2,8 +2,11 @@
 <html lang="en">
   <head>
     <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
     <title>Word to Markdown</title>
     <script src="./main.js"></script>
   </head>
@@ -16,7 +19,9 @@
             <h3>Step 1</h3>
             <h4>Upload a <code>.docx</code> or <code>.doc</code> file</h4>
             <p class="text-muted">Drag-and-drop the file below to upload.</p>
-            <p class="text-muted">Google doc? File → Download as → <code>.docx</code>.</p>
+            <p class="text-muted">
+              Google doc? File → Download as → <code>.docx</code>.
+            </p>
           </div>
           <div class="col">
             <h3>Step 2</h3>
@@ -34,18 +39,23 @@ Paragraph
 Paragraph
         </code></pre>
           </div>
-        
+
           <div class="col">
             <h3>Step 3</h3>
             <h4>???</h4>
           </div>
-        
         </div>
         <div class="row">
           <form>
             <div class="form-group">
-              <input type="file" id="file" class="form-control-file p-2 border" />
-              <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+              <input
+                type="file"
+                id="file"
+                class="form-control-file p-2 border"
+              />
+              <button type="submit" class="btn btn-primary btn-lg">
+                Submit
+              </button>
             </div>
           </form>
         </div>
@@ -54,27 +64,49 @@ Paragraph
         <h2>Results of converting <span id="filename"></span></h2>
 
         <div class="moar">
-          <button id="copy-button" type="button" class="btn btn-outline-primary" data-clipboard-target="#output">Copy markdown to clipboard</button>
+          <button
+            id="copy-button"
+            type="button"
+            class="btn btn-outline-primary"
+            data-clipboard-target="#output"
+          >
+            Copy markdown to clipboard
+          </button>
         </div>
 
         <div class="row mt-3">
           <div class="col-6">
             <h3>Markdown</h3>
-            <pre class="bg-light border text-start p-2 pre-scrollable"><code id="output" class="force-select-all"></code></pre>
+            <pre
+              class="bg-light border text-start p-2 pre-scrollable"
+            ><code id="output" class="force-select-all"></code></pre>
           </div>
           <div class="col-6">
             <h3>Rendered</h3>
-            <div id="rendered" class="bg-light border text-start pre-scrollable py-1 px-2">
-            </div>
+            <div
+              id="rendered"
+              class="bg-light border text-start pre-scrollable py-1 px-2"
+            ></div>
           </div>
         </div>
       </div>
       <nav class="nav justify-content-center mt-2">
-        <a href="https://github.com/benbalter/word-to-markdown-js/issues" class="nav-link">Feedback</a>
-        <a href="https://github.com/benbalter/word-to-markdown-js" class="nav-link">Source</a>
-        <a href="https://github.com/benbalter/word-to-markdown-js?tab=readme-ov-file#a-note-on-privacy" class="nav-link">Privacy</a>
+        <a
+          href="https://github.com/benbalter/word-to-markdown-js/issues"
+          class="nav-link"
+          >Feedback</a
+        >
+        <a
+          href="https://github.com/benbalter/word-to-markdown-js"
+          class="nav-link"
+          >Source</a
+        >
+        <a
+          href="https://github.com/benbalter/word-to-markdown-js?tab=readme-ov-file#a-note-on-privacy"
+          class="nav-link"
+          >Privacy</a
+        >
       </nav>
-      </div>
-    </body>
-  </div>
+    </div>
+  </body>
 </html>

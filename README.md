@@ -4,24 +4,24 @@ Convert Word documents to beautiful Markdown. Via command line or in your browse
 
 ## Supports
 
-* Paragraphs
-* Numbered lists
-* Bullet lists
-* Nested Lists
-* Headings
-* Lists
-* Tables
-* Footnotes and endnotes
-* Images
-* Bold, italics, underlines, strikethrough, superscript and subscript.
-* Links
-* Line breaks
-* Text boxes
-* Comments
+- Paragraphs
+- Numbered lists
+- Bullet lists
+- Nested Lists
+- Headings
+- Lists
+- Tables
+- Footnotes and endnotes
+- Images
+- Bold, italics, underlines, strikethrough, superscript and subscript.
+- Links
+- Line breaks
+- Text boxes
+- Comments
 
 ## How is this different from the original?
 
-*TL;DR: This project is a complete rewrite, using modern tools and libraries, and is much faster and more reliable. The output should be the same or better. [Feedback welcome!](https://github.com/benbalter/word-to-markdown-js/issues/new)*
+_TL;DR: This project is a complete rewrite, using modern tools and libraries, and is much faster and more reliable. The output should be the same or better. [Feedback welcome!](https://github.com/benbalter/word-to-markdown-js/issues/new)_
 
 ## A note on privacy
 
@@ -48,7 +48,7 @@ You can also run Word to Markdown as an HTTP API server, where you can make requ
 
 `npm run server`
 
-The server exposes a `POST /raw` endpoint, which returns the converted Markdown. 
+The server exposes a `POST /raw` endpoint, which returns the converted Markdown.
 
 ## More context
 
@@ -78,4 +78,3 @@ All three of these projects are actively maintained and heavily used, and allows
 It's still in beta, but so far, I've found the output to be better, with much less manual cleanup required. Notice something is off? Please [open an issue](https://github.com/benbalter/word-to-markdown-js/issues/new).
 
 One note: This project does not yet attempt to guess heading levels based on font size. It could, but it's not yet implemented.
-

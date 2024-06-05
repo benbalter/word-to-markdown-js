@@ -1,23 +1,23 @@
-import convert from './main.js'
-import rehypeSanitize from 'rehype-sanitize'
-import rehypeStringify from 'rehype-stringify'
-import remarkParse from 'remark-parse'
-import remarkRehype from 'remark-rehype'
-import {unified} from 'unified'
-import remarkGfm from 'remark-gfm'
+import convert from './main.js';
+import rehypeSanitize from 'rehype-sanitize';
+import rehypeStringify from 'rehype-stringify';
+import remarkParse from 'remark-parse';
+import remarkRehype from 'remark-rehype';
+import { unified } from 'unified';
+import remarkGfm from 'remark-gfm';
 import ClipboardJS from 'clipboard';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-async function handleFile() {
+async function handleFile(): Promise<void> {
   const reader = new FileReader();
   const file = this.files[0];
   reader.readAsArrayBuffer(file);
-  reader.onload = async () => {
+  reader.onload = async (): Promise<void> => {
     new ClipboardJS('#copy-button');
 
     const md = await convert(reader.result);
 
-    const outputElement = document.getElementById("output");
+    const outputElement = document.getElementById('output');
     outputElement.innerText = md;
 
     const html = await unified()
@@ -26,23 +26,23 @@ async function handleFile() {
       .use(remarkRehype)
       .use(rehypeSanitize)
       .use(rehypeStringify)
-      .process(md)
+      .process(md);
 
-    const renderedElement = document.getElementById("rendered");
+    const renderedElement = document.getElementById('rendered');
     renderedElement.innerHTML = String(html);
 
-    const filenameElement = document.getElementById("filename");
+    const filenameElement = document.getElementById('filename');
     filenameElement.innerText = file.name;
 
-    const inputElement = document.getElementById("input");
-    inputElement.classList.add("d-none");
+    const inputElement = document.getElementById('input');
+    inputElement.classList.add('d-none');
 
-    const resultsElement = document.getElementById("results");
-    resultsElement.classList.remove("d-none");
+    const resultsElement = document.getElementById('results');
+    resultsElement.classList.remove('d-none');
   };
 }
 
-document.addEventListener("DOMContentLoaded", (_event) => {
-  const inputElement = document.getElementById("file");
-  inputElement.addEventListener("change", handleFile, false);
-});  
+document.addEventListener('DOMContentLoaded', () => {
+  const inputElement = document.getElementById('file');
+  inputElement.addEventListener('change', handleFile, false);
+});
