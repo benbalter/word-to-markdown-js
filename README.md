@@ -1,6 +1,6 @@
 # Word to Markdown
 
-Convert Word documents to beautiful Markdown. An even better version of the original [`word-to-markdown`](https://github.com/benbalter/word-to-markdown).
+Convert Word documents to beautiful Markdown. Via command line or in your browser. An even better version of the original [`word-to-markdown`](https://github.com/benbalter/word-to-markdown).
 
 ## Supports
 
