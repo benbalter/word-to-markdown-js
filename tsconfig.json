@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "target": "es2022",
+    "target": "ES6",
     "module": "node16",
     "lib": ["ES2022", "DOM"],
     "moduleResolution": "node16",
-    "rootDir": ".",
+    "rootDir": "./src",
     "outDir": "build",
     "allowSyntheticDefaultImports": true,
     "importHelpers": true,
@@ -20,5 +20,5 @@
     "strictNullChecks": false,
     "esModuleInterop": true
   },
-  "include": ["src/**/*", "__tests__/**/*"]
+  "include": ["src/**/*"]
 }

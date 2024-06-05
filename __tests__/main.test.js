@@ -1,3 +1,4 @@
+import { __awaiter } from "tslib";
 import convert from '../src/main.js';
 // Map of fixtures and expected Markdown output
 const expectations = {
@@ -19,11 +20,11 @@ const expectations = {
 };
 describe('main', () => {
     for (const [fixture, expected] of Object.entries(expectations)) {
-        it(`should convert the "${fixture}" fixture to Markdown`, async () => {
+        it(`should convert the "${fixture}" fixture to Markdown`, () => __awaiter(void 0, void 0, void 0, function* () {
             const path = `__fixtures__/${fixture}.docx`;
-            const md = await convert(path);
+            const md = yield convert(path);
             expect(md).toEqual(expected);
-        });
+        }));
     }
 });
 //# sourceMappingURL=main.test.js.map

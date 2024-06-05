@@ -1,9 +1,11 @@
+import { __awaiter } from "tslib";
 import TurndownService from '@joplin/turndown';
 import * as turndownPluginGfm from '@joplin/turndown-plugin-gfm';
 import * as mammoth from 'mammoth';
 import markdownlint from 'markdownlint';
 import markdownlintRuleHelpers from 'markdownlint-rule-helpers';
 import { parse } from 'node-html-parser';
+import 'bootstrap/dist/css/bootstrap.min.css';
 const defaultTurndownOptions = {
     headingStyle: 'atx',
     codeBlockStyle: 'fenced',
@@ -25,10 +27,7 @@ function autoTableHeaders(html) {
 }
 // Convert HTML to GitHub-flavored Markdown
 function htmlToMd(html, options = {}) {
-    const turndownService = new TurndownService({
-        ...options,
-        ...defaultTurndownOptions,
-    });
+    const turndownService = new TurndownService(Object.assign(Object.assign({}, options), defaultTurndownOptions));
     turndownService.use(turndownPluginGfm.gfm);
     return turndownService.turndown(html).trim();
 }
@@ -38,11 +37,20 @@ function lint(md) {
     return markdownlintRuleHelpers.applyFixes(md, lintResult["md"]).trim();
 }
 // Converts a Word document to crisp, clean Markdown
-export default async function convert(path, options = {}) {
-    const mammothResult = await mammoth.convertToHtml({ path: path }, options.mammoth);
-    const html = autoTableHeaders(mammothResult.value);
-    const md = htmlToMd(html, options.turndown);
-    const cleanedMd = lint(md);
-    return cleanedMd;
+export default function convert(input, options = {}) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let inputObj;
+        if (typeof input === 'string') {
+            inputObj = { path: input };
+        }
+        else {
+            inputObj = { arrayBuffer: input };
+        }
+        const mammothResult = yield mammoth.convertToHtml(inputObj, options.mammoth);
+        const html = autoTableHeaders(mammothResult.value);
+        const md = htmlToMd(html, options.turndown);
+        const cleanedMd = lint(md);
+        return cleanedMd;
+    });
 }
 //# sourceMappingURL=main.js.map

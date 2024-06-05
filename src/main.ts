@@ -4,6 +4,7 @@ import * as mammoth from 'mammoth';
 import markdownlint from 'markdownlint';
 import markdownlintRuleHelpers from 'markdownlint-rule-helpers';
 import { parse } from 'node-html-parser';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 interface convertOptions {
   mammoth?: object;
@@ -55,11 +56,17 @@ function lint(md: string): string {
 
 // Converts a Word document to crisp, clean Markdown
 export default async function convert(
-  path: string,
+  input: string | ArrayBuffer,
   options: convertOptions = {},
 ): Promise<string> {
+  let inputObj: { path: string; } | { arrayBuffer: ArrayBuffer };
+  if (typeof input === 'string') {
+    inputObj = { path: input };
+  } else {
+    inputObj = { arrayBuffer: input };
+  }
   const mammothResult = await mammoth.convertToHtml(
-    { path: path },
+    inputObj,
     options.mammoth,
   );
   const html = autoTableHeaders(mammothResult.value);
