@@ -31,7 +31,7 @@
     "fix": "eslint --fix --ext .ts . && prettier --write .",
     "build": "tsc",
     "build:web": "webpack build",
-    "serve": "webpack serve --open",
+    "server:web": "webpack serve --open",
     "lint": "eslint . --ext .ts --ext .mts",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "all": "npm run lint && npm run test && npm run build",
