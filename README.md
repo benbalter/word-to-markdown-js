@@ -1,8 +1,6 @@
 # Word to Markdown
 
-Convert Word documents to beautiful Markdown.
-
-**Status: Working Beta**
+Convert Word documents to beautiful Markdown. An even better version of the original [`word-to-markdown`](https://github.com/benbalter/word-to-markdown).
 
 ## Supports
 
@@ -24,6 +22,37 @@ Convert Word documents to beautiful Markdown.
 ## How is this different from the original?
 
 *TL;DR: This project is a complete rewrite, using modern tools and libraries, and is much faster and more reliable. The output should be the same or better. [Feedback welcome!](https://github.com/benbalter/word-to-markdown-js/issues/new)*
+
+## A note on privacy
+
+Word to Markdown can be run locally or in your browser. In either event, the conversion happens locally, and no information ever leaves your browser.
+
+## Running Locally
+
+## Get Setup
+
+1. Clone the repo
+2. Run `npm install`
+
+## Command line
+
+Run `w2m path/to/your/file.docx`
+
+## Web server (static HTML)
+
+`npm run server:web`
+
+## Web server (HTTP API)
+
+You can also run Word to Markdown as an HTTP API server, where you can make requests from elsewhere.
+
+`npm run server`
+
+The server exposes a `POST /raw` endpoint, which returns the converted Markdown. 
+
+## More context
+
+See the README of [the original Word to Markdown](https://github.com/benbalter/word-to-markdown?tab=readme-ov-file#the-problem) for the project's motivation.
 
 ### The old way
 
@@ -50,8 +79,3 @@ It's still in beta, but so far, I've found the output to be better, with much le
 
 One note: This project does not yet attempt to guess heading levels based on font size. It could, but it's not yet implemented.
 
-## Running Locally
-
-1. Clone the repo
-2. Run `npm install`
-3. Run `w2m path/to/your/file.docx`
