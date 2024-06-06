@@ -12,8 +12,6 @@ async function handleFile(): Promise<void> {
   const file = this.files[0];
   reader.readAsArrayBuffer(file);
   reader.onload = async (): Promise<void> => {
-    new ClipboardJS('#copy-button');
-
     const md = await convert(reader.result);
 
     const outputElement = document.getElementById('output');
@@ -44,4 +42,9 @@ async function handleFile(): Promise<void> {
 document.addEventListener('DOMContentLoaded', () => {
   const inputElement = document.getElementById('file');
   inputElement.addEventListener('change', handleFile, false);
+
+  const copyButton = document.getElementById('copy-button');
+  if (copyButton) {
+    new ClipboardJS('#copy-button');
+  }
 });
