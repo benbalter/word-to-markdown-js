@@ -2,7 +2,7 @@ const webpack = require('webpack');
 const nodeModulePrefixRe = /^node:/u;
 
 module.exports = {
-  entry: ['./src/index.ts', './src/style.css'],
+  entry: ['./src/index.ts'],
   stats: { warnings: false },
   module: {
     unknownContextCritical: false,
