@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
   inputElement.addEventListener('change', handleFile, false);
 
   const copyButton = document.getElementById('copy-button');
-  if (copyButton) {
+  if (copyButton !== null) {
     new ClipboardJS('#copy-button');
   }
 });
