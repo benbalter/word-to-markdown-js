@@ -11,7 +11,6 @@ const port = process.env.PORT || 3000;
 const upload = multer({ dest: os.tmpdir() });
 app.use(morgan('combined'));
 
-// @ts-ignore
 app.use(helmet());
 
 app.post(

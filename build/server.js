@@ -9,7 +9,6 @@ const app = express();
 const port = process.env.PORT || 3000;
 const upload = multer({ dest: os.tmpdir() });
 app.use(morgan('combined'));
-// @ts-ignore
 app.use(helmet());
 app.post('/raw', upload.single('doc'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!(req.file instanceof multer.File)) {
