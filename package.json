@@ -11,7 +11,7 @@
     "@types/node": "~20",
     "@types/turndown": "^5.0.4",
     "@typescript-eslint/eslint-plugin": "~6.15",
-    "@typescript-eslint/parser": "~6.15",
+    "@typescript-eslint/parser": "~8.4",
     "css-loader": "^7.1.2",
     "eslint": "~8.56",
     "eslint-config-prettier": "~9.1",
