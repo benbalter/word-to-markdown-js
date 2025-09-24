@@ -35,7 +35,8 @@
     "lint": "eslint . --ext .ts --ext .mts",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "all": "npm run lint && npm run test && npm run build",
-    "server": "node build/server.js"
+    "server": "node build/server.js",
+    "check-builds": "./scripts/check-builds.sh"
   },
   "author": "Ben Balter <ben@balter.com>",
   "license": "ISC",
