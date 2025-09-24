@@ -116,23 +116,6 @@ function removeUnicodeBullets(html: string): string {
   return root.toString();
 }
 
-// Remove unicode bullets from unnumbered lists to prevent double bullet points
-function removeUnicodeBullets(html: string): string {
-  const root = parse(html);
-  const unicodeBullets = ['•', '◦', '▪', '▫', '‣', '⁃', '∙', '·'];
-  const bulletRegex = new RegExp(`^\\s*[${unicodeBullets.map(b => b.replace(/[.*+?^${}()|[\\\]\\]/g, '\\$&')).join('')}]\\s*`);
-  
-  root.querySelectorAll('ul li').forEach((listItem) => {
-    const textContent = listItem.innerHTML;
-    const cleanedContent = textContent.replace(bulletRegex, '');
-    if (cleanedContent !== textContent) {
-      listItem.innerHTML = cleanedContent;
-    }
-  });
-  
-  return root.toString();
-}
-
 // Convert HTML to GitHub-flavored Markdown
 export function htmlToMd(html: string, options: object = {}): string {
   // Decode HTML entities before conversion
