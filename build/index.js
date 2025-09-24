@@ -7,14 +7,12 @@ import remarkRehype from 'remark-rehype';
 import { unified } from 'unified';
 import remarkGfm from 'remark-gfm';
 import ClipboardJS from 'clipboard';
-import 'bootstrap/dist/css/bootstrap.min.css';
 function handleFile() {
     return __awaiter(this, void 0, void 0, function* () {
         const reader = new FileReader();
         const file = this.files[0];
         reader.readAsArrayBuffer(file);
         reader.onload = () => __awaiter(this, void 0, void 0, function* () {
-            new ClipboardJS('#copy-button');
             const md = yield convert(reader.result);
             const outputElement = document.getElementById('output');
             outputElement.innerText = md;
@@ -39,5 +37,9 @@ function handleFile() {
 document.addEventListener('DOMContentLoaded', () => {
     const inputElement = document.getElementById('file');
     inputElement.addEventListener('change', handleFile, false);
+    const copyButton = document.getElementById('copy-button');
+    if (copyButton !== null) {
+        new ClipboardJS('#copy-button');
+    }
 });
 //# sourceMappingURL=index.js.map
