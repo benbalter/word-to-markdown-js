@@ -22,6 +22,64 @@ const defaultTurndownOptions: turndownOptions = {
   bulletListMarker: '-',
 };
 
+// Decode HTML entities in text content
+function decodeHtmlEntities(html: string): string {
+  const decodeMap: { [key: string]: string } = {
+    '&amp;': '&',
+    // Don't decode &lt; and &gt; in our custom decoder
+    // Let Turndown handle them appropriately based on context
+    '&quot;': '"',
+    '&#39;': "'",
+    '&#x27;': "'",
+    '&apos;': "'",
+    '&nbsp;': ' ',
+    '&copy;': '©',
+    '&reg;': '®',
+    '&trade;': '™',
+    '&hellip;': '…',
+    '&mdash;': '—',
+    '&ndash;': '–',
+    '&lsquo;': '\u2018',
+    '&rsquo;': '\u2019',
+    '&ldquo;': '\u201C',
+    '&rdquo;': '\u201D'
+  };
+  
+  function decodeOnce(text: string): string {
+    return text.replace(/&[#\w]+;/g, (entity) => {
+      // Handle named entities
+      if (decodeMap[entity]) {
+        return decodeMap[entity];
+      }
+      
+      // Handle numeric entities &#123;
+      const numericMatch = entity.match(/^&#(\d+);$/);
+      if (numericMatch) {
+        return String.fromCharCode(parseInt(numericMatch[1], 10));
+      }
+      
+      // Handle hex entities &#x1A;
+      const hexMatch = entity.match(/^&#x([0-9a-fA-F]+);$/i);
+      if (hexMatch) {
+        return String.fromCharCode(parseInt(hexMatch[1], 16));
+      }
+      
+      // Return original if not recognized
+      return entity;
+    });
+  }
+  
+  // Keep decoding until no more entities are found (handles double/triple encoding)
+  let decoded = html;
+  let prevDecoded;
+  do {
+    prevDecoded = decoded;
+    decoded = decodeOnce(decoded);
+  } while (decoded !== prevDecoded && decoded.includes('&'));
+  
+  return decoded;
+}
+
 // Turndown will add an empty header if the first row
 // of the table isn't `<th>` elements. This function
 // converts the first row of a table to `<th>` elements
@@ -81,8 +139,12 @@ function removeUnicodeBullets(html: string): string {
 }
 
 // Convert HTML to GitHub-flavored Markdown
-function htmlToMd(html: string, options: object = {}): string {
-  const cleanedHtml = removeUnicodeBullets(html);
+export function htmlToMd(html: string, options: object = {}): string {
+  // Decode HTML entities before conversion
+  const decodedHtml = decodeHtmlEntities(html);
+  // Remove unicode bullets from unnumbered lists
+  const cleanedHtml = removeUnicodeBullets(decodedHtml);
+  
   const turndownService = new TurndownService({
     ...options,
     ...defaultTurndownOptions,
@@ -96,6 +158,14 @@ function convertNumberedListsToBullets(md: string): string {
   // Replace numbered list items with bullet list items
   // This regex matches lines that start with optional whitespace, a number, a dot, and a space
   return md.replace(/^(\s*)(\d+)\.\s/gm, '$1- ');
+}
+
+// Convert smart quotes to ASCII equivalents
+function convertSmartQuotes(text: string): string {
+  return text
+    .replace(/[\u201C\u201D]/g, '"') // Replace left and right double quotation marks
+    .replace(/[\u2018\u2019]/g, "'") // Replace left and right single quotation marks
+    .replace(/[\u2013\u2014]/g, '-'); // Replace en dash and em dash with hyphen
 }
 
 // Lint the Markdown and correct any issues
@@ -119,6 +189,7 @@ export default async function convert(
   const html = autoTableHeaders(mammothResult.value);
   const md = htmlToMd(html, options.turndown);
   const mdWithBullets = convertNumberedListsToBullets(md);
-  const cleanedMd = lint(mdWithBullets);
+  const mdWithAsciiQuotes = convertSmartQuotes(mdWithBullets);
+  const cleanedMd = lint(mdWithAsciiQuotes);
   return cleanedMd;
 }
