@@ -47,6 +47,16 @@ function htmlToMd(html: string, options: object = {}): string {
   return turndownService.turndown(html).trim();
 }
 
+// Remove unicode non-breaking spaces and replace with regular spaces
+function removeNonBreakingSpaces(md: string): string {
+  return md
+    .replace(/\u00A0/g, ' ') // Non-breaking space
+    .replace(/\u2007/g, ' ') // Figure space
+    .replace(/\u202F/g, ' ') // Narrow no-break space
+    .replace(/\u2060/g, '') // Word joiner (zero-width non-breaking space)
+    .replace(/\uFEFF/g, ''); // Zero-width no-break space (BOM)
+}
+
 // Lint the Markdown and correct any issues
 function lint(md: string): string {
   const lintResult = markdownlint.sync({ strings: { md } });
@@ -67,6 +77,7 @@ export default async function convert(
   const mammothResult = await mammoth.convertToHtml(inputObj, options.mammoth);
   const html = autoTableHeaders(mammothResult.value);
   const md = htmlToMd(html, options.turndown);
-  const cleanedMd = lint(md);
+  const mdWithoutNbsp = removeNonBreakingSpaces(md);
+  const cleanedMd = lint(mdWithoutNbsp);
   return cleanedMd;
 }

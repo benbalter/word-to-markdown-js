@@ -30,6 +30,15 @@ function htmlToMd(html, options = {}) {
     turndownService.use(turndownPluginGfm.gfm);
     return turndownService.turndown(html).trim();
 }
+// Remove unicode non-breaking spaces and replace with regular spaces
+function removeNonBreakingSpaces(md) {
+    return md
+        .replace(/\u00A0/g, ' ') // Non-breaking space
+        .replace(/\u2007/g, ' ') // Figure space
+        .replace(/\u202F/g, ' ') // Narrow no-break space
+        .replace(/\u2060/g, '') // Word joiner (zero-width non-breaking space)
+        .replace(/\uFEFF/g, ''); // Zero-width no-break space (BOM)
+}
 // Lint the Markdown and correct any issues
 function lint(md) {
     const lintResult = markdownlint.sync({ strings: { md } });
@@ -48,7 +57,8 @@ export default function convert(input, options = {}) {
         const mammothResult = yield mammoth.convertToHtml(inputObj, options.mammoth);
         const html = autoTableHeaders(mammothResult.value);
         const md = htmlToMd(html, options.turndown);
-        const cleanedMd = lint(md);
+        const mdWithoutNbsp = removeNonBreakingSpaces(md);
+        const cleanedMd = lint(mdWithoutNbsp);
         return cleanedMd;
     });
 }
