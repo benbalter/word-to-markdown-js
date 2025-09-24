@@ -50,6 +50,15 @@ You can also run Word to Markdown as an HTTP API server, where you can make requ
 
 The server exposes a `POST /raw` endpoint, which returns the converted Markdown.
 
+## Self-Hosting
+
+To self-host Word to Markdown using Docker Compose:
+
+1. Clone the repository
+2. Run `npm install && npm run build:web`
+3. Run `docker-compose up -d`
+4. Access at http://localhost:3000
+
 ## More context
 
 See the README of [the original Word to Markdown](https://github.com/benbalter/word-to-markdown?tab=readme-ov-file#the-problem) for the project's motivation.
