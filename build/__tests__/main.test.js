@@ -26,5 +26,80 @@ describe('main', () => {
             expect(md).toEqual(expected);
         }));
     }
+    // Tests for table divider bug fix
+    describe('table divider bug fix', () => {
+        // Import modules for direct testing
+        const testHtmlToMd = (html) => __awaiter(void 0, void 0, void 0, function* () {
+            const { parse } = yield import('node-html-parser');
+            const TurndownService = (yield import('@joplin/turndown')).default;
+            const turndownPluginGfm = yield import('@joplin/turndown-plugin-gfm');
+            // Apply autoTableHeaders logic
+            const root = parse(html);
+            root.querySelectorAll('table').forEach((table) => {
+                const firstRow = table.querySelector('tr');
+                if (!firstRow)
+                    return;
+                // If first row already has TH elements, leave it alone
+                if (firstRow.querySelector('th'))
+                    return;
+                // Check if first row is empty or has only empty cells
+                const cells = firstRow.querySelectorAll('td');
+                const isEmpty = cells.length === 0 ||
+                    cells.every(cell => { var _a; return !((_a = cell.textContent) === null || _a === void 0 ? void 0 : _a.trim()); });
+                if (isEmpty) {
+                    // Remove empty first row and find the first non-empty row to convert
+                    firstRow.remove();
+                    const nextRow = table.querySelector('tr');
+                    if (nextRow) {
+                        nextRow.querySelectorAll('td').forEach((cell) => {
+                            cell.tagName = 'th';
+                        });
+                    }
+                }
+                else {
+                    // Convert first row TD elements to TH
+                    cells.forEach((cell) => {
+                        cell.tagName = 'th';
+                    });
+                }
+            });
+            const processedHtml = root.toString();
+            const turndownService = new TurndownService({
+                headingStyle: 'atx',
+                codeBlockStyle: 'fenced',
+                bulletListMarker: '-',
+            });
+            turndownService.use(turndownPluginGfm.gfm);
+            return turndownService.turndown(processedHtml);
+        });
+        it('should remove empty first row and convert next row to headers', () => __awaiter(void 0, void 0, void 0, function* () {
+            const html = '<table><tr></tr><tr><td>D1</td><td>D2</td></tr></table>';
+            const md = yield testHtmlToMd(html);
+            expect(md).toEqual('| D1  | D2  |\n| --- | --- |');
+            expect(md).not.toContain('|     |     |'); // No empty divider row
+        }));
+        it('should remove first row with empty cells and convert next row to headers', () => __awaiter(void 0, void 0, void 0, function* () {
+            const html = '<table><tr><td></td><td></td></tr><tr><td>D1</td><td>D2</td></tr></table>';
+            const md = yield testHtmlToMd(html);
+            expect(md).toEqual('| D1  | D2  |\n| --- | --- |');
+            expect(md).not.toContain('|     |     |'); // No empty divider row
+        }));
+        it('should remove first row with whitespace-only cells', () => __awaiter(void 0, void 0, void 0, function* () {
+            const html = '<table><tr><td>   </td><td> \n </td></tr><tr><td>D1</td><td>D2</td></tr></table>';
+            const md = yield testHtmlToMd(html);
+            expect(md).toEqual('| D1  | D2  |\n| --- | --- |');
+            expect(md).not.toContain('|     |     |'); // No empty divider row
+        }));
+        it('should not modify tables that already have TH elements', () => __awaiter(void 0, void 0, void 0, function* () {
+            const html = '<table><tr><th>H1</th><th>H2</th></tr><tr><td>D1</td><td>D2</td></tr></table>';
+            const md = yield testHtmlToMd(html);
+            expect(md).toEqual('| H1  | H2  |\n| --- | --- |\n| D1  | D2  |');
+        }));
+        it('should convert normal TD headers correctly', () => __awaiter(void 0, void 0, void 0, function* () {
+            const html = '<table><tr><td>H1</td><td>H2</td></tr><tr><td>D1</td><td>D2</td></tr></table>';
+            const md = yield testHtmlToMd(html);
+            expect(md).toEqual('| H1  | H2  |\n| --- | --- |\n| D1  | D2  |');
+        }));
+    });
 });
 //# sourceMappingURL=main.test.js.map
