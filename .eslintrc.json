@@ -18,10 +18,7 @@
     "prettier"
   ],
   "rules": {
-    // The following rule is enabled only to supplement the inline suppression
-    // examples, and because it is not a recommended rule, you should either
-    // disable it, or understand what it enforces.
-    // https://typescript-eslint.io/rules/explicit-function-return-type/
-    "@typescript-eslint/explicit-function-return-type": "warn"
+    "@typescript-eslint/prefer-ts-expect-error": "warn",
+    "@typescript-eslint/ban-ts-comment": "warn"
   }
 }

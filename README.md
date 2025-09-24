@@ -1,29 +1,67 @@
 # Word to Markdown
 
-Convert Word documents to beautiful Markdown.
-
-**Status: Working Beta**
+Convert Word documents to beautiful Markdown. Via command line or in your browser. An even better version of the original [`word-to-markdown`](https://github.com/benbalter/word-to-markdown).
 
 ## Supports
 
-* Paragraphs
-* Numbered lists
-* Bullet lists
-* Nested Lists
-* Headings
-* Lists
-* Tables
-* Footnotes and endnotes
-* Images
-* Bold, italics, underlines, strikethrough, superscript and subscript.
-* Links
-* Line breaks
-* Text boxes
-* Comments
+- Paragraphs
+- Numbered lists
+- Bullet lists
+- Nested Lists
+- Headings
+- Lists
+- Tables
+- Footnotes and endnotes
+- Images
+- Bold, italics, underlines, strikethrough, superscript and subscript.
+- Links
+- Line breaks
+- Text boxes
+- Comments
 
 ## How is this different from the original?
 
-*TL;DR: This project is a complete rewrite, using modern tools and libraries, and is much faster and more reliable. The output should be the same or better. [Feedback welcome!](https://github.com/benbalter/word-to-markdown-js/issues/new)*
+_TL;DR: This project is a complete rewrite, using modern tools and libraries, and is much faster and more reliable. The output should be the same or better. [Feedback welcome!](https://github.com/benbalter/word-to-markdown-js/issues/new)_
+
+## A note on privacy
+
+Word to Markdown can be run locally or in your browser. In either event, the conversion happens locally, and no information ever leaves your browser.
+
+## Running Locally
+
+## Get Setup
+
+1. Clone the repo
+2. Run `npm install`
+
+## Command line
+
+Run `w2m path/to/your/file.docx`
+
+## Web server (static HTML)
+
+`npm run server:web`
+
+## Web server (HTTP API)
+
+You can also run Word to Markdown as an HTTP API server, where you can make requests from elsewhere.
+
+`npm run server`
+
+The server exposes a `POST /raw` endpoint, which returns the converted Markdown.
+
+## Self-Hosting
+
+To self-host Word to Markdown using Docker Compose:
+
+1. Clone the repository
+2. Run `npm install && npm run build:web`
+3. Run `docker-compose up -d`
+4. Access at http://localhost:3000
+
+## More context
+
+See the README of [the original Word to Markdown](https://github.com/benbalter/word-to-markdown?tab=readme-ov-file#the-problem) for the project's motivation.
 
 ### The old way
 
@@ -49,9 +87,3 @@ All three of these projects are actively maintained and heavily used, and allows
 It's still in beta, but so far, I've found the output to be better, with much less manual cleanup required. Notice something is off? Please [open an issue](https://github.com/benbalter/word-to-markdown-js/issues/new).
 
 One note: This project does not yet attempt to guess heading levels based on font size. It could, but it's not yet implemented.
-
-## Running Locally
-
-1. Clone the repo
-2. Run `npm install`
-3. Run `w2m path/to/your/file.docx`

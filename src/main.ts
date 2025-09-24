@@ -1,8 +1,8 @@
 import TurndownService from '@joplin/turndown';
 import * as turndownPluginGfm from '@joplin/turndown-plugin-gfm';
 import * as mammoth from 'mammoth';
-import markdownlint from 'markdownlint';
-import markdownlintRuleHelpers from 'markdownlint-rule-helpers';
+import * as markdownlint from 'markdownlint/sync';
+import { applyFixes } from 'markdownlint';
 import { parse } from 'node-html-parser';
 
 interface convertOptions {
@@ -49,19 +49,22 @@ function htmlToMd(html: string, options: object = {}): string {
 
 // Lint the Markdown and correct any issues
 function lint(md: string): string {
-  const lintResult = markdownlint.sync({ strings: { md } });
-  return markdownlintRuleHelpers.applyFixes(md, lintResult["md"]).trim();
+  const lintResult = markdownlint.lint({ strings: { md } });
+  return applyFixes(md, lintResult['md']).trim();
 }
 
 // Converts a Word document to crisp, clean Markdown
 export default async function convert(
-  path: string,
+  input: string | ArrayBuffer,
   options: convertOptions = {},
 ): Promise<string> {
-  const mammothResult = await mammoth.convertToHtml(
-    { path: path },
-    options.mammoth,
-  );
+  let inputObj: { path: string } | { arrayBuffer: ArrayBuffer };
+  if (typeof input === 'string') {
+    inputObj = { path: input };
+  } else {
+    inputObj = { arrayBuffer: input };
+  }
+  const mammothResult = await mammoth.convertToHtml(inputObj, options.mammoth);
   const html = autoTableHeaders(mammothResult.value);
   const md = htmlToMd(html, options.turndown);
   const cleanedMd = lint(md);
