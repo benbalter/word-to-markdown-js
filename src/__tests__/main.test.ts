@@ -24,6 +24,8 @@ const expectations = {
   'file with space': 'This is paragraph text.',
   'html-entities':
     'Ben & Jerry\'s ice cream costs $5 < $10. Use "quotes" for text.',
+  'small-medium-large':
+    'Large text\n\nParagraph\n\nMedium Text\n\nParagraph\n\nSmall text\n\nParagraph',
 };
 
 describe('main', () => {
