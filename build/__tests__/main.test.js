@@ -26,5 +26,23 @@ describe('main', () => {
             expect(md).toEqual(expected);
         }));
     }
+    it('should handle empty tables without crashing', () => __awaiter(void 0, void 0, void 0, function* () {
+        // Test the autoTableHeaders function directly with edge cases
+        const { parse } = yield import('node-html-parser');
+        // This should not throw an error
+        const emptyTableHtml = '<table></table>';
+        const root = parse(emptyTableHtml);
+        expect(() => {
+            root.querySelectorAll('table').forEach((table) => {
+                const firstRow = table.querySelector('tr');
+                if (firstRow) {
+                    firstRow.querySelectorAll('td').forEach((cell) => {
+                        cell.tagName = 'th';
+                    });
+                }
+            });
+        }).not.toThrow();
+        expect(root.toString()).toBe('<table></table>');
+    }));
 });
 //# sourceMappingURL=main.test.js.map

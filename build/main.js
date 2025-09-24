@@ -18,9 +18,11 @@ function autoTableHeaders(html) {
     const root = parse(html);
     root.querySelectorAll('table').forEach((table) => {
         const firstRow = table.querySelector('tr');
-        firstRow.querySelectorAll('td').forEach((cell) => {
-            cell.tagName = 'th';
-        });
+        if (firstRow) {
+            firstRow.querySelectorAll('td').forEach((cell) => {
+                cell.tagName = 'th';
+            });
+        }
     });
     return root.toString();
 }
