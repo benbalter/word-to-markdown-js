@@ -18,9 +18,31 @@ function autoTableHeaders(html) {
     const root = parse(html);
     root.querySelectorAll('table').forEach((table) => {
         const firstRow = table.querySelector('tr');
-        firstRow.querySelectorAll('td').forEach((cell) => {
-            cell.tagName = 'th';
-        });
+        if (!firstRow)
+            return;
+        // If first row already has TH elements, leave it alone
+        if (firstRow.querySelector('th'))
+            return;
+        // Check if first row is empty or has only empty cells
+        const cells = firstRow.querySelectorAll('td');
+        const isEmpty = cells.length === 0 ||
+            cells.every(cell => { var _a; return !((_a = cell.textContent) === null || _a === void 0 ? void 0 : _a.trim()); });
+        if (isEmpty) {
+            // Remove empty first row and find the first non-empty row to convert
+            firstRow.remove();
+            const nextRow = table.querySelector('tr');
+            if (nextRow) {
+                nextRow.querySelectorAll('td').forEach((cell) => {
+                    cell.tagName = 'th';
+                });
+            }
+        }
+        else {
+            // Convert first row TD elements to TH
+            cells.forEach((cell) => {
+                cell.tagName = 'th';
+            });
+        }
     });
     return root.toString();
 }
