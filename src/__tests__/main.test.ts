@@ -194,16 +194,16 @@ describe('main', () => {
     });
   });
 
-<<<<<<< HEAD
   describe('non-breaking space removal', () => {
     it('should remove unicode non-breaking spaces from conversion pipeline', () => {
       // Test the internal removeNonBreakingSpaces function
       // Since the function is not exported, we'll test it via the pipeline
-      const textWithNbsp = 'This is\u00A0text with\u2007various\u202F non-breaking\u2060spaces\uFEFF.';
-      
+      const textWithNbsp =
+        'This is\u00A0text with\u2007various\u202F non-breaking\u2060spaces\uFEFF.';
+
       // Expected result: non-breaking spaces should be converted to regular spaces or removed
       const expected = 'This is text with various  non-breakingspaces.';
-      
+
       // Test the logic directly
       const result = textWithNbsp
         .replace(/\u00A0/g, ' ') // Non-breaking space
@@ -211,7 +211,7 @@ describe('main', () => {
         .replace(/\u202F/g, ' ') // Narrow no-break space
         .replace(/\u2060/g, '') // Word joiner (zero-width non-breaking space)
         .replace(/\uFEFF/g, ''); // Zero-width no-break space (BOM)
-      
+
       expect(result).toEqual(expected);
       expect(result).not.toContain('\u00A0'); // Non-breaking space
       expect(result).not.toContain('\u2007'); // Figure space
@@ -227,13 +227,15 @@ describe('main', () => {
       const TurndownService = (await import('@joplin/turndown')).default;
       const turndownPluginGfm = await import('@joplin/turndown-plugin-gfm');
       const { parse } = await import('node-html-parser');
-      
+
       // Replicate the removeUnicodeBullets function logic for testing
       function removeUnicodeBullets(html: string): string {
         const root = parse(html);
         const unicodeBullets = ['•', '◦', '▪', '▫', '‣', '⁃', '∙', '·'];
-        const bulletRegex = new RegExp(`^\\s*[${unicodeBullets.map(b => b.replace(/[.*+?^${}()|[\\\]\\]/g, '\\$&')).join('')}]\\s*`);
-        
+        const bulletRegex = new RegExp(
+          `^\\s*[${unicodeBullets.map((b) => b.replace(/[.*+?^${}()|[\\\]\\]/g, '\\$&')).join('')}]\\s*`,
+        );
+
         root.querySelectorAll('ul li').forEach((listItem) => {
           const textContent = listItem.innerHTML;
           const cleanedContent = textContent.replace(bulletRegex, '');
@@ -241,10 +243,10 @@ describe('main', () => {
             listItem.innerHTML = cleanedContent;
           }
         });
-        
+
         return root.toString();
       }
-      
+
       function testHtmlToMd(html: string): string {
         const cleanedHtml = removeUnicodeBullets(html);
         const turndownService = new TurndownService({
@@ -255,12 +257,15 @@ describe('main', () => {
         turndownService.use(turndownPluginGfm.gfm);
         return turndownService.turndown(cleanedHtml).trim();
       }
-      
+
       // Test cases
-      const htmlWithBullets = '<ul><li>• Item one</li><li>◦ Item two</li><li>▪ Item three</li></ul>';
-      const htmlWithMixedBullets = '<ul><li>Normal item</li><li>• Item with bullet</li></ul>';
-      const htmlNumberedList = '<ol><li>• Should keep bullet in numbered list</li></ol>';
-      
+      const htmlWithBullets =
+        '<ul><li>• Item one</li><li>◦ Item two</li><li>▪ Item three</li></ul>';
+      const htmlWithMixedBullets =
+        '<ul><li>Normal item</li><li>• Item with bullet</li></ul>';
+      const htmlNumberedList =
+        '<ol><li>• Should keep bullet in numbered list</li></ol>';
+
       expect(testHtmlToMd(htmlWithBullets)).toEqual(
         '- Item one\n- Item two\n- Item three',
       );
