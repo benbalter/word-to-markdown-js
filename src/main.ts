@@ -162,6 +162,16 @@ function convertNumberedListsToBullets(md: string): string {
   return md.replace(/^(\s*)(\d+)\.\s/gm, '$1- ');
 }
 
+// Remove unicode non-breaking spaces and replace with regular spaces
+function removeNonBreakingSpaces(md: string): string {
+  return md
+    .replace(/\u00A0/g, ' ') // Non-breaking space
+    .replace(/\u2007/g, ' ') // Figure space
+    .replace(/\u202F/g, ' ') // Narrow no-break space
+    .replace(/\u2060/g, '') // Word joiner (zero-width non-breaking space)
+    .replace(/\uFEFF/g, ''); // Zero-width no-break space (BOM)
+}
+
 // Convert smart quotes to ASCII equivalents
 function convertSmartQuotes(text: string): string {
   return text
@@ -191,7 +201,8 @@ export default async function convert(
   const html = autoTableHeaders(mammothResult.value);
   const md = htmlToMd(html, options.turndown);
   const mdWithBullets = convertNumberedListsToBullets(md);
-  const mdWithAsciiQuotes = convertSmartQuotes(mdWithBullets);
+  const mdWithoutNbsp = removeNonBreakingSpaces(mdWithBullets);
+  const mdWithAsciiQuotes = convertSmartQuotes(mdWithoutNbsp);
   const cleanedMd = lint(mdWithAsciiQuotes);
   return cleanedMd;
 }
