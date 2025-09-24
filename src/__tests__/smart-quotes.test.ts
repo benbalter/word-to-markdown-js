@@ -18,15 +18,16 @@ describe('smart quotes conversion', () => {
   it('should convert smart double quotes to ASCII quotes', () => {
     const textWithSmartQuotes = 'This has \u201Csmart quotes\u201D in it.';
     const result = convertSmartQuotes(textWithSmartQuotes);
-    
+
     expect(result).toBe('This has "smart quotes" in it.');
     expect(result).not.toMatch(/[\u201C\u201D]/);
   });
 
   it('should convert smart single quotes to ASCII quotes', () => {
-    const textWithSmartQuotes = 'This has \u2018smart single quotes\u2019 in it.';
+    const textWithSmartQuotes =
+      'This has \u2018smart single quotes\u2019 in it.';
     const result = convertSmartQuotes(textWithSmartQuotes);
-    
+
     expect(result).toBe("This has 'smart single quotes' in it.");
     expect(result).not.toMatch(/[\u2018\u2019]/);
   });
@@ -34,24 +35,28 @@ describe('smart quotes conversion', () => {
   it('should convert em and en dashes to hyphens', () => {
     const textWithDashes = 'This has \u2014 em dash and \u2013 en dash.';
     const result = convertSmartQuotes(textWithDashes);
-    
+
     expect(result).toBe('This has - em dash and - en dash.');
     expect(result).not.toMatch(/[\u2013\u2014]/);
   });
 
   it('should convert all smart quote types together', () => {
-    const textWithAllTypes = 'This has \u201Cdouble quotes\u201D, \u2018single quotes\u2019, \u2014 em dash and \u2013 en dash.';
+    const textWithAllTypes =
+      'This has \u201Cdouble quotes\u201D, \u2018single quotes\u2019, \u2014 em dash and \u2013 en dash.';
     const result = convertSmartQuotes(textWithAllTypes);
-    
-    expect(result).toBe('This has "double quotes", \'single quotes\', - em dash and - en dash.');
+
+    expect(result).toBe(
+      'This has "double quotes", \'single quotes\', - em dash and - en dash.',
+    );
     expect(result).not.toMatch(/[\u201C\u201D\u2018\u2019\u2013\u2014]/);
   });
 
   it('should handle HTML to Markdown conversion with smart quotes', () => {
-    const htmlWithSmartQuotes = '<p>This has \u201Csmart quotes\u201D and \u2018single quotes\u2019.</p>';
+    const htmlWithSmartQuotes =
+      '<p>This has \u201Csmart quotes\u201D and \u2018single quotes\u2019.</p>';
     const markdown = turndownService.turndown(htmlWithSmartQuotes);
     const result = convertSmartQuotes(markdown);
-    
+
     expect(result).toBe('This has "smart quotes" and \'single quotes\'.');
     expect(result).not.toMatch(/[\u201C\u201D\u2018\u2019]/);
   });
