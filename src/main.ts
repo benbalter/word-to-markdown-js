@@ -22,6 +22,64 @@ const defaultTurndownOptions: turndownOptions = {
   bulletListMarker: '-',
 };
 
+// Decode HTML entities in text content
+function decodeHtmlEntities(html: string): string {
+  const decodeMap: { [key: string]: string } = {
+    '&amp;': '&',
+    // Don't decode &lt; and &gt; in our custom decoder
+    // Let Turndown handle them appropriately based on context
+    '&quot;': '"',
+    '&#39;': "'",
+    '&#x27;': "'",
+    '&apos;': "'",
+    '&nbsp;': ' ',
+    '&copy;': '©',
+    '&reg;': '®',
+    '&trade;': '™',
+    '&hellip;': '…',
+    '&mdash;': '—',
+    '&ndash;': '–',
+    '&lsquo;': '\u2018',
+    '&rsquo;': '\u2019',
+    '&ldquo;': '\u201C',
+    '&rdquo;': '\u201D'
+  };
+  
+  function decodeOnce(text: string): string {
+    return text.replace(/&[#\w]+;/g, (entity) => {
+      // Handle named entities
+      if (decodeMap[entity]) {
+        return decodeMap[entity];
+      }
+      
+      // Handle numeric entities &#123;
+      const numericMatch = entity.match(/^&#(\d+);$/);
+      if (numericMatch) {
+        return String.fromCharCode(parseInt(numericMatch[1], 10));
+      }
+      
+      // Handle hex entities &#x1A;
+      const hexMatch = entity.match(/^&#x([0-9a-fA-F]+);$/i);
+      if (hexMatch) {
+        return String.fromCharCode(parseInt(hexMatch[1], 16));
+      }
+      
+      // Return original if not recognized
+      return entity;
+    });
+  }
+  
+  // Keep decoding until no more entities are found (handles double/triple encoding)
+  let decoded = html;
+  let prevDecoded;
+  do {
+    prevDecoded = decoded;
+    decoded = decodeOnce(decoded);
+  } while (decoded !== prevDecoded && decoded.includes('&'));
+  
+  return decoded;
+}
+
 // Turndown will add an empty header if the first row
 // of the table isn't `<th>` elements. This function
 // converts the first row of a table to `<th>` elements
@@ -38,13 +96,16 @@ function autoTableHeaders(html: string): string {
 }
 
 // Convert HTML to GitHub-flavored Markdown
-function htmlToMd(html: string, options: object = {}): string {
+export function htmlToMd(html: string, options: object = {}): string {
+  // Decode HTML entities before conversion
+  const decodedHtml = decodeHtmlEntities(html);
+  
   const turndownService = new TurndownService({
     ...options,
     ...defaultTurndownOptions,
   });
   turndownService.use(turndownPluginGfm.gfm);
-  return turndownService.turndown(html).trim();
+  return turndownService.turndown(decodedHtml).trim();
 }
 
 // Lint the Markdown and correct any issues

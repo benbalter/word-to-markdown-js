@@ -17,14 +17,44 @@ const expectations = {
     'comma after bold': 'This is **bolded**, and text.',
     'text after bold': '**This** is **bolded** _and_ text.',
     'file with space': 'This is paragraph text.',
+    'html-entities': 'Ben & Jerry\'s ice cream costs $5 < $10. Use "quotes" for text.',
 };
 describe('main', () => {
     for (const [fixture, expected] of Object.entries(expectations)) {
+        if (fixture === 'html-entities') {
+            // Skip the html-entities test for now since we don't have a fixture
+            continue;
+        }
         it(`should convert the "${fixture}" fixture to Markdown`, () => __awaiter(void 0, void 0, void 0, function* () {
             const path = `src/__fixtures__/${fixture}.docx`;
             const md = yield convert(path);
             expect(md).toEqual(expected);
         }));
     }
+    // Test HTML entity decoding directly
+    it('should decode HTML entities in converted HTML', () => __awaiter(void 0, void 0, void 0, function* () {
+        const { htmlToMd } = yield import('../main.js');
+        const htmlWithEntities = '<p>Ben &amp; Jerry&#39;s ice cream costs $5 &lt; $10. Use &quot;quotes&quot; for text.</p>';
+        const expectedMarkdown = 'Ben & Jerry\'s ice cream costs $5 < $10. Use "quotes" for text.';
+        const result = htmlToMd(htmlWithEntities);
+        expect(result).toEqual(expectedMarkdown);
+    }));
+    it('should decode double-encoded HTML entities', () => __awaiter(void 0, void 0, void 0, function* () {
+        const { htmlToMd } = yield import('../main.js');
+        const htmlWithDoubleEntities = '<p>&amp;amp; &amp;lt; &amp;gt; &amp;quot;</p>';
+        // &amp;amp; -> & (decoded by our function)
+        // &amp;lt; and &amp;gt; -> < and > (handled by Turndown after one decode)
+        // &amp;quot; -> " (decoded by our function)
+        const expectedMarkdown = '& < > "';
+        const result = htmlToMd(htmlWithDoubleEntities);
+        expect(result).toEqual(expectedMarkdown);
+    }));
+    it('should decode numeric HTML entities', () => __awaiter(void 0, void 0, void 0, function* () {
+        const { htmlToMd } = yield import('../main.js');
+        const htmlWithNumericEntities = '<p>&#169; &#8482; &#x27; &#8230;</p>';
+        const expectedMarkdown = '© ™ \' …';
+        const result = htmlToMd(htmlWithNumericEntities);
+        expect(result).toEqual(expectedMarkdown);
+    }));
 });
 //# sourceMappingURL=main.test.js.map
