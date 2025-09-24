@@ -42,33 +42,33 @@ function decodeHtmlEntities(html: string): string {
     '&lsquo;': '\u2018',
     '&rsquo;': '\u2019',
     '&ldquo;': '\u201C',
-    '&rdquo;': '\u201D'
+    '&rdquo;': '\u201D',
   };
-  
+
   function decodeOnce(text: string): string {
     return text.replace(/&[#\w]+;/g, (entity) => {
       // Handle named entities
       if (decodeMap[entity]) {
         return decodeMap[entity];
       }
-      
+
       // Handle numeric entities &#123;
       const numericMatch = entity.match(/^&#(\d+);$/);
       if (numericMatch) {
         return String.fromCharCode(parseInt(numericMatch[1], 10));
       }
-      
+
       // Handle hex entities &#x1A;
       const hexMatch = entity.match(/^&#x([0-9a-fA-F]+);$/i);
       if (hexMatch) {
         return String.fromCharCode(parseInt(hexMatch[1], 16));
       }
-      
+
       // Return original if not recognized
       return entity;
     });
   }
-  
+
   // Keep decoding until no more entities are found (handles double/triple encoding)
   let decoded = html;
   let prevDecoded;
@@ -76,7 +76,7 @@ function decodeHtmlEntities(html: string): string {
     prevDecoded = decoded;
     decoded = decodeOnce(decoded);
   } while (decoded !== prevDecoded && decoded.includes('&'));
-  
+
   return decoded;
 }
 
@@ -95,8 +95,8 @@ function autoTableHeaders(html: string): string {
 
     // Check if first row is empty or has only empty cells
     const cells = firstRow.querySelectorAll('td');
-    const isEmpty = cells.length === 0 || 
-                   cells.every(cell => !cell.textContent?.trim());
+    const isEmpty =
+      cells.length === 0 || cells.every((cell) => !cell.textContent?.trim());
 
     if (isEmpty) {
       // Remove empty first row and find the first non-empty row to convert
@@ -120,11 +120,13 @@ function autoTableHeaders(html: string): string {
 // Remove unicode bullets from unnumbered list items
 function removeUnicodeBullets(html: string): string {
   const root = parse(html);
-  
+
   // Common unicode bullets that might appear in Word documents
   const unicodeBullets = ['•', '◦', '▪', '▫', '‣', '⁃', '∙', '·'];
-  const bulletRegex = new RegExp(`^\\s*[${unicodeBullets.map(b => b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('')}]\\s*`);
-  
+  const bulletRegex = new RegExp(
+    `^\\s*[${unicodeBullets.map((b) => b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('')}]\\s*`,
+  );
+
   // Find all <li> elements that are children of <ul> (unnumbered lists)
   root.querySelectorAll('ul li').forEach((listItem) => {
     // Get the text content and remove unicode bullets from the beginning
@@ -134,7 +136,7 @@ function removeUnicodeBullets(html: string): string {
       listItem.innerHTML = cleanedContent;
     }
   });
-  
+
   return root.toString();
 }
 
@@ -144,6 +146,7 @@ export function htmlToMd(html: string, options: object = {}): string {
   const decodedHtml = decodeHtmlEntities(html);
   // Remove unicode bullets from unnumbered lists
   const cleanedHtml = removeUnicodeBullets(decodedHtml);
+
   const turndownService = new TurndownService({
     ...options,
     ...defaultTurndownOptions,

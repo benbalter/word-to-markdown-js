@@ -22,7 +22,8 @@ const expectations = {
   'comma after bold': 'This is **bolded**, and text.',
   'text after bold': '**This** is **bolded** _and_ text.',
   'file with space': 'This is paragraph text.',
-  'html-entities': 'Ben & Jerry\'s ice cream costs $5 < $10. Use "quotes" for text.',
+  'html-entities':
+    'Ben & Jerry\'s ice cream costs $5 < $10. Use "quotes" for text.',
 };
 
 describe('main', () => {
@@ -37,26 +38,29 @@ describe('main', () => {
       expect(md).toEqual(expected);
     });
   }
-  
+
   // Test HTML entity decoding directly
   it('should decode HTML entities in converted HTML', async () => {
     const { htmlToMd } = await import('../main.js');
-    const htmlWithEntities = '<p>Ben &amp; Jerry&#39;s ice cream costs $5 &lt; $10. Use &quot;quotes&quot; for text.</p>';
-    const expectedMarkdown = 'Ben & Jerry\'s ice cream costs \\$5 < \\$10. Use "quotes" for text.';
-    
+    const htmlWithEntities =
+      '<p>Ben &amp; Jerry&#39;s ice cream costs $5 &lt; $10. Use &quot;quotes&quot; for text.</p>';
+    const expectedMarkdown =
+      'Ben & Jerry\'s ice cream costs \\$5 < \\$10. Use "quotes" for text.';
+
     const result = htmlToMd(htmlWithEntities);
     expect(result).toEqual(expectedMarkdown);
   });
 
   it('should decode double-encoded HTML entities', async () => {
     const { htmlToMd } = await import('../main.js');
-    const htmlWithDoubleEntities = '<p>&amp;amp; &amp;lt; &amp;gt; &amp;quot;</p>';
+    const htmlWithDoubleEntities =
+      '<p>&amp;amp; &amp;lt; &amp;gt; &amp;quot;</p>';
     // &amp;amp; -> & (decoded by our function)
     // &amp;lt; -> &lt; (partially decoded, Turndown keeps it as entity to avoid HTML confusion)
     // &amp;gt; -> &gt; (partially decoded, Turndown keeps it as entity to avoid HTML confusion)
     // &amp;quot; -> " (decoded by our function)
     const expectedMarkdown = '& &lt; &gt; "';
-    
+
     const result = htmlToMd(htmlWithDoubleEntities);
     expect(result).toEqual(expectedMarkdown);
   });
@@ -64,8 +68,8 @@ describe('main', () => {
   it('should decode numeric HTML entities', async () => {
     const { htmlToMd } = await import('../main.js');
     const htmlWithNumericEntities = '<p>&#169; &#8482; &#x27; &#8230;</p>';
-    const expectedMarkdown = '© ™ \' …';
-    
+    const expectedMarkdown = "© ™ ' …";
+
     const result = htmlToMd(htmlWithNumericEntities);
     expect(result).toEqual(expectedMarkdown);
   });
@@ -75,7 +79,7 @@ describe('main', () => {
     // When entities are isolated, Turndown can safely decode them fully
     const isolatedDoubleEncoded = '<p>&amp;lt;</p>';
     const expectedMarkdown = '<';
-    
+
     const result = htmlToMd(isolatedDoubleEncoded);
     expect(result).toEqual(expectedMarkdown);
   });
@@ -83,11 +87,11 @@ describe('main', () => {
   it('should handle empty tables without crashing', async () => {
     // Test the autoTableHeaders function directly with edge cases
     const { parse } = await import('node-html-parser');
-    
+
     // This should not throw an error
     const emptyTableHtml = '<table></table>';
     const root = parse(emptyTableHtml);
-    
+
     expect(() => {
       root.querySelectorAll('table').forEach((table) => {
         const firstRow = table.querySelector('tr');
@@ -98,7 +102,7 @@ describe('main', () => {
         }
       });
     }).not.toThrow();
-    
+
     expect(root.toString()).toBe('<table></table>');
   });
 
@@ -121,8 +125,9 @@ describe('main', () => {
 
         // Check if first row is empty or has only empty cells
         const cells = firstRow.querySelectorAll('td');
-        const isEmpty = cells.length === 0 || 
-                       cells.every(cell => !cell.textContent?.trim());
+        const isEmpty =
+          cells.length === 0 ||
+          cells.every((cell) => !cell.textContent?.trim());
 
         if (isEmpty) {
           // Remove empty first row and find the first non-empty row to convert
@@ -159,32 +164,37 @@ describe('main', () => {
     });
 
     it('should remove first row with empty cells and convert next row to headers', async () => {
-      const html = '<table><tr><td></td><td></td></tr><tr><td>D1</td><td>D2</td></tr></table>';
+      const html =
+        '<table><tr><td></td><td></td></tr><tr><td>D1</td><td>D2</td></tr></table>';
       const md = await testHtmlToMd(html);
       expect(md).toEqual('| D1  | D2  |\n| --- | --- |');
       expect(md).not.toContain('|     |     |'); // No empty divider row
     });
 
     it('should remove first row with whitespace-only cells', async () => {
-      const html = '<table><tr><td>   </td><td> \n </td></tr><tr><td>D1</td><td>D2</td></tr></table>';
+      const html =
+        '<table><tr><td>   </td><td> \n </td></tr><tr><td>D1</td><td>D2</td></tr></table>';
       const md = await testHtmlToMd(html);
       expect(md).toEqual('| D1  | D2  |\n| --- | --- |');
       expect(md).not.toContain('|     |     |'); // No empty divider row
     });
 
     it('should not modify tables that already have TH elements', async () => {
-      const html = '<table><tr><th>H1</th><th>H2</th></tr><tr><td>D1</td><td>D2</td></tr></table>';
+      const html =
+        '<table><tr><th>H1</th><th>H2</th></tr><tr><td>D1</td><td>D2</td></tr></table>';
       const md = await testHtmlToMd(html);
       expect(md).toEqual('| H1  | H2  |\n| --- | --- |\n| D1  | D2  |');
     });
 
     it('should convert normal TD headers correctly', async () => {
-      const html = '<table><tr><td>H1</td><td>H2</td></tr><tr><td>D1</td><td>D2</td></tr></table>';
+      const html =
+        '<table><tr><td>H1</td><td>H2</td></tr><tr><td>D1</td><td>D2</td></tr></table>';
       const md = await testHtmlToMd(html);
       expect(md).toEqual('| H1  | H2  |\n| --- | --- |\n| D1  | D2  |');
     });
   });
 
+<<<<<<< HEAD
   describe('non-breaking space removal', () => {
     it('should remove unicode non-breaking spaces from conversion pipeline', () => {
       // Test the internal removeNonBreakingSpaces function
@@ -251,9 +261,15 @@ describe('main', () => {
       const htmlWithMixedBullets = '<ul><li>Normal item</li><li>• Item with bullet</li></ul>';
       const htmlNumberedList = '<ol><li>• Should keep bullet in numbered list</li></ol>';
       
-      expect(testHtmlToMd(htmlWithBullets)).toEqual('- Item one\n- Item two\n- Item three');
-      expect(testHtmlToMd(htmlWithMixedBullets)).toEqual('- Normal item\n- Item with bullet');
-      expect(testHtmlToMd(htmlNumberedList)).toEqual('1.  • Should keep bullet in numbered list');
+      expect(testHtmlToMd(htmlWithBullets)).toEqual(
+        '- Item one\n- Item two\n- Item three',
+      );
+      expect(testHtmlToMd(htmlWithMixedBullets)).toEqual(
+        '- Normal item\n- Item with bullet',
+      );
+      expect(testHtmlToMd(htmlNumberedList)).toEqual(
+        '1.  • Should keep bullet in numbered list',
+      );
     });
   });
 });

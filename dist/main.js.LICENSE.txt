@@ -18,13 +18,3 @@ https://github.com/nodeca/pako/blob/main/LICENSE
  */
 
 /*! https://mths.be/he v1.2.0 by @mathias | MIT license */
-
-/*! https://mths.be/punycode v1.4.1 by @mathias */
-
-/*! markdownlint-micromark 0.1.8 https://github.com/DavidAnson/markdownlint */
-
-//!! Deliberately using an API that's deprecated in node.js because
-
-//!! Discussion: github.com/node-browser-compat/atob/pull/9
-
-//!! this file is for browsers and we expect them to cope with it.
