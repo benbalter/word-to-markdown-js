@@ -29,12 +29,13 @@
   },
   "scripts": {
     "fix": "eslint --fix --ext .ts . && prettier --write .",
-    "build": "tsc",
+    "build": "npm run build:js && npm run build:web",
+    "build:js": "tsc",
     "build:web": "webpack build",
     "server:web": "webpack serve --open",
-    "lint": "eslint . --ext .ts --ext .mts",
+    "lint": "eslint . --ext .ts --ext .mts && prettier --check .",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
-    "all": "npm run lint && npm run test && npm run build",
+    "all": "npm run fix && npm run test && npm run build && check-builds",
     "server": "node build/server.js",
     "check-builds": "./scripts/check-builds.sh"
   },
