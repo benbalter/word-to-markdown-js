@@ -95,17 +95,64 @@ function autoTableHeaders(html: string): string {
   return root.toString();
 }
 
+// Remove unicode bullets from unnumbered list items
+function removeUnicodeBullets(html: string): string {
+  const root = parse(html);
+  
+  // Common unicode bullets that might appear in Word documents
+  const unicodeBullets = ['•', '◦', '▪', '▫', '‣', '⁃', '∙', '·'];
+  const bulletRegex = new RegExp(`^\\s*[${unicodeBullets.map(b => b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('')}]\\s*`);
+  
+  // Find all <li> elements that are children of <ul> (unnumbered lists)
+  root.querySelectorAll('ul li').forEach((listItem) => {
+    // Get the text content and remove unicode bullets from the beginning
+    const textContent = listItem.innerHTML;
+    const cleanedContent = textContent.replace(bulletRegex, '');
+    if (cleanedContent !== textContent) {
+      listItem.innerHTML = cleanedContent;
+    }
+  });
+  
+  return root.toString();
+}
+
+// Remove unicode bullets from unnumbered lists to prevent double bullet points
+function removeUnicodeBullets(html: string): string {
+  const root = parse(html);
+  const unicodeBullets = ['•', '◦', '▪', '▫', '‣', '⁃', '∙', '·'];
+  const bulletRegex = new RegExp(`^\\s*[${unicodeBullets.map(b => b.replace(/[.*+?^${}()|[\\\]\\]/g, '\\$&')).join('')}]\\s*`);
+  
+  root.querySelectorAll('ul li').forEach((listItem) => {
+    const textContent = listItem.innerHTML;
+    const cleanedContent = textContent.replace(bulletRegex, '');
+    if (cleanedContent !== textContent) {
+      listItem.innerHTML = cleanedContent;
+    }
+  });
+  
+  return root.toString();
+}
+
 // Convert HTML to GitHub-flavored Markdown
 export function htmlToMd(html: string, options: object = {}): string {
   // Decode HTML entities before conversion
   const decodedHtml = decodeHtmlEntities(html);
+  // Remove unicode bullets from unnumbered lists
+  const cleanedHtml = removeUnicodeBullets(decodedHtml);
   
   const turndownService = new TurndownService({
     ...options,
     ...defaultTurndownOptions,
   });
   turndownService.use(turndownPluginGfm.gfm);
-  return turndownService.turndown(decodedHtml).trim();
+  return turndownService.turndown(cleanedHtml).trim();
+}
+
+// Convert numbered lists to bullet lists
+function convertNumberedListsToBullets(md: string): string {
+  // Replace numbered list items with bullet list items
+  // This regex matches lines that start with optional whitespace, a number, a dot, and a space
+  return md.replace(/^(\s*)(\d+)\.\s/gm, '$1- ');
 }
 
 // Lint the Markdown and correct any issues
@@ -128,6 +175,7 @@ export default async function convert(
   const mammothResult = await mammoth.convertToHtml(inputObj, options.mammoth);
   const html = autoTableHeaders(mammothResult.value);
   const md = htmlToMd(html, options.turndown);
-  const cleanedMd = lint(md);
+  const mdWithBullets = convertNumberedListsToBullets(md);
+  const cleanedMd = lint(mdWithBullets);
   return cleanedMd;
 }
