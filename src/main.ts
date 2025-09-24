@@ -1,8 +1,8 @@
 import TurndownService from '@joplin/turndown';
 import * as turndownPluginGfm from '@joplin/turndown-plugin-gfm';
 import * as mammoth from 'mammoth';
-import markdownlint from 'markdownlint';
-import markdownlintRuleHelpers from 'markdownlint-rule-helpers';
+import * as markdownlint from 'markdownlint/sync';
+import { applyFixes } from 'markdownlint';
 import { parse } from 'node-html-parser';
 
 interface convertOptions {
@@ -37,20 +37,49 @@ function autoTableHeaders(html: string): string {
   return root.toString();
 }
 
+// Remove unicode bullets from unnumbered list items
+function removeUnicodeBullets(html: string): string {
+  const root = parse(html);
+  
+  // Common unicode bullets that might appear in Word documents
+  const unicodeBullets = ['•', '◦', '▪', '▫', '‣', '⁃', '∙', '·'];
+  const bulletRegex = new RegExp(`^\\s*[${unicodeBullets.map(b => b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('')}]\\s*`);
+  
+  // Find all <li> elements that are children of <ul> (unnumbered lists)
+  root.querySelectorAll('ul li').forEach((listItem) => {
+    // Get the text content and remove unicode bullets from the beginning
+    const textContent = listItem.innerHTML;
+    const cleanedContent = textContent.replace(bulletRegex, '');
+    if (cleanedContent !== textContent) {
+      listItem.innerHTML = cleanedContent;
+    }
+  });
+  
+  return root.toString();
+}
+
 // Convert HTML to GitHub-flavored Markdown
 function htmlToMd(html: string, options: object = {}): string {
+  const cleanedHtml = removeUnicodeBullets(html);
   const turndownService = new TurndownService({
     ...options,
     ...defaultTurndownOptions,
   });
   turndownService.use(turndownPluginGfm.gfm);
-  return turndownService.turndown(html).trim();
+  return turndownService.turndown(cleanedHtml).trim();
+}
+
+// Convert numbered lists to bullet lists
+function convertNumberedListsToBullets(md: string): string {
+  // Replace numbered list items with bullet list items
+  // This regex matches lines that start with optional whitespace, a number, a dot, and a space
+  return md.replace(/^(\s*)(\d+)\.\s/gm, '$1- ');
 }
 
 // Lint the Markdown and correct any issues
 function lint(md: string): string {
-  const lintResult = markdownlint.sync({ strings: { md } });
-  return markdownlintRuleHelpers.applyFixes(md, lintResult['md']).trim();
+  const lintResult = markdownlint.lint({ strings: { md } });
+  return applyFixes(md, lintResult['md']).trim();
 }
 
 // Converts a Word document to crisp, clean Markdown
@@ -67,6 +96,7 @@ export default async function convert(
   const mammothResult = await mammoth.convertToHtml(inputObj, options.mammoth);
   const html = autoTableHeaders(mammothResult.value);
   const md = htmlToMd(html, options.turndown);
-  const cleanedMd = lint(md);
+  const mdWithBullets = convertNumberedListsToBullets(md);
+  const cleanedMd = lint(mdWithBullets);
   return cleanedMd;
 }
