@@ -47,6 +47,13 @@ function htmlToMd(html: string, options: object = {}): string {
   return turndownService.turndown(html).trim();
 }
 
+// Convert numbered lists to bullet lists
+function convertNumberedListsToBullets(md: string): string {
+  // Replace numbered list items with bullet list items
+  // This regex matches lines that start with optional whitespace, a number, a dot, and a space
+  return md.replace(/^(\s*)(\d+)\.\s/gm, '$1- ');
+}
+
 // Lint the Markdown and correct any issues
 function lint(md: string): string {
   const lintResult = markdownlint.sync({ strings: { md } });
@@ -67,6 +74,7 @@ export default async function convert(
   const mammothResult = await mammoth.convertToHtml(inputObj, options.mammoth);
   const html = autoTableHeaders(mammothResult.value);
   const md = htmlToMd(html, options.turndown);
-  const cleanedMd = lint(md);
+  const mdWithBullets = convertNumberedListsToBullets(md);
+  const cleanedMd = lint(mdWithBullets);
   return cleanedMd;
 }
