@@ -37,7 +37,7 @@
       "onAutoForward": "notify"
     },
     "8080": {
-      "label": "Web Dev Server", 
+      "label": "Web Dev Server",
       "onAutoForward": "openBrowser"
     }
   },
