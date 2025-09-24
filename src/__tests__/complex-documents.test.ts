@@ -1,4 +1,11 @@
-// Complex document tests using HTML to Markdown conversion directly
+/**
+ * Complex document conversion tests
+ *
+ * This test file focuses on testing complex document structures and scenarios
+ * that would be found in real-world Word documents. It tests the HTML-to-Markdown
+ * conversion pipeline directly with complex HTML structures to ensure proper
+ * handling of mixed formatting, nested elements, and edge cases.
+ */
 
 describe('complex document conversion', () => {
   // Test for complex combinations using HTML input directly

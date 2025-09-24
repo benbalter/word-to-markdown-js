@@ -69,8 +69,8 @@ describe('integration tests', () => {
 
     // Test specific fixture patterns
     expect(results[0]).toMatch(/^#+\s/m); // multiple-headings should have heading markers
-    expect(results[1]).toMatch(/^[\s]*-\s/m); // nested-ul should have list markers
-    expect(results[2]).toMatch(/^[\s]*-\s/m); // nested-ol should have list markers
+    expect(results[1]).toMatch(/^\s*-\s/m); // nested-ul should have list markers
+    expect(results[2]).toMatch(/^\s*-\s/m); // nested-ol should have list markers
     expect(results[3]).toMatch(/\[.*\]\(.*\)/); // list-with-links should have link syntax
     expect(results[4]).toMatch(/\|.*\|/); // table should have table syntax
     expect(results[4]).toMatch(/\|[\s-]+\|/); // table should have table divider
@@ -179,7 +179,7 @@ describe('integration tests', () => {
       .filter((line) => line.match(/^\s*-\s/));
     expect(ulLines.length).toBeGreaterThan(0);
     ulLines.forEach((listItem) => {
-      expect(listItem).toMatch(/^(\s)*-\s+\S/);
+      expect(listItem).toMatch(/^\s*-\s+\S/);
     });
 
     const tableResult = await convert('src/__fixtures__/table.docx');
