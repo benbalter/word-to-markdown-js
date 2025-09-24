@@ -6,6 +6,9 @@ npm-debug.log*
 # Dependencies
 node_modules/
 
+# Build artifacts
+build/
+
 # Coverage
 coverage
 
