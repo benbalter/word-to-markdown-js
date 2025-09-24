@@ -47,6 +47,14 @@ function htmlToMd(html: string, options: object = {}): string {
   return turndownService.turndown(html).trim();
 }
 
+// Convert smart quotes to ASCII equivalents
+function convertSmartQuotes(text: string): string {
+  return text
+    .replace(/[\u201C\u201D]/g, '"') // Replace left and right double quotation marks
+    .replace(/[\u2018\u2019]/g, "'") // Replace left and right single quotation marks
+    .replace(/[\u2013\u2014]/g, '-'); // Replace en dash and em dash with hyphen
+}
+
 // Lint the Markdown and correct any issues
 function lint(md: string): string {
   const lintResult = markdownlint.sync({ strings: { md } });
@@ -67,6 +75,7 @@ export default async function convert(
   const mammothResult = await mammoth.convertToHtml(inputObj, options.mammoth);
   const html = autoTableHeaders(mammothResult.value);
   const md = htmlToMd(html, options.turndown);
-  const cleanedMd = lint(md);
+  const mdWithAsciiQuotes = convertSmartQuotes(md);
+  const cleanedMd = lint(mdWithAsciiQuotes);
   return cleanedMd;
 }

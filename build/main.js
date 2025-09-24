@@ -30,6 +30,13 @@ function htmlToMd(html, options = {}) {
     turndownService.use(turndownPluginGfm.gfm);
     return turndownService.turndown(html).trim();
 }
+// Convert smart quotes to ASCII equivalents
+function convertSmartQuotes(text) {
+    return text
+        .replace(/[\u201C\u201D]/g, '"') // Replace left and right double quotation marks
+        .replace(/[\u2018\u2019]/g, "'") // Replace left and right single quotation marks
+        .replace(/[\u2013\u2014]/g, '-'); // Replace en dash and em dash with hyphen
+}
 // Lint the Markdown and correct any issues
 function lint(md) {
     const lintResult = markdownlint.sync({ strings: { md } });
@@ -48,7 +55,8 @@ export default function convert(input, options = {}) {
         const mammothResult = yield mammoth.convertToHtml(inputObj, options.mammoth);
         const html = autoTableHeaders(mammothResult.value);
         const md = htmlToMd(html, options.turndown);
-        const cleanedMd = lint(md);
+        const mdWithAsciiQuotes = convertSmartQuotes(md);
+        const cleanedMd = lint(mdWithAsciiQuotes);
         return cleanedMd;
     });
 }
