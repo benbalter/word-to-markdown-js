@@ -76,6 +76,14 @@ function convertNumberedListsToBullets(md: string): string {
   return md.replace(/^(\s*)(\d+)\.\s/gm, '$1- ');
 }
 
+// Convert smart quotes to ASCII equivalents
+function convertSmartQuotes(text: string): string {
+  return text
+    .replace(/[\u201C\u201D]/g, '"') // Replace left and right double quotation marks
+    .replace(/[\u2018\u2019]/g, "'") // Replace left and right single quotation marks
+    .replace(/[\u2013\u2014]/g, '-'); // Replace en dash and em dash with hyphen
+}
+
 // Lint the Markdown and correct any issues
 function lint(md: string): string {
   const lintResult = markdownlint.lint({ strings: { md } });
@@ -97,6 +105,7 @@ export default async function convert(
   const html = autoTableHeaders(mammothResult.value);
   const md = htmlToMd(html, options.turndown);
   const mdWithBullets = convertNumberedListsToBullets(md);
-  const cleanedMd = lint(mdWithBullets);
+  const mdWithAsciiQuotes = convertSmartQuotes(mdWithBullets);
+  const cleanedMd = lint(mdWithAsciiQuotes);
   return cleanedMd;
 }
