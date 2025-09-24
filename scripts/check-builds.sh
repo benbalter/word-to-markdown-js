@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script to check if build and dist folders are up to date
 # This script builds the project and checks if any files changed
@@ -21,7 +21,11 @@ echo "Running webpack build..."
 npm run build:web
 
 # Check if any files changed in build or dist directories
-BUILD_CHANGES=$(git status --porcelain build/ dist/ 2>/dev/null || true)
+# Handle case where directories might not exist
+BUILD_CHANGES=""
+if [ -d "build" ] || [ -d "dist" ]; then
+    BUILD_CHANGES=$(git status --porcelain build/ dist/ 2>/dev/null || true)
+fi
 if [ -n "$BUILD_CHANGES" ]; then
     echo "❌ Builds are out of date! The following files have changes:"
     echo "$BUILD_CHANGES"
