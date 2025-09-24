@@ -102,6 +102,89 @@ describe('main', () => {
     expect(root.toString()).toBe('<table></table>');
   });
 
+  // Tests for table divider bug fix
+  describe('table divider bug fix', () => {
+    // Import modules for direct testing
+    const testHtmlToMd = async (html: string) => {
+      const { parse } = await import('node-html-parser');
+      const TurndownService = (await import('@joplin/turndown')).default;
+      const turndownPluginGfm = await import('@joplin/turndown-plugin-gfm');
+
+      // Apply autoTableHeaders logic
+      const root = parse(html);
+      root.querySelectorAll('table').forEach((table) => {
+        const firstRow = table.querySelector('tr');
+        if (!firstRow) return;
+
+        // If first row already has TH elements, leave it alone
+        if (firstRow.querySelector('th')) return;
+
+        // Check if first row is empty or has only empty cells
+        const cells = firstRow.querySelectorAll('td');
+        const isEmpty = cells.length === 0 || 
+                       cells.every(cell => !cell.textContent?.trim());
+
+        if (isEmpty) {
+          // Remove empty first row and find the first non-empty row to convert
+          firstRow.remove();
+          const nextRow = table.querySelector('tr');
+          if (nextRow) {
+            nextRow.querySelectorAll('td').forEach((cell) => {
+              cell.tagName = 'th';
+            });
+          }
+        } else {
+          // Convert first row TD elements to TH
+          cells.forEach((cell) => {
+            cell.tagName = 'th';
+          });
+        }
+      });
+
+      const processedHtml = root.toString();
+      const turndownService = new TurndownService({
+        headingStyle: 'atx',
+        codeBlockStyle: 'fenced',
+        bulletListMarker: '-',
+      });
+      turndownService.use(turndownPluginGfm.gfm);
+      return turndownService.turndown(processedHtml);
+    };
+
+    it('should remove empty first row and convert next row to headers', async () => {
+      const html = '<table><tr></tr><tr><td>D1</td><td>D2</td></tr></table>';
+      const md = await testHtmlToMd(html);
+      expect(md).toEqual('| D1  | D2  |\n| --- | --- |');
+      expect(md).not.toContain('|     |     |'); // No empty divider row
+    });
+
+    it('should remove first row with empty cells and convert next row to headers', async () => {
+      const html = '<table><tr><td></td><td></td></tr><tr><td>D1</td><td>D2</td></tr></table>';
+      const md = await testHtmlToMd(html);
+      expect(md).toEqual('| D1  | D2  |\n| --- | --- |');
+      expect(md).not.toContain('|     |     |'); // No empty divider row
+    });
+
+    it('should remove first row with whitespace-only cells', async () => {
+      const html = '<table><tr><td>   </td><td> \n </td></tr><tr><td>D1</td><td>D2</td></tr></table>';
+      const md = await testHtmlToMd(html);
+      expect(md).toEqual('| D1  | D2  |\n| --- | --- |');
+      expect(md).not.toContain('|     |     |'); // No empty divider row
+    });
+
+    it('should not modify tables that already have TH elements', async () => {
+      const html = '<table><tr><th>H1</th><th>H2</th></tr><tr><td>D1</td><td>D2</td></tr></table>';
+      const md = await testHtmlToMd(html);
+      expect(md).toEqual('| H1  | H2  |\n| --- | --- |\n| D1  | D2  |');
+    });
+
+    it('should convert normal TD headers correctly', async () => {
+      const html = '<table><tr><td>H1</td><td>H2</td></tr><tr><td>D1</td><td>D2</td></tr></table>';
+      const md = await testHtmlToMd(html);
+      expect(md).toEqual('| H1  | H2  |\n| --- | --- |\n| D1  | D2  |');
+    });
+  });
+
   describe('non-breaking space removal', () => {
     it('should remove unicode non-breaking spaces from conversion pipeline', () => {
       // Test the internal removeNonBreakingSpaces function
@@ -126,6 +209,7 @@ describe('main', () => {
       expect(result).not.toContain('\u2060'); // Word joiner
       expect(result).not.toContain('\uFEFF'); // BOM
     });
+  });
   });
 
   describe('unicode bullet removal', () => {
