@@ -6,8 +6,15 @@ npm-debug.log*
 # Dependencies
 node_modules/
 
+# Build artifacts
+build/
+
 # Coverage
 coverage
+
+# Build output
+build/
+dist/
 
 # VS Code
 .vscode
