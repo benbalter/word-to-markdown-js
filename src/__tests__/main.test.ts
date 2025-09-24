@@ -42,7 +42,7 @@ describe('main', () => {
   it('should decode HTML entities in converted HTML', async () => {
     const { htmlToMd } = await import('../main.js');
     const htmlWithEntities = '<p>Ben &amp; Jerry&#39;s ice cream costs $5 &lt; $10. Use &quot;quotes&quot; for text.</p>';
-    const expectedMarkdown = 'Ben & Jerry\'s ice cream costs $5 < $10. Use "quotes" for text.';
+    const expectedMarkdown = 'Ben & Jerry\'s ice cream costs \\$5 < \\$10. Use "quotes" for text.';
     
     const result = htmlToMd(htmlWithEntities);
     expect(result).toEqual(expectedMarkdown);

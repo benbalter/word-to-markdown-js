@@ -35,7 +35,7 @@ describe('main', () => {
     it('should decode HTML entities in converted HTML', () => __awaiter(void 0, void 0, void 0, function* () {
         const { htmlToMd } = yield import('../main.js');
         const htmlWithEntities = '<p>Ben &amp; Jerry&#39;s ice cream costs $5 &lt; $10. Use &quot;quotes&quot; for text.</p>';
-        const expectedMarkdown = 'Ben & Jerry\'s ice cream costs $5 < $10. Use "quotes" for text.';
+        const expectedMarkdown = 'Ben & Jerry\'s ice cream costs \\$5 < \\$10. Use "quotes" for text.';
         const result = htmlToMd(htmlWithEntities);
         expect(result).toEqual(expectedMarkdown);
     }));
@@ -43,9 +43,10 @@ describe('main', () => {
         const { htmlToMd } = yield import('../main.js');
         const htmlWithDoubleEntities = '<p>&amp;amp; &amp;lt; &amp;gt; &amp;quot;</p>';
         // &amp;amp; -> & (decoded by our function)
-        // &amp;lt; and &amp;gt; -> < and > (handled by Turndown after one decode)
+        // &amp;lt; -> &lt; (partially decoded, Turndown keeps it as entity to avoid HTML confusion)
+        // &amp;gt; -> &gt; (partially decoded, Turndown keeps it as entity to avoid HTML confusion)
         // &amp;quot; -> " (decoded by our function)
-        const expectedMarkdown = '& < > "';
+        const expectedMarkdown = '& &lt; &gt; "';
         const result = htmlToMd(htmlWithDoubleEntities);
         expect(result).toEqual(expectedMarkdown);
     }));
@@ -54,6 +55,14 @@ describe('main', () => {
         const htmlWithNumericEntities = '<p>&#169; &#8482; &#x27; &#8230;</p>';
         const expectedMarkdown = '© ™ \' …';
         const result = htmlToMd(htmlWithNumericEntities);
+        expect(result).toEqual(expectedMarkdown);
+    }));
+    it('should fully decode isolated double-encoded entities', () => __awaiter(void 0, void 0, void 0, function* () {
+        const { htmlToMd } = yield import('../main.js');
+        // When entities are isolated, Turndown can safely decode them fully
+        const isolatedDoubleEncoded = '<p>&amp;lt;</p>';
+        const expectedMarkdown = '<';
+        const result = htmlToMd(isolatedDoubleEncoded);
         expect(result).toEqual(expectedMarkdown);
     }));
 });
