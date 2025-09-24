@@ -1,4 +1,4 @@
-FROM node:20
+FROM node:22
 
 ENV PORT=80
 ENV NODE_ENV=production
@@ -13,4 +13,4 @@ RUN npm install
 
 COPY build /app/build/
 
-CMD ["node", "build/src/server.js"]
+CMD ["node", "build/server.js"]
