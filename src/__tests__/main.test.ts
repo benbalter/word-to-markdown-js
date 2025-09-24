@@ -210,7 +210,6 @@ describe('main', () => {
       expect(result).not.toContain('\uFEFF'); // BOM
     });
   });
-  });
 
   describe('unicode bullet removal', () => {
     it('should remove unicode bullets from unnumbered lists', async () => {
