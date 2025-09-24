@@ -12,6 +12,10 @@ build/
 # Coverage
 coverage
 
+# Build output
+build/
+dist/
+
 # VS Code
 .vscode
 !.vscode/tasks.js

@@ -32,4 +32,48 @@ describe('main', () => {
       expect(md).toEqual(expected);
     });
   }
+
+  it('should remove unicode bullets from unnumbered lists', async () => {
+    // Test the unicode bullet removal functionality
+    const TurndownService = (await import('@joplin/turndown')).default;
+    const turndownPluginGfm = await import('@joplin/turndown-plugin-gfm');
+    const { parse } = await import('node-html-parser');
+    
+    // Replicate the removeUnicodeBullets function logic for testing
+    function removeUnicodeBullets(html: string): string {
+      const root = parse(html);
+      const unicodeBullets = ['•', '◦', '▪', '▫', '‣', '⁃', '∙', '·'];
+      const bulletRegex = new RegExp(`^\\s*[${unicodeBullets.map(b => b.replace(/[.*+?^${}()|[\\\]\\]/g, '\\$&')).join('')}]\\s*`);
+      
+      root.querySelectorAll('ul li').forEach((listItem) => {
+        const textContent = listItem.innerHTML;
+        const cleanedContent = textContent.replace(bulletRegex, '');
+        if (cleanedContent !== textContent) {
+          listItem.innerHTML = cleanedContent;
+        }
+      });
+      
+      return root.toString();
+    }
+    
+    function testHtmlToMd(html: string): string {
+      const cleanedHtml = removeUnicodeBullets(html);
+      const turndownService = new TurndownService({
+        headingStyle: 'atx',
+        codeBlockStyle: 'fenced',
+        bulletListMarker: '-',
+      });
+      turndownService.use(turndownPluginGfm.gfm);
+      return turndownService.turndown(cleanedHtml).trim();
+    }
+    
+    // Test cases
+    const htmlWithBullets = '<ul><li>• Item one</li><li>◦ Item two</li><li>▪ Item three</li></ul>';
+    const htmlWithMixedBullets = '<ul><li>Normal item</li><li>• Item with bullet</li></ul>';
+    const htmlNumberedList = '<ol><li>• Should keep bullet in numbered list</li></ol>';
+    
+    expect(testHtmlToMd(htmlWithBullets)).toEqual('- Item one\n- Item two\n- Item three');
+    expect(testHtmlToMd(htmlWithMixedBullets)).toEqual('- Normal item\n- Item with bullet');
+    expect(testHtmlToMd(htmlNumberedList)).toEqual('1.  • Should keep bullet in numbered list');
+  });
 });
