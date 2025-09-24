@@ -1,0 +1,8 @@
+services:
+  word2md:
+    image: nginx:alpine
+    ports:
+      - "3000:80"  # or any preferred port
+    volumes:
+      - ./dist:/usr/share/nginx/html:ro
+    restart: unless-stopped

@@ -2,8 +2,8 @@ import { __awaiter } from "tslib";
 import TurndownService from '@joplin/turndown';
 import * as turndownPluginGfm from '@joplin/turndown-plugin-gfm';
 import * as mammoth from 'mammoth';
-import markdownlint from 'markdownlint';
-import markdownlintRuleHelpers from 'markdownlint-rule-helpers';
+import * as markdownlint from 'markdownlint/sync';
+import { applyFixes } from 'markdownlint';
 import { parse } from 'node-html-parser';
 const defaultTurndownOptions = {
     headingStyle: 'atx',
@@ -85,12 +85,12 @@ export function htmlToMd(html, options = {}) {
 }
 // Lint the Markdown and correct any issues
 function lint(md) {
-    const lintResult = markdownlint.sync({ strings: { md } });
-    return markdownlintRuleHelpers.applyFixes(md, lintResult['md']).trim();
+    const lintResult = markdownlint.lint({ strings: { md } });
+    return applyFixes(md, lintResult['md']).trim();
 }
 // Converts a Word document to crisp, clean Markdown
-export default function convert(input, options = {}) {
-    return __awaiter(this, void 0, void 0, function* () {
+export default function convert(input_1) {
+    return __awaiter(this, arguments, void 0, function* (input, options = {}) {
         let inputObj;
         if (typeof input === 'string') {
             inputObj = { path: input };
