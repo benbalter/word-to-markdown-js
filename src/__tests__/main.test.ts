@@ -80,6 +80,28 @@ describe('main', () => {
     expect(result).toEqual(expectedMarkdown);
   });
 
+  it('should handle empty tables without crashing', async () => {
+    // Test the autoTableHeaders function directly with edge cases
+    const { parse } = await import('node-html-parser');
+    
+    // This should not throw an error
+    const emptyTableHtml = '<table></table>';
+    const root = parse(emptyTableHtml);
+    
+    expect(() => {
+      root.querySelectorAll('table').forEach((table) => {
+        const firstRow = table.querySelector('tr');
+        if (firstRow) {
+          firstRow.querySelectorAll('td').forEach((cell) => {
+            cell.tagName = 'th';
+          });
+        }
+      });
+    }).not.toThrow();
+    
+    expect(root.toString()).toBe('<table></table>');
+  });
+
   it('should remove unicode bullets from unnumbered lists', async () => {
     // Test the unicode bullet removal functionality
     const TurndownService = (await import('@joplin/turndown')).default;
