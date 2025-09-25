@@ -22,7 +22,7 @@ const getHtmlTemplate = (title, content) => `<!doctype html>
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
     <title>Word to Markdown Converter</title>
     <meta property="og:title" content="Word to Markdown Converter" />
@@ -89,43 +89,43 @@ const getHtmlTemplate = (title, content) => `<!doctype html>
 
 async function convertMarkdownToHtml(markdownPath) {
   const markdown = await readFile(markdownPath, 'utf-8');
-
+  
   // Remove the first H1 title if it exists, since it's already in the template
   const markdownWithoutTitle = markdown.replace(/^# .+\n\n?/, '');
-
+  
   const result = await unified()
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkRehype)
     .use(rehypeStringify)
     .process(markdownWithoutTitle);
-
+    
   return String(result);
 }
 
 async function buildPage(pageName) {
   try {
     console.log(`Building ${pageName} page...`);
-
+    
     const markdownPath = join(projectRoot, 'pages', `${pageName}.md`);
     const outputDir = join(projectRoot, 'dist', pageName);
     const outputPath = join(outputDir, 'index.html');
-
+    
     // Convert markdown to HTML
     const content = await convertMarkdownToHtml(markdownPath);
-
+    
     // Get the title from the page name
     const title = pageName === 'privacy' ? 'Your privacy' : 'Terms of Use';
-
+    
     // Wrap in template
     const html = getHtmlTemplate(title, content);
-
+    
     // Ensure output directory exists
     await mkdir(outputDir, { recursive: true });
-
+    
     // Write the HTML file
     await writeFile(outputPath, html, 'utf-8');
-
+    
     console.log(`✅ Built ${pageName} page: ${outputPath}`);
   } catch (error) {
     console.error(`❌ Error building ${pageName} page:`, error);
@@ -135,11 +135,11 @@ async function buildPage(pageName) {
 
 async function main() {
   console.log('Building pages from Markdown sources...');
-
+  
   // Build both pages
   await buildPage('privacy');
   await buildPage('terms');
-
+  
   console.log('✅ All pages built successfully!');
 }
 
