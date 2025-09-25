@@ -9,6 +9,7 @@ import remarkRehype from 'remark-rehype';
 import { unified } from 'unified';
 import remarkGfm from 'remark-gfm';
 import ClipboardJS from 'clipboard';
+import './dark-mode.css';
 
 async function handleFile(): Promise<void> {
   const reader = new FileReader();
@@ -96,4 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (copyButton !== null) {
     new ClipboardJS('#copy-button');
   }
+
+  // Theme changes are handled automatically by CSS using prefers-color-scheme media query.
+  // If manual theme switching is needed in the future, add a MediaQuery listener here.
 });
