@@ -8,6 +8,7 @@ export default {
     '^(\\.{1,2}/.*)\\.(m)?js$': '$1',
   },
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(m)?ts$',
+  testPathIgnorePatterns: ['<rootDir>/src/__tests__/e2e/'],
   coverageDirectory: 'coverage',
   collectCoverageFrom: [
     'src/**/*.ts',

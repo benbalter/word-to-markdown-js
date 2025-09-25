@@ -34,10 +34,10 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         // Use system Chrome instead of downloading Playwright's version
-        channel: 'chrome'
+        channel: 'chrome',
       },
     },
 
@@ -66,8 +66,8 @@ export default defineConfig({
       command: 'npm run server',
       port: 3000,
       reuseExistingServer: !process.env.CI,
-      stderr: 'pipe', 
+      stderr: 'pipe',
       stdout: 'pipe',
-    }
+    },
   ],
 });

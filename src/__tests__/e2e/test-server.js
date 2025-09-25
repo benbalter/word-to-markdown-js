@@ -15,6 +15,7 @@ const port = 8080;
 app.use(express.static(path.join(projectRoot, 'dist')));
 
 // Serve the main HTML file
+// Note: This is a test server only - rate limiting intentionally omitted for E2E testing
 app.get('/', (req, res) => {
   res.sendFile(path.join(projectRoot, 'dist', 'index.html'));
 });
