@@ -27,8 +27,9 @@ _TL;DR: This project is a complete rewrite, using modern tools and libraries, an
 
 Word to Markdown is designed with privacy as a core principle. The application operates entirely client-side:
 
-- **Complete client-side processing**: All document conversion happens locally in your browser using JavaScript. Your documents never leave your computer.
+- **Complete client-side processing**: When using the web interface, all document conversion happens locally in your browser using JavaScript. Your documents never leave your computer.
 - **No server uploads**: When using the web interface, files are processed entirely on your device. No document content is ever transmitted to any server.
+- **HTTP API option**: The optional HTTP API server (for programmatic access) processes documents temporarily on your chosen server without permanent storage or logging.
 - **No personal data collection**: The application does not collect, store, or transmit any personal information or document contents.
 - **Privacy-first analytics**: The hosted version at word2md.com uses only privacy-centric Cloudflare Analytics for anonymous usage statistics. No Google Analytics or user tracking.
 - **Self-hosting option**: For maximum privacy, you can run the application locally or self-host it without any analytics whatsoever.

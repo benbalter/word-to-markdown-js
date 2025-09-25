@@ -40,7 +40,10 @@
         </p>
         <h3>Information you provide</h3>
         <p>
-          When you upload a document, it is processed entirely within your browser using JavaScript. The document contents are never transmitted to any server or third party. All conversion happens locally on your device.
+          <strong>Web Interface:</strong> When you upload a document through the web interface, it is processed entirely within your browser using JavaScript. The document contents are never transmitted to any server or third party. All conversion happens locally on your device.
+        </p>
+        <p>
+          <strong>HTTP API Server:</strong> When using the optional HTTP API server (for programmatic access), documents are temporarily processed on the server you choose to run. The server does not log document contents or store files permanently - they are processed and immediately discarded.
         </p>
         <h3>Information collected automatically</h3>
         <ul>
@@ -57,7 +60,10 @@
         <h3>How information is used</h3>
         <ul>
           <li>
-            Documents you upload are converted to Markdown entirely on your device and never leave your computer.
+            <strong>Web Interface:</strong> Documents you upload are converted to Markdown entirely on your device and never leave your computer.
+          </li>
+          <li>
+            <strong>HTTP API Server:</strong> Documents are processed temporarily for conversion and immediately discarded without permanent storage.
           </li>
           <li>
             Anonymous usage statistics (when using word2md.com) help understand general site usage patterns without identifying individual users.
@@ -65,7 +71,7 @@
         </ul>
         <h3>How information is shared</h3>
         <p>
-          Your documents and personal information are never shared because they never leave your device. Only anonymous, aggregated usage statistics are collected when using word2md.com.
+          <strong>Web Interface:</strong> Your documents and personal information are never shared because they never leave your device. <strong>HTTP API Server:</strong> Documents are processed temporarily and discarded immediately without sharing. Only anonymous, aggregated usage statistics are collected when using word2md.com.
         </p>
         <h3>A note on security</h3>
         <p>
