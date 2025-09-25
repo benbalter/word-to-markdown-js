@@ -7,6 +7,7 @@
     "node": ">= 20.9 < 21"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.1",
     "@types/jest": "~29.5",
     "@types/node": "~24",
     "@types/turndown": "^5.0.5",
@@ -17,6 +18,7 @@
     "eslint-config-prettier": "~10.1",
     "eslint-plugin-jest": "~27.6",
     "jest": "~29.7",
+    "playwright": "^1.55.1",
     "prettier": "~3.6",
     "style-loader": "^4.0.0",
     "ts-api-utils": "~2.1",
@@ -36,6 +38,9 @@
     "server:web": "webpack serve --open",
     "lint": "eslint . --ext .ts --ext .mts && prettier --check .",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
     "all": "npm run fix && npm run test && npm run build && check-builds",
     "server": "node build/server.js",
     "check-builds": "./scripts/check-builds.sh"
