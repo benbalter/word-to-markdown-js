@@ -3,13 +3,11 @@ import multer from 'multer';
 import os from 'os';
 import convert from './main.js';
 import helmet from 'helmet';
-import morgan from 'morgan';
 import { Request } from 'express';
 
 const app = express();
 const port = process.env.PORT || 3000;
 const upload = multer({ dest: os.tmpdir() });
-app.use(morgan('combined'));
 
 app.use(helmet());
 

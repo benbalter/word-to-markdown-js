@@ -25,7 +25,15 @@ _TL;DR: This project is a complete rewrite, using modern tools and libraries, an
 
 ## A note on privacy
 
-Word to Markdown can be run locally or in your browser. In either event, the conversion happens locally, and no information ever leaves your browser.
+Word to Markdown is designed with privacy as a core principle. The application operates entirely client-side:
+
+- **Complete client-side processing**: All document conversion happens locally in your browser using JavaScript. Your documents never leave your computer.
+- **No server uploads**: When using the web interface, files are processed entirely on your device. No document content is ever transmitted to any server.
+- **No personal data collection**: The application does not collect, store, or transmit any personal information or document contents.
+- **Privacy-first analytics**: The hosted version at word2md.com uses only privacy-centric Cloudflare Analytics for anonymous usage statistics. No Google Analytics or user tracking.
+- **Self-hosting option**: For maximum privacy, you can run the application locally or self-host it without any analytics whatsoever.
+
+Whether you use the command line tool, run it locally in your browser, or use the hosted version, your documents and privacy are protected.
 
 ## Running Locally
 
