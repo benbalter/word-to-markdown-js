@@ -35,6 +35,13 @@ describe('DOC file validation', () => {
       expect(() => validateFileExtension('file')).not.toThrow();
     });
 
+    it('should NOT throw for files containing "doc" but with .docx extension', () => {
+      expect(() => validateFileExtension('mydocument.docx')).not.toThrow();
+      expect(() => validateFileExtension('document_doc.docx')).not.toThrow();
+      expect(() => validateFileExtension('doc-file.docx')).not.toThrow();
+      expect(() => validateFileExtension('adocument.docx')).not.toThrow();
+    });
+
     it('should provide helpful error message', () => {
       expect(() => validateFileExtension('document.doc')).toThrow(
         'This tool only supports .docx files, not .doc files. Please save your document as a .docx file and try again.',

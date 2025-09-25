@@ -12,7 +12,9 @@ async function handleFile(): Promise<void> {
   const file = this.files[0];
 
   // Check file extension before processing
-  if (file.name.toLowerCase().endsWith('.doc')) {
+  const filename = file.name.toLowerCase();
+  const ext = filename.substring(filename.lastIndexOf('.'));
+  if (ext === '.doc') {
     showError(
       'This tool only supports .docx files, not .doc files. Please save your document as a .docx file and try again.',
     );
