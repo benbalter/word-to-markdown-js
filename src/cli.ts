@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import convert from './main.js';
+import convert, { UnsupportedFileError } from './main.js';
 
 const program = new Command();
 program.name('w2m');
@@ -10,8 +10,16 @@ program
   .command('convert', { isDefault: true })
   .argument('<file>', 'The Word document to convert')
   .action(async (file) => {
-    const md = await convert(file);
-    console.log(md);
+    try {
+      const md = await convert(file);
+      console.log(md);
+    } catch (error) {
+      if (error instanceof UnsupportedFileError) {
+        console.error(`Error: ${error.message}`);
+        process.exit(1);
+      }
+      throw error;
+    }
   });
 
 program.parse();
