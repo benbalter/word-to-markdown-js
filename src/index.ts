@@ -102,13 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.matchMedia) {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-    // Function to handle theme changes
-    const handleThemeChange = (): void => {
-      // Theme change will be handled automatically by CSS
-      // This could be extended for future manual theme switching
-    };
-
-    // Listen for changes
-    mediaQuery.addEventListener('change', handleThemeChange);
+    // Theme changes are handled automatically by CSS.
+    // If manual theme switching is needed in the future, add a handler here.
   }
 });
