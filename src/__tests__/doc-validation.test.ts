@@ -35,6 +35,14 @@ describe('DOC file validation', () => {
       expect(() => validateFileExtension('file')).not.toThrow();
     });
 
+    it('should handle filenames without extensions', () => {
+      expect(() =>
+        validateFileExtension('filename_without_extension'),
+      ).not.toThrow();
+      expect(() => validateFileExtension('doc')).not.toThrow();
+      expect(() => validateFileExtension('docx')).not.toThrow();
+    });
+
     it('should NOT throw for files containing "doc" but with .docx extension', () => {
       expect(() => validateFileExtension('mydocument.docx')).not.toThrow();
       expect(() => validateFileExtension('document_doc.docx')).not.toThrow();

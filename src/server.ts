@@ -1,8 +1,10 @@
 import express from 'express';
 import multer from 'multer';
 import os from 'os';
-import path from 'path';
-import convert, { UnsupportedFileError } from './main.js';
+import convert, {
+  UnsupportedFileError,
+  validateFileExtension,
+} from './main.js';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { Request } from 'express';
@@ -25,14 +27,14 @@ app.post(
 
     // Check if the original filename has .doc extension
     if (req.file.originalname) {
-      const ext = path.extname(req.file.originalname).toLowerCase();
-      if (ext === '.doc') {
-        res
-          .status(400)
-          .send(
-            'This tool only supports .docx files, not .doc files. Please save your document as a .docx file and try again.',
-          );
-        return;
+      try {
+        validateFileExtension(req.file.originalname);
+      } catch (error) {
+        if (error instanceof UnsupportedFileError) {
+          res.status(400).send(error.message);
+          return;
+        }
+        throw error;
       }
     }
 

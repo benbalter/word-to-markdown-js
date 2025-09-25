@@ -13,12 +13,15 @@ async function handleFile(): Promise<void> {
 
   // Check file extension before processing
   const filename = file.name.toLowerCase();
-  const ext = filename.substring(filename.lastIndexOf('.'));
-  if (ext === '.doc') {
-    showError(
-      'This tool only supports .docx files, not .doc files. Please save your document as a .docx file and try again.',
-    );
-    return;
+  const lastDotIndex = filename.lastIndexOf('.');
+  if (lastDotIndex !== -1) {
+    const ext = filename.substring(lastDotIndex);
+    if (ext === '.doc') {
+      showError(
+        'This tool only supports .docx files, not .doc files. Please save your document as a .docx file and try again.',
+      );
+      return;
+    }
   }
 
   reader.readAsArrayBuffer(file);
