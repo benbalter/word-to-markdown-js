@@ -1,6 +1,6 @@
 # Terms of Use
 
-_TL;DR:_ This service is provided for your convenience, without any warranty of any kind. In an ideal world, if you use common sense, it will convert your document securely and privately, and this site will try it's best, but make no guarantees whatsoever.
+_TL;DR:_ This service is provided for your convenience, without any warranty of any kind. In an ideal world, if you use common sense, it will convert your document securely and privately, and this site will try its best, but make no guarantees whatsoever.
 
 Like any other website, your use of this service is subject to these terms, meaning if you use the service, you agree to be bound by these terms. That also means, that if you _do not_ agree with all of the terms here, you may not use the service.
 
