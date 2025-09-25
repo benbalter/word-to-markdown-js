@@ -1,4 +1,7 @@
-import convert, { UnsupportedFileError } from './main.js';
+import convert, {
+  UnsupportedFileError,
+  validateFileExtension,
+} from './main.js';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
 import remarkParse from 'remark-parse';
@@ -12,16 +15,14 @@ async function handleFile(): Promise<void> {
   const file = this.files[0];
 
   // Check file extension before processing
-  const filename = file.name.toLowerCase();
-  const lastDotIndex = filename.lastIndexOf('.');
-  if (lastDotIndex !== -1) {
-    const ext = filename.substring(lastDotIndex);
-    if (ext === '.doc') {
-      showError(
-        'This tool only supports .docx files, not .doc files. Please save your document as a .docx file and try again.',
-      );
+  try {
+    validateFileExtension(file.name);
+  } catch (error) {
+    if (error instanceof UnsupportedFileError) {
+      showError(error.message);
       return;
     }
+    throw error;
   }
 
   reader.readAsArrayBuffer(file);

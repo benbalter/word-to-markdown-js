@@ -33,7 +33,18 @@ const defaultTurndownOptions: turndownOptions = {
 
 // Check if a file path has a .doc extension (unsupported format)
 export function validateFileExtension(filePath: string): void {
-  const ext = path.extname(filePath).toLowerCase();
+  let ext: string;
+
+  // Check if we're in a Node.js environment (path module available)
+  if (typeof path !== 'undefined' && path.extname) {
+    ext = path.extname(filePath).toLowerCase();
+  } else {
+    // Browser environment - use manual parsing
+    const filename = filePath.toLowerCase();
+    const lastDotIndex = filename.lastIndexOf('.');
+    ext = lastDotIndex !== -1 ? filename.substring(lastDotIndex) : '';
+  }
+
   if (ext === '.doc') {
     throw new UnsupportedFileError(
       'This tool only supports .docx files, not .doc files. Please save your document as a .docx file and try again.',
