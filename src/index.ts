@@ -9,6 +9,7 @@ import remarkRehype from 'remark-rehype';
 import { unified } from 'unified';
 import remarkGfm from 'remark-gfm';
 import ClipboardJS from 'clipboard';
+import './dark-mode.css';
 
 async function handleFile(): Promise<void> {
   const reader = new FileReader();
@@ -95,5 +96,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const copyButton = document.getElementById('copy-button');
   if (copyButton !== null) {
     new ClipboardJS('#copy-button');
+  }
+
+  // Listen for system theme changes and update interface accordingly
+  if (window.matchMedia) {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    // Function to handle theme changes
+    const handleThemeChange = (e: MediaQueryListEvent): void => {
+      // Theme change will be handled automatically by CSS
+      // This could be extended for future manual theme switching
+      console.log(`System theme changed to: ${e.matches ? 'dark' : 'light'}`);
+    };
+
+    // Listen for changes
+    mediaQuery.addEventListener('change', handleThemeChange);
   }
 });

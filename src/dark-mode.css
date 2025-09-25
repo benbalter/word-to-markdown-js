@@ -1,0 +1,127 @@
+/* Dark Mode Support for Word to Markdown */
+
+/* CSS Custom Properties for Theme Colors */
+:root {
+  /* Light mode colors (default) */
+  --bg-color: #ffffff;
+  --text-color: #212529;
+  --text-muted-color: #6c757d;
+  --border-color: #dee2e6;
+  --code-bg-color: #f8f9fa;
+  --code-text-color: #e83e8c;
+  --pre-bg-color: #f8f9fa;
+  --btn-primary-bg: #0d6efd;
+  --btn-primary-border: #0d6efd;
+  --btn-outline-primary-color: #0d6efd;
+  --btn-outline-primary-border: #0d6efd;
+  --link-color: #0d6efd;
+  --link-hover-color: #0a58ca;
+}
+
+/* Dark mode colors */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #1a1a1a;
+    --text-color: #e9ecef;
+    --text-muted-color: #adb5bd;
+    --border-color: #495057;
+    --code-bg-color: #2d3748;
+    --code-text-color: #fd7e9a;
+    --pre-bg-color: #2d3748;
+    --btn-primary-bg: #0d6efd;
+    --btn-primary-border: #0d6efd;
+    --btn-outline-primary-color: #6ea8fe;
+    --btn-outline-primary-border: #6ea8fe;
+    --link-color: #6ea8fe;
+    --link-hover-color: #9ec5fe;
+  }
+}
+
+/* Apply theme colors to body and main elements */
+body {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+/* Text color overrides */
+.text-muted {
+  color: var(--text-muted-color) !important;
+}
+
+/* Code elements */
+code {
+  background-color: var(--code-bg-color) !important;
+  color: var(--code-text-color) !important;
+}
+
+/* Pre and code blocks */
+.bg-light {
+  background-color: var(--pre-bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+.border {
+  border-color: var(--border-color) !important;
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: var(--btn-primary-bg) !important;
+  border-color: var(--btn-primary-border) !important;
+}
+
+.btn-outline-primary {
+  color: var(--btn-outline-primary-color) !important;
+  border-color: var(--btn-outline-primary-border) !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--btn-outline-primary-color) !important;
+  border-color: var(--btn-outline-primary-color) !important;
+  color: var(--bg-color) !important;
+}
+
+/* Link styles */
+a,
+.nav-link {
+  color: var(--link-color) !important;
+}
+
+a:hover,
+.nav-link:hover {
+  color: var(--link-hover-color) !important;
+}
+
+/* Form elements */
+.form-control-file {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Additional elements that need dark mode support */
+input[type='file'] {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+/* Ensure headings use the proper text color */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text-color) !important;
+}
+
+/* Make sure the rendered content area is properly styled */
+#rendered {
+  background-color: var(--pre-bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+/* Handle any inline styles that might conflict */
+#output {
+  color: var(--text-color) !important;
+}
