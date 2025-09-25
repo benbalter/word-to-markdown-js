@@ -4,10 +4,19 @@ import * as mammoth from 'mammoth';
 import * as markdownlint from 'markdownlint/sync';
 import { applyFixes } from 'markdownlint';
 import { parse } from 'node-html-parser';
+import path from 'path';
 
 interface convertOptions {
   mammoth?: object;
   turndown?: object;
+}
+
+// Custom error class for unsupported file formats
+export class UnsupportedFileError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'UnsupportedFileError';
+  }
 }
 
 interface turndownOptions {
@@ -21,6 +30,27 @@ const defaultTurndownOptions: turndownOptions = {
   codeBlockStyle: 'fenced',
   bulletListMarker: '-',
 };
+
+// Check if a file path has a .doc extension (unsupported format)
+export function validateFileExtension(filePath: string): void {
+  let ext: string;
+
+  // Check if we're in a Node.js environment (path module available)
+  if (typeof path !== 'undefined' && path.extname) {
+    ext = path.extname(filePath).toLowerCase();
+  } else {
+    // Browser environment - use manual parsing
+    const filename = filePath.toLowerCase();
+    const lastDotIndex = filename.lastIndexOf('.');
+    ext = lastDotIndex !== -1 ? filename.substring(lastDotIndex) : '';
+  }
+
+  if (ext === '.doc') {
+    throw new UnsupportedFileError(
+      'This tool only supports .docx files, not .doc files. Please save your document as a .docx file and try again.',
+    );
+  }
+}
 
 // Decode HTML entities in text content
 function decodeHtmlEntities(html: string): string {
@@ -193,6 +223,8 @@ export default async function convert(
 ): Promise<string> {
   let inputObj: { path: string } | { arrayBuffer: ArrayBuffer };
   if (typeof input === 'string') {
+    // Validate file extension for file path inputs
+    validateFileExtension(input);
     inputObj = { path: input };
   } else {
     inputObj = { arrayBuffer: input };
