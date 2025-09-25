@@ -29,8 +29,9 @@
   },
   "scripts": {
     "fix": "eslint --fix --ext .ts . && prettier --write .",
-    "build": "npm run build:js && npm run build:web",
+    "build": "npm run build:js && npm run build:pages && npm run build:web",
     "build:js": "tsc",
+    "build:pages": "node scripts/build-pages.js",
     "build:web": "webpack build",
     "server:web": "webpack serve --open",
     "lint": "eslint . --ext .ts --ext .mts && prettier --check .",
