@@ -9,6 +9,18 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { Request } from 'express';
 
+
+// Escapes HTML meta-characters to prevent XSS in error messages
+function escapeHtml(str: string): string {
+  if (!str) return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 const app = express();
 const port = process.env.PORT || 3000;
 const upload = multer({ dest: os.tmpdir() });
@@ -31,7 +43,7 @@ app.post(
         validateFileExtension(req.file.originalname);
       } catch (error) {
         if (error instanceof UnsupportedFileError) {
-          res.status(400).send(error.message);
+          res.status(400).send(escapeHtml(error.message));
           return;
         }
         throw error;
@@ -44,7 +56,7 @@ app.post(
       return;
     } catch (error) {
       if (error instanceof UnsupportedFileError) {
-        res.status(400).send(error.message);
+        res.status(400).send(escapeHtml(error.message));
         return;
       }
       throw error;
