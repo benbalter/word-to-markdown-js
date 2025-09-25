@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import os from 'os';
-import convert from './main.js';
+import convert, { UnsupportedFileError } from './main.js';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { Request } from 'express';
@@ -17,15 +17,35 @@ app.post(
   '/raw',
   upload.single('doc'),
   async (req: Request & { file: multer.File }, res) => {
-    if (!(req.file instanceof multer.File)) {
+    if (!req.file) {
       res.status(400).send('You must upload a document to convert.');
       return;
     }
 
-    const md = await convert(req.file.path);
+    // Check if the original filename has .doc extension
+    if (
+      req.file.originalname &&
+      req.file.originalname.toLowerCase().endsWith('.doc')
+    ) {
+      res
+        .status(400)
+        .send(
+          'This tool only supports .docx files, not .doc files. Please save your document as a .docx file and try again.',
+        );
+      return;
+    }
 
-    res.status(200).send(md);
-    return;
+    try {
+      const md = await convert(req.file.path);
+      res.status(200).send(md);
+      return;
+    } catch (error) {
+      if (error instanceof UnsupportedFileError) {
+        res.status(400).send(error.message);
+        return;
+      }
+      throw error;
+    }
   },
 );
 
