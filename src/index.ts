@@ -98,11 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
     new ClipboardJS('#copy-button');
   }
 
-  // Listen for system theme changes and update interface accordingly
-  if (window.matchMedia) {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    // Theme changes are handled automatically by CSS.
-    // If manual theme switching is needed in the future, add a handler here.
-  }
+  // Theme changes are handled automatically by CSS using prefers-color-scheme media query.
+  // If manual theme switching is needed in the future, add a MediaQuery listener here.
 });
