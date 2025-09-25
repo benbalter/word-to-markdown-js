@@ -9,7 +9,6 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { Request } from 'express';
 
-
 // Escapes HTML meta-characters to prevent XSS in error messages
 function escapeHtml(str: string): string {
   if (!str) return '';
@@ -32,7 +31,12 @@ app.post(
   '/raw',
   upload.single('doc'),
   async (req: Request & { file: multer.File }, res) => {
-    if (!req.file) {
+    if (
+      !req.file ||
+      typeof req.file !== 'object' ||
+      !req.file.path ||
+      !req.file.originalname
+    ) {
       res.status(400).send('You must upload a document to convert.');
       return;
     }
