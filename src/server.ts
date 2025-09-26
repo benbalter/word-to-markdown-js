@@ -56,7 +56,7 @@ app.post(
 
     try {
       const md = await convert(req.file.path);
-      res.status(200).send(md);
+      res.status(200).type('text/plain').send(md);
       return;
     } catch (error) {
       if (error instanceof UnsupportedFileError) {

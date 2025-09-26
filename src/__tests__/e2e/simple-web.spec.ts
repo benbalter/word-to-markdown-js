@@ -72,14 +72,12 @@ test.describe('Simple Web Interface Test', () => {
     // Print requests for debugging
     console.log('Network requests:', requests);
 
-    // Should have loaded the main HTML and JS bundle
+    // Should have loaded the main JS bundle and Bootstrap CSS
     expect(
       requests.some((req) => /main(\.[a-zA-Z0-9]+)?\.js(\?.*)?$/.test(req)),
     ).toBe(true);
-    expect(
-      requests.some((req) =>
-        /bootstrap(\.[a-zA-Z0-9]+)?\.js(\?.*)?$/.test(req),
-      ),
-    ).toBe(true);
+    expect(requests.some((req) => /bootstrap.*\.css(\?.*)?$/.test(req))).toBe(
+      true,
+    );
   });
 });
