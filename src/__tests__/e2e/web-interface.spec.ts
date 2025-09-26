@@ -124,18 +124,10 @@ test.describe('Word to Markdown Web Interface', () => {
   test('should show error for unsupported .doc files', async ({ page }) => {
     // Note: We'll simulate the file upload with a .doc extension
     // The actual file content doesn't matter since validation happens on extension
-    await page.evaluate(() => {
-      // Create a file input with .doc extension to trigger validation
-      const fileInput = document.getElementById('file') as HTMLInputElement;
-      const dt = new DataTransfer();
-      const file = new File(['fake content'], 'document.doc', {
-        type: 'application/msword',
-      });
-      dt.items.add(file);
-      fileInput.files = dt.files;
-
-      // Trigger the change event
-      fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+    await page.locator('#file').setInputFiles({
+      name: 'document.doc',
+      mimeType: 'application/msword',
+      buffer: Buffer.from('fake content'),
     });
 
     // Should show error message and not proceed with conversion
