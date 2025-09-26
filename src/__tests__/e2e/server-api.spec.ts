@@ -271,9 +271,9 @@ test.describe('Server API Endpoints', () => {
 
     expect(response.status()).toBe(200);
 
-    // Check response headers (Express defaults to text/html for string responses)
+    // Check response headers (should be text/plain for markdown responses)
     const contentType = response.headers()['content-type'];
-    expect(contentType).toContain('text/html');
+    expect(contentType).toContain('text/plain');
 
     const markdown = await response.text();
 
