@@ -36,7 +36,9 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
-        // Use system Chrome instead of downloading Playwright's version
+        // Use system Chrome instead of downloading Playwright's version.
+        // Note: This requires Google Chrome to be installed on the system and available in the PATH.
+        // If Chrome is not installed or not found, Playwright will fail to launch the browser and tests will not run.
         channel: 'chrome',
       },
     },
