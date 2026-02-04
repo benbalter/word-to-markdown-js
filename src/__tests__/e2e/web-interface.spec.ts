@@ -153,7 +153,7 @@ test.describe('Word to Markdown Web Interface', () => {
 
     // Wait for error alert to appear
     await expect(page.locator('#error-alert')).toBeVisible({ timeout: 5000 });
-    
+
     // Check that error message is shown with correct text
     await expect(page.locator('#error-message')).toContainText(
       'not a valid Word document',
