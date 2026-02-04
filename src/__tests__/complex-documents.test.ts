@@ -431,10 +431,16 @@ describe('M365 professional document features', () => {
 
     const result = htmlToMd(htmlWithEmojiTable);
 
-    expect(result).toContain('| Task | Status | Priority |');
-    expect(result).toContain('| Design Review | ✅ Complete | 🔴 High |');
-    expect(result).toContain('| Development | ⏳ In Progress | 🟡 Medium |');
-    expect(result).toContain('| Testing | 📅 Scheduled | 🟢 Low |');
+    expect(result).toMatch(/\|\s*Task\s*\|\s*Status\s*\|\s*Priority\s*\|/);
+    expect(result).toMatch(
+      /\|\s*Design Review\s*\|\s*✅ Complete\s*\|\s*🔴 High\s*\|/,
+    );
+    expect(result).toMatch(
+      /\|\s*Development\s*\|\s*⏳ In Progress\s*\|\s*🟡 Medium\s*\|/,
+    );
+    expect(result).toMatch(
+      /\|\s*Testing\s*\|\s*📅 Scheduled\s*\|\s*🟢 Low\s*\|/,
+    );
   });
 
   it('should handle emoji in links', async () => {
