@@ -151,11 +151,10 @@ test.describe('Word to Markdown Web Interface', () => {
       buffer: Buffer.from('This is just plain text, not a valid docx file'),
     });
 
-    // Wait for error handling
-    await page.waitForTimeout(1000);
-
-    // Check that error message is shown
+    // Wait for error alert to appear
     await expect(page.locator('#error-alert')).toBeVisible({ timeout: 5000 });
+    
+    // Check that error message is shown with correct text
     await expect(page.locator('#error-message')).toContainText(
       'not a valid Word document',
     );
