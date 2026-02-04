@@ -66,6 +66,36 @@ export function validateFileExtension(filePath: string): void {
   }
 }
 
+// Validates that a file path is safe to use
+// Prevents path traversal attacks by checking for parent directory references
+function validateFilePath(filePath: string): void {
+  // Check for path traversal attempts
+  if (filePath.includes('..')) {
+    throw new Error('Invalid file path: path traversal not allowed');
+  }
+
+  // Resolve to absolute path to check for traversal
+  const resolvedPath = path.resolve(filePath);
+  const normalizedInput = path.normalize(filePath);
+
+  // If the normalized path differs significantly from the input, it might be suspicious
+  // This catches cases like "./../../etc/passwd" becoming "/etc/passwd"
+  if (normalizedInput.includes('..')) {
+    throw new Error('Invalid file path: path traversal not allowed');
+  }
+
+  // Additional validation: ensure the resolved path doesn't escape to system directories
+  // This is a defense-in-depth measure
+  const dangerousPaths = ['/etc', '/sys', '/proc', '/root', '/boot'];
+  for (const dangerousPath of dangerousPaths) {
+    if (resolvedPath.startsWith(dangerousPath)) {
+      throw new Error(
+        'Invalid file path: access to system directories not allowed',
+      );
+    }
+  }
+}
+
 // Map of common HTML entities to decode
 const decodeMap: { [key: string]: string } = {
   '&amp;': '&',
@@ -255,6 +285,9 @@ export async function extractDocumentProperties(
   try {
     let arrayBuffer: ArrayBuffer;
     if (typeof input === 'string') {
+      // Validate the file path to prevent path traversal attacks
+      validateFilePath(input);
+
       // Read file from path and convert to ArrayBuffer
       const fileBuffer = await fs.readFile(input);
       const slicedBuffer = fileBuffer.buffer.slice(
@@ -396,6 +429,9 @@ export async function convertWithWarnings(
   if (typeof input === 'string') {
     // Validate file extension for file path inputs
     validateFileExtension(input);
+
+    // Validate the file path to prevent path traversal attacks
+    validateFilePath(input);
 
     // Read the file once and share the buffer between
     // property extraction and Mammoth conversion to avoid
