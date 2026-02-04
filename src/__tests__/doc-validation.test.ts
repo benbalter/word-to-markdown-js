@@ -85,22 +85,26 @@ describe('DOC file validation', () => {
       );
     });
 
-    it('should allow ArrayBuffer inputs (browser uploads)', async () => {
-      // ArrayBuffer inputs should not be validated for file extension
-      // since we cannot determine the original filename
+    it('should throw UnsupportedFileError for invalid ArrayBuffer inputs', async () => {
+      // ArrayBuffer inputs that are not valid .docx files should throw UnsupportedFileError
       const buffer = new ArrayBuffer(8);
-      // This should not throw UnsupportedFileError because we don't validate ArrayBuffer inputs
-      // Note: This will likely fail with a mammoth error, but that's expected
-      let thrownError: Error | null = null;
-      try {
-        await convert(buffer);
-      } catch (error) {
-        thrownError = error as Error;
-      }
 
-      // We expect some error (probably from mammoth), but not our UnsupportedFileError
-      expect(thrownError).not.toBeNull();
-      expect(thrownError).not.toBeInstanceOf(UnsupportedFileError);
+      await expect(convert(buffer)).rejects.toThrow(UnsupportedFileError);
+      await expect(convert(buffer)).rejects.toThrow(
+        'The uploaded file is not a valid Word document (.docx). Please make sure you are uploading a .docx file.',
+      );
+    });
+
+    it('should throw UnsupportedFileError for text file content in ArrayBuffer', async () => {
+      // Create an ArrayBuffer containing text file content (not a zip/docx)
+      const textContent = 'This is just a text file, not a Word document';
+      const encoder = new TextEncoder();
+      const buffer = encoder.encode(textContent).buffer;
+
+      await expect(convert(buffer)).rejects.toThrow(UnsupportedFileError);
+      await expect(convert(buffer)).rejects.toThrow(
+        'The uploaded file is not a valid Word document (.docx)',
+      );
     });
   });
 

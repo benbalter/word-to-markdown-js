@@ -229,7 +229,31 @@ export default async function convert(
   } else {
     inputObj = { arrayBuffer: input };
   }
-  const mammothResult = await mammoth.convertToHtml(inputObj, options.mammoth);
+
+  let mammothResult;
+  try {
+    mammothResult = await mammoth.convertToHtml(inputObj, options.mammoth);
+  } catch (error) {
+    // Check if this is a file format error from mammoth/JSZip
+    if (error instanceof Error) {
+      // Various error messages that indicate the file is not a valid .docx
+      const invalidFileErrors = [
+        "Can't find end of central directory",
+        'Could not find file in options',
+        'is not a valid zip file',
+        'invalid zip file',
+      ];
+
+      if (invalidFileErrors.some((msg) => error.message.includes(msg))) {
+        throw new UnsupportedFileError(
+          'The uploaded file is not a valid Word document (.docx). Please make sure you are uploading a .docx file.',
+        );
+      }
+    }
+    // Re-throw other errors
+    throw error;
+  }
+
   const html = autoTableHeaders(mammothResult.value);
   const md = htmlToMd(html, options.turndown);
   const mdWithBullets = convertNumberedListsToBullets(md);
