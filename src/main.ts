@@ -5,10 +5,24 @@ import * as markdownlint from 'markdownlint/sync';
 import { applyFixes } from 'markdownlint';
 import { parse } from 'node-html-parser';
 import path from 'path';
+import JSZip from 'jszip';
+import fs from 'fs/promises';
 
 interface convertOptions {
   mammoth?: object;
   turndown?: object;
+}
+
+export interface ConvertResult {
+  markdown: string;
+  warnings: string[];
+}
+
+interface DocumentProperties {
+  sensitivity?: string;
+  confidentiality?: string;
+  encryption?: boolean;
+  protection?: boolean;
 }
 
 // Custom error class for unsupported file formats
@@ -216,7 +230,158 @@ function lint(md: string): string {
   return applyFixes(md, lintResult['md']).trim();
 }
 
+// Extract document properties from a .docx file
+async function extractDocumentProperties(
+  input: string | ArrayBuffer,
+): Promise<DocumentProperties> {
+  const properties: DocumentProperties = {};
+
+  try {
+    let buffer: ArrayBuffer | SharedArrayBuffer;
+    if (typeof input === 'string') {
+      // Read file from path
+      const fileBuffer = await fs.readFile(input);
+      buffer = fileBuffer.buffer.slice(
+        fileBuffer.byteOffset,
+        fileBuffer.byteOffset + fileBuffer.byteLength,
+      ) as ArrayBuffer;
+    } else {
+      buffer = input;
+    }
+
+    const zip = await JSZip.loadAsync(buffer);
+
+    // Check for encryption - encrypted files have EncryptionInfo and EncryptedPackage
+    const encryptionInfo = zip.file('EncryptionInfo');
+    if (encryptionInfo) {
+      properties.encryption = true;
+    }
+
+    // Try to read core properties
+    const corePropsFile = zip.file('docProps/core.xml');
+    if (corePropsFile) {
+      const coreXml = await corePropsFile.async('string');
+      // Look for keywords that might indicate sensitivity/confidentiality
+      if (
+        coreXml.toLowerCase().includes('confidential') ||
+        coreXml.toLowerCase().includes('sensitive')
+      ) {
+        properties.confidentiality = 'detected in core properties';
+      }
+    }
+
+    // Try to read custom properties
+    const customPropsFile = zip.file('docProps/custom.xml');
+    if (customPropsFile) {
+      const customXml = await customPropsFile.async('string');
+
+      // Parse XML to look for sensitivity/confidentiality properties
+      // Common property names include: Sensitivity, Confidentiality, Classification
+      const sensitivityMatch =
+        customXml.match(
+          /<property[^>]*name="(?:Sensitivity|MSIP_Label_[^"]*)"[^>]*>[\s\S]*?<\/property>/gi,
+        ) ||
+        customXml.match(
+          /<property[^>]*name="[^"]*(?:confidential|sensitive)[^"]*"[^>]*>[\s\S]*?<\/property>/gi,
+        );
+
+      if (sensitivityMatch) {
+        properties.sensitivity = 'detected in custom properties';
+      }
+
+      // Check for confidentiality markers
+      if (
+        customXml.toLowerCase().includes('confidential') ||
+        customXml.toLowerCase().includes('msip_label')
+      ) {
+        properties.confidentiality = 'detected in custom properties';
+      }
+    }
+
+    // Check for document protection
+    const settingsFile = zip.file('word/settings.xml');
+    if (settingsFile) {
+      const settingsXml = await settingsFile.async('string');
+      if (
+        settingsXml.includes('<w:documentProtection') ||
+        settingsXml.includes('<w:writeProtection')
+      ) {
+        properties.protection = true;
+      }
+    }
+  } catch (error) {
+    // If we can't extract properties, just continue without them
+    // This might happen with encrypted or corrupted files
+  }
+
+  return properties;
+}
+
+// Generate warnings based on document properties
+function generateWarnings(properties: DocumentProperties): string[] {
+  const warnings: string[] = [];
+
+  if (properties.encryption) {
+    warnings.push(
+      'Warning: This document appears to be encrypted. Conversion may not include all content or may fail entirely.',
+    );
+  }
+
+  if (properties.sensitivity) {
+    warnings.push(
+      `Warning: This document has sensitivity labels (${properties.sensitivity}). Please ensure you have permission to convert and share this content.`,
+    );
+  }
+
+  if (properties.confidentiality) {
+    warnings.push(
+      `Warning: This document contains confidentiality markers (${properties.confidentiality}). Please verify that conversion is authorized.`,
+    );
+  }
+
+  if (properties.protection) {
+    warnings.push(
+      'Warning: This document has editing restrictions enabled. Some content may not convert properly.',
+    );
+  }
+
+  return warnings;
+}
+
+// Converts a Word document to crisp, clean Markdown with warnings
+export async function convertWithWarnings(
+  input: string | ArrayBuffer,
+  options: convertOptions = {},
+): Promise<ConvertResult> {
+  // Extract document properties to check for confidentiality flags
+  const properties = await extractDocumentProperties(input);
+  const warnings = generateWarnings(properties);
+
+  let inputObj: { path: string } | { arrayBuffer: ArrayBuffer };
+  if (typeof input === 'string') {
+    // Validate file extension for file path inputs
+    validateFileExtension(input);
+    inputObj = { path: input };
+  } else {
+    inputObj = { arrayBuffer: input };
+  }
+  const mammothResult = await mammoth.convertToHtml(inputObj, options.mammoth);
+  const html = autoTableHeaders(mammothResult.value);
+  const md = htmlToMd(html, options.turndown);
+  const mdWithBullets = convertNumberedListsToBullets(md);
+  const mdWithoutNbsp = removeNonBreakingSpaces(mdWithBullets);
+  const mdWithAsciiQuotes = convertSmartQuotes(mdWithoutNbsp);
+  const cleanedMd = lint(mdWithAsciiQuotes);
+
+  return {
+    markdown: cleanedMd,
+    warnings,
+  };
+}
+
 // Converts a Word document to crisp, clean Markdown
+// Note: This function maintains backward compatibility by returning only the markdown string
+// For warnings about confidentiality flags, use convertWithWarnings instead
 export default async function convert(
   input: string | ArrayBuffer,
   options: convertOptions = {},

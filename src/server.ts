@@ -1,7 +1,8 @@
 import express from 'express';
 import multer from 'multer';
 import os from 'os';
-import convert, {
+import {
+  convertWithWarnings,
   UnsupportedFileError,
   validateFileExtension,
 } from './main.js';
@@ -55,8 +56,14 @@ app.post(
     }
 
     try {
-      const md = await convert(req.file.path);
-      res.status(200).type('text/plain').send(md);
+      const result = await convertWithWarnings(req.file.path);
+
+      // If there are warnings, include them in a custom header
+      if (result.warnings.length > 0) {
+        res.setHeader('X-Conversion-Warnings', result.warnings.join('; '));
+      }
+
+      res.status(200).type('text/plain').send(result.markdown);
       return;
     } catch (error) {
       if (error instanceof UnsupportedFileError) {
