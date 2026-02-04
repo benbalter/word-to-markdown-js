@@ -5,6 +5,10 @@ import path from 'path';
 import {
   convertWithWarnings,
   UnsupportedFileError,
+  FileNotFoundError,
+  InvalidFileError,
+  FilePermissionError,
+  ConversionError,
   validateFileExtension,
 } from './main.js';
 import helmet from 'helmet';
@@ -94,8 +98,26 @@ app.post(
       res.status(200).type('text/plain').send(result.markdown);
       return;
     } catch (error) {
-      if (error instanceof UnsupportedFileError) {
+      // Handle all our custom errors with appropriate status codes
+      // Note: UnsupportedFileError is already caught during filename validation above,
+      // so it won't reach here, but we keep it for defensive programming
+      if (
+        error instanceof UnsupportedFileError ||
+        error instanceof InvalidFileError
+      ) {
         res.status(400).send(escapeHtml(error.message));
+        return;
+      }
+      if (error instanceof FileNotFoundError) {
+        res.status(404).send(escapeHtml(error.message));
+        return;
+      }
+      if (error instanceof FilePermissionError) {
+        res.status(403).send(escapeHtml(error.message));
+        return;
+      }
+      if (error instanceof ConversionError) {
+        res.status(500).send(escapeHtml(error.message));
         return;
       }
       throw error;

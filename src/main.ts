@@ -4,7 +4,6 @@ import * as mammoth from 'mammoth';
 import * as markdownlint from 'markdownlint/sync';
 import { applyFixes } from 'markdownlint';
 import { parse } from 'node-html-parser';
-import path from 'path';
 import JSZip from 'jszip';
 import fs from 'fs/promises';
 
@@ -33,6 +32,59 @@ export class UnsupportedFileError extends Error {
   }
 }
 
+// Custom error class for file not found
+export class FileNotFoundError extends Error {
+  constructor(filePath?: string) {
+    const location = filePath ? `: "${filePath}"` : '';
+    super(
+      `File not found${location}. Please check that the file exists and the path is correct.`,
+    );
+    this.name = 'FileNotFoundError';
+  }
+}
+
+// Custom error class for invalid/corrupted files
+export class InvalidFileError extends Error {
+  constructor(filePath?: string) {
+    const location = filePath ? `: "${filePath}"` : '';
+    super(
+      `Invalid file${location}. The file is not a valid .docx file or is corrupted. Please ensure the file is a valid Microsoft Word document (.docx format).`,
+    );
+    this.name = 'InvalidFileError';
+  }
+}
+
+// Custom error class for permission errors
+export class FilePermissionError extends Error {
+  constructor(filePath?: string) {
+    const location = filePath ? `: "${filePath}"` : '';
+    super(
+      `Permission denied${location}. Cannot read the file. Please check file permissions.`,
+    );
+    this.name = 'FilePermissionError';
+  }
+}
+
+// Custom error class for general conversion errors
+export class ConversionError extends Error {
+  public cause?: Error;
+
+  constructor(message: string, originalError?: Error) {
+    super(message);
+    this.name = 'ConversionError';
+    // Capture stack trace if available (Node.js/V8 specific)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ErrorWithCapture = Error as any;
+    if (typeof ErrorWithCapture.captureStackTrace === 'function') {
+      ErrorWithCapture.captureStackTrace(this, this.constructor);
+    }
+    if (originalError) {
+      // Use standard error chaining for better debugging tool support
+      this.cause = originalError;
+    }
+  }
+}
+
 interface turndownOptions {
   headingStyle?: 'setext' | 'atx';
   codeBlockStyle?: 'indented' | 'fenced';
@@ -47,17 +99,10 @@ const defaultTurndownOptions: turndownOptions = {
 
 // Check if a file path has a .doc extension (unsupported format)
 export function validateFileExtension(filePath: string): void {
-  let ext: string;
-
-  // Check if we're in a Node.js environment (path module available)
-  if (typeof path !== 'undefined' && path.extname) {
-    ext = path.extname(filePath).toLowerCase();
-  } else {
-    // Browser environment - use manual parsing
-    const filename = filePath.toLowerCase();
-    const lastDotIndex = filename.lastIndexOf('.');
-    ext = lastDotIndex !== -1 ? filename.substring(lastDotIndex) : '';
-  }
+  // Use manual extension parsing (works in both Node.js and browser)
+  const filename = filePath.toLowerCase();
+  const lastDotIndex = filename.lastIndexOf('.');
+  const ext = lastDotIndex !== -1 ? filename.substring(lastDotIndex) : '';
 
   if (ext === '.doc') {
     throw new UnsupportedFileError(
@@ -66,7 +111,7 @@ export function validateFileExtension(filePath: string): void {
   }
 }
 
-// Validates that a file path is safe to use
+// Validates that a file path is safe to use (Node.js only)
 // Prevents path traversal attacks by checking for parent directory references
 function validateFilePath(filePath: string): void {
   // Check for path traversal attempts
@@ -74,21 +119,21 @@ function validateFilePath(filePath: string): void {
     throw new Error('Invalid file path: path traversal not allowed');
   }
 
-  // Resolve to absolute path to check for traversal
-  const resolvedPath = path.resolve(filePath);
-  const normalizedInput = path.normalize(filePath);
-
-  // If the normalized path differs significantly from the input, it might be suspicious
-  // This catches cases like "./../../etc/passwd" becoming "/etc/passwd"
-  if (normalizedInput.includes('..')) {
-    throw new Error('Invalid file path: path traversal not allowed');
+  // Check for absolute paths to dangerous system directories (Unix-like systems)
+  const dangerousPaths = ['/etc/', '/sys/', '/proc/', '/root/', '/boot/'];
+  for (const dangerousPath of dangerousPaths) {
+    if (filePath.startsWith(dangerousPath)) {
+      throw new Error(
+        'Invalid file path: access to system directories not allowed',
+      );
+    }
   }
 
-  // Additional validation: ensure the resolved path doesn't escape to system directories
-  // This is a defense-in-depth measure
-  const dangerousPaths = ['/etc', '/sys', '/proc', '/root', '/boot'];
-  for (const dangerousPath of dangerousPaths) {
-    if (resolvedPath.startsWith(dangerousPath)) {
+  // Check for Windows system directories
+  const windowsDangerousPaths = ['C:\\Windows\\', 'C:\\Program Files\\'];
+  const normalizedPath = filePath.replace(/\//g, '\\');
+  for (const dangerousPath of windowsDangerousPaths) {
+    if (normalizedPath.toUpperCase().startsWith(dangerousPath.toUpperCase())) {
       throw new Error(
         'Invalid file path: access to system directories not allowed',
       );
@@ -484,26 +529,85 @@ export async function convertWithWarnings(
 }
 
 // Converts a Word document to crisp, clean Markdown
-// Note: This function maintains backward compatibility by returning only the markdown string
-// For warnings about confidentiality flags, use convertWithWarnings instead
 export default async function convert(
   input: string | ArrayBuffer,
   options: convertOptions = {},
 ): Promise<string> {
   let inputObj: { path: string } | { arrayBuffer: ArrayBuffer };
-  if (typeof input === 'string') {
-    // Validate file extension for file path inputs
-    validateFileExtension(input);
-    inputObj = { path: input };
-  } else {
-    inputObj = { arrayBuffer: input };
+  let filePath: string | undefined;
+
+  try {
+    if (typeof input === 'string') {
+      filePath = input;
+      // Validate file extension for file path inputs
+      validateFileExtension(input);
+      inputObj = { path: input };
+    } else {
+      inputObj = { arrayBuffer: input };
+    }
+
+    const mammothResult = await mammoth.convertToHtml(
+      inputObj,
+      options.mammoth,
+    );
+    const html = autoTableHeaders(mammothResult.value);
+    const md = htmlToMd(html, options.turndown);
+    const mdWithBullets = convertNumberedListsToBullets(md);
+    const mdWithoutNbsp = removeNonBreakingSpaces(mdWithBullets);
+    const mdWithAsciiQuotes = convertSmartQuotes(mdWithoutNbsp);
+    const cleanedMd = lint(mdWithAsciiQuotes);
+    return cleanedMd;
+  } catch (error) {
+    // Re-throw our custom errors as-is
+    if (
+      error instanceof UnsupportedFileError ||
+      error instanceof FileNotFoundError ||
+      error instanceof InvalidFileError ||
+      error instanceof FilePermissionError ||
+      error instanceof ConversionError
+    ) {
+      throw error;
+    }
+
+    // Handle specific error types from underlying libraries
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorCode =
+      error && typeof error === 'object' && 'code' in error
+        ? (error as { code: string }).code
+        : undefined;
+
+    // File not found errors (only occur with file path inputs)
+    if (errorCode === 'ENOENT') {
+      throw new FileNotFoundError(filePath);
+    }
+
+    // Permission errors (only occur with file path inputs)
+    if (errorCode === 'EACCES' || errorCode === 'EPERM') {
+      throw new FilePermissionError(filePath);
+    }
+
+    // Invalid .docx file errors (from JSZip or mammoth during file parsing)
+    // These patterns typically come from JSZip/mammoth when parsing the file structure.
+    // While there's a small theoretical risk of matching document content in unusual
+    // scenarios (e.g., embedded error messages), these specific technical phrases are
+    // highly unlikely to appear in normal document content.
+    if (
+      errorMessage.includes('end of central directory') || // JSZip: invalid ZIP structure
+      errorMessage.includes('zip file') || // JSZip: not a valid ZIP
+      errorMessage.includes('Corrupted zip') || // JSZip: corrupted ZIP file
+      errorMessage.includes('End of data reached') || // JSZip: truncated file
+      errorMessage.includes('Could not find file') // mammoth: missing required file in .docx
+    ) {
+      // Note: For ArrayBuffer inputs (e.g., web uploads), filePath will be undefined,
+      // so the error message won't include the original filename. The web interface
+      // could be enhanced to pass the filename separately if needed.
+      throw new InvalidFileError(filePath);
+    }
+
+    // Wrap other errors with a general conversion error
+    throw new ConversionError(
+      'An error occurred while converting the document. Please ensure the file is a valid .docx file and try again.',
+      error instanceof Error ? error : undefined,
+    );
   }
-  const mammothResult = await mammoth.convertToHtml(inputObj, options.mammoth);
-  const html = autoTableHeaders(mammothResult.value);
-  const md = htmlToMd(html, options.turndown);
-  const mdWithBullets = convertNumberedListsToBullets(md);
-  const mdWithoutNbsp = removeNonBreakingSpaces(mdWithBullets);
-  const mdWithAsciiQuotes = convertSmartQuotes(mdWithoutNbsp);
-  const cleanedMd = lint(mdWithAsciiQuotes);
-  return cleanedMd;
 }
