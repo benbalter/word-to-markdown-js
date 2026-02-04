@@ -237,14 +237,26 @@ async function extractDocumentProperties(
   const properties: DocumentProperties = {};
 
   try {
-    let arrayBuffer: ArrayBuffer | SharedArrayBuffer;
+    let arrayBuffer: ArrayBuffer;
     if (typeof input === 'string') {
-      // Read file from path
+      // Read file from path and convert to ArrayBuffer
       const fileBuffer = await fs.readFile(input);
-      arrayBuffer = fileBuffer.buffer.slice(
+      const slicedBuffer = fileBuffer.buffer.slice(
         fileBuffer.byteOffset,
         fileBuffer.byteOffset + fileBuffer.byteLength,
-      ) as ArrayBuffer;
+      );
+      // Ensure we have an ArrayBuffer (not SharedArrayBuffer)
+      // In practice, Node.js Buffer.buffer returns an ArrayBuffer, but TypeScript
+      // can't guarantee this, so we handle both cases
+      if (slicedBuffer instanceof ArrayBuffer) {
+        arrayBuffer = slicedBuffer;
+      } else {
+        // Convert SharedArrayBuffer to ArrayBuffer by copying the data
+        const uint8Array = new Uint8Array(slicedBuffer);
+        const newArrayBuffer = new ArrayBuffer(uint8Array.byteLength);
+        new Uint8Array(newArrayBuffer).set(uint8Array);
+        arrayBuffer = newArrayBuffer;
+      }
     } else {
       arrayBuffer = input;
     }
@@ -278,24 +290,21 @@ async function extractDocumentProperties(
       // Use regex patterns to detect sensitivity/confidentiality properties
       // We use regex instead of full XML parsing for performance and simplicity,
       // as we only need to detect the presence of specific property names, not extract values
-      // Common property names include: Sensitivity, Confidentiality, Classification, MSIP_Label_*
-      const sensitivityMatch =
-        customXml.match(
-          /<property[^>]*name="(?:Sensitivity|MSIP_Label_[^"]*)"[^>]*>[\s\S]*?<\/property>/gi,
-        ) ||
-        customXml.match(
-          /<property[^>]*name="[^"]*(?:confidential|sensitive)[^"]*"[^>]*>[\s\S]*?<\/property>/gi,
-        );
+      // Pattern 1: Standard sensitivity property names (Sensitivity, MSIP_Label_*)
+      // Pattern 2: Custom properties with 'confidential' or 'sensitive' in the name
+      const sensitivityPattern =
+        /<property[^>]*name="(?:Sensitivity|MSIP_Label_[^"]*|[^"]*(?:confidential|sensitive)[^"]*)"[^>]*>[\s\S]*?<\/property>/gi;
 
-      if (sensitivityMatch) {
+      const hasSensitivityProperty = sensitivityPattern.test(customXml);
+      const hasConfidentialText =
+        customXml.toLowerCase().includes('confidential');
+      const hasMSIPLabel = customXml.toLowerCase().includes('msip_label');
+
+      if (hasSensitivityProperty || hasMSIPLabel) {
         properties.sensitivity = 'detected in custom properties';
       }
 
-      // Check for confidentiality markers
-      if (
-        customXml.toLowerCase().includes('confidential') ||
-        customXml.toLowerCase().includes('msip_label')
-      ) {
+      if (hasConfidentialText) {
         properties.confidentiality = 'detected in custom properties';
       }
     }
