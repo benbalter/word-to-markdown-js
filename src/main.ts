@@ -21,9 +21,10 @@ export class UnsupportedFileError extends Error {
 
 // Custom error class for file not found
 export class FileNotFoundError extends Error {
-  constructor(filePath: string) {
+  constructor(filePath?: string) {
+    const location = filePath ? `: "${filePath}"` : '';
     super(
-      `File not found: "${filePath}". Please check that the file exists and the path is correct.`,
+      `File not found${location}. Please check that the file exists and the path is correct.`,
     );
     this.name = 'FileNotFoundError';
   }
@@ -42,9 +43,10 @@ export class InvalidFileError extends Error {
 
 // Custom error class for permission errors
 export class FilePermissionError extends Error {
-  constructor(filePath: string) {
+  constructor(filePath?: string) {
+    const location = filePath ? `: "${filePath}"` : '';
     super(
-      `Permission denied: Cannot read file "${filePath}". Please check file permissions.`,
+      `Permission denied${location}. Cannot read the file. Please check file permissions.`,
     );
     this.name = 'FilePermissionError';
   }
@@ -322,14 +324,14 @@ export default async function convert(
         ? (error as { code: string }).code
         : undefined;
 
-    // File not found errors (only for file path inputs)
+    // File not found errors (only occur with file path inputs)
     if (errorCode === 'ENOENT') {
-      throw new FileNotFoundError(filePath || 'the specified file');
+      throw new FileNotFoundError(filePath);
     }
 
-    // Permission errors (only for file path inputs)
+    // Permission errors (only occur with file path inputs)
     if (errorCode === 'EACCES' || errorCode === 'EPERM') {
-      throw new FilePermissionError(filePath || 'the specified file');
+      throw new FilePermissionError(filePath);
     }
 
     // Invalid .docx file errors (from JSZip or mammoth)
