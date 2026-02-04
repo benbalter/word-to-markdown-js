@@ -4,7 +4,6 @@ import * as mammoth from 'mammoth';
 import * as markdownlint from 'markdownlint/sync';
 import { applyFixes } from 'markdownlint';
 import { parse } from 'node-html-parser';
-import path from 'path';
 
 interface convertOptions {
   mammoth?: object;
@@ -86,17 +85,10 @@ const defaultTurndownOptions: turndownOptions = {
 
 // Check if a file path has a .doc extension (unsupported format)
 export function validateFileExtension(filePath: string): void {
-  let ext: string;
-
-  // Check if we're in a Node.js environment (path module available)
-  if (typeof path !== 'undefined' && path.extname) {
-    ext = path.extname(filePath).toLowerCase();
-  } else {
-    // Browser environment - use manual parsing
-    const filename = filePath.toLowerCase();
-    const lastDotIndex = filename.lastIndexOf('.');
-    ext = lastDotIndex !== -1 ? filename.substring(lastDotIndex) : '';
-  }
+  // Use manual extension parsing (works in both Node.js and browser)
+  const filename = filePath.toLowerCase();
+  const lastDotIndex = filename.lastIndexOf('.');
+  const ext = lastDotIndex !== -1 ? filename.substring(lastDotIndex) : '';
 
   if (ext === '.doc') {
     throw new UnsupportedFileError(
