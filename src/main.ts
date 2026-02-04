@@ -35,10 +35,10 @@ const defaultTurndownOptions: turndownOptions = {
 export function validateFileExtension(filePath: string): void {
   let ext: string;
 
-  // Check if we're in a Node.js environment (path module available)
-  if (typeof path !== 'undefined' && path.extname) {
+  // Try to use Node.js path module, fall back to manual parsing for browser
+  try {
     ext = path.extname(filePath).toLowerCase();
-  } else {
+  } catch {
     // Browser environment - use manual parsing
     const filename = filePath.toLowerCase();
     const lastDotIndex = filename.lastIndexOf('.');
