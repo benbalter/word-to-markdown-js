@@ -239,7 +239,8 @@ export default async function convert(
       // Error messages that indicate the file is not a valid .docx:
       // - JSZip errors when file is not a zip file
       // - "Could not find file in options" when invalid ArrayBuffer content
-      //   (in browser: invalid content; in Node.js tests: ArrayBuffer vs buffer mismatch)
+      //   (in browser: invalid content that can't be processed as .docx;
+      //    in Node.js tests: we pass { arrayBuffer: ArrayBuffer } but mammoth expects { buffer: Buffer })
       const fileFormatErrors = [
         "Can't find end of central directory",
         'is not a valid zip file',
