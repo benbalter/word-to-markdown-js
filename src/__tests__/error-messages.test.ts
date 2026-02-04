@@ -12,12 +12,8 @@ describe('error messages', () => {
   describe('FileNotFoundError', () => {
     it('should throw FileNotFoundError for non-existent file', async () => {
       const nonExistentFile = '/path/that/does/not/exist/file.docx';
-      await expect(convert(nonExistentFile)).rejects.toThrow(
-        FileNotFoundError,
-      );
-      await expect(convert(nonExistentFile)).rejects.toThrow(
-        'File not found',
-      );
+      await expect(convert(nonExistentFile)).rejects.toThrow(FileNotFoundError);
+      await expect(convert(nonExistentFile)).rejects.toThrow('File not found');
       await expect(convert(nonExistentFile)).rejects.toThrow(
         'Please check that the file exists',
       );
@@ -123,8 +119,7 @@ describe('error messages', () => {
 
         // Should be wrapped in one of our error types
         expect(
-          error instanceof InvalidFileError ||
-            error instanceof ConversionError,
+          error instanceof InvalidFileError || error instanceof ConversionError,
         ).toBe(true);
         expect(error.message).toContain('valid');
       } finally {
