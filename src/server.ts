@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import os from 'os';
+import path from 'path';
 import {
   convertWithWarnings,
   UnsupportedFileError,
@@ -19,6 +20,24 @@ function escapeHtml(str: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+// Validates that a file path is within the expected temporary directory
+// to prevent path traversal attacks
+function validateFilePath(filePath: string): void {
+  const tmpDir = os.tmpdir();
+  const resolvedPath = path.resolve(filePath);
+  const resolvedTmpDir = path.resolve(tmpDir);
+
+  // Ensure the resolved path starts with the temporary directory
+  if (!resolvedPath.startsWith(resolvedTmpDir)) {
+    throw new Error('Invalid file path: file must be in temporary directory');
+  }
+
+  // Additional check: ensure no parent directory references
+  if (filePath.includes('..')) {
+    throw new Error('Invalid file path: path traversal not allowed');
+  }
 }
 
 const app = express();
@@ -53,6 +72,14 @@ app.post(
         }
         throw error;
       }
+    }
+
+    // Validate the file path to prevent path traversal attacks
+    try {
+      validateFilePath(req.file.path);
+    } catch (error) {
+      res.status(400).send('Invalid file path');
+      return;
     }
 
     try {
