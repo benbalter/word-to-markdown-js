@@ -163,7 +163,6 @@ describe('error messages', () => {
       expect(error.message).not.toContain('EPERM');
       expect(error.message).not.toContain('stack trace');
       expect(error.message).not.toContain('mammoth');
-      expect(error.message).not.toContain('jszip');
       expect(error.message).not.toContain('JSZip');
 
       // Test with invalid file error

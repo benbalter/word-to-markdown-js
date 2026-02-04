@@ -334,15 +334,15 @@ export default async function convert(
       throw new FilePermissionError(filePath);
     }
 
-    // Invalid .docx file errors (from JSZip or mammoth)
+    // Invalid .docx file errors (from JSZip or mammoth during file parsing)
+    // These error messages come from the underlying libraries when they fail to parse
+    // the file structure, not from document content, so string matching is safe here.
     if (
-      errorMessage.includes('end of central directory') ||
-      errorMessage.includes('zip file') ||
-      errorMessage.includes('not a valid') ||
-      errorMessage.includes('corrupted') ||
-      errorMessage.includes('Corrupted zip') ||
-      errorMessage.includes('End of data reached') ||
-      errorMessage.includes('Could not find file')
+      errorMessage.includes('end of central directory') || // JSZip: invalid ZIP structure
+      errorMessage.includes('zip file') || // JSZip: not a valid ZIP
+      errorMessage.includes('Corrupted zip') || // JSZip: corrupted ZIP file
+      errorMessage.includes('End of data reached') || // JSZip: truncated file
+      errorMessage.includes('Could not find file') // mammoth: missing required file in .docx
     ) {
       throw new InvalidFileError(filePath);
     }
