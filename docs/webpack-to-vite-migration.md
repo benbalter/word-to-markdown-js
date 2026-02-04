@@ -7,6 +7,7 @@ This document details the evaluation and migration from Webpack to Vite as the b
 ## Why Evaluate Alternatives?
 
 Webpack has served the project well, but modern bundlers offer significant improvements in:
+
 - Build speed
 - Developer experience
 - Configuration simplicity
@@ -24,6 +25,7 @@ Webpack has served the project well, but modern bundlers offer significant impro
 ### Decision: Vite
 
 **Why Vite?**
+
 - Fast builds with esbuild-based dev server
 - Excellent TypeScript support out of the box
 - Handles CSS automatically (no loaders needed)
@@ -36,16 +38,17 @@ Webpack has served the project well, but modern bundlers offer significant impro
 
 ### Performance Improvements
 
-| Metric | Webpack | Vite | Improvement |
-|--------|---------|------|-------------|
-| Build Time | 10.7s | 3.4s | **3x faster** |
-| Dev Server Startup | ~2s | 171ms | **12x faster** |
-| Config Size | 50 lines | 20 lines | **60% simpler** |
-| Dependencies | 6 packages | 1 package | **83% fewer** |
+| Metric             | Webpack    | Vite      | Improvement     |
+| ------------------ | ---------- | --------- | --------------- |
+| Build Time         | 10.7s      | 3.4s      | **3x faster**   |
+| Dev Server Startup | ~2s        | 171ms     | **12x faster**  |
+| Config Size        | 50 lines   | 20 lines  | **60% simpler** |
+| Dependencies       | 6 packages | 1 package | **83% fewer**   |
 
 ### Bundle Size
 
 Both produce similar bundle sizes:
+
 - **Webpack**: 1,040 KB (main.js)
 - **Vite**: 1,049 KB (main.js) + 2 KB (index.css)
 - **Difference**: ~11 KB (1% larger, negligible)
@@ -55,6 +58,7 @@ The CSS is now separated, which is actually better for caching.
 ### Configuration Comparison
 
 **Before (webpack.config.cjs):**
+
 ```javascript
 const webpack = require('webpack');
 const nodeModulePrefixRe = /^node:/u;
@@ -109,6 +113,7 @@ module.exports = {
 ```
 
 **After (vite.config.ts):**
+
 ```typescript
 import { defineConfig } from 'vite';
 
@@ -160,6 +165,7 @@ export default defineConfig({
 ## Testing
 
 All existing tests pass without modification:
+
 - ✅ 72 unit tests pass
 - ✅ Linting passes
 - ✅ Production build works
@@ -169,16 +175,19 @@ All existing tests pass without modification:
 ## Developer Experience Improvements
 
 ### Dev Server
+
 - **Instant startup**: 171ms vs ~2s
 - **Fast HMR**: Changes reflect immediately
 - **Better error overlay**: Clearer error messages
 
 ### Build Process
+
 - **Faster iteration**: 3.4s builds vs 10.7s
 - **Clearer output**: Better build statistics
 - **Simpler debugging**: Fewer layers of abstraction
 
 ### Configuration
+
 - **TypeScript native**: No need for ts-loader
 - **CSS handled**: No need for style-loader and css-loader
 - **Sensible defaults**: Less configuration needed
@@ -186,6 +195,7 @@ All existing tests pass without modification:
 ## Rollback Plan
 
 If issues arise, rollback is straightforward:
+
 1. Revert the commit
 2. Run `npm install` to restore webpack dependencies
 3. Run `npm run build` to verify
@@ -197,11 +207,13 @@ The webpack.config.cjs is preserved in git history.
 ### Future Optimizations
 
 The current bundle is 1.05MB, which triggers Vite's warning. Consider:
+
 1. **Code splitting**: Use dynamic imports for large dependencies
 2. **Bundle analysis**: Identify large dependencies
 3. **Lazy loading**: Load conversion logic only when needed
 
 Example for code splitting:
+
 ```typescript
 // Instead of:
 import convert from './main.js';
@@ -213,6 +225,7 @@ const { default: convert } = await import('./main.js');
 ## Conclusion
 
 The migration to Vite is a clear success:
+
 - **3x faster builds** with no bundle size increase
 - **Simpler configuration** reducing maintenance burden
 - **Better developer experience** with modern tooling
