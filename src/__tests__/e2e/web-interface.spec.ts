@@ -140,6 +140,31 @@ test.describe('Word to Markdown Web Interface', () => {
     await expect(page.locator('#input')).not.toHaveClass(/d-none/);
   });
 
+  test('should show error for invalid file content (non-docx)', async ({
+    page,
+  }) => {
+    // Upload a file with .docx extension but invalid content
+    await page.locator('#file').setInputFiles({
+      name: 'invalid.docx',
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      buffer: Buffer.from('This is just plain text, not a valid docx file'),
+    });
+
+    // Wait for error handling
+    await page.waitForTimeout(1000);
+
+    // Check that error message is shown
+    await expect(page.locator('#error-alert')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('#error-message')).toContainText(
+      'not a valid Word document',
+    );
+
+    // Verify no conversion occurred by checking that results remain hidden
+    await expect(page.locator('#results')).toHaveClass(/d-none/);
+    await expect(page.locator('#input')).not.toHaveClass(/d-none/);
+  });
+
   test('should handle copy to clipboard functionality', async ({ page }) => {
     const fixturePath = path.join(__dirname, '../../__fixtures__/p.docx');
 
