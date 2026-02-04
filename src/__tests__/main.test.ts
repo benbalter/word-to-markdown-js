@@ -76,6 +76,16 @@ describe('main', () => {
     expect(result).toEqual(expectedMarkdown);
   });
 
+  it('should decode hex entities with both lowercase and uppercase X', async () => {
+    const { htmlToMd } = await import('../main.js');
+    // Test both &#x27; (lowercase) and &#X27; (uppercase)
+    const htmlWithHexEntities = '<p>&#x27; &#X27; &#x41; &#X41;</p>';
+    const expectedMarkdown = "' ' A A";
+
+    const result = htmlToMd(htmlWithHexEntities);
+    expect(result).toEqual(expectedMarkdown);
+  });
+
   it('should fully decode isolated double-encoded entities', async () => {
     const { htmlToMd } = await import('../main.js');
     // When entities are isolated, Turndown can safely decode them fully

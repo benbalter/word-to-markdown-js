@@ -84,9 +84,9 @@ function decodeHtmlEntities(html: string): string {
     // Match: & followed by either:
     //   - a-zA-Z letters (for named entities like &amp;, &nbsp;, etc.)
     //   - # followed by digits (for numeric entities like &#169;)
-    //   - #x followed by hex digits (for hex entities like &#x27;)
+    //   - #[xX] followed by hex digits (for hex entities like &#x27; or &#X27;)
     // All terminated with a semicolon
-    return text.replace(/&(?:[a-zA-Z]+|#\d+|#x[0-9a-fA-F]+);/g, (entity) => {
+    return text.replace(/&(?:[a-zA-Z]+|#\d+|#[xX][0-9a-fA-F]+);/g, (entity) => {
       // Handle named entities
       if (decodeMap[entity]) {
         return decodeMap[entity];
