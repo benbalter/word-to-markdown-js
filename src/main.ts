@@ -1,18 +1,3 @@
-/**
- * Word to Markdown Converter
- *
- * This module converts Word documents (.docx) to clean, GitHub-flavored Markdown.
- *
- * Performance optimizations:
- * - Single-pass HTML processing (combined table headers and bullet removal)
- * - TurndownService singleton pattern for reuse across conversions
- * - Pre-compiled regular expressions to avoid recompilation overhead
- * - Combined text normalization (smart quotes + non-breaking spaces in one pass)
- * - Optimized HTML entity decoding with early exit conditions
- *
- * See docs/PERFORMANCE.md for detailed documentation.
- */
-
 import TurndownService from '@joplin/turndown';
 import * as turndownPluginGfm from '@joplin/turndown-plugin-gfm';
 import * as mammoth from 'mammoth';
@@ -67,38 +52,41 @@ export function validateFileExtension(filePath: string): void {
   }
 }
 
+// Map of common HTML entities to decode
+const decodeMap: { [key: string]: string } = {
+  '&amp;': '&',
+  // Don't decode &lt; and &gt; in our custom decoder
+  // Let Turndown handle them appropriately based on context
+  '&quot;': '"',
+  '&#39;': "'",
+  '&#x27;': "'",
+  '&apos;': "'",
+  '&nbsp;': ' ',
+  '&copy;': '©',
+  '&reg;': '®',
+  '&trade;': '™',
+  '&hellip;': '…',
+  '&mdash;': '—',
+  '&ndash;': '–',
+  '&lsquo;': '\u2018',
+  '&rsquo;': '\u2019',
+  '&ldquo;': '\u201C',
+  '&rdquo;': '\u201D',
+};
+
+// Maximum iterations for decoding nested HTML entities to prevent infinite loops
+const MAX_DECODE_ITERATIONS = 10;
+
 // Decode HTML entities in text content
 function decodeHtmlEntities(html: string): string {
-  const decodeMap: { [key: string]: string } = {
-    '&amp;': '&',
-    // Don't decode &lt; and &gt; in our custom decoder
-    // Let Turndown handle them appropriately based on context
-    '&quot;': '"',
-    '&#39;': "'",
-    '&#x27;': "'",
-    '&apos;': "'",
-    '&nbsp;': ' ',
-    '&copy;': '©',
-    '&reg;': '®',
-    '&trade;': '™',
-    '&hellip;': '…',
-    '&mdash;': '—',
-    '&ndash;': '–',
-    '&lsquo;': '\u2018',
-    '&rsquo;': '\u2019',
-    '&ldquo;': '\u201C',
-    '&rdquo;': '\u201D',
-  };
-
-  // Optimized: decode all entities in one pass with a single regex
-  // This is much faster than the recursive do-while loop
-  let decoded = html;
-  let maxIterations = 3; // Limit iterations to prevent infinite loops
-  let hasEntities = decoded.includes('&');
-
-  while (hasEntities && maxIterations > 0) {
-    const prevDecoded = decoded;
-    decoded = decoded.replace(/&[#\w]+;/g, (entity) => {
+  function decodeOnce(text: string): string {
+    // Use a more specific regex pattern to avoid catastrophic backtracking
+    // Match: & followed by either:
+    //   - a-zA-Z letters (for named entities like &amp;, &nbsp;, etc.)
+    //   - # followed by digits (for numeric entities like &#169;)
+    //   - #[xX] followed by hex digits (for hex entities like &#x27; or &#X27;)
+    // All terminated with a semicolon
+    return text.replace(/&(?:[a-zA-Z]+|#\d+|#[xX][0-9a-fA-F]+);/g, (entity) => {
       // Handle named entities
       if (decodeMap[entity]) {
         return decodeMap[entity];
@@ -119,11 +107,21 @@ function decodeHtmlEntities(html: string): string {
       // Return original if not recognized
       return entity;
     });
-
-    // Check if we made any changes and if there are still entities
-    hasEntities = decoded !== prevDecoded && decoded.includes('&');
-    maxIterations--;
   }
+
+  // Keep decoding until no more entities are found (handles double/triple encoding)
+  let decoded = html;
+  let prevDecoded;
+  let iterations = 0;
+  do {
+    prevDecoded = decoded;
+    decoded = decodeOnce(decoded);
+    iterations++;
+  } while (
+    decoded !== prevDecoded &&
+    decoded.includes('&') &&
+    iterations < MAX_DECODE_ITERATIONS
+  );
 
   return decoded;
 }
@@ -243,10 +241,8 @@ function convertNumberedListsToBullets(md: string): string {
   return md.replace(numberedListRegex, '$1- ');
 }
 
-// Remove unicode non-breaking spaces and replace with regular spaces
-// Also converts smart quotes to ASCII in a single pass
+// Remove unicode non-breaking spaces and convert smart quotes to ASCII in a single pass
 function normalizeText(md: string): string {
-  // Combine both operations into a single pass for better performance
   return md
     .replace(nonBreakingSpacesRegex, (char) => nonBreakingSpaceMap[char])
     .replace(smartQuotesRegex, (char) => smartQuoteMap[char]);
