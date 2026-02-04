@@ -236,25 +236,18 @@ export default async function convert(
   } catch (error) {
     // Check if this is a file format error from mammoth/JSZip
     if (error instanceof Error) {
-      // JSZip-specific error messages that indicate the file is not a zip file
-      const zipFormatErrors = [
+      // Error messages that indicate the file is not a valid .docx:
+      // - JSZip errors when file is not a zip file
+      // - "Could not find file in options" when invalid ArrayBuffer content
+      //   (in browser: invalid content; in Node.js tests: ArrayBuffer vs buffer mismatch)
+      const fileFormatErrors = [
         "Can't find end of central directory",
         'is not a valid zip file',
         'invalid zip file',
+        'Could not find file in options',
       ];
 
-      // "Could not find file in options" occurs when:
-      // - In browser: Invalid ArrayBuffer content that can't be processed
-      // - In Node.js: ArrayBuffer passed instead of buffer (test environment)
-      // In both cases, for our usage, this indicates invalid file content
-      const invalidInputError = error.message.includes(
-        'Could not find file in options',
-      );
-
-      if (
-        zipFormatErrors.some((msg) => error.message.includes(msg)) ||
-        invalidInputError
-      ) {
+      if (fileFormatErrors.some((msg) => error.message.includes(msg))) {
         throw new UnsupportedFileError(
           'The uploaded file is not a valid Word document (.docx). Please make sure you are uploading a .docx file.',
         );
