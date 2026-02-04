@@ -36,7 +36,7 @@
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
-    "all": "npm run fix && npm run test && npm run build && check-builds",
+    "all": "npm run fix && npm run test && npm run build && npm run check-builds",
     "server": "node build/server.js",
     "check-builds": "./scripts/check-builds.sh"
   },
