@@ -52,29 +52,33 @@ export function validateFileExtension(filePath: string): void {
   }
 }
 
+// Map of common HTML entities to decode
+const decodeMap: { [key: string]: string } = {
+  '&amp;': '&',
+  // Don't decode &lt; and &gt; in our custom decoder
+  // Let Turndown handle them appropriately based on context
+  '&quot;': '"',
+  '&#39;': "'",
+  '&#x27;': "'",
+  '&apos;': "'",
+  '&nbsp;': ' ',
+  '&copy;': '©',
+  '&reg;': '®',
+  '&trade;': '™',
+  '&hellip;': '…',
+  '&mdash;': '—',
+  '&ndash;': '–',
+  '&lsquo;': '\u2018',
+  '&rsquo;': '\u2019',
+  '&ldquo;': '\u201C',
+  '&rdquo;': '\u201D',
+};
+
+// Maximum iterations for decoding nested HTML entities to prevent infinite loops
+const MAX_DECODE_ITERATIONS = 10;
+
 // Decode HTML entities in text content
 function decodeHtmlEntities(html: string): string {
-  const decodeMap: { [key: string]: string } = {
-    '&amp;': '&',
-    // Don't decode &lt; and &gt; in our custom decoder
-    // Let Turndown handle them appropriately based on context
-    '&quot;': '"',
-    '&#39;': "'",
-    '&#x27;': "'",
-    '&apos;': "'",
-    '&nbsp;': ' ',
-    '&copy;': '©',
-    '&reg;': '®',
-    '&trade;': '™',
-    '&hellip;': '…',
-    '&mdash;': '—',
-    '&ndash;': '–',
-    '&lsquo;': '\u2018',
-    '&rsquo;': '\u2019',
-    '&ldquo;': '\u201C',
-    '&rdquo;': '\u201D',
-  };
-
   function decodeOnce(text: string): string {
     // Use a more specific regex pattern to avoid catastrophic backtracking
     // Match: & followed by either:
@@ -106,8 +110,6 @@ function decodeHtmlEntities(html: string): string {
   }
 
   // Keep decoding until no more entities are found (handles double/triple encoding)
-  // Add a maximum iteration limit to prevent potential infinite loops
-  const MAX_DECODE_ITERATIONS = 10;
   let decoded = html;
   let prevDecoded;
   let iterations = 0;
