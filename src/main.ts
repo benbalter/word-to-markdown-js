@@ -322,19 +322,14 @@ export default async function convert(
         ? (error as { code: string }).code
         : undefined;
 
-    // File not found errors
-    if (errorCode === 'ENOENT' || errorMessage.includes('ENOENT')) {
-      throw new FileNotFoundError(filePath || 'unknown');
+    // File not found errors (only for file path inputs)
+    if (errorCode === 'ENOENT') {
+      throw new FileNotFoundError(filePath || 'the specified file');
     }
 
-    // Permission errors
-    if (
-      errorCode === 'EACCES' ||
-      errorCode === 'EPERM' ||
-      errorMessage.includes('EACCES') ||
-      errorMessage.includes('EPERM')
-    ) {
-      throw new FilePermissionError(filePath || 'unknown');
+    // Permission errors (only for file path inputs)
+    if (errorCode === 'EACCES' || errorCode === 'EPERM') {
+      throw new FilePermissionError(filePath || 'the specified file');
     }
 
     // Invalid .docx file errors (from JSZip or mammoth)

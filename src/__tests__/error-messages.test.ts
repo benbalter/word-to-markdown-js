@@ -153,14 +153,38 @@ describe('error messages', () => {
     });
 
     it('should not expose internal implementation details in error messages', async () => {
+      // Test with file not found error
       const testFile = '/nonexistent/file.docx';
       const error = await convert(testFile).catch((e) => e);
 
       // Should not contain technical jargon or internal error codes
       expect(error.message).not.toContain('ENOENT');
+      expect(error.message).not.toContain('EACCES');
+      expect(error.message).not.toContain('EPERM');
       expect(error.message).not.toContain('stack trace');
       expect(error.message).not.toContain('mammoth');
       expect(error.message).not.toContain('jszip');
+      expect(error.message).not.toContain('JSZip');
+
+      // Test with invalid file error
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'w2m-test-'));
+      const tempFile = path.join(tempDir, 'invalid.docx');
+      try {
+        fs.writeFileSync(tempFile, 'invalid content');
+        const invalidError = await convert(tempFile).catch((e) => e);
+
+        // Should not contain technical library names
+        expect(invalidError.message).not.toContain('JSZip');
+        expect(invalidError.message).not.toContain('mammoth');
+        expect(invalidError.message).not.toContain('central directory');
+      } finally {
+        if (fs.existsSync(tempFile)) {
+          fs.unlinkSync(tempFile);
+        }
+        if (fs.existsSync(tempDir)) {
+          fs.rmdirSync(tempDir);
+        }
+      }
     });
   });
 });
