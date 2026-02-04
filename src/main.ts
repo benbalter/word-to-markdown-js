@@ -247,7 +247,7 @@ function lint(md: string): string {
 }
 
 // Extract document properties from a .docx file
-async function extractDocumentProperties(
+export async function extractDocumentProperties(
   input: string | ArrayBuffer,
 ): Promise<DocumentProperties> {
   const properties: DocumentProperties = {};
@@ -312,8 +312,10 @@ async function extractDocumentProperties(
       // - "Sensitivity" (standard Office property)
       // - "MSIP_Label_*" (Microsoft Information Protection labels)
       // - Any property with "confidential" or "sensitive" in the name
+      // We only check for the property name attribute existence, not the full element content,
+      // to avoid potential catastrophic backtracking on large/malformed XML
       const sensitivityPattern =
-        /<property[^>]*name="(?:Sensitivity|MSIP_Label_[^"]*|[^"]*(?:confidential|sensitive)[^"]*)"[^>]*>[\s\S]*?<\/property>/gi;
+        /<property[^>]*\bname="(?:Sensitivity|MSIP_Label_[^"]*|[^"]*(?:confidential|sensitive)[^"]*)"[^>]*>/gi;
 
       const hasSensitivityProperty = sensitivityPattern.test(customXml);
       const hasConfidentialText = customXmlLower.includes('confidential');
@@ -352,7 +354,7 @@ async function extractDocumentProperties(
 }
 
 // Generate warnings based on document properties
-function generateWarnings(properties: DocumentProperties): string[] {
+export function generateWarnings(properties: DocumentProperties): string[] {
   const warnings: string[] = [];
 
   if (properties.encryption) {
@@ -387,19 +389,51 @@ export async function convertWithWarnings(
   input: string | ArrayBuffer,
   options: convertOptions = {},
 ): Promise<ConvertResult> {
-  // Extract document properties to check for confidentiality flags
-  const properties = await extractDocumentProperties(input);
-  const warnings = generateWarnings(properties);
+  // Normalize input so that the underlying .docx content is read at most once
+  let mammothInput: { path: string } | { buffer: Buffer };
+  let propertiesInput: string | ArrayBuffer = input;
 
-  let inputObj: { path: string } | { arrayBuffer: ArrayBuffer };
   if (typeof input === 'string') {
     // Validate file extension for file path inputs
     validateFileExtension(input);
-    inputObj = { path: input };
+
+    // Read the file once and share the buffer between
+    // property extraction and Mammoth conversion to avoid
+    // redundant disk reads for large documents
+    const fileBuffer = await fs.readFile(input);
+    const slicedBuffer = fileBuffer.buffer.slice(
+      fileBuffer.byteOffset,
+      fileBuffer.byteOffset + fileBuffer.byteLength,
+    );
+
+    // Ensure we have an ArrayBuffer (not SharedArrayBuffer) for property extraction
+    let arrayBuffer: ArrayBuffer;
+    if (slicedBuffer instanceof ArrayBuffer) {
+      arrayBuffer = slicedBuffer;
+    } else {
+      // Convert SharedArrayBuffer to ArrayBuffer by copying the data
+      const uint8Array = new Uint8Array(slicedBuffer);
+      const newArrayBuffer = new ArrayBuffer(uint8Array.byteLength);
+      new Uint8Array(newArrayBuffer).set(uint8Array);
+      arrayBuffer = newArrayBuffer;
+    }
+
+    propertiesInput = arrayBuffer;
+    mammothInput = { buffer: fileBuffer };
   } else {
-    inputObj = { arrayBuffer: input };
+    propertiesInput = input;
+    // Convert ArrayBuffer to Buffer for mammoth
+    mammothInput = { buffer: Buffer.from(input) };
   }
-  const mammothResult = await mammoth.convertToHtml(inputObj, options.mammoth);
+
+  // Extract document properties to check for confidentiality flags
+  const properties = await extractDocumentProperties(propertiesInput);
+  const warnings = generateWarnings(properties);
+
+  const mammothResult = await mammoth.convertToHtml(
+    mammothInput,
+    options.mammoth,
+  );
   const html = autoTableHeaders(mammothResult.value);
   const md = htmlToMd(html, options.turndown);
   const mdWithBullets = convertNumberedListsToBullets(md);

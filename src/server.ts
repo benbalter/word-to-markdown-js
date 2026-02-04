@@ -59,8 +59,9 @@ app.post(
       const result = await convertWithWarnings(req.file.path);
 
       // If there are warnings, include them in a custom header
+      // Use JSON encoding to properly handle special characters in warning messages
       if (result.warnings.length > 0) {
-        res.setHeader('X-Conversion-Warnings', result.warnings.join('; '));
+        res.setHeader('X-Conversion-Warnings', JSON.stringify(result.warnings));
       }
 
       res.status(200).type('text/plain').send(result.markdown);
