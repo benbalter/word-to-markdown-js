@@ -296,8 +296,9 @@ async function extractDocumentProperties(
         /<property[^>]*name="(?:Sensitivity|MSIP_Label_[^"]*|[^"]*(?:confidential|sensitive)[^"]*)"[^>]*>[\s\S]*?<\/property>/gi;
 
       const hasSensitivityProperty = sensitivityPattern.test(customXml);
-      const hasConfidentialText =
-        customXml.toLowerCase().includes('confidential');
+      const hasConfidentialText = customXml
+        .toLowerCase()
+        .includes('confidential');
       const hasMSIPLabel = customXml.toLowerCase().includes('msip_label');
 
       if (hasSensitivityProperty || hasMSIPLabel) {
