@@ -17,7 +17,7 @@ git status --porcelain
 echo "Running TypeScript build..."
 npm run build
 
-echo "Running webpack build..."
+echo "Running Vite build..."
 npm run build:web
 
 # Check if any files changed in build or dist directories
