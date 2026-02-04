@@ -234,23 +234,23 @@ export default async function convert(
   try {
     mammothResult = await mammoth.convertToHtml(inputObj, options.mammoth);
   } catch (error) {
-    // Check if this is a file format error from mammoth/JSZip
+    // Check if this is a JSZip error indicating the file is not a valid zip/docx
+    // Only catch errors that mean the file format itself is wrong, not parsing errors
     if (error instanceof Error) {
-      // Various error messages that indicate the file is not a valid .docx
-      const invalidFileErrors = [
+      // JSZip-specific error messages that indicate the file is not a zip file
+      const zipFormatErrors = [
         "Can't find end of central directory",
-        'Could not find file in options',
         'is not a valid zip file',
         'invalid zip file',
       ];
 
-      if (invalidFileErrors.some((msg) => error.message.includes(msg))) {
+      if (zipFormatErrors.some((msg) => error.message.includes(msg))) {
         throw new UnsupportedFileError(
           'The uploaded file is not a valid Word document (.docx). Please make sure you are uploading a .docx file.',
         );
       }
     }
-    // Re-throw other errors
+    // Re-throw other errors (including mammoth parsing errors for valid but problematic .docx files)
     throw error;
   }
 
