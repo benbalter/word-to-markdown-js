@@ -76,7 +76,13 @@ function decodeHtmlEntities(html: string): string {
   };
 
   function decodeOnce(text: string): string {
-    return text.replace(/&[#\w]+;/g, (entity) => {
+    // Use a more specific regex pattern to avoid catastrophic backtracking
+    // Match: & followed by either:
+    //   - a-zA-Z letters (for named entities like &amp;, &nbsp;, etc.)
+    //   - # followed by digits (for numeric entities like &#169;)
+    //   - #x followed by hex digits (for hex entities like &#x27;)
+    // All terminated with a semicolon
+    return text.replace(/&(?:[a-zA-Z]+|#\d+|#x[0-9a-fA-F]+);/g, (entity) => {
       // Handle named entities
       if (decodeMap[entity]) {
         return decodeMap[entity];
@@ -100,12 +106,20 @@ function decodeHtmlEntities(html: string): string {
   }
 
   // Keep decoding until no more entities are found (handles double/triple encoding)
+  // Add a maximum iteration limit to prevent potential infinite loops
+  const MAX_DECODE_ITERATIONS = 10;
   let decoded = html;
   let prevDecoded;
+  let iterations = 0;
   do {
     prevDecoded = decoded;
     decoded = decodeOnce(decoded);
-  } while (decoded !== prevDecoded && decoded.includes('&'));
+    iterations++;
+  } while (
+    decoded !== prevDecoded &&
+    decoded.includes('&') &&
+    iterations < MAX_DECODE_ITERATIONS
+  );
 
   return decoded;
 }

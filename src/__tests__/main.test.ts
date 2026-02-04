@@ -279,4 +279,70 @@ describe('main', () => {
       );
     });
   });
+
+  // Test for catastrophic backtracking prevention in decodeHtmlEntities
+  describe('decodeHtmlEntities regex backtracking', () => {
+    it('should handle malformed entities without causing stack overflow', async () => {
+      const { htmlToMd } = await import('../main.js');
+
+      // Create a pathological input that could cause catastrophic backtracking
+      // A long string of & characters followed by word characters without proper termination
+      // The pattern &[#\w]+ can backtrack excessively on strings like &aaaaa...aaa (no semicolon)
+      const malformedEntities = '<p>' + '&' + 'a'.repeat(1000) + ' text</p>';
+
+      // This should complete without causing a RangeError: Maximum call stack size exceeded
+      expect(() => {
+        htmlToMd(malformedEntities);
+      }).not.toThrow();
+    });
+
+    it('should handle multiple malformed entities efficiently', async () => {
+      const { htmlToMd } = await import('../main.js');
+
+      // Multiple malformed entities can compound the backtracking issue
+      const repeatedMalformed = '<p>' + '&aaaaaaaaaa '.repeat(100) + '</p>';
+
+      const startTime = Date.now();
+      expect(() => {
+        htmlToMd(repeatedMalformed);
+      }).not.toThrow();
+      const endTime = Date.now();
+
+      // Should complete quickly (under 1 second for reasonable performance)
+      expect(endTime - startTime).toBeLessThan(1000);
+    });
+
+    it('should handle deeply nested encoded entities with iteration limit', async () => {
+      const { htmlToMd } = await import('../main.js');
+
+      // Create a deeply nested encoded entity that could cause infinite loop
+      // &amp;amp;amp;amp;... repeated many times
+      let deeplyNested = 'test';
+      for (let i = 0; i < 20; i++) {
+        deeplyNested = '&amp;' + deeplyNested;
+      }
+      const html = `<p>${deeplyNested}</p>`;
+
+      // This should complete without hanging or causing stack overflow
+      const result = htmlToMd(html);
+      expect(result).toBeDefined();
+      expect(typeof result).toBe('string');
+    });
+
+    it('should handle very long strings with multiple ampersands', async () => {
+      const { htmlToMd } = await import('../main.js');
+
+      // Create a very long string with many & characters
+      const longString =
+        '<p>' + ('text & ' + 'word '.repeat(1000)).repeat(10) + '</p>';
+
+      // This should complete efficiently without causing performance issues
+      const startTime = Date.now();
+      const result = htmlToMd(longString);
+      const endTime = Date.now();
+
+      expect(result).toBeDefined();
+      expect(endTime - startTime).toBeLessThan(5000); // Should complete within 5 seconds
+    });
+  });
 });
