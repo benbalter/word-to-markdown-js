@@ -237,19 +237,19 @@ async function extractDocumentProperties(
   const properties: DocumentProperties = {};
 
   try {
-    let buffer: ArrayBuffer | SharedArrayBuffer;
+    let arrayBuffer: ArrayBuffer | SharedArrayBuffer;
     if (typeof input === 'string') {
       // Read file from path
       const fileBuffer = await fs.readFile(input);
-      buffer = fileBuffer.buffer.slice(
+      arrayBuffer = fileBuffer.buffer.slice(
         fileBuffer.byteOffset,
         fileBuffer.byteOffset + fileBuffer.byteLength,
       ) as ArrayBuffer;
     } else {
-      buffer = input;
+      arrayBuffer = input;
     }
 
-    const zip = await JSZip.loadAsync(buffer);
+    const zip = await JSZip.loadAsync(arrayBuffer);
 
     // Check for encryption - encrypted files have EncryptionInfo and EncryptedPackage
     const encryptionInfo = zip.file('EncryptionInfo');
@@ -275,8 +275,10 @@ async function extractDocumentProperties(
     if (customPropsFile) {
       const customXml = await customPropsFile.async('string');
 
-      // Parse XML to look for sensitivity/confidentiality properties
-      // Common property names include: Sensitivity, Confidentiality, Classification
+      // Use regex patterns to detect sensitivity/confidentiality properties
+      // We use regex instead of full XML parsing for performance and simplicity,
+      // as we only need to detect the presence of specific property names, not extract values
+      // Common property names include: Sensitivity, Confidentiality, Classification, MSIP_Label_*
       const sensitivityMatch =
         customXml.match(
           /<property[^>]*name="(?:Sensitivity|MSIP_Label_[^"]*)"[^>]*>[\s\S]*?<\/property>/gi,
@@ -311,7 +313,11 @@ async function extractDocumentProperties(
     }
   } catch (error) {
     // If we can't extract properties, just continue without them
-    // This might happen with encrypted or corrupted files
+    // This might happen with encrypted, corrupted, or non-standard .docx files
+    // We log the error in development mode but don't fail the conversion
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Failed to extract document properties:', error);
+    }
   }
 
   return properties;
