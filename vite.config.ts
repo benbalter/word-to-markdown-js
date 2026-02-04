@@ -14,8 +14,6 @@ export default defineConfig({
     },
   },
   resolve: {
-    alias: {
-      './main.js': './src/main.ts',
-    },
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
   },
 });
