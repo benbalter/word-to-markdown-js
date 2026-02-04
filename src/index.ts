@@ -102,30 +102,35 @@ function showWarnings(warnings: string[]): void {
     existingWarnings.remove();
   }
 
-  // Create warning alert
+  // Create warning alert with proper ARIA attributes for accessibility
   const warningElement = document.createElement('div');
   warningElement.id = 'warning-alert';
   warningElement.className = 'alert alert-warning alert-dismissible fade show';
+  warningElement.setAttribute('role', 'alert');
+  warningElement.setAttribute('aria-live', 'polite');
 
-  const warningList = warnings
-    .map((warning) => `<div>${escapeHtml(warning)}</div>`)
-    .join('');
+  // Create a list of warnings for better semantic structure
+  const warningList = document.createElement('ul');
+  warningList.className = 'mb-0';
+  warnings.forEach((warning) => {
+    const listItem = document.createElement('li');
+    listItem.textContent = warning;
+    warningList.appendChild(listItem);
+  });
 
-  warningElement.innerHTML = `
-    ${warningList}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  `;
+  const closeButton = document.createElement('button');
+  closeButton.type = 'button';
+  closeButton.className = 'btn-close';
+  closeButton.setAttribute('data-bs-dismiss', 'alert');
+  closeButton.setAttribute('aria-label', 'Close');
+
+  warningElement.appendChild(warningList);
+  warningElement.appendChild(closeButton);
 
   const resultsElement = document.getElementById('results');
   if (resultsElement) {
     resultsElement.insertBefore(warningElement, resultsElement.firstChild);
   }
-}
-
-function escapeHtml(text: string): string {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
 }
 
 document.addEventListener('DOMContentLoaded', () => {

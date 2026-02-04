@@ -286,20 +286,22 @@ async function extractDocumentProperties(
     const customPropsFile = zip.file('docProps/custom.xml');
     if (customPropsFile) {
       const customXml = await customPropsFile.async('string');
+      const customXmlLower = customXml.toLowerCase();
 
       // Use regex patterns to detect sensitivity/confidentiality properties
       // We use regex instead of full XML parsing for performance and simplicity,
       // as we only need to detect the presence of specific property names, not extract values
-      // Pattern 1: Standard sensitivity property names (Sensitivity, MSIP_Label_*)
-      // Pattern 2: Custom properties with 'confidential' or 'sensitive' in the name
+
+      // Pattern matches common sensitivity/confidentiality property names:
+      // - "Sensitivity" (standard Office property)
+      // - "MSIP_Label_*" (Microsoft Information Protection labels)
+      // - Any property with "confidential" or "sensitive" in the name
       const sensitivityPattern =
         /<property[^>]*name="(?:Sensitivity|MSIP_Label_[^"]*|[^"]*(?:confidential|sensitive)[^"]*)"[^>]*>[\s\S]*?<\/property>/gi;
 
       const hasSensitivityProperty = sensitivityPattern.test(customXml);
-      const hasConfidentialText = customXml
-        .toLowerCase()
-        .includes('confidential');
-      const hasMSIPLabel = customXml.toLowerCase().includes('msip_label');
+      const hasConfidentialText = customXmlLower.includes('confidential');
+      const hasMSIPLabel = customXmlLower.includes('msip_label');
 
       if (hasSensitivityProperty || hasMSIPLabel) {
         properties.sensitivity = 'detected in custom properties';
