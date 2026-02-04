@@ -20,7 +20,9 @@ test.describe('Word to Markdown Web Interface', () => {
 
     // Check that upload form is visible
     await expect(page.locator('#file')).toBeVisible();
-    await expect(page.locator('button[type="submit"]')).toBeVisible();
+    await expect(
+      page.locator('button[type="button"].btn-primary'),
+    ).toBeVisible();
 
     // Check that results section is hidden initially
     await expect(page.locator('#results')).toHaveClass(/d-none/);
@@ -178,8 +180,8 @@ test.describe('Word to Markdown Web Interface', () => {
     await expect(
       page.locator('a[href*="patreon.com/benbalter"]'),
     ).toBeVisible();
-    await expect(page.locator('a[href="/terms/"]')).toBeVisible();
-    await expect(page.locator('a[href="/privacy/"]')).toBeVisible();
+    await expect(page.locator('a[href="./terms/"]')).toBeVisible();
+    await expect(page.locator('a[href="./privacy/"]')).toBeVisible();
     await expect(page.locator('a[href*="ben.balter.com"]')).toBeVisible();
   });
 
@@ -190,7 +192,9 @@ test.describe('Word to Markdown Web Interface', () => {
     // Check that main elements are still visible and functional
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('#file')).toBeVisible();
-    await expect(page.locator('button[type="submit"]')).toBeVisible();
+    await expect(
+      page.locator('button[type="button"].btn-primary'),
+    ).toBeVisible();
 
     // Upload a file to test mobile conversion flow
     const fixturePath = path.join(__dirname, '../../__fixtures__/p.docx');

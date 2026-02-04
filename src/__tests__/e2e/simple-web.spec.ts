@@ -12,7 +12,9 @@ test.describe('Simple Web Interface Test', () => {
 
     // Check that the form elements are present
     await expect(page.locator('#file')).toBeVisible();
-    await expect(page.locator('button[type="submit"]')).toBeVisible();
+    await expect(
+      page.locator('button[type="button"].btn-primary'),
+    ).toBeVisible();
 
     // Check JavaScript console for errors
     const consoleMessages: string[] = [];
@@ -49,7 +51,7 @@ test.describe('Simple Web Interface Test', () => {
     await page.goto('http://localhost:8080');
 
     // Try clicking the submit button without a file (should not proceed)
-    await page.locator('button[type="submit"]').click();
+    await page.locator('button[type="button"].btn-primary').click();
 
     // Results should still be hidden
     await expect(page.locator('#results')).toHaveClass(/d-none/);

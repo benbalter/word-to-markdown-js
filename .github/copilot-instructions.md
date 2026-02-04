@@ -39,14 +39,14 @@ src/
 - **TypeScript**: ~5.3 (compiles to JavaScript)
 - **Testing**: Jest with ts-jest for TypeScript support
 - **Linting**: ESLint with TypeScript support
-- **Building**: TypeScript compiler + Webpack for web bundle
+- **Building**: TypeScript compiler + Vite for web bundle
 
 ### Available npm Scripts
 
 - `npm test` - Run Jest tests with coverage
 - `npm run lint` - Run ESLint on TypeScript files
 - `npm run build` - Compile TypeScript to JavaScript
-- `npm run build:web` - Build web bundle with Webpack
+- `npm run build:web` - Build web bundle with Vite
 - `npm run server:web` - Start development web server
 - `npm run server` - Start HTTP API server
 - `npm run all` - Run lint, test, and build (CI pipeline)
@@ -139,7 +139,7 @@ describe('main', () => {
 ### Output Directories
 
 - `build/` - Compiled TypeScript files for Node.js
-- `dist/` - Webpack bundle for web deployment
+- `dist/` - Vite bundle for web deployment
 - Both directories are in `.gitignore` but needed for deployment
 
 ## Common Development Tasks
