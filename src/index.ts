@@ -1,4 +1,5 @@
-import convert, {
+import {
+  convertWithWarnings,
   UnsupportedFileError,
   validateFileExtension,
 } from './main.js';
@@ -29,10 +30,15 @@ async function handleFile(): Promise<void> {
   reader.readAsArrayBuffer(file);
   reader.onload = async (): Promise<void> => {
     try {
-      const md = await convert(reader.result);
+      const result = await convertWithWarnings(reader.result);
+
+      // Display warnings if any
+      if (result.warnings.length > 0) {
+        showWarnings(result.warnings);
+      }
 
       const outputElement = document.getElementById('output');
-      outputElement.innerText = md;
+      outputElement.innerText = result.markdown;
 
       const html = await unified()
         .use(remarkParse)
@@ -40,7 +46,7 @@ async function handleFile(): Promise<void> {
         .use(remarkRehype)
         .use(rehypeSanitize)
         .use(rehypeStringify)
-        .process(md);
+        .process(result.markdown);
 
       const renderedElement = document.getElementById('rendered');
       renderedElement.innerHTML = String(html);
@@ -87,6 +93,39 @@ function showError(message: string): void {
 
   // Show the error element
   errorElement.classList.remove('d-none');
+}
+
+function showWarnings(warnings: string[]): void {
+  // Remove any existing warning alerts
+  const existingWarnings = document.getElementById('warning-alert');
+  if (existingWarnings) {
+    existingWarnings.remove();
+  }
+
+  // Create warning alert
+  const warningElement = document.createElement('div');
+  warningElement.id = 'warning-alert';
+  warningElement.className = 'alert alert-warning alert-dismissible fade show';
+
+  const warningList = warnings
+    .map((warning) => `<div>${escapeHtml(warning)}</div>`)
+    .join('');
+
+  warningElement.innerHTML = `
+    ${warningList}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  `;
+
+  const resultsElement = document.getElementById('results');
+  if (resultsElement) {
+    resultsElement.insertBefore(warningElement, resultsElement.firstChild);
+  }
+}
+
+function escapeHtml(text: string): string {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
