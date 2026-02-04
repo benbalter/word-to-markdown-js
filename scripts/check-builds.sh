@@ -14,11 +14,8 @@ echo "Current git status:"
 git status --porcelain
 
 # Run the builds
-echo "Running TypeScript build..."
+echo "Running full build (TypeScript, pages, and web bundle)..."
 npm run build
-
-echo "Running Vite build..."
-npm run build:web
 
 # Check if any files changed in build or dist directories
 # Handle case where directories might not exist
@@ -32,7 +29,6 @@ if [ -n "$BUILD_CHANGES" ]; then
     echo ""
     echo "Please run the following commands and commit the changes:"
     echo "  npm run build"
-    echo "  npm run build:web"
     echo "  git add build/ dist/"
     echo "  git commit -m 'Update build artifacts'"
     exit 1
