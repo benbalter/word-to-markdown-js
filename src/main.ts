@@ -66,31 +66,41 @@ export function validateFileExtension(filePath: string): void {
   }
 }
 
+// Map of common HTML entities to decode
+const decodeMap: { [key: string]: string } = {
+  '&amp;': '&',
+  // Don't decode &lt; and &gt; in our custom decoder
+  // Let Turndown handle them appropriately based on context
+  '&quot;': '"',
+  '&#39;': "'",
+  '&#x27;': "'",
+  '&apos;': "'",
+  '&nbsp;': ' ',
+  '&copy;': '©',
+  '&reg;': '®',
+  '&trade;': '™',
+  '&hellip;': '…',
+  '&mdash;': '—',
+  '&ndash;': '–',
+  '&lsquo;': '\u2018',
+  '&rsquo;': '\u2019',
+  '&ldquo;': '\u201C',
+  '&rdquo;': '\u201D',
+};
+
+// Maximum iterations for decoding nested HTML entities to prevent infinite loops
+const MAX_DECODE_ITERATIONS = 10;
+
 // Decode HTML entities in text content
 function decodeHtmlEntities(html: string): string {
-  const decodeMap: { [key: string]: string } = {
-    '&amp;': '&',
-    // Don't decode &lt; and &gt; in our custom decoder
-    // Let Turndown handle them appropriately based on context
-    '&quot;': '"',
-    '&#39;': "'",
-    '&#x27;': "'",
-    '&apos;': "'",
-    '&nbsp;': ' ',
-    '&copy;': '©',
-    '&reg;': '®',
-    '&trade;': '™',
-    '&hellip;': '…',
-    '&mdash;': '—',
-    '&ndash;': '–',
-    '&lsquo;': '\u2018',
-    '&rsquo;': '\u2019',
-    '&ldquo;': '\u201C',
-    '&rdquo;': '\u201D',
-  };
-
   function decodeOnce(text: string): string {
-    return text.replace(/&[#\w]+;/g, (entity) => {
+    // Use a more specific regex pattern to avoid catastrophic backtracking
+    // Match: & followed by either:
+    //   - a-zA-Z letters (for named entities like &amp;, &nbsp;, etc.)
+    //   - # followed by digits (for numeric entities like &#169;)
+    //   - #[xX] followed by hex digits (for hex entities like &#x27; or &#X27;)
+    // All terminated with a semicolon
+    return text.replace(/&(?:[a-zA-Z]+|#\d+|#[xX][0-9a-fA-F]+);/g, (entity) => {
       // Handle named entities
       if (decodeMap[entity]) {
         return decodeMap[entity];
@@ -116,10 +126,16 @@ function decodeHtmlEntities(html: string): string {
   // Keep decoding until no more entities are found (handles double/triple encoding)
   let decoded = html;
   let prevDecoded;
+  let iterations = 0;
   do {
     prevDecoded = decoded;
     decoded = decodeOnce(decoded);
-  } while (decoded !== prevDecoded && decoded.includes('&'));
+    iterations++;
+  } while (
+    decoded !== prevDecoded &&
+    decoded.includes('&') &&
+    iterations < MAX_DECODE_ITERATIONS
+  );
 
   return decoded;
 }
