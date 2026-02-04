@@ -31,8 +31,12 @@ program
         console.error(`Error: ${error.message}`);
         process.exit(1);
       }
-      // Re-throw unexpected errors
-      throw error;
+      // Handle unexpected errors (including non-Error objects)
+      console.error(
+        'Error:',
+        error instanceof Error ? error.message : String(error),
+      );
+      process.exit(1);
     }
   });
 

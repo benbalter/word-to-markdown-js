@@ -27,14 +27,14 @@ describe('error messages', () => {
 
   describe('InvalidFileError', () => {
     let tempDir: string;
-    let tempFile: string;
+    let tempFile = '';
 
     beforeEach(() => {
       tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'w2m-test-'));
     });
 
     afterEach(() => {
-      if (fs.existsSync(tempFile)) {
+      if (tempFile && fs.existsSync(tempFile)) {
         fs.unlinkSync(tempFile);
       }
       if (fs.existsSync(tempDir)) {
@@ -70,11 +70,24 @@ describe('error messages', () => {
 
       await expect(convert(invalidBuffer)).rejects.toThrow(InvalidFileError);
     });
+
+    it('should have user-friendly error message without filePath for ArrayBuffer', async () => {
+      const invalidBuffer = new ArrayBuffer(8);
+      const error = await convert(invalidBuffer).catch((e) => e);
+
+      expect(error).toBeInstanceOf(InvalidFileError);
+      // Error message should be grammatically correct without file path
+      expect(error.message).toContain('Invalid file');
+      expect(error.message).toContain('not a valid .docx file');
+      // Should not have awkward formatting like extra spaces or colons at the start
+      expect(error.message).not.toMatch(/Invalid file\s*:/);
+      expect(error.message).not.toMatch(/Invalid file\s*""/);
+    });
   });
 
   describe('FilePermissionError', () => {
     it('should throw FilePermissionError for permission denied', async () => {
-      // This test is skipped on Windows as permission testing is different
+      // Skip this test on Windows as permission testing is different
       if (process.platform === 'win32') {
         return;
       }
@@ -148,6 +161,26 @@ describe('error messages', () => {
         expect(error).toBeInstanceOf(testCase.error);
         for (const phrase of testCase.expectedPhrases) {
           expect(error.message).toContain(phrase);
+        }
+      }
+    });
+
+    it('should provide actionable error messages for all error types', async () => {
+      // Test InvalidFileError
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'w2m-test-'));
+      const tempFile = path.join(tempDir, 'invalid.docx');
+      try {
+        fs.writeFileSync(tempFile, 'not a zip file');
+        const invalidError = await convert(tempFile).catch((e) => e);
+        expect(invalidError).toBeInstanceOf(InvalidFileError);
+        expect(invalidError.message).toContain('not a valid .docx file');
+        expect(invalidError.message).toContain('ensure');
+      } finally {
+        if (fs.existsSync(tempFile)) {
+          fs.unlinkSync(tempFile);
+        }
+        if (fs.existsSync(tempDir)) {
+          fs.rmdirSync(tempDir);
         }
       }
     });

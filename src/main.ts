@@ -33,9 +33,9 @@ export class FileNotFoundError extends Error {
 // Custom error class for invalid/corrupted files
 export class InvalidFileError extends Error {
   constructor(filePath?: string) {
-    const location = filePath ? ` "${filePath}"` : '';
+    const location = filePath ? `: "${filePath}"` : '';
     super(
-      `The file${location} is not a valid .docx file or is corrupted. Please ensure the file is a valid Microsoft Word document (.docx format).`,
+      `Invalid file${location}. The file is not a valid .docx file or is corrupted. Please ensure the file is a valid Microsoft Word document (.docx format).`,
     );
     this.name = 'InvalidFileError';
   }
@@ -54,11 +54,20 @@ export class FilePermissionError extends Error {
 
 // Custom error class for general conversion errors
 export class ConversionError extends Error {
+  public cause?: Error;
+
   constructor(message: string, originalError?: Error) {
     super(message);
     this.name = 'ConversionError';
-    if (originalError && originalError.stack) {
-      this.stack = `${this.stack}\nCaused by: ${originalError.stack}`;
+    // Capture stack trace if available (Node.js/V8 specific)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ErrorWithCapture = Error as any;
+    if (typeof ErrorWithCapture.captureStackTrace === 'function') {
+      ErrorWithCapture.captureStackTrace(this, this.constructor);
+    }
+    if (originalError) {
+      // Use standard error chaining for better debugging tool support
+      this.cause = originalError;
     }
   }
 }
@@ -335,8 +344,10 @@ export default async function convert(
     }
 
     // Invalid .docx file errors (from JSZip or mammoth during file parsing)
-    // These error messages come from the underlying libraries when they fail to parse
-    // the file structure, not from document content, so string matching is safe here.
+    // These patterns typically come from JSZip/mammoth when parsing the file structure.
+    // While there's a small theoretical risk of matching document content in unusual
+    // scenarios (e.g., embedded error messages), these specific technical phrases are
+    // highly unlikely to appear in normal document content.
     if (
       errorMessage.includes('end of central directory') || // JSZip: invalid ZIP structure
       errorMessage.includes('zip file') || // JSZip: not a valid ZIP
@@ -344,6 +355,9 @@ export default async function convert(
       errorMessage.includes('End of data reached') || // JSZip: truncated file
       errorMessage.includes('Could not find file') // mammoth: missing required file in .docx
     ) {
+      // Note: For ArrayBuffer inputs (e.g., web uploads), filePath will be undefined,
+      // so the error message won't include the original filename. The web interface
+      // could be enhanced to pass the filename separately if needed.
       throw new InvalidFileError(filePath);
     }
 

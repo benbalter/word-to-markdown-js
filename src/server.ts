@@ -64,6 +64,8 @@ app.post(
       return;
     } catch (error) {
       // Handle all our custom errors with appropriate status codes
+      // Note: UnsupportedFileError is already caught during filename validation above,
+      // so it won't reach here, but we keep it for defensive programming
       if (
         error instanceof UnsupportedFileError ||
         error instanceof InvalidFileError
