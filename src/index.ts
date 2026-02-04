@@ -1,5 +1,7 @@
 import convert, {
   UnsupportedFileError,
+  InvalidFileError,
+  ConversionError,
   validateFileExtension,
 } from './main.js';
 import rehypeSanitize from 'rehype-sanitize';
@@ -54,12 +56,19 @@ async function handleFile(): Promise<void> {
       const resultsElement = document.getElementById('results');
       resultsElement.classList.remove('d-none');
     } catch (error) {
-      if (error instanceof UnsupportedFileError) {
+      // Handle all our custom errors with specific messages
+      if (
+        error instanceof UnsupportedFileError ||
+        error instanceof InvalidFileError ||
+        error instanceof ConversionError
+      ) {
         showError(error.message);
         return;
       }
-      // For other errors, show a generic message
-      showError('An error occurred while converting the document.');
+      // For unexpected errors, show a generic message
+      showError(
+        'An unexpected error occurred while converting the document. Please try again.',
+      );
       console.error(error);
     }
   };

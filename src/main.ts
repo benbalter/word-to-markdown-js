@@ -19,6 +19,48 @@ export class UnsupportedFileError extends Error {
   }
 }
 
+// Custom error class for file not found
+export class FileNotFoundError extends Error {
+  constructor(filePath: string) {
+    super(
+      `File not found: "${filePath}". Please check that the file exists and the path is correct.`,
+    );
+    this.name = 'FileNotFoundError';
+  }
+}
+
+// Custom error class for invalid/corrupted files
+export class InvalidFileError extends Error {
+  constructor(filePath?: string) {
+    const location = filePath ? ` "${filePath}"` : '';
+    super(
+      `The file${location} is not a valid .docx file or is corrupted. Please ensure the file is a valid Microsoft Word document (.docx format).`,
+    );
+    this.name = 'InvalidFileError';
+  }
+}
+
+// Custom error class for permission errors
+export class FilePermissionError extends Error {
+  constructor(filePath: string) {
+    super(
+      `Permission denied: Cannot read file "${filePath}". Please check file permissions.`,
+    );
+    this.name = 'FilePermissionError';
+  }
+}
+
+// Custom error class for general conversion errors
+export class ConversionError extends Error {
+  constructor(message: string, originalError?: Error) {
+    super(message);
+    this.name = 'ConversionError';
+    if (originalError && originalError.stack) {
+      this.stack = `${this.stack}\nCaused by: ${originalError.stack}`;
+    }
+  }
+}
+
 interface turndownOptions {
   headingStyle?: 'setext' | 'atx';
   codeBlockStyle?: 'indented' | 'fenced';
@@ -238,19 +280,80 @@ export default async function convert(
   options: convertOptions = {},
 ): Promise<string> {
   let inputObj: { path: string } | { arrayBuffer: ArrayBuffer };
-  if (typeof input === 'string') {
-    // Validate file extension for file path inputs
-    validateFileExtension(input);
-    inputObj = { path: input };
-  } else {
-    inputObj = { arrayBuffer: input };
+  let filePath: string | undefined;
+
+  try {
+    if (typeof input === 'string') {
+      filePath = input;
+      // Validate file extension for file path inputs
+      validateFileExtension(input);
+      inputObj = { path: input };
+    } else {
+      inputObj = { arrayBuffer: input };
+    }
+
+    const mammothResult = await mammoth.convertToHtml(
+      inputObj,
+      options.mammoth,
+    );
+    const html = autoTableHeaders(mammothResult.value);
+    const md = htmlToMd(html, options.turndown);
+    const mdWithBullets = convertNumberedListsToBullets(md);
+    const mdWithoutNbsp = removeNonBreakingSpaces(mdWithBullets);
+    const mdWithAsciiQuotes = convertSmartQuotes(mdWithoutNbsp);
+    const cleanedMd = lint(mdWithAsciiQuotes);
+    return cleanedMd;
+  } catch (error) {
+    // Re-throw our custom errors as-is
+    if (
+      error instanceof UnsupportedFileError ||
+      error instanceof FileNotFoundError ||
+      error instanceof InvalidFileError ||
+      error instanceof FilePermissionError ||
+      error instanceof ConversionError
+    ) {
+      throw error;
+    }
+
+    // Handle specific error types from underlying libraries
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorCode =
+      error && typeof error === 'object' && 'code' in error
+        ? (error as { code: string }).code
+        : undefined;
+
+    // File not found errors
+    if (errorCode === 'ENOENT' || errorMessage.includes('ENOENT')) {
+      throw new FileNotFoundError(filePath || 'unknown');
+    }
+
+    // Permission errors
+    if (
+      errorCode === 'EACCES' ||
+      errorCode === 'EPERM' ||
+      errorMessage.includes('EACCES') ||
+      errorMessage.includes('EPERM')
+    ) {
+      throw new FilePermissionError(filePath || 'unknown');
+    }
+
+    // Invalid .docx file errors (from JSZip or mammoth)
+    if (
+      errorMessage.includes('end of central directory') ||
+      errorMessage.includes('zip file') ||
+      errorMessage.includes('not a valid') ||
+      errorMessage.includes('corrupted') ||
+      errorMessage.includes('Corrupted zip') ||
+      errorMessage.includes('End of data reached') ||
+      errorMessage.includes('Could not find file')
+    ) {
+      throw new InvalidFileError(filePath);
+    }
+
+    // Wrap other errors with a general conversion error
+    throw new ConversionError(
+      'An error occurred while converting the document. Please ensure the file is a valid .docx file and try again.',
+      error instanceof Error ? error : undefined,
+    );
   }
-  const mammothResult = await mammoth.convertToHtml(inputObj, options.mammoth);
-  const html = autoTableHeaders(mammothResult.value);
-  const md = htmlToMd(html, options.turndown);
-  const mdWithBullets = convertNumberedListsToBullets(md);
-  const mdWithoutNbsp = removeNonBreakingSpaces(mdWithBullets);
-  const mdWithAsciiQuotes = convertSmartQuotes(mdWithoutNbsp);
-  const cleanedMd = lint(mdWithAsciiQuotes);
-  return cleanedMd;
 }
