@@ -718,7 +718,7 @@ describe('M365 professional document features', () => {
     expect(result).toContain('"🎉"');
     expect(result).toContain("'🎊'");
     expect(result).toContain('(🎁)');
-    // Note: square brackets get escaped by markdown linting to prevent link syntax
+    // Note: Turndown escapes square brackets here to avoid accidental link syntax
     expect(result).toContain('\\[📝\\]');
     expect(result).toContain('Hello! 👋');
     expect(result).toContain('How are you? 🤔');
