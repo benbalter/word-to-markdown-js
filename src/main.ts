@@ -6,6 +6,7 @@ import { applyFixes } from 'markdownlint';
 import { parse } from 'node-html-parser';
 import JSZip from 'jszip';
 import fs from 'fs/promises';
+import path from 'path';
 
 interface convertOptions {
   mammoth?: object;
@@ -119,10 +120,15 @@ function validateFilePath(filePath: string): void {
     throw new Error('Invalid file path: path traversal not allowed');
   }
 
+  // Resolve to absolute path to check for traversal
+  // Note: This uses the path module which is Node.js-only, but this function
+  // is only called in Node.js contexts (CLI, server, direct API use with file paths)
+  const resolvedPath = path.resolve(filePath);
+
   // Check for absolute paths to dangerous system directories (Unix-like systems)
   const dangerousPaths = ['/etc/', '/sys/', '/proc/', '/root/', '/boot/'];
   for (const dangerousPath of dangerousPaths) {
-    if (filePath.startsWith(dangerousPath)) {
+    if (resolvedPath.startsWith(dangerousPath)) {
       throw new Error(
         'Invalid file path: access to system directories not allowed',
       );
@@ -131,9 +137,8 @@ function validateFilePath(filePath: string): void {
 
   // Check for Windows system directories
   const windowsDangerousPaths = ['C:\\Windows\\', 'C:\\Program Files\\'];
-  const normalizedPath = filePath.replace(/\//g, '\\');
   for (const dangerousPath of windowsDangerousPaths) {
-    if (normalizedPath.toUpperCase().startsWith(dangerousPath.toUpperCase())) {
+    if (resolvedPath.toUpperCase().startsWith(dangerousPath.toUpperCase())) {
       throw new Error(
         'Invalid file path: access to system directories not allowed',
       );
