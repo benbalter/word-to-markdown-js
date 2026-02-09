@@ -1,4 +1,5 @@
-import convert, {
+import {
+  convertWithWarnings,
   UnsupportedFileError,
   InvalidFileError,
   ConversionError,
@@ -31,10 +32,15 @@ async function handleFile(): Promise<void> {
   reader.readAsArrayBuffer(file);
   reader.onload = async (): Promise<void> => {
     try {
-      const md = await convert(reader.result);
+      const result = await convertWithWarnings(reader.result);
+
+      // Display warnings if any
+      if (result.warnings.length > 0) {
+        showWarnings(result.warnings);
+      }
 
       const outputElement = document.getElementById('output');
-      outputElement.innerText = md;
+      outputElement.innerText = result.markdown;
 
       const html = await unified()
         .use(remarkParse)
@@ -42,7 +48,7 @@ async function handleFile(): Promise<void> {
         .use(remarkRehype)
         .use(rehypeSanitize)
         .use(rehypeStringify)
-        .process(md);
+        .process(result.markdown);
 
       const renderedElement = document.getElementById('rendered');
       renderedElement.innerHTML = String(html);
@@ -96,6 +102,44 @@ function showError(message: string): void {
 
   // Show the error element
   errorElement.classList.remove('d-none');
+}
+
+function showWarnings(warnings: string[]): void {
+  // Remove any existing warning alerts
+  const existingWarnings = document.getElementById('warning-alert');
+  if (existingWarnings) {
+    existingWarnings.remove();
+  }
+
+  // Create warning alert with proper ARIA attributes for accessibility
+  const warningElement = document.createElement('div');
+  warningElement.id = 'warning-alert';
+  warningElement.className = 'alert alert-warning alert-dismissible fade show';
+  warningElement.setAttribute('role', 'alert');
+  warningElement.setAttribute('aria-live', 'polite');
+
+  // Create a list of warnings for better semantic structure
+  const warningList = document.createElement('ul');
+  warningList.className = 'mb-0';
+  warnings.forEach((warning) => {
+    const listItem = document.createElement('li');
+    listItem.textContent = warning;
+    warningList.appendChild(listItem);
+  });
+
+  const closeButton = document.createElement('button');
+  closeButton.type = 'button';
+  closeButton.className = 'btn-close';
+  closeButton.setAttribute('data-bs-dismiss', 'alert');
+  closeButton.setAttribute('aria-label', 'Close');
+
+  warningElement.appendChild(warningList);
+  warningElement.appendChild(closeButton);
+
+  const resultsElement = document.getElementById('results');
+  if (resultsElement) {
+    resultsElement.insertBefore(warningElement, resultsElement.firstChild);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
