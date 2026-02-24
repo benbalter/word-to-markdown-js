@@ -473,7 +473,7 @@ export async function convertWithWarnings(
   options: convertOptions = {},
 ): Promise<ConvertResult> {
   // Normalize input so that the underlying .docx content is read at most once
-  let mammothInput: { path: string } | { buffer: Buffer };
+  let mammothInput: { path: string } | { buffer: Buffer } | { arrayBuffer: ArrayBuffer };
   let propertiesInput: string | ArrayBuffer = input;
 
   if (typeof input === 'string') {
@@ -508,8 +508,13 @@ export async function convertWithWarnings(
     mammothInput = { buffer: fileBuffer };
   } else {
     propertiesInput = input;
-    // Convert ArrayBuffer to Buffer for mammoth
-    mammothInput = { buffer: Buffer.from(input) };
+    // In Node.js, mammoth expects { buffer }, in browser it expects { arrayBuffer }
+    // Check for Buffer availability to determine the environment
+    if (typeof Buffer !== 'undefined') {
+      mammothInput = { buffer: Buffer.from(input) };
+    } else {
+      mammothInput = { arrayBuffer: input };
+    }
   }
 
   // Extract document properties to check for confidentiality flags

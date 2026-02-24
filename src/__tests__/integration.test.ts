@@ -1,6 +1,21 @@
-import convert from '../main.js';
+import convert, { convertWithWarnings } from '../main.js';
+import fs from 'fs';
 
 describe('integration tests', () => {
+  it('should convert an ArrayBuffer input via convertWithWarnings', async () => {
+    const fileBuffer = fs.readFileSync('src/__fixtures__/h1.docx');
+    const arrayBuffer = fileBuffer.buffer.slice(
+      fileBuffer.byteOffset,
+      fileBuffer.byteOffset + fileBuffer.byteLength,
+    );
+
+    const result = await convertWithWarnings(arrayBuffer);
+
+    expect(result).toBeTruthy();
+    expect(result.markdown).toContain('# Heading 1');
+    expect(Array.isArray(result.warnings)).toBe(true);
+  });
+
   // Test full pipeline with actual .docx fixtures
   it('should handle complete document conversion pipeline', async () => {
     // Test with a complex fixture that exercises multiple features
