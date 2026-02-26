@@ -29,11 +29,11 @@ describe('integration tests', () => {
     delete (globalThis as any).Buffer;
 
     try {
-      // In a real browser, mammoth's browser build accepts { arrayBuffer }.
-      // In Node.js tests, mammoth's Node build only accepts { buffer/path },
-      // so passing { arrayBuffer } produces "Could not find file in options".
-      // The key assertion: we must NOT get "Buffer is not defined", which
-      // would mean the old (broken) code path was taken.
+      // Verifies that our environment detection logic correctly takes the
+      // { arrayBuffer } path when Buffer is unavailable. In Node.js tests,
+      // mammoth's Node build rejects { arrayBuffer } with this specific error,
+      // confirming the browser code path was reached. Without the fix, this
+      // would throw "Buffer is not defined" instead.
       await expect(convertWithWarnings(arrayBuffer)).rejects.toThrow(
         'Could not find file in options',
       );
