@@ -473,7 +473,10 @@ export async function convertWithWarnings(
   options: convertOptions = {},
 ): Promise<ConvertResult> {
   // Normalize input so that the underlying .docx content is read at most once
-  let mammothInput: { path: string } | { buffer: Buffer } | { arrayBuffer: ArrayBuffer };
+  let mammothInput:
+    | { path: string }
+    | { buffer: Buffer }
+    | { arrayBuffer: ArrayBuffer };
   let propertiesInput: string | ArrayBuffer = input;
 
   if (typeof input === 'string') {
