@@ -16,6 +16,33 @@ describe('integration tests', () => {
     expect(Array.isArray(result.warnings)).toBe(true);
   });
 
+  it('should use arrayBuffer path when Buffer is unavailable (browser env)', async () => {
+    const fileBuffer = fs.readFileSync('src/__fixtures__/h1.docx');
+    const arrayBuffer = fileBuffer.buffer.slice(
+      fileBuffer.byteOffset,
+      fileBuffer.byteOffset + fileBuffer.byteLength,
+    );
+
+    // Temporarily hide Buffer to simulate a browser environment
+    const OriginalBuffer = globalThis.Buffer;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    delete (globalThis as any).Buffer;
+
+    try {
+      // In a real browser, mammoth's browser build accepts { arrayBuffer }.
+      // In Node.js tests, mammoth's Node build only accepts { buffer/path },
+      // so passing { arrayBuffer } produces "Could not find file in options".
+      // The key assertion: we must NOT get "Buffer is not defined", which
+      // would mean the old (broken) code path was taken.
+      await expect(convertWithWarnings(arrayBuffer)).rejects.toThrow(
+        'Could not find file in options',
+      );
+    } finally {
+      // Restore Buffer
+      globalThis.Buffer = OriginalBuffer;
+    }
+  });
+
   // Test full pipeline with actual .docx fixtures
   it('should handle complete document conversion pipeline', async () => {
     // Test with a complex fixture that exercises multiple features
