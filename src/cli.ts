@@ -1,7 +1,14 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import convert, { UnsupportedFileError } from './main.js';
+import {
+  convertWithWarnings,
+  UnsupportedFileError,
+  FileNotFoundError,
+  InvalidFileError,
+  FilePermissionError,
+  ConversionError,
+} from './main.js';
 
 const program = new Command();
 program.name('w2m');
@@ -11,14 +18,36 @@ program
   .argument('<file>', 'The Word document to convert')
   .action(async (file) => {
     try {
-      const md = await convert(file);
-      console.log(md);
+      const result = await convertWithWarnings(file);
+
+      // Display warnings to stderr if any
+      if (result.warnings.length > 0) {
+        result.warnings.forEach((warning) => {
+          console.error(warning);
+        });
+        console.error(''); // Empty line for separation
+      }
+
+      // Output markdown to stdout
+      console.log(result.markdown);
     } catch (error) {
-      if (error instanceof UnsupportedFileError) {
+      // Handle our custom errors with user-friendly messages
+      if (
+        error instanceof UnsupportedFileError ||
+        error instanceof FileNotFoundError ||
+        error instanceof InvalidFileError ||
+        error instanceof FilePermissionError ||
+        error instanceof ConversionError
+      ) {
         console.error(`Error: ${error.message}`);
         process.exit(1);
       }
-      throw error;
+      // Handle unexpected errors (including non-Error objects)
+      console.error(
+        'Error:',
+        error instanceof Error ? error.message : String(error),
+      );
+      process.exit(1);
     }
   });
 

@@ -1,8 +1,14 @@
 import express from 'express';
 import multer from 'multer';
 import os from 'os';
-import convert, {
+import path from 'path';
+import {
+  convertWithWarnings,
   UnsupportedFileError,
+  FileNotFoundError,
+  InvalidFileError,
+  FilePermissionError,
+  ConversionError,
   validateFileExtension,
 } from './main.js';
 import helmet from 'helmet';
@@ -18,6 +24,24 @@ function escapeHtml(str: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+// Validates that a file path is within the expected temporary directory
+// to prevent path traversal attacks
+function validateFilePath(filePath: string): void {
+  const tmpDir = os.tmpdir();
+  const resolvedPath = path.resolve(filePath);
+  const resolvedTmpDir = path.resolve(tmpDir);
+
+  // Ensure the resolved path starts with the temporary directory
+  if (!resolvedPath.startsWith(resolvedTmpDir)) {
+    throw new Error('Invalid file path: file must be in temporary directory');
+  }
+
+  // Additional check: ensure no parent directory references
+  if (filePath.includes('..')) {
+    throw new Error('Invalid file path: path traversal not allowed');
+  }
 }
 
 const app = express();
@@ -54,13 +78,46 @@ app.post(
       }
     }
 
+    // Validate the file path to prevent path traversal attacks
     try {
-      const md = await convert(req.file.path);
-      res.status(200).type('text/plain').send(md);
+      validateFilePath(req.file.path);
+    } catch (error) {
+      res.status(400).send('Invalid file path');
+      return;
+    }
+
+    try {
+      const result = await convertWithWarnings(req.file.path);
+
+      // If there are warnings, include them in a custom header
+      // Use JSON encoding to properly handle special characters in warning messages
+      if (result.warnings.length > 0) {
+        res.setHeader('X-Conversion-Warnings', JSON.stringify(result.warnings));
+      }
+
+      res.status(200).type('text/plain').send(result.markdown);
       return;
     } catch (error) {
-      if (error instanceof UnsupportedFileError) {
+      // Handle all our custom errors with appropriate status codes
+      // Note: UnsupportedFileError is already caught during filename validation above,
+      // so it won't reach here, but we keep it for defensive programming
+      if (
+        error instanceof UnsupportedFileError ||
+        error instanceof InvalidFileError
+      ) {
         res.status(400).send(escapeHtml(error.message));
+        return;
+      }
+      if (error instanceof FileNotFoundError) {
+        res.status(404).send(escapeHtml(error.message));
+        return;
+      }
+      if (error instanceof FilePermissionError) {
+        res.status(403).send(escapeHtml(error.message));
+        return;
+      }
+      if (error instanceof ConversionError) {
+        res.status(500).send(escapeHtml(error.message));
         return;
       }
       throw error;
