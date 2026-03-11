@@ -10,7 +10,7 @@ const expectations = {
   'multiple-headings':
     '# H1\n\nParagraph\n\n## H2\n\nParagraph\n\n### H3\n\nParagraph',
   table:
-    '| **Foo** | **Bar** |\n| --- | --- |\n| One | Two |\n| Three | Four |',
+    '| **Foo** | **Bar** |\n| ------- | ------- |\n| One     | Two     |\n| Three   | Four    |',
   ul: '- One\n- Two\n- Three',
   ol: '- One\n- Two\n- Three',
   'nested-ol':
