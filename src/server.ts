@@ -81,7 +81,7 @@ app.post(
     // Validate the file path to prevent path traversal attacks
     try {
       validateFilePath(req.file.path);
-    } catch (error) {
+    } catch {
       res.status(400).send('Invalid file path');
       return;
     }
