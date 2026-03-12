@@ -561,21 +561,54 @@ export async function convertWithWarnings(
   const properties = await extractDocumentProperties(propertiesInput);
   const warnings = generateWarnings(properties);
 
-  const mammothResult = await mammoth.convertToHtml(
-    mammothInput,
-    options.mammoth,
-  );
-  const processedHtml = processHtml(mammothResult.value);
-  const md = htmlToMd(processedHtml, options.turndown);
-  const mdWithBullets = convertNumberedListsToBullets(md);
-  const normalizedMd = normalizeText(mdWithBullets);
-  const cleanedMd = lint(normalizedMd);
-  const formattedMd = await prettify(cleanedMd);
+  try {
+    const mammothResult = await mammoth.convertToHtml(
+      mammothInput,
+      options.mammoth,
+    );
+    const processedHtml = processHtml(mammothResult.value);
+    const md = htmlToMd(processedHtml, options.turndown);
+    const mdWithBullets = convertNumberedListsToBullets(md);
+    const normalizedMd = normalizeText(mdWithBullets);
+    const cleanedMd = lint(normalizedMd);
+    const formattedMd = await prettify(cleanedMd);
 
-  return {
-    markdown: formattedMd,
-    warnings,
-  };
+    return {
+      markdown: formattedMd,
+      warnings,
+    };
+  } catch (error) {
+    // Re-throw our custom errors as-is
+    if (
+      error instanceof UnsupportedFileError ||
+      error instanceof FileNotFoundError ||
+      error instanceof InvalidFileError ||
+      error instanceof FilePermissionError ||
+      error instanceof ConversionError
+    ) {
+      throw error;
+    }
+
+    // Handle specific error types from underlying libraries
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    // Invalid .docx file errors (from JSZip or mammoth during file parsing)
+    if (
+      errorMessage.includes('end of central directory') ||
+      errorMessage.includes('zip file') ||
+      errorMessage.includes('Corrupted zip') ||
+      errorMessage.includes('End of data reached') ||
+      errorMessage.includes('Could not find file')
+    ) {
+      throw new InvalidFileError();
+    }
+
+    // Wrap other errors with a general conversion error
+    throw new ConversionError(
+      'An error occurred while converting the document. Please ensure the file is a valid .docx file and try again.',
+      error instanceof Error ? error : undefined,
+    );
+  }
 }
 
 // Converts a Word document to crisp, clean Markdown

@@ -1,4 +1,5 @@
 import convert, {
+  convertWithWarnings,
   FileNotFoundError,
   InvalidFileError,
   FilePermissionError,
@@ -69,6 +70,26 @@ describe('error messages', () => {
       const invalidBuffer = new ArrayBuffer(8);
 
       await expect(convert(invalidBuffer)).rejects.toThrow(InvalidFileError);
+    });
+
+    it('should throw InvalidFileError for ArrayBuffer with invalid content via convertWithWarnings', async () => {
+      const invalidBuffer = new ArrayBuffer(8);
+
+      await expect(convertWithWarnings(invalidBuffer)).rejects.toThrow(
+        InvalidFileError,
+      );
+      await expect(convertWithWarnings(invalidBuffer)).rejects.toThrow(
+        'not a valid .docx',
+      );
+    });
+
+    it('should throw InvalidFileError for non-zip file content via convertWithWarnings', async () => {
+      const encoder = new TextEncoder();
+      const buffer = encoder.encode('This is not a valid docx file').buffer;
+
+      await expect(convertWithWarnings(buffer)).rejects.toThrow(
+        InvalidFileError,
+      );
     });
 
     it('should have user-friendly error message without filePath for ArrayBuffer', async () => {

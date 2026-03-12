@@ -1,4 +1,4 @@
-import convert, { convertWithWarnings } from '../main.js';
+import convert, { convertWithWarnings, InvalidFileError } from '../main.js';
 import fs from 'fs';
 
 describe('integration tests', () => {
@@ -31,11 +31,13 @@ describe('integration tests', () => {
     try {
       // Verifies that our environment detection logic correctly takes the
       // { arrayBuffer } path when Buffer is unavailable. In Node.js tests,
-      // mammoth's Node build rejects { arrayBuffer } with this specific error,
-      // confirming the browser code path was reached. Without the fix, this
-      // would throw "Buffer is not defined" instead.
+      // mammoth's Node build rejects { arrayBuffer } with a "Could not find
+      // file in options" error, confirming the browser code path was reached.
+      // The error is caught and wrapped as an InvalidFileError by our error
+      // handling. Without the fix, this would throw "Buffer is not defined"
+      // instead.
       await expect(convertWithWarnings(arrayBuffer)).rejects.toThrow(
-        'Could not find file in options',
+        InvalidFileError,
       );
     } finally {
       // Restore Buffer
