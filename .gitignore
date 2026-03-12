@@ -14,7 +14,7 @@ coverage
 
 # Build output
 build/
-#dist/
+dist/
 
 # VS Code
 .vscode
