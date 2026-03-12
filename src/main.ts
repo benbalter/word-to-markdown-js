@@ -114,9 +114,9 @@ export function validateFileExtension(filePath: string): void {
   }
 }
 
-// Validates that a file path is safe to use (Node.js only)
+// Validates that a file path is safe to use and returns the resolved path (Node.js only)
 // Prevents path traversal attacks by checking for parent directory references
-function validateFilePath(filePath: string): void {
+function validateFilePath(filePath: string): string {
   // Check for path traversal attempts
   if (filePath.includes('..')) {
     throw new Error('Invalid file path: path traversal not allowed');
@@ -146,6 +146,8 @@ function validateFilePath(filePath: string): void {
       );
     }
   }
+
+  return resolvedPath;
 }
 
 // Map of common HTML entities to decode
@@ -373,10 +375,10 @@ export async function extractDocumentProperties(
     let arrayBuffer: ArrayBuffer;
     if (typeof input === 'string') {
       // Validate the file path to prevent path traversal attacks
-      validateFilePath(input);
+      const safePath = validateFilePath(input);
 
       // Read file from path and convert to ArrayBuffer
-      const fileBuffer = await fs.readFile(input);
+      const fileBuffer = await fs.readFile(safePath);
       const slicedBuffer = fileBuffer.buffer.slice(
         fileBuffer.byteOffset,
         fileBuffer.byteOffset + fileBuffer.byteLength,
@@ -525,12 +527,12 @@ export async function convertWithWarnings(
       validateFileExtension(input);
 
       // Validate the file path to prevent path traversal attacks
-      validateFilePath(input);
+      const safePath = validateFilePath(input);
 
       // Read the file once and share the buffer between
       // property extraction and Mammoth conversion to avoid
       // redundant disk reads for large documents
-      const fileBuffer = await fs.readFile(input);
+      const fileBuffer = await fs.readFile(safePath);
       const slicedBuffer = fileBuffer.buffer.slice(
         fileBuffer.byteOffset,
         fileBuffer.byteOffset + fileBuffer.byteLength,
@@ -641,7 +643,9 @@ export default async function convert(
       filePath = input;
       // Validate file extension for file path inputs
       validateFileExtension(input);
-      inputObj = { path: input };
+      // Validate the file path to prevent path traversal attacks
+      const safePath = validateFilePath(input);
+      inputObj = { path: safePath };
     } else {
       inputObj = { arrayBuffer: input };
     }
