@@ -57,7 +57,7 @@
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
     "node-html-parser": "^7.0.1",
-    "prettier": "~3.6",
+    "prettier": "~3.8",
     "rehype-sanitize": "^6.0.0",
     "rehype-stringify": "^10.0.1",
     "remark-gfm": "^4.0.1",
