@@ -1,4 +1,4 @@
-FROM node:22
+FROM node:25
 
 ENV PORT=80
 ENV NODE_ENV=production
