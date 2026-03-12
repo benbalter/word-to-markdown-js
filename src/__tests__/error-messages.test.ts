@@ -75,12 +75,10 @@ describe('error messages', () => {
     it('should throw InvalidFileError for ArrayBuffer with invalid content via convertWithWarnings', async () => {
       const invalidBuffer = new ArrayBuffer(8);
 
-      await expect(convertWithWarnings(invalidBuffer)).rejects.toThrow(
-        InvalidFileError,
-      );
-      await expect(convertWithWarnings(invalidBuffer)).rejects.toThrow(
-        'not a valid .docx',
-      );
+      const error = await convertWithWarnings(invalidBuffer).catch((e) => e);
+
+      expect(error).toBeInstanceOf(InvalidFileError);
+      expect(error.message).toContain('not a valid .docx');
     });
 
     it('should throw InvalidFileError for non-zip file content via convertWithWarnings', async () => {
