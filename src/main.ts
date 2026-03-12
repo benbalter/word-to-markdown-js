@@ -4,6 +4,8 @@ import * as mammoth from 'mammoth';
 import * as markdownlint from 'markdownlint/sync';
 import { applyFixes } from 'markdownlint';
 import { parse } from 'node-html-parser';
+import * as prettier from 'prettier';
+import * as prettierMarkdown from 'prettier/plugins/markdown';
 import JSZip from 'jszip';
 import fs from 'fs/promises';
 import path from 'path';
@@ -352,6 +354,15 @@ function lint(md: string): string {
   return applyFixes(md, lintResult['md']).trim();
 }
 
+// Format the Markdown with Prettier
+async function prettify(md: string): Promise<string> {
+  const formatted = await prettier.format(md, {
+    parser: 'markdown',
+    plugins: [prettierMarkdown],
+  });
+  return formatted.trim();
+}
+
 // Extract document properties from a .docx file
 export async function extractDocumentProperties(
   input: string | ArrayBuffer,
@@ -559,9 +570,10 @@ export async function convertWithWarnings(
   const mdWithBullets = convertNumberedListsToBullets(md);
   const normalizedMd = normalizeText(mdWithBullets);
   const cleanedMd = lint(normalizedMd);
+  const formattedMd = await prettify(cleanedMd);
 
   return {
-    markdown: cleanedMd,
+    markdown: formattedMd,
     warnings,
   };
 }
@@ -593,7 +605,8 @@ export default async function convert(
     const mdWithBullets = convertNumberedListsToBullets(md);
     const normalizedMd = normalizeText(mdWithBullets);
     const cleanedMd = lint(normalizedMd);
-    return cleanedMd;
+    const formattedMd = await prettify(cleanedMd);
+    return formattedMd;
   } catch (error) {
     // Re-throw our custom errors as-is
     if (
