@@ -43,7 +43,7 @@
   "author": "Ben Balter <ben@balter.com>",
   "license": "ISC",
   "dependencies": {
-    "@joplin/turndown": "^4.0.81",
+    "@joplin/turndown": "^4.0.82",
     "@joplin/turndown-plugin-gfm": "^1.0.63",
     "@types/helmet": "^4.0.0",
     "bootstrap": "^5.3.8",
