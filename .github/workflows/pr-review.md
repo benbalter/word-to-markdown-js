@@ -8,7 +8,7 @@ permissions:
   pull-requests: read
 tools:
   github:
-    toolsets: [pull-requests]
+    toolsets: [pull_requests]
 safe-outputs:
   add-labels:
     allowed:

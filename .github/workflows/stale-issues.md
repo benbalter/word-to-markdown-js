@@ -1,8 +1,7 @@
 ---
 description: Close stale issues that have had no activity
 on:
-  schedule:
-    - cron: "0 9 * * 1"
+  schedule: weekly on monday
 permissions:
   contents: read
   issues: read
