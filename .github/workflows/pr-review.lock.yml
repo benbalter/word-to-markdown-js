@@ -22,14 +22,13 @@
 #
 # Automatically review pull requests for quality and guidelines
 #
-# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"934ec72c8d7d2cc930992f8b3333fd0a6be7cfa7e22106d0051b9b2992525c90","compiler_version":"v0.61.0","strict":true}
+# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"0c1ed533f329c15177cf9b9002204de003160d10bcf83623f6308b2bf10d2bf9","compiler_version":"v0.61.0","strict":true}
 
 name: "PR Review Agent"
 "on":
   pull_request:
     types:
     - opened
-    - synchronize
     - reopened
 
 permissions: {}

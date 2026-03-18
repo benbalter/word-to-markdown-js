@@ -2,7 +2,7 @@
 description: Automatically review pull requests for quality and guidelines
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, reopened]
 permissions:
   contents: read
   pull-requests: read

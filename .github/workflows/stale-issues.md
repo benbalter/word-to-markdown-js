@@ -31,6 +31,7 @@ Run weekly (every Monday at 9 AM UTC) and perform the following maintenance:
 Find all **open** issues that:
 
 - Have had **no activity** (no comments, no label changes, no references) for **60 days or more**
+- Do **not** already have the `stale` label
 - Do **not** have any of these labels: `pinned`, `security`, `help wanted`, `good first issue`
 
 For each such issue:
@@ -46,6 +47,7 @@ Find all **open** issues that:
 
 - Already have the `stale` label
 - Have had **no activity for 14 days or more** since the `stale` label was added
+- Do **not** have any of these labels: `pinned`, `security`, `help wanted`, `good first issue`
 
 For each such issue:
 
