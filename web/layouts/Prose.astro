@@ -1,0 +1,16 @@
+---
+// Layout for the Markdown legal pages. Wraps the shared base Layout and renders
+// the rendered Markdown inside a Tailwind Typography `prose` container so the
+// raw <h1>/<h2>/<p>/<ul> get styled (and themed for dark mode).
+import Layout from './Layout.astro';
+
+const { title, description } = Astro.props.frontmatter ?? Astro.props;
+---
+
+<Layout title={title} description={description}>
+  <article
+    class="prose dark:prose-invert mx-auto max-w-2xl px-1 py-12 sm:py-16"
+  >
+    <slot />
+  </article>
+</Layout>

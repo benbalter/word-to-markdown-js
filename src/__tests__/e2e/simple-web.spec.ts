@@ -12,9 +12,7 @@ test.describe('Simple Web Interface Test', () => {
 
     // Check that the form elements are present
     await expect(page.locator('#file')).toBeVisible();
-    await expect(
-      page.locator('button[type="button"].btn-primary'),
-    ).toBeVisible();
+    await expect(page.locator('label[for="file"]')).toBeVisible();
 
     // Check JavaScript console for errors
     const consoleMessages: string[] = [];
@@ -45,19 +43,14 @@ test.describe('Simple Web Interface Test', () => {
     expect(hasFileInputHandler).toBe(true);
   });
 
-  test('should handle form interaction without file upload', async ({
+  test('should not show results before a file is provided', async ({
     page,
   }) => {
     await page.goto('http://localhost:8080');
 
-    // Try clicking the submit button without a file (should not proceed)
-    await page.locator('button[type="button"].btn-primary').click();
-
-    // Results should still be hidden
-    await expect(page.locator('#results')).toHaveClass(/d-none/);
-
-    // Input should still be visible
-    await expect(page.locator('#input')).not.toHaveClass(/d-none/);
+    // Results stay hidden and the dropzone/input stays visible until a file is chosen
+    await expect(page.locator('#results')).not.toBeVisible();
+    await expect(page.locator('#input')).toBeVisible();
   });
 
   test('should check network requests', async ({ page }) => {
@@ -74,15 +67,12 @@ test.describe('Simple Web Interface Test', () => {
     // Print requests for debugging
     console.log('Network requests:', requests);
 
-    // Should have loaded the client JS bundle and Bootstrap CSS.
+    // Should have loaded the client JS bundle.
     // Astro emits the hoisted page script under /_astro/*.js.
     expect(
       requests.some((req) =>
         /(main(\.[a-zA-Z0-9]+)?|_astro\/.*)\.js(\?.*)?$/.test(req),
       ),
     ).toBe(true);
-    expect(requests.some((req) => /bootstrap.*\.css(\?.*)?$/.test(req))).toBe(
-      true,
-    );
   });
 });

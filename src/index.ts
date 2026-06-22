@@ -13,9 +13,10 @@ import { unified } from 'unified';
 import remarkGfm from 'remark-gfm';
 import ClipboardJS from 'clipboard';
 
-async function handleFile(): Promise<void> {
-  const reader = new FileReader();
-  const file = this.files[0];
+// Convert a single file. Shared by the file-input change handler and the
+// drag-and-drop handler so both entry points behave identically.
+async function processFile(file: File | undefined): Promise<void> {
+  if (!file) return;
 
   // Check file extension before processing
   try {
@@ -28,6 +29,7 @@ async function handleFile(): Promise<void> {
     throw error;
   }
 
+  const reader = new FileReader();
   reader.readAsArrayBuffer(file);
   reader.onload = async (): Promise<void> => {
     try {
@@ -56,10 +58,10 @@ async function handleFile(): Promise<void> {
       filenameElement.innerText = file.name;
 
       const inputElement = document.getElementById('input');
-      inputElement.classList.add('d-none');
+      inputElement.classList.add('hidden');
 
       const resultsElement = document.getElementById('results');
-      resultsElement.classList.remove('d-none');
+      resultsElement.classList.remove('hidden');
     } catch (error) {
       // Handle all our custom errors with specific messages
       if (
@@ -85,11 +87,26 @@ function showError(message: string): void {
   if (!errorElement) {
     errorElement = document.createElement('div');
     errorElement.id = 'error-alert';
-    errorElement.className = 'alert alert-danger alert-dismissible fade show';
-    errorElement.innerHTML = `
-      <span id="error-message"></span>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
+    errorElement.setAttribute('role', 'alert');
+    errorElement.className =
+      'relative mb-4 flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-left text-sm text-red-800 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200';
+
+    const messageSpan = document.createElement('span');
+    messageSpan.id = 'error-message';
+    messageSpan.className = 'flex-1';
+
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.setAttribute('aria-label', 'Dismiss');
+    closeButton.className =
+      'shrink-0 leading-none text-red-500/70 transition-colors hover:text-red-700 dark:hover:text-red-100';
+    closeButton.innerHTML =
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+    closeButton.addEventListener('click', () => errorElement.remove());
+
+    errorElement.appendChild(messageSpan);
+    errorElement.appendChild(closeButton);
+
     const inputElement = document.getElementById('input');
     if (inputElement) {
       inputElement.insertBefore(errorElement, inputElement.firstChild);
@@ -98,9 +115,7 @@ function showError(message: string): void {
 
   const messageElement = document.getElementById('error-message');
   messageElement.textContent = message;
-
-  // Show the error element
-  errorElement.classList.remove('d-none');
+  errorElement.classList.remove('hidden');
 }
 
 function showWarnings(warnings: string[]): void {
@@ -110,16 +125,15 @@ function showWarnings(warnings: string[]): void {
     existingWarnings.remove();
   }
 
-  // Create warning alert with proper ARIA attributes for accessibility
   const warningElement = document.createElement('div');
   warningElement.id = 'warning-alert';
-  warningElement.className = 'alert alert-warning alert-dismissible fade show';
   warningElement.setAttribute('role', 'alert');
   warningElement.setAttribute('aria-live', 'polite');
+  warningElement.className =
+    'relative mt-4 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-left text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200';
 
-  // Create a list of warnings for better semantic structure
   const warningList = document.createElement('ul');
-  warningList.className = 'mb-0';
+  warningList.className = 'flex-1 list-disc space-y-1 pl-4';
   warnings.forEach((warning) => {
     const listItem = document.createElement('li');
     listItem.textContent = warning;
@@ -128,9 +142,12 @@ function showWarnings(warnings: string[]): void {
 
   const closeButton = document.createElement('button');
   closeButton.type = 'button';
-  closeButton.className = 'btn-close';
-  closeButton.setAttribute('data-bs-dismiss', 'alert');
-  closeButton.setAttribute('aria-label', 'Close');
+  closeButton.setAttribute('aria-label', 'Dismiss');
+  closeButton.className =
+    'shrink-0 leading-none text-amber-600/70 transition-colors hover:text-amber-800 dark:hover:text-amber-100';
+  closeButton.innerHTML =
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+  closeButton.addEventListener('click', () => warningElement.remove());
 
   warningElement.appendChild(warningList);
   warningElement.appendChild(closeButton);
@@ -141,15 +158,55 @@ function showWarnings(warnings: string[]): void {
   }
 }
 
+function initDragAndDrop(dropzone: HTMLElement): void {
+  // Prevent the browser's default "open the dropped file" behaviour for drops
+  // anywhere outside the dropzone — otherwise a near-miss (or any drop after the
+  // input is hidden) navigates away and discards the page.
+  const cancel = (event: DragEvent): void => event.preventDefault();
+  window.addEventListener('dragover', cancel);
+  window.addEventListener('drop', cancel);
+
+  const activate = (event: DragEvent): void => {
+    event.preventDefault();
+    dropzone.classList.add('is-dragover');
+  };
+
+  dropzone.addEventListener('dragenter', activate);
+  dropzone.addEventListener('dragover', activate);
+
+  dropzone.addEventListener('dragleave', (event: DragEvent) => {
+    // Ignore dragleave events bubbling from child elements.
+    if (!dropzone.contains(event.relatedTarget as Node)) {
+      dropzone.classList.remove('is-dragover');
+    }
+  });
+
+  dropzone.addEventListener('drop', (event: DragEvent) => {
+    event.preventDefault();
+    dropzone.classList.remove('is-dragover');
+    void processFile(event.dataTransfer?.files?.[0]);
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  const inputElement = document.getElementById('file');
-  inputElement.addEventListener('change', handleFile, false);
+  const inputElement = document.getElementById('file') as HTMLInputElement;
+  inputElement.addEventListener(
+    'change',
+    function (this: HTMLInputElement): void {
+      void processFile(this.files?.[0]);
+    },
+    false,
+  );
+
+  const dropzone = document.getElementById('dropzone');
+  if (dropzone) {
+    initDragAndDrop(dropzone);
+  }
 
   const copyButton = document.getElementById('copy-button');
   if (copyButton !== null) {
     new ClipboardJS('#copy-button');
   }
 
-  // Theme changes are handled automatically by CSS using prefers-color-scheme media query.
-  // If manual theme switching is needed in the future, add a MediaQuery listener here.
+  // Theme changes are handled automatically by CSS using prefers-color-scheme.
 });

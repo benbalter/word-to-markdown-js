@@ -20,12 +20,10 @@ test.describe('Word to Markdown Web Interface', () => {
 
     // Check that upload form is visible
     await expect(page.locator('#file')).toBeVisible();
-    await expect(
-      page.locator('button[type="button"].btn-primary'),
-    ).toBeVisible();
+    await expect(page.locator('label[for="file"]')).toBeVisible();
 
     // Check that results section is hidden initially
-    await expect(page.locator('#results')).toHaveClass(/d-none/);
+    await expect(page.locator('#results')).not.toBeVisible();
   });
 
   test('should upload and convert a simple Word document', async ({ page }) => {
@@ -37,7 +35,6 @@ test.describe('Word to Markdown Web Interface', () => {
 
     // Wait for conversion to complete and results to appear
     await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('#results')).not.toHaveClass(/d-none/);
 
     // Wait for content to be populated
     await expect(page.locator('#output')).not.toHaveText('', {
@@ -45,7 +42,7 @@ test.describe('Word to Markdown Web Interface', () => {
     });
 
     // Check that input form is now hidden
-    await expect(page.locator('#input')).toHaveClass(/d-none/);
+    await expect(page.locator('#input')).not.toBeVisible();
 
     // Check that filename is displayed
     await expect(page.locator('#filename')).toHaveText('h1.docx');
@@ -134,12 +131,12 @@ test.describe('Word to Markdown Web Interface', () => {
 
     // Should show error message and not proceed with conversion
     // Wait for any error handling to complete by checking that results remain hidden
-    await expect(page.locator('#results')).toHaveClass(/d-none/, {
+    await expect(page.locator('#results')).not.toBeVisible({
       timeout: 5000,
     });
 
     // Verify no conversion occurred by checking the input is still visible
-    await expect(page.locator('#input')).not.toHaveClass(/d-none/);
+    await expect(page.locator('#input')).toBeVisible();
   });
 
   test('should handle copy to clipboard functionality', async ({ page }) => {
@@ -169,6 +166,34 @@ test.describe('Word to Markdown Web Interface', () => {
     await expect(copyButton).toBeVisible(); // Button should still be there after click
   });
 
+  test('should accept a file via drag-and-drop', async ({ page }) => {
+    // Drag-over highlight toggles on enter/leave (no file needed).
+    const highlight = await page.evaluate(() => {
+      const dz = document.getElementById('dropzone')!;
+      dz.dispatchEvent(new DragEvent('dragenter', { bubbles: true }));
+      const onEnter = dz.classList.contains('is-dragover');
+      dz.dispatchEvent(new DragEvent('dragleave', { bubbles: true }));
+      const onLeave = dz.classList.contains('is-dragover');
+      return { onEnter, onLeave };
+    });
+    expect(highlight.onEnter).toBe(true);
+    expect(highlight.onLeave).toBe(false);
+
+    // Dropping a file routes through the converter. An unsupported extension is
+    // the cheapest proof the drop handler reaches processFile (valid .docx
+    // conversion is already covered via the file input above).
+    await page.evaluate(() => {
+      const dt = new DataTransfer();
+      dt.items.add(new File(['x'], 'note.txt', { type: 'text/plain' }));
+      document
+        .getElementById('dropzone')!
+        .dispatchEvent(
+          new DragEvent('drop', { bubbles: true, dataTransfer: dt }),
+        );
+    });
+    await expect(page.locator('#error-alert')).toBeVisible();
+  });
+
   test('should have working navigation links', async ({ page }) => {
     // Check that navigation links are present and have correct hrefs
     await expect(page.locator('a[href*="CONTRIBUTING.md"]')).toBeVisible();
@@ -192,9 +217,7 @@ test.describe('Word to Markdown Web Interface', () => {
     // Check that main elements are still visible and functional
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('#file')).toBeVisible();
-    await expect(
-      page.locator('button[type="button"].btn-primary'),
-    ).toBeVisible();
+    await expect(page.locator('label[for="file"]')).toBeVisible();
 
     // Upload a file to test mobile conversion flow
     const fixturePath = path.join(__dirname, '../../__fixtures__/p.docx');

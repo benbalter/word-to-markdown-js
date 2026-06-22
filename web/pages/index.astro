@@ -1,86 +1,190 @@
 ---
 import Layout from '../layouts/Layout.astro';
-// The promo banner is home-only, so its CSS stays here. Dark-mode theming is
-// site-wide and lives in the Layout. (Astro needs CSS imported at the
-// component layer to emit it.) The browser logic is imported via the <script>
-// below, bundled through Astro's Vite pipeline.
+// The promo banner is home-only, so its CSS stays here. Dark-mode theming and
+// the Tailwind layer live in the Layout's global.css. The browser logic is
+// imported via the <script> at the end, bundled through Astro's Vite pipeline.
 import '../../src/promo.css';
 ---
 
 <Layout title="Word to Markdown">
-  <h1>Word to Markdown</h1>
-  <div id="input">
-    <div class="row mt-3">
-      <div class="col">
-        <h3>Step 1</h3>
-        <h4>Upload a <code>.docx</code> file</h4>
-        <p class="text-muted">Drag-and-drop the file below to upload.</p>
-        <p class="text-muted">
-          Google doc? File → Download as → <code>.docx</code>.
-        </p>
-      </div>
-      <div class="col">
-        <h3>Step 2</h3>
-        <h4>Get back crisp, clean Markdown</h4>
-        <pre class="bg-light border p-2 mt-3 text-start"><code># H1
+  <!-- ── Hero ─────────────────────────────────────────────────────────── -->
+  <section class="mx-auto max-w-3xl pt-14 pb-2 text-center sm:pt-20">
+    <p
+      class="reveal font-mono text-[0.72rem] font-medium tracking-[0.22em] text-chartreuse-deep uppercase dark:text-chartreuse"
+      style="animation-delay:.02s"
+    >
+      Free · Open source · 100% client-side
+    </p>
 
-Paragraph
+    <h1
+      class="reveal mt-5 text-balance text-5xl leading-[0.98] font-semibold tracking-tight text-navy sm:text-7xl dark:text-[#f1f2f7]"
+      style="animation-delay:.08s"
+    >
+      <span class="font-display italic">Word</span>
+      <span class="font-sans font-light text-navy-soft dark:text-mist">to</span>
+      <span class="font-mono font-medium tracking-tighter">Markdown</span>
+    </h1>
 
-## H2
+    <p
+      class="reveal mx-auto mt-6 max-w-xl text-lg leading-relaxed text-navy-soft sm:text-xl dark:text-mist"
+      style="animation-delay:.16s"
+    >
+      Drop a <code
+        class="rounded bg-navy/5 px-1.5 py-0.5 font-mono text-[0.85em] text-navy dark:bg-white/10 dark:text-[#eef0f6]"
+        >.docx</code
+      > and get crisp, clean Markdown back — converted entirely in your browser.
+      Nothing is ever uploaded.
+    </p>
+  </section>
 
-Paragraph
-
-### H3
-
-Paragraph
-        </code></pre>
-      </div>
-
-      <div class="col">
-        <h3>Step 3</h3>
-        <h4>???</h4>
-      </div>
-    </div>
-    <div class="row">
-      <form>
-        <div class="form-group">
-          <input type="file" id="file" class="form-control-file p-2 border" />
-          <button type="button" class="btn btn-primary btn-lg"> Submit </button>
-        </div>
-      </form>
-    </div>
-  </div>
-  <div id="results" class="d-none">
-    <h2>Results of converting <span id="filename"></span></h2>
-
-    <div class="moar">
-      <button
-        id="copy-button"
-        type="button"
-        class="btn btn-outline-primary"
-        data-clipboard-target="#output"
+  <!-- ── Converter ────────────────────────────────────────────────────── -->
+  <section
+    class="reveal mx-auto mt-10 max-w-2xl"
+    style="animation-delay:.24s"
+    aria-label="Convert a document"
+  >
+    <div id="input">
+      <label
+        for="file"
+        id="dropzone"
+        class="dropzone group flex cursor-pointer flex-col items-center rounded-2xl border-2 border-dashed border-rule-light bg-paper-card/70 px-6 py-14 text-center shadow-[0_1px_2px_rgba(20,33,60,0.04)] backdrop-blur-sm dark:border-rule-dark dark:bg-ink-card/60"
       >
-        Copy markdown to clipboard
-      </button>
+        <span
+          class="dropzone-icon mb-5 inline-flex h-14 w-14 items-center justify-center rounded-full border border-chartreuse/40 bg-chartreuse/10 text-chartreuse-deep transition-transform dark:text-chartreuse"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 15V3" />
+            <path d="m7 8 5-5 5 5" />
+            <path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" />
+          </svg>
+        </span>
+        <span
+          class="font-display text-xl font-medium text-navy dark:text-[#f1f2f7]"
+        >
+          Drop your <span class="italic">.docx</span> here
+        </span>
+        <span class="mt-1.5 text-sm text-navy-soft dark:text-mist">
+          or <span class="font-medium text-chartreuse-deep underline decoration-2 underline-offset-2 dark:text-chartreuse">click to browse</span>
+        </span>
+        <input type="file" id="file" accept=".docx" class="sr-only" />
+      </label>
+
+      <p
+        class="mt-4 text-center font-mono text-[0.72rem] tracking-wide text-navy-soft/80 dark:text-mist/80"
+      >
+        Google Doc? File → Download → Microsoft Word (.docx)
+      </p>
     </div>
 
-    <div class="row mt-3">
-      <div class="col-6">
-        <h3>Markdown</h3>
-        <pre
-          class="bg-light border text-start p-2 pre-scrollable"
-        ><code id="output" class="force-select-all"></code></pre>
-      </div>
-      <div class="col-6">
-        <h3>Rendered</h3>
-        <div
-          id="rendered"
-          class="bg-light border text-start pre-scrollable py-1 px-2"
+    <!-- Results (revealed after a successful conversion) -->
+    <div id="results" class="hidden">
+      <div
+        class="mt-4 flex flex-col items-center justify-between gap-3 sm:flex-row"
+      >
+        <h2 class="font-display text-lg font-medium text-navy dark:text-[#f1f2f7]">
+          Converted <span id="filename" class="font-mono text-base text-chartreuse-deep dark:text-chartreuse"></span>
+        </h2>
+        <button
+          id="copy-button"
+          type="button"
+          data-clipboard-target="#output"
+          class="inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-[#eef0f6] dark:hover:border-chartreuse"
         >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+          </svg>
+          Copy markdown to clipboard
+        </button>
+      </div>
+
+      <div class="mt-4 grid gap-4 lg:grid-cols-2">
+        <div
+          class="overflow-hidden rounded-xl border border-rule-light bg-paper-card dark:border-rule-dark dark:bg-ink-card"
+        >
+          <div
+            class="flex items-center gap-2 border-b border-rule-light px-4 py-2 dark:border-rule-dark"
+          >
+            <span class="h-2.5 w-2.5 rounded-full bg-chartreuse"></span>
+            <span
+              class="font-mono text-xs font-medium tracking-wide text-navy-soft uppercase dark:text-mist"
+              >Markdown</span
+            >
+          </div>
+          <pre
+            class="max-h-[28rem] overflow-auto px-4 py-3 text-left"><code id="output" class="font-mono text-[0.82rem] leading-relaxed text-navy dark:text-[#e3e6ef]"></code></pre>
+        </div>
+
+        <div
+          class="overflow-hidden rounded-xl border border-rule-light bg-paper-card dark:border-rule-dark dark:bg-ink-card"
+        >
+          <div
+            class="flex items-center gap-2 border-b border-rule-light px-4 py-2 dark:border-rule-dark"
+          >
+            <span class="h-2.5 w-2.5 rounded-full bg-navy-soft dark:bg-mist"></span>
+            <span
+              class="font-mono text-xs font-medium tracking-wide text-navy-soft uppercase dark:text-mist"
+              >Rendered</span
+            >
+          </div>
+          <div
+            id="rendered"
+            class="prose prose-sm dark:prose-invert max-h-[28rem] max-w-none overflow-auto px-4 py-3 text-left"
+          >
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
+
+  <!-- ── How it works ─────────────────────────────────────────────────── -->
+  <section class="mx-auto mt-20 max-w-3xl">
+    <div class="grid gap-px overflow-hidden rounded-xl border border-rule-light bg-rule-light sm:grid-cols-3 dark:border-rule-dark dark:bg-rule-dark">
+      {
+        [
+          { n: '01', t: 'Upload', d: 'Drag in a .docx, or click to pick one.' },
+          { n: '02', t: 'Convert', d: 'It transforms locally — no server, no wait.' },
+          { n: '03', t: 'Copy', d: 'Grab clean, GitHub-flavored Markdown.' },
+        ].map((step) => (
+          <div class="bg-paper px-6 py-7 dark:bg-ink">
+            <span class="font-mono text-sm font-bold text-chartreuse-deep dark:text-chartreuse">
+              {step.n}
+            </span>
+            <h3 class="mt-2 font-display text-lg font-medium text-navy dark:text-[#f1f2f7]">
+              {step.t}
+            </h3>
+            <p class="mt-1 text-sm leading-relaxed text-navy-soft dark:text-mist">
+              {step.d}
+            </p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- ── Sponsor promo (Open & Async) ─────────────────────────────────── -->
   <a
     class="promo"
     href="https://open-and-async.com/?utm_source=word2md&utm_medium=referral"

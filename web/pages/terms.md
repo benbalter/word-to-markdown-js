@@ -1,5 +1,5 @@
 ---
-layout: ../layouts/Layout.astro
+layout: ../layouts/Prose.astro
 title: Terms of Use
 ---
 
