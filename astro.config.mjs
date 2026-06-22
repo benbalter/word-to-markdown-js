@@ -5,6 +5,7 @@ import {
 } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
+import checks from '@nuasite/checks';
 
 // The site is deployed to GitHub Pages at the custom domain word2md.com,
 // which serves from the root, so `base` stays `/`.
@@ -25,6 +26,17 @@ export default defineConfig({
   integrations: [
     // Generate sitemap-index.xml / sitemap-0.xml for the 3 pages (uses `site`).
     sitemap(),
+    // Build-time SEO / accessibility / performance / GEO validation. Output is
+    // clean (0 errors), so errors fail the build; warnings are advisory.
+    checks({
+      mode: 'essential',
+      seo: true,
+      performance: true,
+      accessibility: true,
+      geo: true,
+      failOnError: true,
+      failOnWarning: false,
+    }),
   ],
   // We use astro:assets only for the Fonts API, not image optimization, so opt
   // out of the default sharp image service (avoids a hard sharp dependency).
