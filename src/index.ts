@@ -1,22 +1,52 @@
-import {
-  convertWithWarnings,
-  UnsupportedFileError,
-  InvalidFileError,
-  ConversionError,
-  validateFileExtension,
-} from './main.js';
-import rehypeSanitize from 'rehype-sanitize';
-import rehypeStringify from 'rehype-stringify';
-import remarkParse from 'remark-parse';
-import remarkRehype from 'remark-rehype';
-import { unified } from 'unified';
-import remarkGfm from 'remark-gfm';
 import ClipboardJS from 'clipboard';
+
+// The Word→Markdown converter and the Markdown→HTML renderer pull in heavy
+// dependencies (mammoth, turndown, jszip, unified/remark/rehype, prettier,
+// markdownlint — ~400KB gzipped). They are dynamically imported on first use so
+// the landing page paints without that payload; the chunk loads only once a
+// file is actually provided.
+
+// Render Markdown to sanitized HTML for the preview pane.
+async function renderMarkdown(markdown: string): Promise<string> {
+  const [
+    { unified },
+    { default: remarkParse },
+    { default: remarkGfm },
+    { default: remarkRehype },
+    { default: rehypeSanitize },
+    { default: rehypeStringify },
+  ] = await Promise.all([
+    import('unified'),
+    import('remark-parse'),
+    import('remark-gfm'),
+    import('remark-rehype'),
+    import('rehype-sanitize'),
+    import('rehype-stringify'),
+  ]);
+
+  const result = await unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkRehype)
+    .use(rehypeSanitize)
+    .use(rehypeStringify)
+    .process(markdown);
+
+  return String(result);
+}
 
 // Convert a single file. Shared by the file-input change handler and the
 // drag-and-drop handler so both entry points behave identically.
 async function processFile(file: File | undefined): Promise<void> {
   if (!file) return;
+
+  const {
+    convertWithWarnings,
+    UnsupportedFileError,
+    InvalidFileError,
+    ConversionError,
+    validateFileExtension,
+  } = await import('./main.js');
 
   // Check file extension before processing
   try {
@@ -43,16 +73,8 @@ async function processFile(file: File | undefined): Promise<void> {
       const outputElement = document.getElementById('output');
       outputElement.innerText = result.markdown;
 
-      const html = await unified()
-        .use(remarkParse)
-        .use(remarkGfm)
-        .use(remarkRehype)
-        .use(rehypeSanitize)
-        .use(rehypeStringify)
-        .process(result.markdown);
-
       const renderedElement = document.getElementById('rendered');
-      renderedElement.innerHTML = String(html);
+      renderedElement.innerHTML = await renderMarkdown(result.markdown);
 
       const filenameElement = document.getElementById('filename');
       filenameElement.innerText = file.name;

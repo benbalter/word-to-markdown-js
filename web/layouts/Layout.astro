@@ -12,6 +12,8 @@ import { Font } from 'astro:assets';
 interface Props {
   title: string;
   description?: string;
+  image?: string;
+  structuredData?: Record<string, unknown>;
 }
 
 // `.astro` pages pass props directly; Markdown pages using `layout:` pass
@@ -19,10 +21,13 @@ interface Props {
 const {
   title,
   description = 'Convert Word or Google documents to Markdown online',
+  image = '/og.png',
+  structuredData,
 } = Astro.props.frontmatter ?? Astro.props;
 
-// Canonical/OG URL derived from `site` + the current path.
+// Canonical / OG / social-image URLs derived from `site` + the current path.
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL(image, Astro.site).href;
 
 const footerLinks = [
   {
@@ -46,15 +51,30 @@ const footerLinks = [
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
     <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content="Word to Markdown Converter" />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
     <meta name="theme-color" content="#f6f5ef" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0a1120" media="(prefers-color-scheme: dark)" />
+    {
+      structuredData && (
+        <script
+          type="application/ld+json"
+          set:html={JSON.stringify(structuredData)}
+        />
+      )
+    }
     <Font cssVariable="--font-fraunces" />
     <Font cssVariable="--font-hanken" />
     <Font cssVariable="--font-jetbrains" />

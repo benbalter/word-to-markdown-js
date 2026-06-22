@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://word2md.com/sitemap-index.xml

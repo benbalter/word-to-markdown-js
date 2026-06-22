@@ -1,6 +1,7 @@
 ---
 layout: ../layouts/Prose.astro
-title: Terms of Use
+title: Terms of Use — Word to Markdown
+description: The terms governing your use of the Word to Markdown converter — provided as-is, without warranty.
 ---
 
 # Terms of Use

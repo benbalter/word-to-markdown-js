@@ -4,6 +4,7 @@ import {
   passthroughImageService,
 } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
+import sitemap from '@astrojs/sitemap';
 
 // The site is deployed to GitHub Pages at the custom domain word2md.com,
 // which serves from the root, so `base` stays `/`.
@@ -17,6 +18,14 @@ export default defineConfig({
   outDir: './dist',
   publicDir: './public',
   output: 'static',
+  // Inline all stylesheets into the HTML to remove the render-blocking CSS
+  // request — the landing page paints sooner (especially now that the converter
+  // JS is code-split and no longer the gate).
+  build: { inlineStylesheets: 'always' },
+  integrations: [
+    // Generate sitemap-index.xml / sitemap-0.xml for the 3 pages (uses `site`).
+    sitemap(),
+  ],
   // We use astro:assets only for the Fonts API, not image optimization, so opt
   // out of the default sharp image service (avoids a hard sharp dependency).
   image: { service: passthroughImageService() },
@@ -24,37 +33,44 @@ export default defineConfig({
   // Fonts are downloaded and served from our own origin at build time — no
   // runtime third-party request (consistent with "nothing is uploaded").
   // Each `cssVariable` is consumed by the Tailwind @theme tokens in global.css.
-  experimental: {
-    fonts: [
-      {
-        provider: fontProviders.fontsource(),
-        name: 'Fraunces',
-        cssVariable: '--font-fraunces',
-        weights: [400, 500, 600],
-        styles: ['normal', 'italic'],
-        subsets: ['latin'],
-        fallbacks: ['Georgia', 'serif'],
-      },
-      {
-        provider: fontProviders.fontsource(),
-        name: 'Hanken Grotesk',
-        cssVariable: '--font-hanken',
-        weights: [400, 500, 600, 700],
-        styles: ['normal'],
-        subsets: ['latin'],
-        fallbacks: ['system-ui', 'sans-serif'],
-      },
-      {
-        provider: fontProviders.fontsource(),
-        name: 'JetBrains Mono',
-        cssVariable: '--font-jetbrains',
-        weights: [400, 500, 700],
-        styles: ['normal'],
-        subsets: ['latin'],
-        fallbacks: ['ui-monospace', 'monospace'],
-      },
-    ],
-  },
+  //
+  // display: 'swap' always ends on the real font (avoids the refresh-to-refresh
+  // inconsistency `optional` causes when a font misses its budget). The swap is
+  // softened by Astro's auto size-adjust/ascent-override fallback, enabled when
+  // the last `fallbacks` entry is a generic family (serif/sans-serif/monospace).
+  // (Stable top-level `fonts` in Astro 6; was `experimental.fonts` in v5.)
+  fonts: [
+    {
+      provider: fontProviders.fontsource(),
+      name: 'Fraunces',
+      cssVariable: '--font-fraunces',
+      weights: [400, 500, 600],
+      styles: ['normal', 'italic'],
+      subsets: ['latin'],
+      fallbacks: ['Georgia', 'serif'],
+      display: 'swap',
+    },
+    {
+      provider: fontProviders.fontsource(),
+      name: 'Hanken Grotesk',
+      cssVariable: '--font-hanken',
+      weights: [400, 500, 600, 700],
+      styles: ['normal'],
+      subsets: ['latin'],
+      fallbacks: ['system-ui', 'sans-serif'],
+      display: 'swap',
+    },
+    {
+      provider: fontProviders.fontsource(),
+      name: 'JetBrains Mono',
+      cssVariable: '--font-jetbrains',
+      weights: [400, 500, 700],
+      styles: ['normal'],
+      subsets: ['latin'],
+      fallbacks: ['ui-monospace', 'monospace'],
+      display: 'swap',
+    },
+  ],
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {

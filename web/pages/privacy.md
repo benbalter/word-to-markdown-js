@@ -1,6 +1,7 @@
 ---
 layout: ../layouts/Prose.astro
-title: Your privacy
+title: Your privacy — Word to Markdown
+description: How Word to Markdown handles your data — conversion happens entirely in your browser and nothing is ever uploaded.
 ---
 
 # Your privacy

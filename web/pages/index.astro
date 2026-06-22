@@ -4,9 +4,33 @@ import Layout from '../layouts/Layout.astro';
 // the Tailwind layer live in the Layout's global.css. The browser logic is
 // imported via the <script> at the end, bundled through Astro's Vite pipeline.
 import '../../src/promo.css';
+
+// Structured data (schema.org) describing the converter for rich results.
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Word to Markdown Converter',
+  url: 'https://word2md.com',
+  description:
+    'Free, open-source tool that converts Word (.docx) and Google Docs to clean, GitHub-flavored Markdown entirely in your browser.',
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'Any',
+  browserRequirements: 'Requires JavaScript',
+  isAccessibleForFree: true,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  author: {
+    '@type': 'Person',
+    name: 'Ben Balter',
+    url: 'https://ben.balter.com',
+  },
+};
 ---
 
-<Layout title="Word to Markdown">
+<Layout
+  title="Word to Markdown — Free .docx to Markdown Converter"
+  description="Free, open-source converter that turns Word (.docx) and Google Docs into clean, GitHub-flavored Markdown — entirely in your browser. Nothing is uploaded."
+  structuredData={structuredData}
+>
   <!-- ── Hero ─────────────────────────────────────────────────────────── -->
   <section class="mx-auto max-w-3xl pt-14 pb-2 text-center sm:pt-20">
     <p
@@ -20,8 +44,10 @@ import '../../src/promo.css';
       class="reveal mt-5 text-balance text-5xl leading-[0.98] font-semibold tracking-tight text-navy sm:text-7xl dark:text-[#f1f2f7]"
       style="animation-delay:.08s"
     >
-      <span class="font-display italic">Word</span>
-      <span class="font-sans font-light text-navy-soft dark:text-mist">to</span>
+      <span class="font-display italic">Word</span>{' '}
+      <span class="font-sans font-light text-navy-soft dark:text-mist">to</span>{
+        ' '
+      }
       <span class="font-mono font-medium tracking-tighter">Markdown</span>
     </h1>
 
@@ -236,7 +262,7 @@ import '../../src/promo.css';
     <span class="promo-text">
       <span class="promo-label">Sponsored by me</span>
       <span class="promo-body">
-        I built this free tool — and I wrote the book on working in the open:
+        I built this free tool — and I wrote the book on working in the open:{' '}
         <strong>Open &amp; Async</strong>, the GitHub-tested playbook for remote
         and distributed teams.
       </span>

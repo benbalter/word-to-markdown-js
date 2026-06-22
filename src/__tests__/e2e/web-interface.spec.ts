@@ -12,8 +12,8 @@ test.describe('Word to Markdown Web Interface', () => {
   });
 
   test('should display the main page with upload form', async ({ page }) => {
-    // Check page title
-    await expect(page).toHaveTitle('Word to Markdown');
+    // Check page title (starts with the brand; may carry an SEO suffix)
+    await expect(page).toHaveTitle(/^Word to Markdown/);
 
     // Check main heading
     await expect(page.locator('h1')).toHaveText('Word to Markdown');

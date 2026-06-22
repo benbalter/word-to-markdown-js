@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Word to Markdown">
+  <rect width="32" height="32" rx="7" fill="#14213c" />
+  <path
+    d="M16 7 V19 M10.5 14 l5.5 5.5 5.5-5.5 M9.5 24 h13"
+    fill="none"
+    stroke="#d0d820"
+    stroke-width="2.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

@@ -4,9 +4,10 @@
   "description": "Convert Word documents to beautiful Markdown.",
   "type": "module",
   "engines": {
-    "node": ">= 20.9 < 21"
+    "node": ">= 22.12"
   },
   "devDependencies": {
+    "@astrojs/sitemap": "^3.7.3",
     "@playwright/test": "^1.55.1",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.1",
@@ -15,7 +16,7 @@
     "@types/turndown": "^5.0.5",
     "@typescript-eslint/eslint-plugin": "~8.57",
     "@typescript-eslint/parser": "~8.57",
-    "astro": "^5.0.0",
+    "astro": "^7.0.0",
     "eslint": "~8.57",
     "eslint-config-prettier": "~10.1",
     "eslint-plugin-jest": "~29.15",
@@ -64,7 +65,7 @@
     "url": "^0.11.4"
   },
   "volta": {
-    "node": "20.10.0"
+    "node": "22.12.0"
   },
   "bin": {
     "w2m": "build/cli.js"
