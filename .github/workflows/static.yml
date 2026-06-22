@@ -38,10 +38,8 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm install
-      - name: Build TypeScript
-        run: npm run build
-      - name: Build web bundle
-        run: npm run build:web
+      - name: Build site
+        run: npm run build:site
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

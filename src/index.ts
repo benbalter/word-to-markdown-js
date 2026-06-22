@@ -12,8 +12,6 @@ import remarkRehype from 'remark-rehype';
 import { unified } from 'unified';
 import remarkGfm from 'remark-gfm';
 import ClipboardJS from 'clipboard';
-import './dark-mode.css';
-import './promo.css';
 
 async function handleFile(): Promise<void> {
   const reader = new FileReader();

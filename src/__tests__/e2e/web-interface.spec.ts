@@ -180,8 +180,8 @@ test.describe('Word to Markdown Web Interface', () => {
     await expect(
       page.locator('a[href*="patreon.com/benbalter"]'),
     ).toBeVisible();
-    await expect(page.locator('a[href="./terms/"]')).toBeVisible();
-    await expect(page.locator('a[href="./privacy/"]')).toBeVisible();
+    await expect(page.locator('a[href="/terms/"]')).toBeVisible();
+    await expect(page.locator('a[href="/privacy/"]')).toBeVisible();
     await expect(page.locator('a[href*="ben.balter.com"]')).toBeVisible();
   });
 

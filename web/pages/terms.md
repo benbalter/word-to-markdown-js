@@ -1,3 +1,8 @@
+---
+layout: ../layouts/Layout.astro
+title: Terms of Use
+---
+
 # Terms of Use
 
 _TL;DR:_ This service is provided for your convenience, without any warranty of any kind. In an ideal world, if you use common sense, it will convert your document securely and privately, and this site will try its best, but make no guarantees whatsoever.

@@ -16,6 +16,9 @@ coverage
 build/
 dist/
 
+# Astro generated types/cache
+.astro/
+
 # VS Code
 .vscode
 !.vscode/tasks.js

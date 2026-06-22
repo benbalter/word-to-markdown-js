@@ -29,7 +29,6 @@ Word to Markdown is designed with privacy as a core principle. The application o
 
 - **Complete client-side processing**: When using the web interface, all document conversion happens locally in your browser using JavaScript. Your documents never leave your computer.
 - **No server uploads**: When using the web interface, files are processed entirely on your device. No document content is ever transmitted to any server.
-- **HTTP API option**: The optional HTTP API server (for programmatic access) processes documents temporarily on your chosen server without permanent storage or logging.
 - **No personal data collection**: The application does not collect, store, or transmit any personal information or document contents.
 - **Privacy-first analytics**: The hosted version at word2md.com uses only privacy-centric Cloudflare Analytics for anonymous usage statistics. No Google Analytics or user tracking.
 - **Self-hosting option**: For maximum privacy, you can run the application locally or self-host it without any analytics whatsoever.
@@ -47,24 +46,17 @@ Whether you use the command line tool, run it locally in your browser, or use th
 
 Run `w2m path/to/your/file.docx`
 
-## Web server (static HTML)
+## Run the site locally
 
-`npm run server:web`
-
-## Web server (HTTP API)
-
-You can also run Word to Markdown as an HTTP API server, where you can make requests from elsewhere.
-
-`npm run server`
-
-The server exposes a `POST /raw` endpoint, which returns the converted Markdown.
+`npm run dev` starts the Astro dev server. To preview a production build, run
+`npm run build` followed by `npm run preview`.
 
 ## Self-Hosting
 
-To self-host Word to Markdown using Docker Compose:
+To self-host the static site using Docker Compose:
 
 1. Clone the repository
-2. Run `npm install && npm run build:web`
+2. Run `npm install && npm run build`
 3. Run `docker-compose up -d`
 4. Access at http://localhost:3000
 

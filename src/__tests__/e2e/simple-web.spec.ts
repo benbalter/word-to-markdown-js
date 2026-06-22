@@ -74,9 +74,12 @@ test.describe('Simple Web Interface Test', () => {
     // Print requests for debugging
     console.log('Network requests:', requests);
 
-    // Should have loaded the main JS bundle and Bootstrap CSS
+    // Should have loaded the client JS bundle and Bootstrap CSS.
+    // Astro emits the hoisted page script under /_astro/*.js.
     expect(
-      requests.some((req) => /main(\.[a-zA-Z0-9]+)?\.js(\?.*)?$/.test(req)),
+      requests.some((req) =>
+        /(main(\.[a-zA-Z0-9]+)?|_astro\/.*)\.js(\?.*)?$/.test(req),
+      ),
     ).toBe(true);
     expect(requests.some((req) => /bootstrap.*\.css(\?.*)?$/.test(req))).toBe(
       true,

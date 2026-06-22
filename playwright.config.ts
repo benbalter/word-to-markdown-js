@@ -24,7 +24,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:8080',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -55,21 +55,13 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
-  webServer: [
-    {
-      command: 'node src/__tests__/e2e/test-server.js',
-      port: 8080,
-      reuseExistingServer: !process.env.CI,
-      stderr: 'pipe',
-      stdout: 'pipe',
-    },
-    {
-      command: 'npm run server',
-      port: 3000,
-      reuseExistingServer: !process.env.CI,
-      stderr: 'pipe',
-      stdout: 'pipe',
-    },
-  ],
+  /* Serve the built Astro site (dist/) before starting the tests.
+     Assumes `npm run build` has produced dist/ (CI runs it first). */
+  webServer: {
+    command: 'npm run preview -- --port 8080',
+    port: 8080,
+    reuseExistingServer: !process.env.CI,
+    stderr: 'pipe',
+    stdout: 'pipe',
+  },
 });
