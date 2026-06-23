@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { asLocale, localeMeta, useTranslations, getAlternates } from '../i18n';
+import { asLocale, localeMeta, useTranslations } from '../i18n';
 // The promo banner is home-only, so its CSS stays here. Dark-mode theming and
 // the Tailwind layer live in the Layout's global.css. The browser logic is
 // imported via the <script> at the end, bundled through Astro's Vite pipeline.
@@ -14,10 +14,6 @@ interface Props {
 const locale = asLocale(Astro.props.lang);
 const meta = localeMeta[locale];
 const t = useTranslations(locale);
-
-// hreflang cluster — the home page exists in every locale, so it gets the full
-// self-referential set (en + id + x-default).
-const alternates = getAlternates('/');
 
 // Structured data (schema.org) for rich results: the app entity + the FAQ.
 // `inLanguage` and the human-readable copy follow the active locale.
@@ -71,7 +67,7 @@ const stepIcons = [
   title={t.metaTitle}
   description={t.metaDescription}
   structuredData={structuredData}
-  alternates={alternates}
+  i18nPath="/"
 >
   <!-- ── Hero ─────────────────────────────────────────────────────────── -->
   <section class="mx-auto max-w-3xl pt-14 pb-2 text-center sm:pt-20">

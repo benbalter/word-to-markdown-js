@@ -55,33 +55,9 @@ export function useTranslations(locale: string | undefined): UIStrings {
   return dictionaries[asLocale(locale)];
 }
 
-// Root-relative path to a page in a given locale. The default locale lives at
-// the root (prefixDefaultLocale: false); others are prefixed with `/<locale>`.
-function localizedPath(locale: Locale, path: string): string {
-  const clean = path.startsWith('/') ? path : `/${path}`;
-  return locale === defaultLocale ? clean : `/${locale}${clean}`;
-}
-
-export interface Alternate {
-  /** hreflang value, e.g. "en", "id", or "x-default". */
-  hreflang: string;
-  /** Root-relative path; the Layout resolves it against `site` for an absolute URL. */
-  path: string;
-}
-
-// hreflang cluster for a page that exists in every locale. MUST be
-// self-referential — each localized page lists every locale plus x-default,
-// not just the *other* languages (the most common hreflang mistake). One
-// broken/404 alternate makes search engines discard the whole cluster, so only
-// call this for pages that genuinely have a version in every listed locale.
-export function getAlternates(path = '/'): Alternate[] {
-  const alternates: Alternate[] = locales.map((locale) => ({
-    hreflang: localeMeta[locale].htmlLang,
-    path: localizedPath(locale, path),
-  }));
-  alternates.push({
-    hreflang: 'x-default',
-    path: localizedPath(defaultLocale, path),
-  });
-  return alternates;
-}
+// Localized URL generation is handled by the `astro:i18n` helpers
+// (getRelativeLocaleUrl / getAbsoluteLocaleUrl) directly in the .astro layout,
+// so it always respects `base`, `trailingSlash`, and the routing config rather
+// than re-deriving paths here. The hreflang *cluster* is built in Layout.astro:
+// it MUST stay self-referential (every localized page lists all locales plus
+// x-default), so only flag a page as localized if it exists in every locale.
