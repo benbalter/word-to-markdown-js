@@ -1,11 +1,17 @@
 import type { UIStrings } from './types';
-import { en } from './en';
-import { id } from './id';
-import { vi } from './vi';
-import { pt } from './pt';
-import { es } from './es';
-import { de } from './de';
-import { fr } from './fr';
+// Translation content lives in per-locale JSON dictionaries (the standard format
+// for translation-management tools like Crowdin/Weblate). The `Record` typing
+// below documents the expected shape; completeness across locales is enforced at
+// test time by src/__tests__/i18n-completeness.test.ts (astro check only reports
+// diagnostics for .astro files, so it can't catch a missing JSON key). See
+// web/i18n/README.md.
+import en from './en.json';
+import id from './id.json';
+import vi from './vi.json';
+import pt from './pt.json';
+import es from './es.json';
+import de from './de.json';
+import fr from './fr.json';
 
 export type { UIStrings, FaqEntry, Step } from './types';
 

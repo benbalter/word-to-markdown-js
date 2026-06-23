@@ -19,7 +19,8 @@
     "noImplicitThis": false,
     "strictNullChecks": false,
     "esModuleInterop": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "resolveJsonModule": true
   },
   "include": ["src/**/*"],
   // src/index.ts is the browser entry — Astro/Vite bundles it for the site and

@@ -1,0 +1,73 @@
+{
+  "eyebrow": "Grátis · Código aberto · 100% no seu navegador",
+  "tagline": "Converta arquivos Word (.docx) em Markdown limpo — inteiramente no seu navegador. Seus arquivos nunca são enviados.",
+  "flowFromAlt": "Documento Word",
+  "flowToAlt": "Arquivo Markdown",
+  "dropzoneTitle": "Solte seu .docx aqui",
+  "dropzoneBrowsePrefix": "ou ",
+  "dropzoneBrowseLink": "clique para escolher um arquivo",
+  "googleDocHint": "Google Doc? Arquivo → Fazer download → Microsoft Word (.docx)",
+  "convertSectionAria": "Converter um documento",
+  "convertedLabel": "Convertido",
+  "copyButton": "Copiar Markdown",
+  "downloadButton": "Baixar .md",
+  "panelMarkdown": "Markdown",
+  "panelPreview": "Visualização",
+  "steps": [
+    {
+      "t": "Enviar",
+      "d": "Arraste um arquivo .docx ou clique para escolher."
+    },
+    {
+      "t": "Converter",
+      "d": "A conversão acontece no seu navegador — sem servidor, sem espera."
+    },
+    {
+      "t": "Copiar ou salvar",
+      "d": "Copie o Markdown ou baixe um arquivo .md."
+    }
+  ],
+  "faqHeading": "Perguntas frequentes",
+  "faqs": [
+    {
+      "q": "Como converter um documento Word em Markdown?",
+      "a": "Arraste um arquivo .docx para a página (ou clique para selecionar). O Word to Markdown converte no seu navegador e mostra o Markdown na hora — copie ou baixe um arquivo .md."
+    },
+    {
+      "q": "O Word to Markdown é gratuito?",
+      "a": "Sim. É totalmente gratuito e de código aberto — sem cadastro, sem limite de tamanho de arquivo e sem anúncios."
+    },
+    {
+      "q": "Meus documentos são enviados para um servidor?",
+      "a": "Não. A conversão acontece inteiramente no seu navegador usando JavaScript. Seus arquivos nunca saem do seu dispositivo e nunca são enviados, armazenados ou registrados."
+    },
+    {
+      "q": "Como converter um Google Doc em Markdown?",
+      "a": "No Google Docs, escolha Arquivo → Fazer download → Microsoft Word (.docx) e solte esse .docx no Word to Markdown."
+    },
+    {
+      "q": "Qual formatação é preservada?",
+      "a": "Títulos, texto em negrito e itálico, listas ordenadas e aninhadas, tabelas, links e código são convertidos em Markdown limpo no padrão GitHub."
+    }
+  ],
+  "footer": {
+    "feedback": "Feedback",
+    "source": "Código-fonte",
+    "donate": "Doar",
+    "terms": "Termos",
+    "privacy": "Privacidade"
+  },
+  "footerTagline": "Convertido no seu navegador · nada é enviado",
+  "homeAria": "Word to Markdown — início",
+  "metaTitle": "Word to Markdown — Conversor de .docx para Markdown grátis",
+  "metaDescription": "Converta Word (.docx) e Google Docs em Markdown limpo no padrão GitHub — grátis, código aberto e totalmente no seu navegador.",
+  "schemaDescription": "Ferramenta gratuita e de código aberto que converte Word (.docx) e Google Docs em Markdown limpo no padrão GitHub, inteiramente no seu navegador.",
+  "schemaFeatureList": [
+    "Converter Word (.docx) em Markdown",
+    "Converter Google Docs em Markdown",
+    "Saída em Markdown no padrão GitHub",
+    "100% no cliente — nada é enviado"
+  ],
+  "errorGeneric": "Ocorreu um erro inesperado ao converter o documento. Tente novamente.",
+  "dismiss": "Dispensar"
+}
