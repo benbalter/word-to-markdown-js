@@ -1,12 +1,23 @@
 ---
-// Sponsor promo (Open & Async). Home-only, fully static (no translated copy),
-// so it owns its scoped CSS rather than the Layout's global stylesheet.
+// Sponsor promo (Open & Async). Home-only; owns its scoped CSS rather than the
+// Layout's global stylesheet. Copy is localized via the shared dictionaries
+// (the book title "Open & Async" stays literal); utm_campaign=card distinguishes
+// this placement from the contextual results-pane pitch (utm_campaign=results).
 import '../../../src/promo.css';
+import { asLocale, useTranslations } from '../../i18n';
+
+interface Props {
+  /** Locale for this page; pages set it statically from their route. */
+  lang: string;
+}
+
+const t = useTranslations(asLocale(Astro.props.lang));
 ---
 
 <a
+  id="promo-card"
   class="promo"
-  href="https://open-and-async.com/?utm_source=word2md&utm_medium=referral"
+  href="https://open-and-async.com/?utm_source=word2md&utm_medium=referral&utm_campaign=card"
 >
   <svg
     class="promo-graph"
@@ -50,15 +61,11 @@ import '../../../src/promo.css';
     src="/open-and-async-cover.png"
     width="92"
     height="127"
-    alt="Open and Async book cover"
+    alt={t.promo.coverAlt}
   />
   <span class="promo-text">
-    <span class="promo-label">Sponsored by me</span>
-    <span class="promo-body">
-      I built this free tool — and I wrote the book on working in the open:{' '}
-      <strong>Open &amp; Async</strong>, the GitHub-tested playbook for remote
-      and distributed teams.
-    </span>
-    <span class="promo-cta">Get notified &rarr;</span>
+    <span class="promo-label">{t.promo.label}</span>
+    <span class="promo-body" set:html={t.promo.body} />
+    <span class="promo-cta">{t.promo.cta} &rarr;</span>
   </span>
 </a>

@@ -110,4 +110,30 @@ const t = useTranslations(asLocale(Astro.props.lang));
       <span class="font-mono text-xs font-medium tracking-tight">.md</span>
     </span>
   </div>
+
+  <!-- Longevity trust signal: the tool has existed since 2014 (the original
+       word-to-markdown / word2md.herokuapp.com), predating the word2md.com
+       domain (2019). -->
+  <p
+    class="reveal mt-6 inline-flex items-center gap-1.5 font-mono text-[0.7rem] font-medium tracking-wide text-navy-soft/80 dark:text-mist/80"
+    style="animation-delay:.28s"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="text-chartreuse-deep dark:text-chartreuse"
+      aria-hidden="true"
+    >
+      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+    {t.trustBadge}
+  </p>
 </section>

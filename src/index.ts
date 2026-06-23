@@ -55,6 +55,30 @@ function prefetchConverter(): void {
   import('rehype-stringify').catch(ignore);
 }
 
+// Record an anonymous "a conversion happened" signal so the hosted site can
+// gauge whether the tool is still being used (and worth continuing to improve).
+// It carries NO document content, filename, size, or any identifier — only the
+// outcome (success/error) and the page's language, as a fire-and-forget ping to
+// the Worker (worker/index.js), which writes a single Analytics Engine data
+// point. Gated to the production host so self-hosted and local builds send
+// nothing (the privacy policy promises no analytics when self-hosted), and fully
+// guarded so a failure can never interfere with the conversion itself.
+function recordConversion(outcome: 'success' | 'error'): void {
+  try {
+    if (window.location.hostname !== 'word2md.com') return;
+    // Base language tag (e.g. "pt-BR" → "pt") to match the Worker's locale keys.
+    const locale = (document.documentElement.lang || 'en').split('-')[0];
+    const url = `/api/event?o=${outcome}&l=${encodeURIComponent(locale)}`;
+    if (typeof navigator.sendBeacon === 'function') {
+      navigator.sendBeacon(url);
+    } else {
+      void fetch(url, { method: 'POST', keepalive: true }).catch(() => {});
+    }
+  } catch {
+    /* analytics must never break a conversion */
+  }
+}
+
 // Convert a single file. Shared by the file-input change handler and the
 // drag-and-drop handler so both entry points behave identically.
 async function processFile(file: File | undefined): Promise<void> {
@@ -104,7 +128,18 @@ async function processFile(file: File | undefined): Promise<void> {
 
       const resultsElement = document.getElementById('results');
       resultsElement.classList.remove('hidden');
+
+      // The results pane carries its own contextual Open & Async pitch, so hide
+      // the standalone promo card to avoid stacking two asks. The card stays for
+      // visitors who never convert (it lives in the page flow below the input).
+      // Set display inline rather than toggling `.hidden`: the card's scoped CSS
+      // sets `display: flex` at equal specificity, so a class wouldn't reliably win.
+      const promoCard = document.getElementById('promo-card');
+      if (promoCard) promoCard.style.display = 'none';
+
+      recordConversion('success');
     } catch (error) {
+      recordConversion('error');
       // Handle all our custom errors with specific messages
       if (
         error instanceof UnsupportedFileError ||

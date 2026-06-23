@@ -161,5 +161,36 @@ const t = useTranslations(asLocale(Astro.props.lang));
         </div>
       </div>
     </div>
+
+    <!-- Contextual Open & Async pitch, shown at the moment of peak intent (right
+         after a successful conversion). This is the SOLE post-conversion ask
+         (src/index.ts hides the standalone Promo card on success), so it carries
+         real weight: book cover + a filled button rather than a bare text link.
+         utm_campaign=results lets this placement be told apart from the card. -->
+    <aside
+      class="mt-4 flex items-center gap-4 rounded-xl border border-chartreuse/40 bg-chartreuse/10 px-4 py-3.5 text-left dark:bg-chartreuse/5"
+    >
+      <img
+        src="/open-and-async-cover.png"
+        width="48"
+        height="66"
+        alt={t.promo.coverAlt}
+        class="hidden shrink-0 rounded shadow-sm sm:block"
+      />
+      <div
+        class="flex flex-1 flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+      >
+        <p class="text-sm leading-relaxed text-navy-soft dark:text-mist">
+          {t.promo.resultsLead}
+        </p>
+        <a
+          href="https://open-and-async.com/?utm_source=word2md&utm_medium=referral&utm_campaign=results"
+          class="inline-flex shrink-0 items-center gap-1.5 self-start rounded-lg bg-chartreuse px-4 py-2 text-sm font-semibold whitespace-nowrap text-navy shadow-sm transition-colors hover:bg-chartreuse-deep hover:text-white sm:self-auto"
+        >
+          {t.promo.resultsCta}
+          <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </aside>
   </div>
 </section>

@@ -1,6 +1,7 @@
 {
   "eyebrow": "Miễn phí · Mã nguồn mở · 100% trong trình duyệt",
   "tagline": "Chuyển đổi tệp Word (.docx) sang Markdown gọn gàng — hoàn toàn trong trình duyệt của bạn. Tệp của bạn không bao giờ được tải lên.",
+  "trustBadge": "Được tin dùng từ 2014",
   "flowFromAlt": "Tài liệu Word",
   "flowToAlt": "Tệp Markdown",
   "dropzoneTitle": "Thả tệp .docx của bạn vào đây",
@@ -93,5 +94,13 @@
     "100% phía máy khách — không có gì được tải lên"
   ],
   "errorGeneric": "Đã xảy ra lỗi không mong muốn khi chuyển đổi tài liệu. Vui lòng thử lại.",
-  "dismiss": "Đóng"
+  "dismiss": "Đóng",
+  "promo": {
+    "label": "Từ người tạo ra công cụ",
+    "body": "Tôi đã xây dựng công cụ miễn phí này — và tôi đã viết cuốn sách về cách làm việc cởi mở. <strong>Open &amp; Async</strong> là cẩm nang đã được kiểm chứng trên GitHub dành cho các nhóm làm việc từ xa và phân tán.",
+    "cta": "Nhận thông báo",
+    "coverAlt": "Bìa sách Open and Async",
+    "resultsLead": "Tuyệt — thêm một tài liệu nữa rời khỏi Word và trở nên cởi mở. Tôi đã viết cẩm nang cho cách làm việc này:",
+    "resultsCta": "Xem Open & Async"
+  }
 }

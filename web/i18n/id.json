@@ -1,6 +1,7 @@
 {
   "eyebrow": "Gratis · Open source · 100% di peramban",
   "tagline": "Ubah file Word (.docx) menjadi Markdown yang rapi — sepenuhnya di peramban Anda. File Anda tidak pernah diunggah.",
+  "trustBadge": "Tepercaya sejak 2014",
   "flowFromAlt": "Dokumen Word",
   "flowToAlt": "File Markdown",
   "dropzoneTitle": "Letakkan file .docx Anda di sini",
@@ -93,5 +94,13 @@
     "100% di sisi klien — tidak ada yang diunggah"
   ],
   "errorGeneric": "Terjadi kesalahan tak terduga saat mengonversi dokumen. Silakan coba lagi.",
-  "dismiss": "Tutup"
+  "dismiss": "Tutup",
+  "promo": {
+    "label": "Dari pembuatnya",
+    "body": "Saya membuat alat gratis ini — dan saya menulis buku tentang bekerja secara terbuka. <strong>Open &amp; Async</strong> adalah panduan teruji-GitHub untuk tim jarak jauh dan terdistribusi.",
+    "cta": "Dapatkan info terbaru",
+    "coverAlt": "Sampul buku Open and Async",
+    "resultsLead": "Bagus — satu dokumen lagi keluar dari Word dan menjadi terbuka. Saya menulis panduan untuk cara kerja seperti ini:",
+    "resultsCta": "Lihat Open & Async"
+  }
 }

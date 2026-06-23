@@ -29,7 +29,8 @@ When you upload a document, it is processed entirely within your browser using J
 #### Information collected automatically
 
 - On word2md.com: This site uses privacy-centric Cloudflare Web Analytics to collect anonymous usage statistics. Cloudflare Analytics is privacy-first and does not track individual users or use cookies.
-- When self-hosted: No analytics or tracking of any kind are included when you run the application locally or self-host it.
+- On word2md.com: When a conversion finishes, the site records a single anonymous count — whether it succeeded and the page's language — so we can answer one simple question: is anyone still using this, and is it worth continuing to maintain and improve? This is not used to track or profile you. It contains no document content, no filename, no file size, and nothing that identifies you or your device — only that a conversion happened. Your document still never leaves your browser.
+- When self-hosted: No analytics or tracking of any kind are included when you run the application locally or self-host it (the conversion count is sent only on word2md.com).
 
 #### How information is used
 

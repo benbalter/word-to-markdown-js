@@ -1,6 +1,7 @@
 {
   "eyebrow": "Gratis · Código abierto · 100% en tu navegador",
   "tagline": "Convierte archivos Word (.docx) en Markdown limpio — totalmente en tu navegador. Tus archivos nunca se suben.",
+  "trustBadge": "De confianza desde 2014",
   "flowFromAlt": "Documento de Word",
   "flowToAlt": "Archivo Markdown",
   "dropzoneTitle": "Suelta tu .docx aquí",
@@ -93,5 +94,13 @@
     "100% del lado del cliente: no se sube nada"
   ],
   "errorGeneric": "Ocurrió un error inesperado al convertir el documento. Inténtalo de nuevo.",
-  "dismiss": "Descartar"
+  "dismiss": "Descartar",
+  "promo": {
+    "label": "De quien lo creó",
+    "body": "Creé esta herramienta gratuita — y escribí el libro sobre trabajar en abierto. <strong>Open &amp; Async</strong> es la guía probada en GitHub para equipos remotos y distribuidos.",
+    "cta": "Recibe novedades",
+    "coverAlt": "Portada del libro Open and Async",
+    "resultsLead": "Genial: un documento más que sale de Word y se vuelve abierto. Escribí la guía para trabajar así:",
+    "resultsCta": "Descubre Open & Async"
+  }
 }

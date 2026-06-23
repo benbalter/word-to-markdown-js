@@ -19,6 +19,8 @@ export interface UIStrings {
   eyebrow: string;
   /** Plain-language tagline under the wordmark (kept literal so it translates cleanly). */
   tagline: string;
+  /** Longevity trust signal. The "2014" year is a literal and not translated. */
+  trustBadge: string;
 
   // Visual flow (alt text for the .docx → .md glyph row)
   flowFromAlt: string;
@@ -80,4 +82,19 @@ export interface UIStrings {
   // Converter runtime (injected into the DOM as data-* and read by src/index.ts)
   errorGeneric: string;
   dismiss: string;
+
+  // Open & Async promo. `card.*` is the standalone sponsor card (Promo.astro);
+  // `resultsLead`/`resultsCta` are the lighter, contextual pitch shown in the
+  // post-conversion results pane (Converter.astro). The book title "Open &
+  // Async" stays literal in the markup; only the surrounding copy is translated.
+  // `card.body` contains a literal <strong> wrapping the title and is rendered
+  // with set:html.
+  promo: {
+    label: string;
+    body: string;
+    cta: string;
+    coverAlt: string;
+    resultsLead: string;
+    resultsCta: string;
+  };
 }
