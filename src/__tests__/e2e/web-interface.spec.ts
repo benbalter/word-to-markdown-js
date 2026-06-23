@@ -156,7 +156,7 @@ test.describe('Word to Markdown Web Interface', () => {
     // Check that copy button is visible
     const copyButton = page.locator('#copy-button');
     await expect(copyButton).toBeVisible();
-    await expect(copyButton).toHaveText('Copy markdown to clipboard');
+    await expect(copyButton).toHaveText('Copy Markdown');
 
     // Click copy button (clipboard functionality requires user interaction)
     await copyButton.click();

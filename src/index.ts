@@ -116,11 +116,27 @@ async function processFile(file: File | undefined): Promise<void> {
       }
       // For unexpected errors, show a generic message
       showError(
-        'An unexpected error occurred while converting the document. Please try again.',
+        uiString(
+          'errorGeneric',
+          'An unexpected error occurred while converting the document. Please try again.',
+        ),
       );
       console.error(error);
     }
   };
+}
+
+// Localized UI strings are rendered into the page as data-* attributes on the
+// #input element (see Home.astro), keeping this module framework- and
+// language-agnostic. Falls back to English when the attribute is absent (e.g.
+// in unit tests that mount a bare DOM).
+function uiString(key: 'errorGeneric' | 'dismiss', fallback: string): string {
+  const input = document.getElementById('input');
+  const value =
+    key === 'errorGeneric'
+      ? input?.dataset.errorGeneric
+      : input?.dataset.dismiss;
+  return value && value.length > 0 ? value : fallback;
 }
 
 function showError(message: string): void {
@@ -139,7 +155,7 @@ function showError(message: string): void {
 
     const closeButton = document.createElement('button');
     closeButton.type = 'button';
-    closeButton.setAttribute('aria-label', 'Dismiss');
+    closeButton.setAttribute('aria-label', uiString('dismiss', 'Dismiss'));
     closeButton.className =
       'shrink-0 leading-none text-red-500/70 transition-colors hover:text-red-700 dark:hover:text-red-100';
     closeButton.innerHTML =

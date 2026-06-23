@@ -8,12 +8,26 @@
 //     and each footer href appears exactly once (Playwright locators are strict).
 import '../styles/global.css';
 import { Font } from 'astro:assets';
+import {
+  asLocale,
+  defaultLocale,
+  localeMeta,
+  useTranslations,
+  locales,
+  type Alternate,
+} from '../i18n';
 
 interface Props {
   title: string;
   description?: string;
   image?: string;
   structuredData?: Record<string, unknown>;
+  /**
+   * hreflang cluster for this page. Only pass it for pages that genuinely have
+   * a version in every locale (the home page) — passing it for an English-only
+   * page would advertise localized URLs that 404. Omit → no hreflang emitted.
+   */
+  alternates?: Alternate[];
 }
 
 // `.astro` pages pass props directly; Markdown pages using `layout:` pass
@@ -23,27 +37,48 @@ const {
   description = 'Convert Word or Google documents to Markdown online',
   image = '/og.png',
   structuredData,
+  alternates,
 } = Astro.props.frontmatter ?? Astro.props;
 
+// Current locale drives the <html lang>, og:locale, and localized chrome.
+const locale = asLocale(Astro.currentLocale);
+const meta = localeMeta[locale];
+const t = useTranslations(locale);
+
 // Canonical / OG / social-image URLs derived from `site` + the current path.
+// Canonical stays self-referential (each localized URL points to itself).
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = new URL(image, Astro.site).href;
 
+// Resolve hreflang alternates to absolute URLs.
+const hreflangs = (alternates ?? []).map((a) => ({
+  hreflang: a.hreflang,
+  href: new URL(a.path, Astro.site).href,
+}));
+const ogLocaleAlternates = locales
+  .filter((l) => l !== locale)
+  .map((l) => localeMeta[l].ogLocale);
+
+// Locale-aware home link so visitors stay within their language.
+const homeHref = locale === defaultLocale ? '/' : `/${locale}/`;
+
+// Legal pages (Terms/Privacy) are English-only, so those links stay at the
+// root for every locale; external links are locale-independent.
 const footerLinks = [
   {
     href: 'https://github.com/benbalter/word-to-markdown-js/blob/master/CONTRIBUTING.md',
-    label: 'Feedback',
+    label: t.footer.feedback,
   },
-  { href: 'https://github.com/benbalter/word-to-markdown-js', label: 'Source' },
-  { href: 'https://www.patreon.com/benbalter', label: 'Donate' },
-  { href: '/terms/', label: 'Terms' },
-  { href: '/privacy/', label: 'Privacy' },
+  { href: 'https://github.com/benbalter/word-to-markdown-js', label: t.footer.source },
+  { href: 'https://www.patreon.com/benbalter', label: t.footer.donate },
+  { href: '/terms/', label: t.footer.terms },
+  { href: '/privacy/', label: t.footer.privacy },
   { href: 'https://ben.balter.com', label: '@benbalter' },
 ];
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={meta.htmlLang}>
   <head>
     <meta charset="utf-8" />
     <meta
@@ -54,11 +89,21 @@ const footerLinks = [
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {
+      hreflangs.map((alt) => (
+        <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />
+      ))
+    }
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content={meta.ogLocale} />
+    {
+      ogLocaleAlternates.map((l) => (
+        <meta property="og:locale:alternate" content={l} />
+      ))
+    }
     <meta property="og:site_name" content="Word to Markdown Converter" />
     <meta property="og:image" content={ogImage} />
     <meta name="twitter:card" content="summary_large_image" />
@@ -82,9 +127,9 @@ const footerLinks = [
   <body class="flex min-h-screen flex-col">
     <header class="mx-auto w-full max-w-5xl px-6 pt-7 pb-2">
       <a
-        href="/"
+        href={homeHref}
         class="group inline-flex items-center gap-2.5 no-underline"
-        aria-label="Word to Markdown — home"
+        aria-label={t.homeAria}
       >
         <span
           class="rounded-md border border-chartreuse/50 bg-chartreuse/10 px-1.5 py-0.5 font-mono text-[0.68rem] font-bold tracking-tight text-chartreuse-deep transition-colors group-hover:border-chartreuse dark:text-chartreuse"
@@ -120,7 +165,7 @@ const footerLinks = [
       <p
         class="mt-5 text-center font-mono text-[0.7rem] tracking-wide text-navy-soft/70 dark:text-mist/70"
       >
-        Converted in your browser · nothing is uploaded
+        {t.footerTagline}
       </p>
     </footer>
   </body>
