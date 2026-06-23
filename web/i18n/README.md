@@ -34,3 +34,21 @@ wire up crowdsourced translation without further restructuring.
 Non-English locales are a **machine-translated first pass and need native
 review** before they can be considered final. `en` is authored. Legal pages
 (Terms/Privacy) are intentionally English-only.
+
+## Crowdin (crowdsourced translation)
+
+Native review and community translations are managed in Crowdin, configured by
+`crowdin.yml` (repo root) and synced by `.github/workflows/crowdin.yml`:
+
+- The workflow **uploads `en.json`** to Crowdin when it changes on `main`, and
+  on a weekly schedule **downloads completed translations** and opens a
+  `New Crowdin translations` PR.
+- Translations land back in `web/i18n/<code>.json` (Brazilian Portuguese →
+  `pt.json`).
+- Requires two repo secrets: `CROWDIN_PROJECT_ID` and `CROWDIN_PERSONAL_TOKEN`.
+
+When reviewing a Crowdin PR: run `npm run fix` if its JSON formatting differs
+from Prettier, and confirm `npm test` (the completeness test) passes. In the
+Crowdin project, keep **"Skip untranslated strings" off** so every key is
+exported (untranslated strings fall back to English) — otherwise the
+completeness test will fail on missing keys.
