@@ -1,8 +1,8 @@
-import { pickLocale, SUPPORTED_LOCALES } from '../../functions/index.js';
+import { pickLocale, SUPPORTED_LOCALES } from '../../worker/index.js';
 
-// Unit tests for the Accept-Language matching used by the Cloudflare Pages
-// edge redirect (functions/index.js). The Function itself runs on the CF
-// runtime, but the locale-selection logic is pure and worth pinning down.
+// Unit tests for the Accept-Language matching used by the Cloudflare Worker
+// edge redirect (worker/index.js). The Worker itself runs on the CF runtime,
+// but the locale-selection logic is pure and worth pinning down.
 
 describe('pickLocale', () => {
   it('returns null when English ranks highest (stay on the root)', () => {
