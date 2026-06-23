@@ -231,5 +231,19 @@ const footerLinks = [
         {t.footerTagline}
       </p>
     </footer>
+    <script is:inline>
+      // Record the current language so the edge redirect (Cloudflare Pages,
+      // functions/index.js) won't auto-redirect on future visits — the language
+      // switcher stays in control. Harmless on GitHub Pages: it sets a cookie
+      // that nothing reads there.
+      try {
+        document.cookie =
+          'lang=' +
+          document.documentElement.lang +
+          '; path=/; max-age=31536000; samesite=lax';
+      } catch (e) {
+        /* cookies unavailable — fine, redirect simply re-evaluates next visit */
+      }
+    </script>
   </body>
 </html>

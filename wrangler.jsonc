@@ -1,0 +1,9 @@
+{
+  // Cloudflare Pages project config. `pages_build_output_dir` points at Astro's
+  // static output; the `functions/` directory at the repo root is picked up
+  // automatically for edge Functions (see functions/index.js). The build
+  // command (`npm run build`) is set in the Pages dashboard / Git integration.
+  "name": "word2md",
+  "compatibility_date": "2026-06-01",
+  "pages_build_output_dir": "dist",
+}

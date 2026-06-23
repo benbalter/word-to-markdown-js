@@ -7,8 +7,10 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import checks from '@nuasite/checks';
 
-// The site is deployed to GitHub Pages at the custom domain word2md.com,
-// which serves from the root, so `base` stays `/`.
+// The site is deployed to Cloudflare Pages (migrated from GitHub Pages) at the
+// custom domain word2md.com, which serves from the root, so `base` stays `/`.
+// Output stays `static`; the only edge logic is a Pages Function at the repo
+// root (functions/index.js) that locale-redirects "/". See docs/cloudflare-migration.md.
 //
 // Astro owns `web/` (srcDir) so it never collides with `src/`, which is
 // owned exclusively by `tsc` for the library, CLI, and server.

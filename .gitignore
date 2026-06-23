@@ -38,3 +38,5 @@ dist/
 # Playwright test results
 test-results/
 playwright-report/
+# Cloudflare Wrangler / Pages local dev artifacts
+.wrangler/
