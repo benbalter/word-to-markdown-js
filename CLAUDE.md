@@ -27,7 +27,7 @@ Node 22.13.0 is pinned (`.nvmrc`, `.tool-versions`, Volta). The `--experimental-
 
 One repo produces **three artifacts** from two source directories, and the two directories are owned by two different build tools that must never collide:
 
-- **`src/`** — owned exclusively by `tsc`. Compiles to `build/` (the Node library `build/main.js` and the CLI `build/w2m` → `build/cli.js`). `src/index.ts` is the *browser* entry and is **excluded from tsc** (see `tsconfig.json`) because Astro/Vite bundles it instead; `astro check` type-checks it.
+- **`src/`** — owned exclusively by `tsc`. Compiles to `build/` (the Node library `build/main.js` and the CLI `build/w2m` → `build/cli.js`). `src/index.ts` is the _browser_ entry and is **excluded from tsc** (see `tsconfig.json`) because Astro/Vite bundles it instead; `astro check` type-checks it.
 - **`web/`** — owned exclusively by Astro (`srcDir: ./web`). Builds the static site to `dist/`. Astro's `publicDir` is `./public`.
 
 This split is deliberate so the two tool-chains don't fight over the same files. When adding code, put converter/CLI logic in `src/` and site/UI in `web/`.
@@ -57,9 +57,10 @@ English lives at the root (`prefixDefaultLocale: false`); other locales under a 
 ### Deployment
 
 The site deploys **two ways** from the same `dist/`:
+
 - **GitHub Pages** via `.github/workflows/static.yml` (runs `build:site`).
 - **Cloudflare Workers (Static Assets)** via `wrangler deploy` (`wrangler.jsonc`). `worker/index.js` runs **only on `/`** (`run_worker_first: ["/"]`) and 302-redirects first-time visitors to the best `Accept-Language` locale, setting a `lang` cookie so it fires at most once. The Worker is inert on GitHub Pages. Every other path is served straight from assets.
 
-### Committed build artifacts
+### Build artifacts (`build/`, `dist/`)
 
-`build/` (the tsc library + CLI output) **is committed to git** and guarded by `npm run check-builds`, which CI runs — a stale `build/` fails CI. After changing anything in `src/` that affects the library/CLI, run `npm run build` and commit `build/`. `dist/` (the site) is **not** committed; it's built fresh in CI.
+Both `build/` (the tsc library + CLI output) and `dist/` (the site) are **gitignored** — neither is committed. CI rebuilds them: the `build` job runs `npm run check-builds` (a full `npm run build`) before `npm run test`, so `build/cli.js` exists when the tests run, and the e2e job builds `dist/` before Playwright serves it. Because `build/` is ignored, `check-builds` effectively only catches a build _failure_, not staleness (its `git status --porcelain build/` diff is always empty). Tests that need the built CLI (`src/__tests__/cli.test.ts`) build it on demand if it's absent, so a fresh `npm test` works without a prior `npm run build`.
