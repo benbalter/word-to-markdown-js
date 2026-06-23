@@ -3,6 +3,11 @@
   "compilerOptions": {
     "rootDir": "."
   },
-  "include": ["src/**/*", "playwright.config.ts", "vite.config.ts"],
+  "include": [
+    "src/**/*",
+    "web/**/*.ts",
+    "playwright.config.ts",
+    "vite.config.ts"
+  ],
   "exclude": []
 }

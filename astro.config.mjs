@@ -19,13 +19,30 @@ export default defineConfig({
   outDir: './dist',
   publicDir: './public',
   output: 'static',
+  // i18n: English stays at the root (prefixDefaultLocale: false) so existing,
+  // indexed URLs (/, /privacy/, /terms/) are unchanged; other locales live under
+  // a prefix (/id/, …). New locales get added to `locales` as translations land.
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en', 'id'],
+    routing: { prefixDefaultLocale: false },
+  },
   // Inline all stylesheets into the HTML to remove the render-blocking CSS
   // request — the landing page paints sooner (especially now that the converter
   // JS is code-split and no longer the gate).
   build: { inlineStylesheets: 'always' },
   integrations: [
-    // Generate sitemap-index.xml / sitemap-0.xml for the 3 pages (uses `site`).
-    sitemap(),
+    // Generate sitemap-index.xml / sitemap-0.xml for the pages (uses `site`).
+    // The `i18n` block makes the sitemap emit <xhtml:link rel="alternate">
+    // hreflang entries per localized page — Astro's top-level i18n config does
+    // NOT propagate here, so it must be declared again. Keep `locales` in sync
+    // with the top-level i18n config as new languages land.
+    sitemap({
+      i18n: {
+        defaultLocale: 'en',
+        locales: { en: 'en-US', id: 'id-ID' },
+      },
+    }),
     // Build-time SEO / accessibility / performance / GEO validation. Output is
     // clean (0 errors), so errors fail the build; warnings are advisory.
     checks({
