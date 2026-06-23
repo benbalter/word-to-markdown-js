@@ -38,8 +38,10 @@ export interface UIStrings {
   panelMarkdown: string;
   panelPreview: string;
 
-  // How it works
-  steps: [Step, Step, Step];
+  // How it works — exactly three steps are expected (paired with the step icons
+  // in Home.astro by index). Typed as an array rather than a 3-tuple so the
+  // per-locale JSON dictionaries type-check cleanly when imported.
+  steps: Step[];
 
   // FAQ
   faqHeading: string;
