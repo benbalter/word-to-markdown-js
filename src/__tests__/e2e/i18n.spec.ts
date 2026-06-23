@@ -77,4 +77,44 @@ test.describe('Internationalization', () => {
       0,
     );
   });
+
+  test('Vietnamese home renders translated content at /vi/', async ({
+    page,
+  }) => {
+    await page.goto('http://localhost:8080/vi/');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'vi');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://word2md.com/vi/',
+    );
+    await expect(page.getByText('Câu hỏi thường gặp')).toBeVisible();
+  });
+
+  test('language switcher lists every locale by endonym and marks the current one', async ({
+    page,
+  }) => {
+    await page.goto('http://localhost:8080/');
+    const switcher = page.locator('nav[aria-label="Language"]');
+    await expect(switcher).toBeVisible();
+
+    // Endonyms, no flags. The current locale is a non-link with aria-current.
+    await expect(switcher.locator('[aria-current="page"]')).toHaveText(
+      'English',
+    );
+    for (const endonym of [
+      'Bahasa Indonesia',
+      'Tiếng Việt',
+      'Português',
+      'Español',
+      'Deutsch',
+      'Français',
+    ]) {
+      await expect(switcher.getByRole('link', { name: endonym })).toBeVisible();
+    }
+
+    // Switching navigates to the localized home.
+    await switcher.getByRole('link', { name: 'Tiếng Việt' }).click();
+    await expect(page).toHaveURL('http://localhost:8080/vi/');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'vi');
+  });
 });

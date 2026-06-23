@@ -8,13 +8,13 @@
 //     and each footer href appears exactly once (Playwright locators are strict).
 import '../styles/global.css';
 import { Font } from 'astro:assets';
+import { getAbsoluteLocaleUrl, getRelativeLocaleUrl } from 'astro:i18n';
 import {
   asLocale,
   defaultLocale,
   localeMeta,
   useTranslations,
   locales,
-  type Alternate,
 } from '../i18n';
 
 interface Props {
@@ -23,11 +23,12 @@ interface Props {
   image?: string;
   structuredData?: Record<string, unknown>;
   /**
-   * hreflang cluster for this page. Only pass it for pages that genuinely have
-   * a version in every locale (the home page) — passing it for an English-only
-   * page would advertise localized URLs that 404. Omit → no hreflang emitted.
+   * Unlocalized path of this page (e.g. "/") when it exists in EVERY locale —
+   * triggers a self-referential hreflang cluster. Only set it for fully
+   * translated pages (the home page); an English-only page would otherwise
+   * advertise localized URLs that 404. Omit → no hreflang emitted.
    */
-  alternates?: Alternate[];
+  i18nPath?: string;
 }
 
 // `.astro` pages pass props directly; Markdown pages using `layout:` pass
@@ -37,7 +38,7 @@ const {
   description = 'Convert Word or Google documents to Markdown online',
   image = '/og.png',
   structuredData,
-  alternates,
+  i18nPath,
 } = Astro.props.frontmatter ?? Astro.props;
 
 // Current locale drives the <html lang>, og:locale, and localized chrome.
@@ -50,17 +51,38 @@ const t = useTranslations(locale);
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = new URL(image, Astro.site).href;
 
-// Resolve hreflang alternates to absolute URLs.
-const hreflangs = (alternates ?? []).map((a) => ({
-  hreflang: a.hreflang,
-  href: new URL(a.path, Astro.site).href,
-}));
+// Self-referential hreflang cluster, emitted only for fully translated pages.
+// `getAbsoluteLocaleUrl` respects base/trailingSlash/routing config, so each
+// href stays in sync with how the route is actually generated. x-default points
+// at the default locale's URL.
+const hreflangs =
+  i18nPath === undefined
+    ? []
+    : [
+        ...locales.map((l) => ({
+          hreflang: localeMeta[l].htmlLang,
+          href: getAbsoluteLocaleUrl(l, i18nPath),
+        })),
+        {
+          hreflang: 'x-default',
+          href: getAbsoluteLocaleUrl(defaultLocale, i18nPath),
+        },
+      ];
 const ogLocaleAlternates = locales
   .filter((l) => l !== locale)
   .map((l) => localeMeta[l].ogLocale);
 
 // Locale-aware home link so visitors stay within their language.
-const homeHref = locale === defaultLocale ? '/' : `/${locale}/`;
+const homeHref = getRelativeLocaleUrl(locale, '/');
+
+// Language switcher: one real <a> per locale, labelled with the endonym (the
+// language's own name) — never a flag. Links to each locale's home (the only
+// translated page today); these crawlable links also aid locale discovery.
+const languageLinks = locales.map((l) => ({
+  name: localeMeta[l].name,
+  href: getRelativeLocaleUrl(l, '/'),
+  current: l === locale,
+}));
 
 // Legal pages (Terms/Privacy) are English-only, so those links stay at the
 // root for every locale; external links are locale-independent.
@@ -148,6 +170,47 @@ const footerLinks = [
 
     <footer class="mx-auto mt-16 w-full max-w-5xl px-6 pb-10">
       <div class="rule mb-5"></div>
+      <nav
+        aria-label="Language"
+        class="mb-4 flex flex-wrap items-center justify-center gap-x-1 gap-y-1.5 text-[0.8rem]"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="mr-1.5 text-navy-soft/70 dark:text-mist/70"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="M2 12h20" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+        {
+          languageLinks.map((lang) =>
+            lang.current ? (
+              <span
+                aria-current="page"
+                class="rounded px-2 py-0.5 font-medium text-chartreuse-deep dark:text-chartreuse"
+              >
+                {lang.name}
+              </span>
+            ) : (
+              <a
+                href={lang.href}
+                class="rounded px-2 py-0.5 text-navy-soft underline decoration-transparent decoration-2 underline-offset-4 transition-colors hover:text-navy hover:decoration-chartreuse dark:text-mist dark:hover:text-white"
+              >
+                {lang.name}
+              </a>
+            ),
+          )
+        }
+      </nav>
       <nav
         class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm"
       >
