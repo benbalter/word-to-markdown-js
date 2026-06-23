@@ -4,7 +4,7 @@
   "description": "Convert Word documents to beautiful Markdown.",
   "type": "module",
   "engines": {
-    "node": ">= 22.12"
+    "node": ">= 22.13"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
@@ -67,7 +67,7 @@
     "url": "^0.11.4"
   },
   "volta": {
-    "node": "22.12.0"
+    "node": "22.13.0"
   },
   "bin": {
     "w2m": "build/cli.js"
