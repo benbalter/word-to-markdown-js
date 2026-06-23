@@ -166,6 +166,27 @@ test.describe('Word to Markdown Web Interface', () => {
     await expect(copyButton).toBeVisible(); // Button should still be there after click
   });
 
+  test('should download the converted markdown as a .md file', async ({
+    page,
+  }) => {
+    const fixturePath = path.join(__dirname, '../../__fixtures__/h1.docx');
+    await page.locator('#file').setInputFiles(fixturePath);
+    await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('#output')).not.toHaveText('', {
+      timeout: 10000,
+    });
+
+    const downloadButton = page.locator('#download-button');
+    await expect(downloadButton).toBeVisible();
+
+    // The download is named after the source document, with a .md extension.
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      downloadButton.click(),
+    ]);
+    expect(download.suggestedFilename()).toBe('h1.md');
+  });
+
   test('should accept a file via drag-and-drop', async ({ page }) => {
     // Drag-over highlight toggles on enter/leave (no file needed).
     const highlight = await page.evaluate(() => {

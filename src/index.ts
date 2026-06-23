@@ -35,6 +35,26 @@ async function renderMarkdown(markdown: string): Promise<string> {
   return String(result);
 }
 
+// Speculatively warm the heavy converter + Markdown-renderer chunks (~340KB
+// gzipped) so the first conversion resolves from cache instead of waiting on a
+// download. Runs at most once, only on user intent or browser idle — never on
+// initial paint, so it never competes with critical resources.
+let converterWarmed = false;
+function prefetchConverter(): void {
+  if (converterWarmed) return;
+  converterWarmed = true;
+  const ignore = (): void => {};
+  // Same specifiers as processFile()/renderMarkdown(), so these resolve to the
+  // exact chunks the real conversion reuses.
+  import('./main.js').catch(ignore);
+  import('unified').catch(ignore);
+  import('remark-parse').catch(ignore);
+  import('remark-gfm').catch(ignore);
+  import('remark-rehype').catch(ignore);
+  import('rehype-sanitize').catch(ignore);
+  import('rehype-stringify').catch(ignore);
+}
+
 // Convert a single file. Shared by the file-input change handler and the
 // drag-and-drop handler so both entry points behave identically.
 async function processFile(file: File | undefined): Promise<void> {
@@ -210,6 +230,24 @@ function initDragAndDrop(dropzone: HTMLElement): void {
   });
 }
 
+// Download the converted Markdown as a .md file named after the source document.
+function downloadMarkdown(): void {
+  const markdown = document.getElementById('output')?.innerText ?? '';
+  if (!markdown) return;
+  const sourceName =
+    document.getElementById('filename')?.innerText ?? 'document';
+  const baseName = sourceName.replace(/\.docx$/i, '') || 'document';
+  const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `${baseName}.md`;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const inputElement = document.getElementById('file') as HTMLInputElement;
   inputElement.addEventListener(
@@ -223,11 +261,42 @@ document.addEventListener('DOMContentLoaded', () => {
   const dropzone = document.getElementById('dropzone');
   if (dropzone) {
     initDragAndDrop(dropzone);
+    // Warm the converter on intent — hovering, focusing, or dragging onto the
+    // dropzone all signal an imminent conversion.
+    for (const evt of ['pointerenter', 'focusin', 'dragenter']) {
+      dropzone.addEventListener(evt, prefetchConverter, {
+        once: true,
+        passive: true,
+      });
+    }
+  }
+
+  // ...and during idle time even without interaction, unless the visitor is on
+  // a metered/slow connection (don't spend their data speculatively).
+  const connection = (
+    navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string };
+    }
+  ).connection;
+  const lowData =
+    connection?.saveData === true ||
+    /(^|-)2g$/.test(connection?.effectiveType ?? '');
+  if (!lowData) {
+    if (typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(prefetchConverter, { timeout: 4000 });
+    } else {
+      window.setTimeout(prefetchConverter, 2000);
+    }
   }
 
   const copyButton = document.getElementById('copy-button');
   if (copyButton !== null) {
     new ClipboardJS('#copy-button');
+  }
+
+  const downloadButton = document.getElementById('download-button');
+  if (downloadButton !== null) {
+    downloadButton.addEventListener('click', downloadMarkdown);
   }
 
   // Theme changes are handled automatically by CSS using prefers-color-scheme.

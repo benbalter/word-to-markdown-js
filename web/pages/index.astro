@@ -5,24 +5,69 @@ import Layout from '../layouts/Layout.astro';
 // imported via the <script> at the end, bundled through Astro's Vite pipeline.
 import '../../src/promo.css';
 
-// Structured data (schema.org) describing the converter for rich results.
+// FAQ content — single source of truth for both the rendered section and the
+// FAQPage structured data. Phrased around how people actually search.
+const faqs = [
+  {
+    q: 'How do I convert a Word document to Markdown?',
+    a: 'Drag a .docx file onto the page (or click to browse). Word to Markdown converts it in your browser and shows the Markdown instantly — copy it or download a .md file.',
+  },
+  {
+    q: 'Is Word to Markdown free?',
+    a: 'Yes. It is completely free and open source — no sign-up, no file limits, and no ads.',
+  },
+  {
+    q: 'Are my documents uploaded to a server?',
+    a: 'No. Conversion happens entirely in your browser using JavaScript. Your files never leave your device and are never uploaded, stored, or logged.',
+  },
+  {
+    q: 'How do I convert a Google Doc to Markdown?',
+    a: 'In Google Docs, choose File → Download → Microsoft Word (.docx), then drop that .docx into Word to Markdown.',
+  },
+  {
+    q: 'What formatting is preserved?',
+    a: 'Headings, bold and italic text, ordered and nested lists, tables, links, and code are converted to clean, GitHub-flavored Markdown.',
+  },
+];
+
+// Structured data (schema.org) for rich results: the app entity + the FAQ.
 const structuredData = {
   '@context': 'https://schema.org',
-  '@type': 'WebApplication',
-  name: 'Word to Markdown Converter',
-  url: 'https://word2md.com',
-  description:
-    'Free, open-source tool that converts Word (.docx) and Google Docs to clean, GitHub-flavored Markdown entirely in your browser.',
-  applicationCategory: 'UtilitiesApplication',
-  operatingSystem: 'Any',
-  browserRequirements: 'Requires JavaScript',
-  isAccessibleForFree: true,
-  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-  author: {
-    '@type': 'Person',
-    name: 'Ben Balter',
-    url: 'https://ben.balter.com',
-  },
+  '@graph': [
+    {
+      '@type': 'WebApplication',
+      name: 'Word to Markdown Converter',
+      url: 'https://word2md.com',
+      description:
+        'Free, open-source tool that converts Word (.docx) and Google Docs to clean, GitHub-flavored Markdown entirely in your browser.',
+      applicationCategory: 'UtilitiesApplication',
+      operatingSystem: 'Any',
+      browserRequirements: 'Requires JavaScript',
+      inLanguage: 'en',
+      image: 'https://word2md.com/og.png',
+      isAccessibleForFree: true,
+      featureList: [
+        'Convert Word (.docx) to Markdown',
+        'Convert Google Docs to Markdown',
+        'GitHub-flavored Markdown output',
+        '100% client-side — nothing is uploaded',
+      ],
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      author: {
+        '@type': 'Person',
+        name: 'Ben Balter',
+        url: 'https://ben.balter.com',
+      },
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: faqs.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    },
+  ],
 };
 ---
 
@@ -121,29 +166,54 @@ const structuredData = {
         <h2 class="font-display text-lg font-medium text-navy dark:text-[#f1f2f7]">
           Converted <span id="filename" class="font-mono text-base text-chartreuse-deep dark:text-chartreuse"></span>
         </h2>
-        <button
-          id="copy-button"
-          type="button"
-          data-clipboard-target="#output"
-          class="inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-[#eef0f6] dark:hover:border-chartreuse"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            id="copy-button"
+            type="button"
+            data-clipboard-target="#output"
+            class="inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-[#eef0f6] dark:hover:border-chartreuse"
           >
-            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-          </svg>
-          Copy markdown to clipboard
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+            </svg>
+            Copy markdown to clipboard
+          </button>
+          <button
+            id="download-button"
+            type="button"
+            class="inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-[#eef0f6] dark:hover:border-chartreuse"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <path d="M7 10l5 5 5-5" />
+              <path d="M12 15V3" />
+            </svg>
+            Download .md
+          </button>
+        </div>
       </div>
 
       <div class="mt-4 grid gap-4 lg:grid-cols-2">
@@ -192,7 +262,11 @@ const structuredData = {
         [
           { n: '01', t: 'Upload', d: 'Drag in a .docx, or click to pick one.' },
           { n: '02', t: 'Convert', d: 'It transforms locally — no server, no wait.' },
-          { n: '03', t: 'Copy', d: 'Grab clean, GitHub-flavored Markdown.' },
+          {
+            n: '03',
+            t: 'Copy or save',
+            d: 'Copy the Markdown or download a .md file.',
+          },
         ].map((step) => (
           <div class="bg-paper px-6 py-7 dark:bg-ink">
             <span class="font-mono text-sm font-bold text-chartreuse-deep dark:text-chartreuse">
@@ -205,6 +279,44 @@ const structuredData = {
               {step.d}
             </p>
           </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- ── FAQ ──────────────────────────────────────────────────────────── -->
+  <section class="mx-auto mt-20 max-w-3xl">
+    <h2
+      class="text-center font-display text-2xl font-semibold tracking-tight text-navy sm:text-3xl dark:text-[#f1f2f7]"
+    >
+      Frequently asked questions
+    </h2>
+    <div
+      class="mt-8 divide-y divide-rule-light overflow-hidden rounded-xl border border-rule-light dark:divide-rule-dark dark:border-rule-dark"
+    >
+      {
+        faqs.map((faq) => (
+          <details class="group bg-paper-card/60 dark:bg-ink-card/50">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-display text-base font-medium text-navy [&::-webkit-details-marker]:hidden dark:text-[#f1f2f7]">
+              {faq.q}
+              <svg
+                class="h-4 w-4 shrink-0 text-chartreuse-deep transition-transform group-open:rotate-180 dark:text-chartreuse"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
+            <p class="px-5 pb-4 text-sm leading-relaxed text-navy-soft dark:text-mist">
+              {faq.a}
+            </p>
+          </details>
         ))
       }
     </div>
