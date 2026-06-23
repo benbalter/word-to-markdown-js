@@ -62,6 +62,15 @@ const ogLocaleAlternates = locales
 // Locale-aware home link so visitors stay within their language.
 const homeHref = locale === defaultLocale ? '/' : `/${locale}/`;
 
+// Language switcher: one real <a> per locale, labelled with the endonym (the
+// language's own name) — never a flag. Links to each locale's home (the only
+// translated page today); these crawlable links also aid locale discovery.
+const languageLinks = locales.map((l) => ({
+  name: localeMeta[l].name,
+  href: l === defaultLocale ? '/' : `/${l}/`,
+  current: l === locale,
+}));
+
 // Legal pages (Terms/Privacy) are English-only, so those links stay at the
 // root for every locale; external links are locale-independent.
 const footerLinks = [
@@ -148,6 +157,47 @@ const footerLinks = [
 
     <footer class="mx-auto mt-16 w-full max-w-5xl px-6 pb-10">
       <div class="rule mb-5"></div>
+      <nav
+        aria-label="Language"
+        class="mb-4 flex flex-wrap items-center justify-center gap-x-1 gap-y-1.5 text-[0.8rem]"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="mr-1.5 text-navy-soft/70 dark:text-mist/70"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="M2 12h20" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+        {
+          languageLinks.map((lang) =>
+            lang.current ? (
+              <span
+                aria-current="page"
+                class="rounded px-2 py-0.5 font-medium text-chartreuse-deep dark:text-chartreuse"
+              >
+                {lang.name}
+              </span>
+            ) : (
+              <a
+                href={lang.href}
+                class="rounded px-2 py-0.5 text-navy-soft underline decoration-transparent decoration-2 underline-offset-4 transition-colors hover:text-navy hover:decoration-chartreuse dark:text-mist dark:hover:text-white"
+              >
+                {lang.name}
+              </a>
+            ),
+          )
+        }
+      </nav>
       <nav
         class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm"
       >

@@ -24,7 +24,7 @@ export default defineConfig({
   // a prefix (/id/, …). New locales get added to `locales` as translations land.
   i18n: {
     defaultLocale: 'en',
-    locales: ['en', 'id'],
+    locales: ['en', 'id', 'vi', 'pt', 'es', 'de', 'fr'],
     routing: { prefixDefaultLocale: false },
   },
   // Inline all stylesheets into the HTML to remove the render-blocking CSS
@@ -40,7 +40,15 @@ export default defineConfig({
     sitemap({
       i18n: {
         defaultLocale: 'en',
-        locales: { en: 'en-US', id: 'id-ID' },
+        locales: {
+          en: 'en-US',
+          id: 'id-ID',
+          vi: 'vi-VN',
+          pt: 'pt-BR',
+          es: 'es-ES',
+          de: 'de-DE',
+          fr: 'fr-FR',
+        },
       },
     }),
     // Build-time SEO / accessibility / performance / GEO validation. Output is
@@ -75,7 +83,7 @@ export default defineConfig({
       cssVariable: '--font-fraunces',
       weights: [400, 500, 600],
       styles: ['normal', 'italic'],
-      subsets: ['latin'],
+      subsets: ['latin', 'latin-ext', 'vietnamese'],
       fallbacks: ['Georgia', 'serif'],
       display: 'swap',
     },
@@ -85,7 +93,7 @@ export default defineConfig({
       cssVariable: '--font-hanken',
       weights: [400, 500, 600, 700],
       styles: ['normal'],
-      subsets: ['latin'],
+      subsets: ['latin', 'latin-ext', 'vietnamese'],
       fallbacks: ['system-ui', 'sans-serif'],
       display: 'swap',
     },
@@ -95,7 +103,7 @@ export default defineConfig({
       cssVariable: '--font-jetbrains',
       weights: [400, 500, 700],
       styles: ['normal'],
-      subsets: ['latin'],
+      subsets: ['latin', 'latin-ext', 'vietnamese'],
       fallbacks: ['ui-monospace', 'monospace'],
       display: 'swap',
     },
