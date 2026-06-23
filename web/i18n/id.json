@@ -36,7 +36,9 @@
     "Daftar berurutan dan bertingkat",
     "Tabel",
     "Tautan",
-    "Kode"
+    "Kode",
+    "Gambar",
+    "Coret"
   ],
   "cliHeading": "Lebih suka baris perintah?",
   "cliBody": "Word to Markdown gratis dan open source. Jalankan sebagai alat baris perintah untuk konversi terotomatisasi atau massal — konverter yang sama, tanpa perlu peramban.",

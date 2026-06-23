@@ -36,7 +36,9 @@
     "Listes ordonnées et imbriquées",
     "Tableaux",
     "Liens",
-    "Code"
+    "Code",
+    "Images",
+    "Barré"
   ],
   "cliHeading": "Vous préférez la ligne de commande ?",
   "cliBody": "Word to Markdown est gratuit et open source. Utilisez-le en ligne de commande pour des conversions scriptées ou par lots : le même convertisseur, sans navigateur.",
