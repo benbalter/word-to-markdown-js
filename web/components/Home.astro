@@ -61,6 +61,18 @@ const stepIcons = [
   // Copy or save
   '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
 ];
+
+// Markdown output for the "what gets converted" table. Universal syntax, so it
+// stays literal here (untranslated) and pairs with t.conversionRows by index —
+// the two arrays must stay the same length.
+const conversionOutputs = [
+  '# Heading',
+  '**bold** *italic*',
+  '1. item · - item',
+  '| a | b |',
+  '[text](url)',
+  '`code`',
+];
 ---
 
 <Layout
@@ -419,6 +431,90 @@ const stepIcons = [
           </div>
         ))
       }
+    </div>
+  </section>
+
+  <!-- ── What gets converted ──────────────────────────────────────────── -->
+  <section class="mx-auto mt-20 max-w-2xl">
+    <h2
+      class="text-center font-display text-2xl font-semibold tracking-tight text-navy sm:text-3xl dark:text-[#f1f2f7]"
+    >
+      {t.conversionHeading}
+    </h2>
+    <div
+      class="mt-8 overflow-hidden rounded-xl border border-rule-light dark:border-rule-dark"
+    >
+      <table class="w-full border-collapse text-left text-sm">
+        <thead>
+          <tr
+            class="border-b border-rule-light bg-paper-card/60 dark:border-rule-dark dark:bg-ink-card/50"
+          >
+            <th
+              scope="col"
+              class="px-5 py-3 font-display font-medium text-navy dark:text-[#f1f2f7]"
+              >{t.conversionColElement}</th
+            >
+            <th
+              scope="col"
+              class="px-5 py-3 font-display font-medium text-navy dark:text-[#f1f2f7]"
+              >{t.conversionColOutput}</th
+            >
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-rule-light dark:divide-rule-dark">
+          {
+            t.conversionRows.map((row, i) => (
+              <tr>
+                <td class="px-5 py-3 text-navy-soft dark:text-mist">{row}</td>
+                <td class="px-5 py-3">
+                  <code class="font-mono text-[0.82rem] text-chartreuse-deep dark:text-chartreuse">
+                    {conversionOutputs[i]}
+                  </code>
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Command-line callout ─────────────────────────────────────────── -->
+  <section class="mx-auto mt-16 max-w-2xl">
+    <div
+      class="flex flex-col items-start gap-4 rounded-xl border border-rule-light bg-paper-card/60 px-6 py-6 sm:flex-row sm:items-center sm:justify-between dark:border-rule-dark dark:bg-ink-card/50"
+    >
+      <div>
+        <h2
+          class="font-display text-lg font-medium text-navy dark:text-[#f1f2f7]"
+        >
+          {t.cliHeading}
+        </h2>
+        <p class="mt-1 text-sm leading-relaxed text-navy-soft dark:text-mist">
+          {t.cliBody}
+        </p>
+      </div>
+      <a
+        href="https://github.com/benbalter/word-to-markdown-js#command-line"
+        class="inline-flex shrink-0 items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-[#eef0f6] dark:hover:border-chartreuse"
+      >
+        {t.cliCta}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M7 17 17 7" />
+          <path d="M7 7h10v10" />
+        </svg>
+      </a>
     </div>
   </section>
 

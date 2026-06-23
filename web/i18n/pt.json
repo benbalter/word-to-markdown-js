@@ -27,6 +27,20 @@
       "d": "Copie o Markdown ou baixe um arquivo .md."
     }
   ],
+  "conversionHeading": "O que é convertido",
+  "conversionColElement": "Elemento do Word",
+  "conversionColOutput": "Saída em Markdown",
+  "conversionRows": [
+    "Títulos",
+    "Negrito e itálico",
+    "Listas ordenadas e aninhadas",
+    "Tabelas",
+    "Links",
+    "Código"
+  ],
+  "cliHeading": "Prefere a linha de comando?",
+  "cliBody": "O Word to Markdown é gratuito e de código aberto. Use-o como ferramenta de linha de comando para conversões automatizadas ou em lote — o mesmo conversor, sem precisar de navegador.",
+  "cliCta": "Obter a CLI",
   "faqHeading": "Perguntas frequentes",
   "faqs": [
     {
@@ -48,6 +62,14 @@
     {
       "q": "Qual formatação é preservada?",
       "a": "Títulos, texto em negrito e itálico, listas ordenadas e aninhadas, tabelas, links e código são convertidos em Markdown limpo no padrão GitHub."
+    },
+    {
+      "q": "Qual a diferença para o Pandoc?",
+      "a": "O Pandoc é um conversor de linha de comando muito poderoso, mas precisa ser instalado e configurado primeiro. O Word to Markdown funciona na hora no seu navegador, sem instalar nada — é só soltar um .docx. Para tarefas automatizadas ou em lote, também há uma versão de linha de comando."
+    },
+    {
+      "q": "Posso usar isto para preparar documentos para ChatGPT, Claude ou outras ferramentas de IA?",
+      "a": "Sim. O Markdown é um formato limpo e eficiente em tokens para grandes modelos de linguagem e pipelines RAG. Converter um documento do Word para Markdown antes oferece às ferramentas de IA um texto bem estruturado — títulos, listas e tabelas — sem o ruído do formato binário .docx."
     }
   ],
   "footer": {

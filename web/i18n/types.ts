@@ -43,6 +43,19 @@ export interface UIStrings {
   // per-locale JSON dictionaries type-check cleanly when imported.
   steps: Step[];
 
+  // "What gets converted" reference table. Row labels are translated; the
+  // Markdown-output column is universal syntax, kept literal in Home.astro and
+  // paired with these rows by index (so both arrays must stay the same length).
+  conversionHeading: string;
+  conversionColElement: string;
+  conversionColOutput: string;
+  conversionRows: string[];
+
+  // Command-line / open-source callout
+  cliHeading: string;
+  cliBody: string;
+  cliCta: string;
+
   // FAQ
   faqHeading: string;
   faqs: FaqEntry[];

@@ -27,6 +27,20 @@
       "d": "Salin Markdown, atau unduh file .md."
     }
   ],
+  "conversionHeading": "Apa yang dikonversi",
+  "conversionColElement": "Elemen Word",
+  "conversionColOutput": "Hasil Markdown",
+  "conversionRows": [
+    "Judul/heading",
+    "Tebal dan miring",
+    "Daftar berurutan dan bertingkat",
+    "Tabel",
+    "Tautan",
+    "Kode"
+  ],
+  "cliHeading": "Lebih suka baris perintah?",
+  "cliBody": "Word to Markdown gratis dan open source. Jalankan sebagai alat baris perintah untuk konversi terotomatisasi atau massal — konverter yang sama, tanpa perlu peramban.",
+  "cliCta": "Dapatkan CLI",
   "faqHeading": "Pertanyaan yang sering diajukan",
   "faqs": [
     {
@@ -48,6 +62,14 @@
     {
       "q": "Format apa saja yang dipertahankan?",
       "a": "Judul, teks tebal dan miring, daftar berurutan dan bertingkat, tabel, tautan, dan kode dikonversi menjadi Markdown bergaya GitHub yang rapi."
+    },
+    {
+      "q": "Apa bedanya dengan Pandoc?",
+      "a": "Pandoc adalah konverter baris perintah yang andal, tetapi harus dipasang dan dikonfigurasi terlebih dahulu. Word to Markdown berjalan langsung di peramban Anda tanpa perlu memasang apa pun — cukup letakkan file .docx. Untuk tugas terotomatisasi atau massal, versi baris perintah juga tersedia."
+    },
+    {
+      "q": "Bisakah saya memakainya untuk menyiapkan dokumen bagi ChatGPT, Claude, atau alat AI lainnya?",
+      "a": "Bisa. Markdown adalah format yang bersih dan hemat token untuk model bahasa besar dan alur RAG. Mengonversi dokumen Word ke Markdown terlebih dahulu memberi alat AI teks yang terstruktur rapi — judul, daftar, dan tabel — tanpa gangguan format biner .docx."
     }
   ],
   "footer": {

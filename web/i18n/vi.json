@@ -27,6 +27,20 @@
       "d": "Sao chép Markdown, hoặc tải tệp .md."
     }
   ],
+  "conversionHeading": "Những gì được chuyển đổi",
+  "conversionColElement": "Thành phần Word",
+  "conversionColOutput": "Kết quả Markdown",
+  "conversionRows": [
+    "Tiêu đề",
+    "In đậm và in nghiêng",
+    "Danh sách có thứ tự và lồng nhau",
+    "Bảng",
+    "Liên kết",
+    "Mã"
+  ],
+  "cliHeading": "Thích dùng dòng lệnh hơn?",
+  "cliBody": "Word to Markdown là phần mềm miễn phí và mã nguồn mở. Hãy dùng nó như một công cụ dòng lệnh để chuyển đổi theo kịch bản hoặc hàng loạt — vẫn là trình chuyển đổi đó, không cần trình duyệt.",
+  "cliCta": "Lấy CLI",
   "faqHeading": "Câu hỏi thường gặp",
   "faqs": [
     {
@@ -48,6 +62,14 @@
     {
       "q": "Những định dạng nào được giữ lại?",
       "a": "Tiêu đề, chữ in đậm và in nghiêng, danh sách có thứ tự và lồng nhau, bảng, liên kết, và mã được chuyển thành Markdown gọn gàng theo chuẩn GitHub."
+    },
+    {
+      "q": "Công cụ này khác Pandoc như thế nào?",
+      "a": "Pandoc là một trình chuyển đổi dòng lệnh mạnh mẽ, nhưng phải cài đặt và cấu hình trước. Word to Markdown chạy ngay lập tức trong trình duyệt của bạn mà không cần cài gì — chỉ cần thả tệp .docx vào. Đối với các tác vụ theo kịch bản hoặc hàng loạt, cũng có phiên bản dòng lệnh."
+    },
+    {
+      "q": "Tôi có thể dùng công cụ này để chuẩn bị tài liệu cho ChatGPT, Claude hoặc các công cụ AI khác không?",
+      "a": "Có. Markdown là định dạng gọn gàng và tiết kiệm token cho các mô hình ngôn ngữ lớn và quy trình RAG. Việc chuyển tài liệu Word sang Markdown trước sẽ cung cấp cho các công cụ AI văn bản có cấu trúc rõ ràng — tiêu đề, danh sách và bảng — mà không có sự nhiễu của định dạng nhị phân .docx."
     }
   ],
   "footer": {
