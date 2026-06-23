@@ -1,9 +1,15 @@
 {
-  // Cloudflare Pages project config. `pages_build_output_dir` points at Astro's
-  // static output; the `functions/` directory at the repo root is picked up
-  // automatically for edge Functions (see functions/index.js). The build
-  // command (`npm run build`) is set in the Pages dashboard / Git integration.
-  "name": "word2md",
+  // Cloudflare Workers (Static Assets) config. `wrangler deploy` builds a Worker
+  // that serves the static Astro output in ./dist through the ASSETS binding.
+  // `run_worker_first: ["/"]` runs worker/index.js only on the root, where it
+  // applies the Accept-Language redirect; every other path is served directly
+  // from assets. `name` matches the Cloudflare project created from the repo.
+  "name": "word-to-markdown-js",
   "compatibility_date": "2026-06-01",
-  "pages_build_output_dir": "dist",
+  "main": "worker/index.js",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/"],
+  },
 }
