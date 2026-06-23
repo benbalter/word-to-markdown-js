@@ -1,0 +1,66 @@
+---
+// "What gets converted" reference table. The Markdown-output column is universal
+// syntax, so it stays literal here and pairs with t.conversionRows by index —
+// the two arrays must stay the same length.
+import { asLocale, useTranslations } from '../../i18n';
+
+interface Props {
+  /** Locale for this page; pages set it statically from their route. */
+  lang: string;
+}
+
+const t = useTranslations(asLocale(Astro.props.lang));
+
+const conversionOutputs = [
+  '# Heading',
+  '**bold** *italic*',
+  '1. item · - item',
+  '| a | b |',
+  '[text](url)',
+  '`code`',
+];
+---
+
+<section class="mx-auto mt-20 max-w-2xl">
+  <h2
+    class="text-center font-display text-2xl font-semibold tracking-tight text-navy sm:text-3xl dark:text-[#f1f2f7]"
+  >
+    {t.conversionHeading}
+  </h2>
+  <div
+    class="mt-8 overflow-hidden rounded-xl border border-rule-light dark:border-rule-dark"
+  >
+    <table class="w-full border-collapse text-left text-sm">
+      <thead>
+        <tr
+          class="border-b border-rule-light bg-paper-card/60 dark:border-rule-dark dark:bg-ink-card/50"
+        >
+          <th
+            scope="col"
+            class="px-5 py-3 font-display font-medium text-navy dark:text-[#f1f2f7]"
+            >{t.conversionColElement}</th
+          >
+          <th
+            scope="col"
+            class="px-5 py-3 font-display font-medium text-navy dark:text-[#f1f2f7]"
+            >{t.conversionColOutput}</th
+          >
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-rule-light dark:divide-rule-dark">
+        {
+          t.conversionRows.map((row, i) => (
+            <tr>
+              <td class="px-5 py-3 text-navy-soft dark:text-mist">{row}</td>
+              <td class="px-5 py-3">
+                <code class="font-mono text-[0.82rem] text-chartreuse-deep dark:text-chartreuse">
+                  {conversionOutputs[i]}
+                </code>
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

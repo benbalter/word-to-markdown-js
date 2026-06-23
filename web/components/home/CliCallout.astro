@@ -1,0 +1,51 @@
+---
+// Command-line callout: surfaces the open-source CLI for the developer segment.
+// The link targets the README's #command-line anchor — deliberately distinct
+// from the footer's repo-root href so the e2e strict locator stays single-match.
+import { asLocale, useTranslations } from '../../i18n';
+
+interface Props {
+  /** Locale for this page; pages set it statically from their route. */
+  lang: string;
+}
+
+const t = useTranslations(asLocale(Astro.props.lang));
+---
+
+<section class="mx-auto mt-16 max-w-2xl">
+  <div
+    class="flex flex-col items-start gap-4 rounded-xl border border-rule-light bg-paper-card/60 px-6 py-6 sm:flex-row sm:items-center sm:justify-between dark:border-rule-dark dark:bg-ink-card/50"
+  >
+    <div>
+      <h2
+        class="font-display text-lg font-medium text-navy dark:text-[#f1f2f7]"
+      >
+        {t.cliHeading}
+      </h2>
+      <p class="mt-1 text-sm leading-relaxed text-navy-soft dark:text-mist">
+        {t.cliBody}
+      </p>
+    </div>
+    <a
+      href="https://github.com/benbalter/word-to-markdown-js#command-line"
+      class="inline-flex shrink-0 items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-[#eef0f6] dark:hover:border-chartreuse"
+    >
+      {t.cliCta}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M7 17 17 7" />
+        <path d="M7 7h10v10" />
+      </svg>
+    </a>
+  </div>
+</section>

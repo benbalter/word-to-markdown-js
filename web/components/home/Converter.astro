@@ -1,0 +1,165 @@
+---
+// Converter: the dropzone (input) and the post-conversion results panels.
+// The element ids and data-* attributes here are the contract with the browser
+// logic in src/index.ts — keep them in sync with that module.
+import { asLocale, useTranslations } from '../../i18n';
+
+interface Props {
+  /** Locale for this page; pages set it statically from their route. */
+  lang: string;
+}
+
+const t = useTranslations(asLocale(Astro.props.lang));
+---
+
+<section
+  class="reveal mx-auto mt-10 max-w-2xl"
+  style="animation-delay:.24s"
+  aria-label={t.convertSectionAria}
+>
+  <div id="input" data-error-generic={t.errorGeneric} data-dismiss={t.dismiss}>
+    <label
+      for="file"
+      id="dropzone"
+      class="dropzone group flex cursor-pointer flex-col items-center rounded-2xl border-2 border-dashed border-rule-light bg-paper-card/70 px-6 py-14 text-center shadow-[0_1px_2px_rgba(20,33,60,0.04)] backdrop-blur-sm dark:border-rule-dark dark:bg-ink-card/60"
+    >
+      <span
+        class="dropzone-icon mb-5 inline-flex h-14 w-14 items-center justify-center rounded-full border border-chartreuse/40 bg-chartreuse/10 text-chartreuse-deep transition-transform dark:text-chartreuse"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 15V3" />
+          <path d="m7 8 5-5 5 5" />
+          <path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" />
+        </svg>
+      </span>
+      <span
+        class="font-display text-xl font-medium text-navy dark:text-[#f1f2f7]"
+      >
+        {t.dropzoneTitle}
+      </span>
+      <span class="mt-1.5 text-sm text-navy-soft dark:text-mist">
+        {t.dropzoneBrowsePrefix}<span
+          class="font-medium text-chartreuse-deep underline decoration-2 underline-offset-2 dark:text-chartreuse"
+          >{t.dropzoneBrowseLink}</span
+        >
+      </span>
+      <input type="file" id="file" accept=".docx" class="sr-only" />
+    </label>
+
+    <p
+      class="mt-4 text-center font-mono text-[0.72rem] tracking-wide text-navy-soft/80 dark:text-mist/80"
+    >
+      {t.googleDocHint}
+    </p>
+  </div>
+
+  <!-- Results (revealed after a successful conversion) -->
+  <div id="results" class="hidden">
+    <div
+      class="mt-4 flex flex-col items-center justify-between gap-3 sm:flex-row"
+    >
+      <h2 class="font-display text-lg font-medium text-navy dark:text-[#f1f2f7]">
+        {t.convertedLabel}{' '}<span
+          id="filename"
+          class="font-mono text-base text-chartreuse-deep dark:text-chartreuse"
+        ></span>
+      </h2>
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          id="copy-button"
+          type="button"
+          data-clipboard-target="#output"
+          class="inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-[#eef0f6] dark:hover:border-chartreuse"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+          </svg>
+          {t.copyButton}
+        </button>
+        <button
+          id="download-button"
+          type="button"
+          class="inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-[#eef0f6] dark:hover:border-chartreuse"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <path d="M7 10l5 5 5-5" />
+            <path d="M12 15V3" />
+          </svg>
+          {t.downloadButton}
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-4 grid gap-4 lg:grid-cols-2">
+      <div
+        class="overflow-hidden rounded-xl border border-rule-light bg-paper-card dark:border-rule-dark dark:bg-ink-card"
+      >
+        <div
+          class="flex items-center gap-2 border-b border-rule-light px-4 py-2 dark:border-rule-dark"
+        >
+          <span class="h-2.5 w-2.5 rounded-full bg-chartreuse"></span>
+          <span
+            class="font-mono text-xs font-medium tracking-wide text-navy-soft uppercase dark:text-mist"
+            >{t.panelMarkdown}</span
+          >
+        </div>
+        <pre
+          class="max-h-[28rem] overflow-auto px-4 py-3 text-left"><code id="output" class="font-mono text-[0.82rem] leading-relaxed text-navy dark:text-[#e3e6ef]"></code></pre>
+      </div>
+
+      <div
+        class="overflow-hidden rounded-xl border border-rule-light bg-paper-card dark:border-rule-dark dark:bg-ink-card"
+      >
+        <div
+          class="flex items-center gap-2 border-b border-rule-light px-4 py-2 dark:border-rule-dark"
+        >
+          <span class="h-2.5 w-2.5 rounded-full bg-navy-soft dark:bg-mist"></span>
+          <span
+            class="font-mono text-xs font-medium tracking-wide text-navy-soft uppercase dark:text-mist"
+            >{t.panelPreview}</span
+          >
+        </div>
+        <div
+          id="rendered"
+          class="prose prose-sm dark:prose-invert max-h-[28rem] max-w-none overflow-auto px-4 py-3 text-left"
+        >
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
