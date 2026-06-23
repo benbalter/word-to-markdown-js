@@ -52,6 +52,13 @@ export default defineConfig({
           fr: 'fr-FR',
         },
       },
+      // Stamp every URL with the build time so Google has a <lastmod> signal to
+      // prioritize recrawls. A single build timestamp (not per-page git dates)
+      // is sufficient for this small, frequently-rebuilt static site.
+      serialize(item) {
+        item.lastmod = new Date().toISOString();
+        return item;
+      },
     }),
     // Build-time SEO / accessibility / performance / GEO validation. Output is
     // clean (0 errors), so errors fail the build; warnings are advisory.
