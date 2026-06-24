@@ -98,6 +98,7 @@
     "100% client-side — nothing is uploaded"
   ],
   "errorGeneric": "An unexpected error occurred while converting the document. Please try again.",
+  "docFileError": "This tool reads modern .docx files, not older .doc files. In Word, open your document and choose File → Save As → Word Document (.docx), then drop the .docx here.",
   "dismiss": "Dismiss",
   "promo": {
     "label": "From the maker",

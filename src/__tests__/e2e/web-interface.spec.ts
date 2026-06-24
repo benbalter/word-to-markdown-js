@@ -129,13 +129,14 @@ test.describe('Word to Markdown Web Interface', () => {
       buffer: Buffer.from('fake content'),
     });
 
-    // Should show error message and not proceed with conversion
-    // Wait for any error handling to complete by checking that results remain hidden
-    await expect(page.locator('#results')).not.toBeVisible({
-      timeout: 5000,
-    });
+    // Should surface the friendly "save as .docx" guidance, not proceed
+    const error = page.locator('#error-message');
+    await expect(error).toBeVisible({ timeout: 5000 });
+    await expect(error).toContainText('Save As');
+    await expect(error).toContainText('.docx');
 
-    // Verify no conversion occurred by checking the input is still visible
+    // Verify no conversion occurred: results hidden, input still visible
+    await expect(page.locator('#results')).not.toBeVisible();
     await expect(page.locator('#input')).toBeVisible();
   });
 

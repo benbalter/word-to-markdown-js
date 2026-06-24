@@ -98,6 +98,7 @@
     "100% no cliente — nada é enviado"
   ],
   "errorGeneric": "Ocorreu um erro inesperado ao converter o documento. Tente novamente.",
+  "docFileError": "Esta ferramenta lê arquivos .docx modernos, não arquivos .doc mais antigos. No Word, abra seu documento e escolha Arquivo → Salvar como → Documento do Word (.docx), depois arraste o .docx aqui.",
   "dismiss": "Dispensar",
   "promo": {
     "label": "De quem criou",

@@ -97,7 +97,15 @@ async function processFile(file: File | undefined): Promise<void> {
     validateFileExtension(file.name);
   } catch (error) {
     if (error instanceof UnsupportedFileError) {
-      showError(error.message);
+      // validateFileExtension only rejects legacy .doc files, so show the
+      // friendlier localized "save as .docx" guidance rather than the raw
+      // (English, CLI-oriented) error message.
+      showError(
+        uiString(
+          'docFileError',
+          'This tool reads modern .docx files, not older .doc files. In Word, open your document and choose File → Save As → Word Document (.docx), then drop the .docx here.',
+        ),
+      );
       return;
     }
     throw error;
@@ -165,12 +173,12 @@ async function processFile(file: File | undefined): Promise<void> {
 // #input element (see Home.astro), keeping this module framework- and
 // language-agnostic. Falls back to English when the attribute is absent (e.g.
 // in unit tests that mount a bare DOM).
-function uiString(key: 'errorGeneric' | 'dismiss', fallback: string): string {
+function uiString(
+  key: 'errorGeneric' | 'docFileError' | 'dismiss',
+  fallback: string,
+): string {
   const input = document.getElementById('input');
-  const value =
-    key === 'errorGeneric'
-      ? input?.dataset.errorGeneric
-      : input?.dataset.dismiss;
+  const value = input?.dataset[key];
   return value && value.length > 0 ? value : fallback;
 }
 

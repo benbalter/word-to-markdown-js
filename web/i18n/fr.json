@@ -98,6 +98,7 @@
     "100% côté client — rien n'est envoyé"
   ],
   "errorGeneric": "Une erreur inattendue s'est produite lors de la conversion du document. Veuillez réessayer.",
+  "docFileError": "Cet outil lit les fichiers .docx modernes, pas les anciens fichiers .doc. Dans Word, ouvrez votre document et choisissez Fichier → Enregistrer sous → Document Word (.docx), puis déposez le .docx ici.",
   "dismiss": "Fermer",
   "promo": {
     "label": "Du créateur",

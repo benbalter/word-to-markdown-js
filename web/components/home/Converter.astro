@@ -17,7 +17,12 @@ const t = useTranslations(asLocale(Astro.props.lang));
   style="animation-delay:.24s"
   aria-label={t.convertSectionAria}
 >
-  <div id="input" data-error-generic={t.errorGeneric} data-dismiss={t.dismiss}>
+  <div
+    id="input"
+    data-error-generic={t.errorGeneric}
+    data-doc-file-error={t.docFileError}
+    data-dismiss={t.dismiss}
+  >
     <label
       for="file"
       id="dropzone"

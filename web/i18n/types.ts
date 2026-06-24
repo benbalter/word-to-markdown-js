@@ -81,6 +81,7 @@ export interface UIStrings {
 
   // Converter runtime (injected into the DOM as data-* and read by src/index.ts)
   errorGeneric: string;
+  docFileError: string;
   dismiss: string;
 
   // Open & Async promo. `card.*` is the standalone sponsor card (Promo.astro);
