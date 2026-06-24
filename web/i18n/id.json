@@ -63,6 +63,10 @@
       "a": "Di Google Docs, pilih File → Unduh → Microsoft Word (.docx), lalu letakkan file .docx tersebut ke Word to Markdown."
     },
     {
+      "q": "Bisakah saya mengonversi berkas .doc ke Markdown?",
+      "a": "Word to Markdown membaca berkas .docx modern. Jika Anda punya berkas .doc lama, buka di Word dan simpan sebagai .docx (Berkas → Simpan Sebagai → Dokumen Word .docx), lalu seret berkas .docx itu ke sini."
+    },
+    {
       "q": "Format apa saja yang dipertahankan?",
       "a": "Judul, teks tebal dan miring, daftar berurutan dan bertingkat, tabel, tautan, dan kode dikonversi menjadi Markdown bergaya GitHub yang rapi."
     },
@@ -84,7 +88,7 @@
   },
   "footerTagline": "Dikonversi di peramban Anda · tidak ada yang diunggah",
   "homeAria": "Word to Markdown — beranda",
-  "metaTitle": "Word to Markdown — Konverter .docx ke Markdown Gratis",
+  "metaTitle": "Word to Markdown — Konverter .docx ke .md Gratis",
   "metaDescription": "Ubah Word (.docx) dan Google Docs menjadi Markdown bergaya GitHub yang rapi — gratis, open source, dan sepenuhnya di peramban Anda.",
   "schemaDescription": "Alat gratis dan open source yang mengonversi Word (.docx) dan Google Docs menjadi Markdown bergaya GitHub yang rapi, sepenuhnya di peramban Anda.",
   "schemaFeatureList": [

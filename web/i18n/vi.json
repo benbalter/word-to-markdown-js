@@ -63,6 +63,10 @@
       "a": "Trong Google Docs, chọn Tệp → Tải xuống → Microsoft Word (.docx), rồi thả tệp .docx đó vào Word to Markdown."
     },
     {
+      "q": "Tôi có thể chuyển đổi tệp .doc sang Markdown không?",
+      "a": "Word to Markdown đọc các tệp .docx hiện đại. Nếu bạn có tệp .doc cũ hơn, hãy mở nó trong Word và lưu dưới dạng .docx (Tệp → Lưu dưới dạng → Tài liệu Word .docx), rồi kéo tệp .docx đó vào đây."
+    },
+    {
       "q": "Những định dạng nào được giữ lại?",
       "a": "Tiêu đề, chữ in đậm và in nghiêng, danh sách có thứ tự và lồng nhau, bảng, liên kết, và mã được chuyển thành Markdown gọn gàng theo chuẩn GitHub."
     },
@@ -84,7 +88,7 @@
   },
   "footerTagline": "Chuyển đổi trong trình duyệt của bạn · không có gì được tải lên",
   "homeAria": "Word to Markdown — trang chủ",
-  "metaTitle": "Word to Markdown — Chuyển .docx sang Markdown miễn phí",
+  "metaTitle": "Word to Markdown — Chuyển .docx sang .md miễn phí",
   "metaDescription": "Chuyển đổi Word (.docx) và Google Docs sang Markdown chuẩn GitHub — miễn phí, mã nguồn mở, hoàn toàn trong trình duyệt của bạn.",
   "schemaDescription": "Công cụ miễn phí, mã nguồn mở giúp chuyển đổi Word (.docx) và Google Docs sang Markdown chuẩn GitHub gọn gàng, hoàn toàn trong trình duyệt của bạn.",
   "schemaFeatureList": [

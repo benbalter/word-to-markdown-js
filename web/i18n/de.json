@@ -63,6 +63,10 @@
       "a": "Wähle in Google Docs Datei → Herunterladen → Microsoft Word (.docx) und ziehe diese .docx in Word to Markdown."
     },
     {
+      "q": "Kann ich eine .doc-Datei in Markdown umwandeln?",
+      "a": "Word to Markdown liest moderne .docx-Dateien. Wenn Sie eine ältere .doc-Datei haben, öffnen Sie sie in Word und speichern Sie sie als .docx (Datei → Speichern unter → Word-Dokument .docx), und ziehen Sie diese .docx-Datei dann hierher."
+    },
+    {
       "q": "Welche Formatierung bleibt erhalten?",
       "a": "Überschriften, fetter und kursiver Text, geordnete und verschachtelte Listen, Tabellen, Links und Code werden in sauberes Markdown im GitHub-Stil umgewandelt."
     },
@@ -84,7 +88,7 @@
   },
   "footerTagline": "Im Browser umgewandelt · nichts wird hochgeladen",
   "homeAria": "Word to Markdown — Startseite",
-  "metaTitle": "Word to Markdown — Kostenloser .docx-zu-Markdown-Konverter",
+  "metaTitle": "Word to Markdown — Kostenloser .docx-zu-.md-Konverter",
   "metaDescription": "Wandle Word (.docx) und Google Docs in sauberes Markdown im GitHub-Stil um — kostenlos, Open Source und komplett im Browser.",
   "schemaDescription": "Kostenloses Open-Source-Tool, das Word (.docx) und Google Docs vollständig im Browser in sauberes Markdown im GitHub-Stil umwandelt.",
   "schemaFeatureList": [
