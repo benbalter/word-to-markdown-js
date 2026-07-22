@@ -1,6 +1,11 @@
 # Word to Markdown
 
-Convert Word documents to beautiful Markdown. Via command line or in your browser. An even better version of the original [`word-to-markdown`](https://github.com/benbalter/word-to-markdown).
+[![npm version](https://img.shields.io/npm/v/word-to-markdown.svg)](https://www.npmjs.com/package/word-to-markdown)
+[![npm downloads](https://img.shields.io/npm/dm/word-to-markdown.svg)](https://www.npmjs.com/package/word-to-markdown)
+[![CI](https://github.com/benbalter/word-to-markdown-js/actions/workflows/ci.yml/badge.svg)](https://github.com/benbalter/word-to-markdown-js/actions/workflows/ci.yml)
+[![License: ISC](https://img.shields.io/npm/l/word-to-markdown.svg)](https://github.com/benbalter/word-to-markdown-js/blob/main/LICENSE)
+
+Convert Word documents to beautiful Markdown. Via command line, as a Node library, or in your browser. An even better version of the original [`word-to-markdown`](https://github.com/benbalter/word-to-markdown).
 
 Try it in your browser at [word2md.com](https://word2md.com), or use it from the command line — no clone required:
 
@@ -56,7 +61,11 @@ npm install -g word-to-markdown
 w2m path/to/your/file.docx > output.md
 ```
 
+The converted Markdown is written to **stdout** and any document warnings (encryption, sensitivity labels, and the like) to **stderr**, so a redirect captures only the Markdown. The command exits with a non-zero status and a friendly message if the file is missing, unreadable, or not a valid `.docx`. Only `.docx` is supported — re-save older `.doc` files as `.docx` first.
+
 ## Use as a library
+
+Published to npm as [`word-to-markdown`](https://www.npmjs.com/package/word-to-markdown). It ships as an ES module and requires Node 22.13 or later.
 
 ```console
 npm install word-to-markdown
@@ -74,7 +83,48 @@ const { markdown, warnings } = await convertWithWarnings(
 );
 ```
 
-In the browser, pass an `ArrayBuffer` instead of a file path.
+Both functions accept either a file-path string (in Node) or an `ArrayBuffer` (in the browser), so the same code runs in either environment:
+
+```js
+const { markdown } = await convertWithWarnings(arrayBuffer);
+```
+
+### API
+
+- **`convert(input, options?): Promise<string>`** — resolves to the Markdown.
+- **`convertWithWarnings(input, options?): Promise<{ markdown: string; warnings: string[] }>`** — also returns human-readable warnings for encrypted, protected, or sensitivity-labeled documents.
+
+`input` is a file-path `string` (Node) or an `ArrayBuffer` (browser). `options` is optional — `{ mammoth?, turndown? }` — forwarded to [Mammoth](https://github.com/mwilliamson/mammoth.js/) and [Turndown](https://github.com/mixmark-io/turndown) respectively.
+
+### Error handling
+
+Conversion throws typed errors so you can respond to each failure precisely:
+
+```js
+import convert, {
+  UnsupportedFileError,
+  FileNotFoundError,
+  InvalidFileError,
+  FilePermissionError,
+  ConversionError,
+} from 'word-to-markdown';
+
+try {
+  const markdown = await convert('path/to/your/file.docx');
+} catch (error) {
+  if (error instanceof UnsupportedFileError) {
+    // e.g. a .doc file — only .docx is supported
+  } else if (error instanceof FileNotFoundError) {
+    // the path doesn't exist
+  } else if (error instanceof InvalidFileError) {
+    // not a valid or parseable .docx
+  } else if (error instanceof FilePermissionError) {
+    // the file couldn't be read
+  } else if (error instanceof ConversionError) {
+    // something failed mid-conversion — see error.cause
+  }
+}
+```
 
 ## Running Locally
 
@@ -111,12 +161,12 @@ See the README of [the original Word to Markdown](https://github.com/benbalter/w
 
 1. Use [LibreOffice](https://www.libreoffice.org/) to convert the Word document to HTML.
 2. Use a bunch of RegEx to clean up the HTML
-3. User [Premailer](https://github.com/premailer/premailer) to inline the CSS
+3. Use [Premailer](https://github.com/premailer/premailer) to inline the CSS
 4. Use [Nokogiri](https://nokogiri.org) to manipulate the HTML further
 5. Use [Reverse Markdown](https://github.com/xijo/reverse_markdown) to convert the HTML to Markdown
 6. Use a bunch of RegEx to clean up the Markdown
 
-Not only did this process require installing and shelling out to a huge binary (LibreOffice), but it was very fragile, and key projects like Reverse Markdown are no longer maintained. I tried experimenting with Pandoc, but it had many of the same limitation.
+Not only did this process require installing and shelling out to a huge binary (LibreOffice), but it was very fragile, and key projects like Reverse Markdown are no longer maintained. I tried experimenting with Pandoc, but it had many of the same limitations.
 
 ### The new way
 
