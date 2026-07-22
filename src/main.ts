@@ -511,10 +511,8 @@ export async function convertWithWarnings(
 ): Promise<ConvertResult> {
   // Normalize input so that the underlying .docx content is read at most once
   let mammothInput:
-    | { path: string }
-    | { buffer: Buffer }
-    | { arrayBuffer: ArrayBuffer };
-  let propertiesInput: string | ArrayBuffer = input;
+    { path: string } | { buffer: Buffer } | { arrayBuffer: ArrayBuffer };
+  let propertiesInput: string | ArrayBuffer;
 
   if (typeof input === 'string') {
     // Validate file extension for file path inputs
