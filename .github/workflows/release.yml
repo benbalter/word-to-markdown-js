@@ -3,9 +3,11 @@ name: Release
 # Publishes the package to npm when a GitHub Release is published.
 # The release tag (e.g. v0.1.0) must match the version in package.json.
 #
-# Requires an NPM_TOKEN repository secret. It must be an *automation* (or
-# granular) access token — a classic publish token is rejected in CI when the
-# account has 2FA enabled.
+# Authentication uses npm Trusted Publishing (OIDC) — no long-lived token.
+# One-time setup on npmjs.com: on the package's Settings → Trusted Publisher,
+# add this repo (benbalter/word-to-markdown-js) with workflow filename
+# "release.yml". npm's UI requires the package to already exist, so the very
+# first version must be published manually to claim the name (see CONTRIBUTING).
 
 on:
   release:
@@ -13,7 +15,7 @@ on:
 
 permissions:
   contents: read
-  id-token: write # required for npm provenance
+  id-token: write # required for OIDC trusted publishing
 
 jobs:
   publish:
@@ -22,9 +24,11 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: '22.x'
+          node-version: '22.x' # >= 22.14 required by trusted publishing
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
+      # Trusted publishing requires npm CLI >= 11.5.1; Node 22.x bundles npm 10.
+      - run: npm install -g npm@latest
       - run: npm ci
       - name: Verify tag matches package.json version
         run: |
@@ -35,6 +39,5 @@ jobs:
           fi
       - run: npm run build:js
       - run: npm test
-      - run: npm publish --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # No token: OIDC authenticates via id-token, and provenance is automatic.
+      - run: npm publish

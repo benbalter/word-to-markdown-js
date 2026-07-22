@@ -86,15 +86,25 @@ At a high level, [the process for proposing changes](https://guides.github.com/i
 
 ## Publishing a release
 
-The package is published to npm as [`word-to-markdown`](https://www.npmjs.com/package/word-to-markdown) automatically by the [`Release`](.github/workflows/release.yml) workflow whenever a GitHub Release is published.
+The package is published to npm as [`word-to-markdown`](https://www.npmjs.com/package/word-to-markdown) automatically by the [`Release`](.github/workflows/release.yml) workflow whenever a GitHub Release is published. Authentication uses npm [Trusted Publishing](https://docs.npmjs.com/trusted-publishers) (OIDC) — there is **no long-lived npm token** stored in the repo, and provenance attestations are generated automatically.
 
-One-time setup (maintainers): add an `NPM_TOKEN` repository secret. It must be an **automation** (or granular) access token — a classic publish token is rejected in CI when the account has 2FA enabled.
+### One-time setup (maintainers)
 
-To cut a release:
+Because npm's UI only lets you configure a trusted publisher on a package that already exists, the very first version has to be published manually to claim the name:
+
+1. `npm login`, then from a clean checkout run `npm publish` (the `prepack` script builds first). Approve the 2FA / OTP prompt.
+2. On npmjs.com, open the package → **Settings → Trusted Publisher** and add:
+   - **Organization or user**: `benbalter`
+   - **Repository**: `word-to-markdown-js`
+   - **Workflow filename**: `release.yml`
+   - **Allowed actions**: `npm publish`
+3. Optionally revoke any temporary token used for the bootstrap publish — the workflow doesn't need it.
+
+### Cutting a release
 
 1. Bump `version` in `package.json` (e.g. `0.1.0` → `0.1.1`) and merge it to `main`.
 2. Create a GitHub Release whose tag matches the new version, prefixed with `v` (e.g. `v0.1.1`). The workflow verifies the tag matches `package.json` and fails the publish if they drift.
-3. The workflow builds, tests, and runs `npm publish --provenance`.
+3. The workflow builds, tests, and runs `npm publish`, authenticating via OIDC.
 
 ## Code of conduct
 
