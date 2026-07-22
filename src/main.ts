@@ -519,7 +519,7 @@ export async function convertWithWarnings(
       | { path: string }
       | { buffer: Buffer }
       | { arrayBuffer: ArrayBuffer };
-    let propertiesInput: string | ArrayBuffer = input;
+    let propertiesInput: string | ArrayBuffer;
 
     if (typeof input === 'string') {
       filePath = input;
