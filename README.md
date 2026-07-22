@@ -2,6 +2,12 @@
 
 Convert Word documents to beautiful Markdown. Via command line or in your browser. An even better version of the original [`word-to-markdown`](https://github.com/benbalter/word-to-markdown).
 
+Try it in your browser at [word2md.com](https://word2md.com), or use it from the command line — no clone required:
+
+```console
+npx word-to-markdown input.docx > output.md
+```
+
 ## Supports
 
 - Paragraphs
@@ -35,18 +41,53 @@ Word to Markdown is designed with privacy as a core principle. The application o
 
 Whether you use the command line tool, run it locally in your browser, or use the hosted version, your documents and privacy are protected.
 
+## Command line
+
+Run it directly with `npx` (downloads and runs the latest published version):
+
+```console
+npx word-to-markdown path/to/your/file.docx > output.md
+```
+
+Or install it globally to get the `w2m` command:
+
+```console
+npm install -g word-to-markdown
+w2m path/to/your/file.docx > output.md
+```
+
+## Use as a library
+
+```console
+npm install word-to-markdown
+```
+
+```js
+import convert, { convertWithWarnings } from 'word-to-markdown';
+
+// Just the Markdown:
+const markdown = await convert('path/to/your/file.docx');
+
+// Markdown plus any document warnings (e.g. encryption, sensitivity labels):
+const { markdown, warnings } = await convertWithWarnings(
+  'path/to/your/file.docx',
+);
+```
+
+In the browser, pass an `ArrayBuffer` instead of a file path.
+
 ## Running Locally
 
-## Get Setup
+### Get set up
 
 1. Clone the repo
 2. Run `npm install`
 
-## Command line
+### Command line (from source)
 
-Run `w2m path/to/your/file.docx`
+Run `npm run build:js` once, then `node build/cli.js path/to/your/file.docx`.
 
-## Run the site locally
+### Run the site locally
 
 `npm run dev` starts the Astro dev server. To preview a production build, run
 `npm run build` followed by `npm run preview`.
