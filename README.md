@@ -148,7 +148,7 @@ To self-host the static site using Docker Compose:
 
 1. Clone the repository
 2. Run `npm install && npm run build`
-3. Run `docker-compose up -d`
+3. Run `docker compose up -d`
 4. Access at http://localhost:3000
 
 ## More context
@@ -176,6 +176,6 @@ Not only did this process require installing and shelling out to a huge binary (
 
 All three of these projects are actively maintained and heavily used, and allows us to convert the document faster, and entirely in JavaScript. Heck, I think theoretically, this could run in the browser for added privacy.
 
-It's still in beta, but so far, I've found the output to be better, with much less manual cleanup required. Notice something is off? Please [open an issue](https://github.com/benbalter/word-to-markdown-js/issues/new).
+It's still young, but so far, I've found the output to be better, with much less manual cleanup required. Notice something is off? Please [open an issue](https://github.com/benbalter/word-to-markdown-js/issues/new).
 
 One note: This project does not yet attempt to guess heading levels based on font size. It could, but it's not yet implemented.
