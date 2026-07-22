@@ -1,0 +1,71 @@
+---
+// Sponsor promo (Open & Async). Home-only; owns its scoped CSS rather than the
+// Layout's global stylesheet. Copy is localized via the shared dictionaries
+// (the book title "Open & Async" stays literal); utm_campaign=card distinguishes
+// this placement from the contextual results-pane pitch (utm_campaign=results).
+import '../../../src/promo.css';
+import { asLocale, useTranslations } from '../../i18n';
+
+interface Props {
+  /** Locale for this page; pages set it statically from their route. */
+  lang: string;
+}
+
+const t = useTranslations(asLocale(Astro.props.lang));
+---
+
+<a
+  id="promo-card"
+  class="promo"
+  href="https://open-and-async.com/?utm_source=word2md&utm_medium=referral&utm_campaign=card"
+>
+  <svg
+    class="promo-graph"
+    viewBox="0 0 560 150"
+    preserveAspectRatio="xMidYMid slice"
+    fill="none"
+    role="presentation"
+    aria-hidden="true"
+  >
+    <!-- chartreuse trunk -->
+    <path
+      d="M-10 88 C 110 88 165 78 265 80 S 455 98 580 84"
+      stroke="#d0d820"
+      stroke-width="2.2"></path>
+    <circle cx="60" cy="85" r="5" fill="#d0d820"></circle>
+    <circle cx="175" cy="79" r="5" fill="#d0d820"></circle>
+    <circle
+      cx="330"
+      cy="84"
+      r="7"
+      fill="none"
+      stroke="#d0d820"
+      stroke-width="2"></circle>
+    <circle cx="470" cy="91" r="5" fill="#d0d820"></circle>
+    <!-- pink branch: diverges up -->
+    <path
+      d="M165 80 C 225 44 280 26 350 32 S 455 58 510 84"
+      stroke="#e068a0"
+      stroke-width="1.8"></path>
+    <circle cx="350" cy="32" r="5" fill="#e068a0"></circle>
+    <circle cx="440" cy="52" r="4" fill="#e068a0"></circle>
+    <!-- coral branch: diverges down -->
+    <path
+      d="M265 80 C 325 118 365 136 455 134 S 600 122 630 134"
+      stroke="#e89068"
+      stroke-width="1.8"></path>
+    <circle cx="455" cy="134" r="5" fill="#e89068"></circle>
+  </svg>
+  <img
+    class="promo-cover"
+    src="/open-and-async-cover.png"
+    width="92"
+    height="127"
+    alt={t.promo.coverAlt}
+  />
+  <span class="promo-text">
+    <span class="promo-label">{t.promo.label}</span>
+    <span class="promo-body" set:html={t.promo.body} />
+    <span class="promo-cta">{t.promo.cta} &rarr;</span>
+  </span>
+</a>

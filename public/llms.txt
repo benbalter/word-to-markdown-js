@@ -1,0 +1,16 @@
+# Word to Markdown
+
+> Free, open-source tool that converts Word (.docx) and Google Docs to clean, GitHub-flavored Markdown — entirely in your browser. Nothing is uploaded.
+
+Word to Markdown runs 100% client-side: documents are converted locally in the browser and never sent to any server.
+
+## Pages
+
+- [Word to Markdown converter](https://word2md.com/): Drag in a `.docx` (or click to browse) and get clean, GitHub-flavored Markdown back, converted locally in your browser.
+- [Privacy](https://word2md.com/privacy/): How your data is handled — conversion is entirely client-side and nothing is uploaded.
+- [Terms of Use](https://word2md.com/terms/): The terms governing use of the converter, provided as-is without warranty.
+
+## About
+
+- [Source code](https://github.com/benbalter/word-to-markdown-js): Open-source on GitHub.
+- Author: [Ben Balter](https://ben.balter.com)

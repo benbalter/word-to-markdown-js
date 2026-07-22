@@ -1,0 +1,255 @@
+---
+// Shared shell for every page. Unifies the head, brand header, and footer.
+//
+// Invariants the e2e suite depends on:
+//   - The brand/site title is NOT an <h1>, so each page owns its single <h1>.
+//   - `title` is per-page and rendered verbatim into <title>.
+//   - Nav hrefs are absolute so they resolve correctly from inner pages too,
+//     and each footer href appears exactly once (Playwright locators are strict).
+import '../styles/global.css';
+import { Font } from 'astro:assets';
+import { getAbsoluteLocaleUrl, getRelativeLocaleUrl } from 'astro:i18n';
+import {
+  asLocale,
+  defaultLocale,
+  localeMeta,
+  useTranslations,
+  locales,
+} from '../i18n';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  structuredData?: Record<string, unknown>;
+  /**
+   * Unlocalized path of this page (e.g. "/") when it exists in EVERY locale —
+   * triggers a self-referential hreflang cluster. Only set it for fully
+   * translated pages (the home page); an English-only page would otherwise
+   * advertise localized URLs that 404. Omit → no hreflang emitted.
+   */
+  i18nPath?: string;
+}
+
+// `.astro` pages pass props directly; Markdown pages using `layout:` pass
+// them nested under `frontmatter`. Support both shapes.
+const {
+  title,
+  description = 'Convert Word or Google documents to Markdown online',
+  image = '/og.png',
+  structuredData,
+  i18nPath,
+} = Astro.props.frontmatter ?? Astro.props;
+
+// Current locale drives the <html lang>, og:locale, and localized chrome.
+const locale = asLocale(Astro.currentLocale);
+const meta = localeMeta[locale];
+const t = useTranslations(locale);
+
+// Canonical / OG / social-image URLs derived from `site` + the current path.
+// Canonical stays self-referential (each localized URL points to itself).
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL(image, Astro.site).href;
+
+// Self-referential hreflang cluster, emitted only for fully translated pages.
+// `getAbsoluteLocaleUrl` respects base/trailingSlash/routing config, so each
+// href stays in sync with how the route is actually generated. x-default points
+// at the default locale's URL.
+const hreflangs =
+  i18nPath === undefined
+    ? []
+    : [
+        ...locales.map((l) => ({
+          hreflang: localeMeta[l].htmlLang,
+          href: getAbsoluteLocaleUrl(l, i18nPath),
+        })),
+        {
+          hreflang: 'x-default',
+          href: getAbsoluteLocaleUrl(defaultLocale, i18nPath),
+        },
+      ];
+const ogLocaleAlternates = locales
+  .filter((l) => l !== locale)
+  .map((l) => localeMeta[l].ogLocale);
+
+// Locale-aware home link so visitors stay within their language.
+const homeHref = getRelativeLocaleUrl(locale, '/');
+
+// Language switcher: one real <a> per locale, labelled with the endonym (the
+// language's own name) — never a flag. Links to each locale's home (the only
+// translated page today); these crawlable links also aid locale discovery.
+const languageLinks = locales.map((l) => ({
+  name: localeMeta[l].name,
+  href: getRelativeLocaleUrl(l, '/'),
+  current: l === locale,
+}));
+
+// Legal pages (Terms/Privacy) are English-only, so those links stay at the
+// root for every locale; external links are locale-independent.
+const footerLinks = [
+  {
+    href: 'https://github.com/benbalter/word-to-markdown-js/blob/master/CONTRIBUTING.md',
+    label: t.footer.feedback,
+  },
+  { href: 'https://github.com/benbalter/word-to-markdown-js', label: t.footer.source },
+  { href: 'https://www.patreon.com/benbalter', label: t.footer.donate },
+  { href: '/terms/', label: t.footer.terms },
+  { href: '/privacy/', label: t.footer.privacy },
+  { href: 'https://ben.balter.com', label: '@benbalter' },
+];
+---
+
+<!doctype html>
+<html lang={meta.htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {
+      hreflangs.map((alt) => (
+        <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />
+      ))
+    }
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={meta.ogLocale} />
+    {
+      ogLocaleAlternates.map((l) => (
+        <meta property="og:locale:alternate" content={l} />
+      ))
+    }
+    <meta property="og:site_name" content="Word to Markdown Converter" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content={title} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={title} />
+    <meta name="theme-color" content="#f6f5ef" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a1120" media="(prefers-color-scheme: dark)" />
+    {
+      structuredData && (
+        <script
+          type="application/ld+json"
+          set:html={JSON.stringify(structuredData)}
+        />
+      )
+    }
+    <Font cssVariable="--font-fraunces" />
+    <Font cssVariable="--font-hanken" />
+    <Font cssVariable="--font-jetbrains" />
+  </head>
+  <body class="flex min-h-screen flex-col">
+    <header class="mx-auto w-full max-w-5xl px-6 pt-7 pb-2">
+      <a
+        href={homeHref}
+        class="group inline-flex items-center gap-2.5 no-underline"
+        aria-label={t.homeAria}
+      >
+        <span
+          class="rounded-md border border-chartreuse/50 bg-chartreuse/10 px-1.5 py-0.5 font-mono text-[0.68rem] font-bold tracking-tight text-chartreuse-deep transition-colors group-hover:border-chartreuse dark:text-chartreuse"
+          >w2m</span
+        >
+        <span
+          class="font-display text-lg font-medium tracking-tight text-navy dark:text-[#eef0f6]"
+          >Word to Markdown</span
+        >
+      </a>
+    </header>
+
+    <main class="mx-auto w-full max-w-5xl flex-1 px-6">
+      <slot />
+    </main>
+
+    <footer class="mx-auto mt-16 w-full max-w-5xl px-6 pb-10">
+      <div class="rule mb-5"></div>
+      <nav
+        aria-label="Language"
+        class="mb-4 flex flex-wrap items-center justify-center gap-x-1 gap-y-1.5 text-[0.8rem]"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="mr-1.5 text-navy-soft/70 dark:text-mist/70"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="M2 12h20" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+        {
+          languageLinks.map((lang) =>
+            lang.current ? (
+              <span
+                aria-current="page"
+                class="rounded px-2 py-0.5 font-medium text-chartreuse-deep dark:text-chartreuse"
+              >
+                {lang.name}
+              </span>
+            ) : (
+              <a
+                href={lang.href}
+                class="rounded px-2 py-0.5 text-navy-soft underline decoration-transparent decoration-2 underline-offset-4 transition-colors hover:text-navy hover:decoration-chartreuse dark:text-mist dark:hover:text-white"
+              >
+                {lang.name}
+              </a>
+            ),
+          )
+        }
+      </nav>
+      <nav
+        class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm"
+      >
+        {
+          footerLinks.map((link) => (
+            <a
+              href={link.href}
+              class="font-medium text-navy-soft underline decoration-transparent decoration-2 underline-offset-4 transition-colors hover:text-navy hover:decoration-chartreuse dark:text-mist dark:hover:text-white"
+            >
+              {link.label}
+            </a>
+          ))
+        }
+      </nav>
+      <p
+        class="mt-5 text-center font-mono text-[0.7rem] tracking-wide text-navy-soft/70 dark:text-mist/70"
+      >
+        {t.footerTagline}
+      </p>
+    </footer>
+    <script is:inline>
+      // Record the current language so the edge redirect (Cloudflare Worker,
+      // worker/index.js) won't auto-redirect on future visits — the language
+      // switcher stays in control. Harmless on GitHub Pages: it sets a cookie
+      // that nothing reads there.
+      try {
+        document.cookie =
+          'lang=' +
+          document.documentElement.lang +
+          '; path=/; max-age=31536000; samesite=lax';
+      } catch (e) {
+        /* cookies unavailable — fine, redirect simply re-evaluates next visit */
+      }
+    </script>
+  </body>
+</html>

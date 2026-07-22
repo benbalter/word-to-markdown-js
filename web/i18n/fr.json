@@ -1,0 +1,111 @@
+{
+  "eyebrow": "Gratuit · Open source · 100% dans votre navigateur",
+  "tagline": "Convertissez des fichiers Word (.docx) en Markdown propre — entièrement dans votre navigateur. Vos fichiers ne sont jamais envoyés.",
+  "trustBadge": "Fiable depuis 2014",
+  "flowFromAlt": "Document Word",
+  "flowToAlt": "Fichier Markdown",
+  "dropzoneTitle": "Déposez votre .docx ici",
+  "dropzoneBrowsePrefix": "ou ",
+  "dropzoneBrowseLink": "cliquez pour choisir un fichier",
+  "googleDocHint": "Google Doc ? Fichier → Télécharger → Microsoft Word (.docx)",
+  "convertSectionAria": "Convertir un document",
+  "convertedLabel": "Converti",
+  "copyButton": "Copier le Markdown",
+  "downloadButton": "Télécharger .md",
+  "panelMarkdown": "Markdown",
+  "panelPreview": "Aperçu",
+  "steps": [
+    {
+      "t": "Importer",
+      "d": "Glissez un fichier .docx, ou cliquez pour en choisir un."
+    },
+    {
+      "t": "Convertir",
+      "d": "La conversion se fait dans votre navigateur — sans serveur, sans attente."
+    },
+    {
+      "t": "Copier ou enregistrer",
+      "d": "Copiez le Markdown, ou téléchargez un fichier .md."
+    }
+  ],
+  "conversionHeading": "Ce qui est converti",
+  "conversionColElement": "Élément Word",
+  "conversionColOutput": "Résultat Markdown",
+  "conversionRows": [
+    "Titres",
+    "Gras et italique",
+    "Listes ordonnées et imbriquées",
+    "Tableaux",
+    "Liens",
+    "Code",
+    "Images",
+    "Barré"
+  ],
+  "cliHeading": "Vous préférez la ligne de commande ?",
+  "cliBody": "Word to Markdown est gratuit et open source. Utilisez-le en ligne de commande pour des conversions scriptées ou par lots : le même convertisseur, sans navigateur.",
+  "cliCta": "Obtenir la CLI",
+  "faqHeading": "Questions fréquentes",
+  "faqs": [
+    {
+      "q": "Comment convertir un document Word en Markdown ?",
+      "a": "Glissez un fichier .docx sur la page (ou cliquez pour le sélectionner). Word to Markdown le convertit dans votre navigateur et affiche le Markdown instantanément — copiez-le ou téléchargez un fichier .md."
+    },
+    {
+      "q": "Word to Markdown est-il gratuit ?",
+      "a": "Oui. Il est entièrement gratuit et open source — sans inscription, sans limite de taille de fichier et sans publicité."
+    },
+    {
+      "q": "Mes documents sont-ils envoyés à un serveur ?",
+      "a": "Non. La conversion a lieu entièrement dans votre navigateur avec JavaScript. Vos fichiers ne quittent jamais votre appareil et ne sont jamais envoyés, stockés ni enregistrés."
+    },
+    {
+      "q": "Comment convertir un Google Doc en Markdown ?",
+      "a": "Dans Google Docs, choisissez Fichier → Télécharger → Microsoft Word (.docx), puis déposez ce .docx dans Word to Markdown."
+    },
+    {
+      "q": "Puis-je convertir un fichier .doc en Markdown ?",
+      "a": "Word to Markdown lit les fichiers .docx modernes. Si vous avez un ancien fichier .doc, ouvrez-le dans Word et enregistrez-le au format .docx (Fichier → Enregistrer sous → Document Word .docx), puis déposez ce .docx ici."
+    },
+    {
+      "q": "Quelle mise en forme est conservée ?",
+      "a": "Les titres, le texte en gras et en italique, les listes ordonnées et imbriquées, les tableaux, les liens et le code sont convertis en Markdown propre au format GitHub."
+    },
+    {
+      "q": "En quoi est-ce différent de Pandoc ?",
+      "a": "Pandoc est un convertisseur en ligne de commande très puissant, mais il faut d'abord l'installer et le configurer. Word to Markdown fonctionne instantanément dans votre navigateur, sans rien installer : déposez simplement un .docx. Pour les traitements scriptés ou par lots, une version en ligne de commande est également disponible."
+    },
+    {
+      "q": "Puis-je l'utiliser pour préparer des documents pour ChatGPT, Claude ou d'autres outils d'IA ?",
+      "a": "Oui. Le Markdown est un format propre et économe en tokens pour les grands modèles de langage et les pipelines RAG. Convertir d'abord un document Word en Markdown fournit aux outils d'IA un texte bien structuré — titres, listes et tableaux — sans le bruit du format binaire .docx."
+    }
+  ],
+  "footer": {
+    "feedback": "Commentaires",
+    "source": "Code source",
+    "donate": "Faire un don",
+    "terms": "Conditions",
+    "privacy": "Confidentialité"
+  },
+  "footerTagline": "Converti dans votre navigateur · rien n'est envoyé",
+  "homeAria": "Word to Markdown — accueil",
+  "metaTitle": "Word to Markdown — Convertisseur .docx vers .md gratuit",
+  "metaDescription": "Convertissez Word (.docx) et Google Docs en Markdown propre au format GitHub — gratuit, open source et entièrement dans votre navigateur.",
+  "schemaDescription": "Outil gratuit et open source qui convertit Word (.docx) et Google Docs en Markdown propre au format GitHub, entièrement dans votre navigateur.",
+  "schemaFeatureList": [
+    "Convertir Word (.docx) en Markdown",
+    "Convertir Google Docs en Markdown",
+    "Sortie Markdown au format GitHub",
+    "100% côté client — rien n'est envoyé"
+  ],
+  "errorGeneric": "Une erreur inattendue s'est produite lors de la conversion du document. Veuillez réessayer.",
+  "docFileError": "Cet outil lit les fichiers .docx modernes, pas les anciens fichiers .doc. Dans Word, ouvrez votre document et choisissez Fichier → Enregistrer sous → Document Word (.docx), puis déposez le .docx ici.",
+  "dismiss": "Fermer",
+  "promo": {
+    "label": "Du créateur",
+    "body": "J'ai créé cet outil gratuit — et j'ai écrit le livre sur le travail en mode ouvert. <strong>Open &amp; Async</strong> est le guide éprouvé sur GitHub pour les équipes distantes et distribuées.",
+    "cta": "Acheter maintenant",
+    "coverAlt": "Couverture du livre Open and Async",
+    "resultsLead": "Bravo — un document de plus sorti de Word et rendu ouvert. J'ai écrit le guide pour travailler ainsi :",
+    "resultsCta": "Découvrir Open & Async"
+  }
+}

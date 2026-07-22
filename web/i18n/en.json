@@ -1,0 +1,111 @@
+{
+  "eyebrow": "Free · Open source · 100% in your browser",
+  "tagline": "Convert Word (.docx) files to clean Markdown — entirely in your browser. Your files are never uploaded.",
+  "trustBadge": "Trusted since 2014",
+  "flowFromAlt": "Word document",
+  "flowToAlt": "Markdown file",
+  "dropzoneTitle": "Drop your .docx here",
+  "dropzoneBrowsePrefix": "or ",
+  "dropzoneBrowseLink": "click to choose a file",
+  "googleDocHint": "Google Doc? File → Download → Microsoft Word (.docx)",
+  "convertSectionAria": "Convert a document",
+  "convertedLabel": "Converted",
+  "copyButton": "Copy Markdown",
+  "downloadButton": "Download .md",
+  "panelMarkdown": "Markdown",
+  "panelPreview": "Preview",
+  "steps": [
+    {
+      "t": "Upload",
+      "d": "Drag in a .docx file, or click to choose one."
+    },
+    {
+      "t": "Convert",
+      "d": "It converts in your browser — no server, no waiting."
+    },
+    {
+      "t": "Copy or save",
+      "d": "Copy the Markdown, or download a .md file."
+    }
+  ],
+  "conversionHeading": "What gets converted",
+  "conversionColElement": "Word element",
+  "conversionColOutput": "Markdown output",
+  "conversionRows": [
+    "Headings",
+    "Bold & italic",
+    "Ordered & nested lists",
+    "Tables",
+    "Links",
+    "Code",
+    "Images",
+    "Strikethrough"
+  ],
+  "cliHeading": "Prefer the command line?",
+  "cliBody": "Word to Markdown is free and open source. Run it as a command-line tool for scripted or batch conversions — the same converter, no browser needed.",
+  "cliCta": "Get the CLI",
+  "faqHeading": "Frequently asked questions",
+  "faqs": [
+    {
+      "q": "How do I convert a Word document to Markdown?",
+      "a": "Drag a .docx file onto the page (or click to browse). Word to Markdown converts it in your browser and shows the Markdown instantly — copy it or download a .md file."
+    },
+    {
+      "q": "Is Word to Markdown free?",
+      "a": "Yes. It is completely free and open source — no sign-up, no file limits, and no ads."
+    },
+    {
+      "q": "Are my documents uploaded to a server?",
+      "a": "No. Conversion happens entirely in your browser using JavaScript. Your files never leave your device and are never uploaded, stored, or logged."
+    },
+    {
+      "q": "How do I convert a Google Doc to Markdown?",
+      "a": "In Google Docs, choose File → Download → Microsoft Word (.docx), then drop that .docx into Word to Markdown."
+    },
+    {
+      "q": "Can I convert a .doc file to Markdown?",
+      "a": "Word to Markdown reads modern .docx files. If you have an older .doc file, open it in Word and save it as .docx (File → Save As → Word Document .docx), then drop that .docx in."
+    },
+    {
+      "q": "What formatting is preserved?",
+      "a": "Headings, bold and italic text, ordered and nested lists, tables, links, and code are converted to clean, GitHub-flavored Markdown."
+    },
+    {
+      "q": "How is this different from Pandoc?",
+      "a": "Pandoc is a powerful command-line converter, but it has to be installed and configured first. Word to Markdown runs instantly in your browser with nothing to install — just drop in a .docx. For scripted or batch jobs, a command-line version is available too."
+    },
+    {
+      "q": "Can I use this to prepare documents for ChatGPT, Claude, or other AI tools?",
+      "a": "Yes. Markdown is a clean, token-efficient format for large language models and RAG pipelines. Converting a Word document to Markdown first gives AI tools well-structured text — headings, lists, and tables — without the noise of binary .docx formatting."
+    }
+  ],
+  "footer": {
+    "feedback": "Feedback",
+    "source": "Source",
+    "donate": "Donate",
+    "terms": "Terms",
+    "privacy": "Privacy"
+  },
+  "footerTagline": "Converted in your browser · nothing is uploaded",
+  "homeAria": "Word to Markdown — home",
+  "metaTitle": "Word to Markdown — Free .docx to .md Converter",
+  "metaDescription": "Free, open-source converter that turns Word (.docx) and Google Docs into clean, GitHub-flavored Markdown — entirely in your browser. Nothing is uploaded.",
+  "schemaDescription": "Free, open-source tool that converts Word (.docx) and Google Docs to clean, GitHub-flavored Markdown entirely in your browser.",
+  "schemaFeatureList": [
+    "Convert Word (.docx) to Markdown",
+    "Convert Google Docs to Markdown",
+    "GitHub-flavored Markdown output",
+    "100% client-side — nothing is uploaded"
+  ],
+  "errorGeneric": "An unexpected error occurred while converting the document. Please try again.",
+  "docFileError": "This tool reads modern .docx files, not older .doc files. In Word, open your document and choose File → Save As → Word Document (.docx), then drop the .docx here.",
+  "dismiss": "Dismiss",
+  "promo": {
+    "label": "From the maker",
+    "body": "I built this free tool — and I wrote the book on working in the open. <strong>Open &amp; Async</strong> is the GitHub-tested playbook for remote and distributed teams.",
+    "cta": "Buy now",
+    "coverAlt": "Open and Async book cover",
+    "resultsLead": "Nice — one more doc out of Word and into the open. I wrote the playbook for working this way:",
+    "resultsCta": "See Open & Async"
+  }
+}

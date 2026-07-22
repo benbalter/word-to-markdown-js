@@ -1,0 +1,121 @@
+/* "Sponsored by me" promo for Open & Async (open-and-async.com).
+   On-brand navy card with the book's commit-graph motif; the whole card is one link.
+   Colors are fixed (not theme variables) so the card looks the same in light and dark. */
+
+.promo {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  max-width: 34rem;
+  margin: 2rem auto 0.5rem;
+  padding: 1rem 1.25rem;
+  text-align: start;
+  text-decoration: none;
+  border: 1px solid rgba(200, 208, 32, 0.35); /* chartreuse */
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #0c1626 0%, #14213c 55%, #1c1d3e 100%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.promo:hover,
+.promo:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(200, 208, 32, 0.7);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* Commit-graph motif, behind the content */
+.promo-graph {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.promo-cover {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  width: 92px;
+  height: auto;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+}
+
+.promo-text {
+  position: relative;
+  z-index: 1;
+  display: block;
+}
+
+.promo-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #d0d820; /* chartreuse */
+}
+
+.promo-label::before {
+  content: ''; /* CSS-drawn dot — decorative, silent to screen readers */
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  margin-right: 0.45em;
+  border-radius: 50%;
+  background: #d0d820; /* chartreuse */
+  vertical-align: middle;
+}
+
+.promo-body {
+  display: block;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #e8e8f4;
+}
+
+.promo-body strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.promo-cta {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #d0d820;
+}
+
+.promo:hover .promo-cta,
+.promo:focus-visible .promo-cta {
+  text-decoration: underline;
+}
+
+@media (max-width: 575px) {
+  .promo {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promo {
+    transition: none;
+  }
+
+  .promo:hover,
+  .promo:focus-visible {
+    transform: none;
+  }
+}

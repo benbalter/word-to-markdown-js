@@ -1,0 +1,111 @@
+{
+  "eyebrow": "Miễn phí · Mã nguồn mở · 100% trong trình duyệt",
+  "tagline": "Chuyển đổi tệp Word (.docx) sang Markdown gọn gàng — hoàn toàn trong trình duyệt của bạn. Tệp của bạn không bao giờ được tải lên.",
+  "trustBadge": "Được tin dùng từ 2014",
+  "flowFromAlt": "Tài liệu Word",
+  "flowToAlt": "Tệp Markdown",
+  "dropzoneTitle": "Thả tệp .docx của bạn vào đây",
+  "dropzoneBrowsePrefix": "hoặc ",
+  "dropzoneBrowseLink": "nhấp để chọn tệp",
+  "googleDocHint": "Google Doc? Tệp → Tải xuống → Microsoft Word (.docx)",
+  "convertSectionAria": "Chuyển đổi tài liệu",
+  "convertedLabel": "Đã chuyển đổi",
+  "copyButton": "Sao chép Markdown",
+  "downloadButton": "Tải .md",
+  "panelMarkdown": "Markdown",
+  "panelPreview": "Xem trước",
+  "steps": [
+    {
+      "t": "Tải lên",
+      "d": "Kéo tệp .docx vào, hoặc nhấp để chọn."
+    },
+    {
+      "t": "Chuyển đổi",
+      "d": "Chuyển đổi ngay trong trình duyệt — không máy chủ, không chờ đợi."
+    },
+    {
+      "t": "Sao chép hoặc lưu",
+      "d": "Sao chép Markdown, hoặc tải tệp .md."
+    }
+  ],
+  "conversionHeading": "Những gì được chuyển đổi",
+  "conversionColElement": "Thành phần Word",
+  "conversionColOutput": "Kết quả Markdown",
+  "conversionRows": [
+    "Tiêu đề",
+    "In đậm và in nghiêng",
+    "Danh sách có thứ tự và lồng nhau",
+    "Bảng",
+    "Liên kết",
+    "Mã",
+    "Hình ảnh",
+    "Gạch ngang"
+  ],
+  "cliHeading": "Thích dùng dòng lệnh hơn?",
+  "cliBody": "Word to Markdown là phần mềm miễn phí và mã nguồn mở. Hãy dùng nó như một công cụ dòng lệnh để chuyển đổi theo kịch bản hoặc hàng loạt — vẫn là trình chuyển đổi đó, không cần trình duyệt.",
+  "cliCta": "Lấy CLI",
+  "faqHeading": "Câu hỏi thường gặp",
+  "faqs": [
+    {
+      "q": "Làm cách nào để chuyển đổi tài liệu Word sang Markdown?",
+      "a": "Kéo tệp .docx vào trang (hoặc nhấp để chọn). Word to Markdown chuyển đổi ngay trong trình duyệt của bạn và hiển thị Markdown tức thì — sao chép hoặc tải xuống tệp .md."
+    },
+    {
+      "q": "Word to Markdown có miễn phí không?",
+      "a": "Có. Hoàn toàn miễn phí và mã nguồn mở — không cần đăng ký, không giới hạn dung lượng tệp, và không quảng cáo."
+    },
+    {
+      "q": "Tài liệu của tôi có được tải lên máy chủ không?",
+      "a": "Không. Việc chuyển đổi diễn ra hoàn toàn trong trình duyệt của bạn bằng JavaScript. Tệp của bạn không bao giờ rời khỏi thiết bị và không bao giờ được tải lên, lưu trữ hay ghi lại."
+    },
+    {
+      "q": "Làm cách nào để chuyển đổi Google Doc sang Markdown?",
+      "a": "Trong Google Docs, chọn Tệp → Tải xuống → Microsoft Word (.docx), rồi thả tệp .docx đó vào Word to Markdown."
+    },
+    {
+      "q": "Tôi có thể chuyển đổi tệp .doc sang Markdown không?",
+      "a": "Word to Markdown đọc các tệp .docx hiện đại. Nếu bạn có tệp .doc cũ hơn, hãy mở nó trong Word và lưu dưới dạng .docx (Tệp → Lưu dưới dạng → Tài liệu Word .docx), rồi kéo tệp .docx đó vào đây."
+    },
+    {
+      "q": "Những định dạng nào được giữ lại?",
+      "a": "Tiêu đề, chữ in đậm và in nghiêng, danh sách có thứ tự và lồng nhau, bảng, liên kết, và mã được chuyển thành Markdown gọn gàng theo chuẩn GitHub."
+    },
+    {
+      "q": "Công cụ này khác Pandoc như thế nào?",
+      "a": "Pandoc là một trình chuyển đổi dòng lệnh mạnh mẽ, nhưng phải cài đặt và cấu hình trước. Word to Markdown chạy ngay lập tức trong trình duyệt của bạn mà không cần cài gì — chỉ cần thả tệp .docx vào. Đối với các tác vụ theo kịch bản hoặc hàng loạt, cũng có phiên bản dòng lệnh."
+    },
+    {
+      "q": "Tôi có thể dùng công cụ này để chuẩn bị tài liệu cho ChatGPT, Claude hoặc các công cụ AI khác không?",
+      "a": "Có. Markdown là định dạng gọn gàng và tiết kiệm token cho các mô hình ngôn ngữ lớn và quy trình RAG. Việc chuyển tài liệu Word sang Markdown trước sẽ cung cấp cho các công cụ AI văn bản có cấu trúc rõ ràng — tiêu đề, danh sách và bảng — mà không có sự nhiễu của định dạng nhị phân .docx."
+    }
+  ],
+  "footer": {
+    "feedback": "Phản hồi",
+    "source": "Mã nguồn",
+    "donate": "Ủng hộ",
+    "terms": "Điều khoản",
+    "privacy": "Quyền riêng tư"
+  },
+  "footerTagline": "Chuyển đổi trong trình duyệt của bạn · không có gì được tải lên",
+  "homeAria": "Word to Markdown — trang chủ",
+  "metaTitle": "Word to Markdown — Chuyển .docx sang .md miễn phí",
+  "metaDescription": "Chuyển đổi Word (.docx) và Google Docs sang Markdown chuẩn GitHub — miễn phí, mã nguồn mở, hoàn toàn trong trình duyệt của bạn.",
+  "schemaDescription": "Công cụ miễn phí, mã nguồn mở giúp chuyển đổi Word (.docx) và Google Docs sang Markdown chuẩn GitHub gọn gàng, hoàn toàn trong trình duyệt của bạn.",
+  "schemaFeatureList": [
+    "Chuyển Word (.docx) sang Markdown",
+    "Chuyển Google Docs sang Markdown",
+    "Kết quả Markdown chuẩn GitHub",
+    "100% phía máy khách — không có gì được tải lên"
+  ],
+  "errorGeneric": "Đã xảy ra lỗi không mong muốn khi chuyển đổi tài liệu. Vui lòng thử lại.",
+  "docFileError": "Công cụ này đọc các tệp .docx hiện đại, không phải tệp .doc cũ. Trong Word, hãy mở tài liệu của bạn và chọn Tệp → Lưu dưới dạng → Tài liệu Word (.docx), rồi kéo tệp .docx đó vào đây.",
+  "dismiss": "Đóng",
+  "promo": {
+    "label": "Từ người tạo ra công cụ",
+    "body": "Tôi đã xây dựng công cụ miễn phí này — và tôi đã viết cuốn sách về cách làm việc cởi mở. <strong>Open &amp; Async</strong> là cẩm nang đã được kiểm chứng trên GitHub dành cho các nhóm làm việc từ xa và phân tán.",
+    "cta": "Mua ngay",
+    "coverAlt": "Bìa sách Open and Async",
+    "resultsLead": "Tuyệt — thêm một tài liệu nữa rời khỏi Word và trở nên cởi mở. Tôi đã viết cẩm nang cho cách làm việc này:",
+    "resultsCta": "Xem Open & Async"
+  }
+}

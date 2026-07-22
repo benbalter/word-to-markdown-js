@@ -2,6 +2,12 @@
 
 Convert Word documents to beautiful Markdown. Via command line or in your browser. An even better version of the original [`word-to-markdown`](https://github.com/benbalter/word-to-markdown).
 
+Try it in your browser at [word2md.com](https://word2md.com), or use it from the command line — no clone required:
+
+```console
+npx word-to-markdown input.docx > output.md
+```
+
 ## Supports
 
 - Paragraphs
@@ -29,42 +35,69 @@ Word to Markdown is designed with privacy as a core principle. The application o
 
 - **Complete client-side processing**: When using the web interface, all document conversion happens locally in your browser using JavaScript. Your documents never leave your computer.
 - **No server uploads**: When using the web interface, files are processed entirely on your device. No document content is ever transmitted to any server.
-- **HTTP API option**: The optional HTTP API server (for programmatic access) processes documents temporarily on your chosen server without permanent storage or logging.
 - **No personal data collection**: The application does not collect, store, or transmit any personal information or document contents.
 - **Privacy-first analytics**: The hosted version at word2md.com uses only privacy-centric Cloudflare Analytics for anonymous usage statistics. No Google Analytics or user tracking.
 - **Self-hosting option**: For maximum privacy, you can run the application locally or self-host it without any analytics whatsoever.
 
 Whether you use the command line tool, run it locally in your browser, or use the hosted version, your documents and privacy are protected.
 
+## Command line
+
+Run it directly with `npx` (downloads and runs the latest published version):
+
+```console
+npx word-to-markdown path/to/your/file.docx > output.md
+```
+
+Or install it globally to get the `w2m` command:
+
+```console
+npm install -g word-to-markdown
+w2m path/to/your/file.docx > output.md
+```
+
+## Use as a library
+
+```console
+npm install word-to-markdown
+```
+
+```js
+import convert, { convertWithWarnings } from 'word-to-markdown';
+
+// Just the Markdown:
+const markdown = await convert('path/to/your/file.docx');
+
+// Markdown plus any document warnings (e.g. encryption, sensitivity labels):
+const { markdown, warnings } = await convertWithWarnings(
+  'path/to/your/file.docx',
+);
+```
+
+In the browser, pass an `ArrayBuffer` instead of a file path.
+
 ## Running Locally
 
-## Get Setup
+### Get set up
 
 1. Clone the repo
 2. Run `npm install`
 
-## Command line
+### Command line (from source)
 
-Run `w2m path/to/your/file.docx`
+Run `npm run build:js` once, then `node build/cli.js path/to/your/file.docx`.
 
-## Web server (static HTML)
+### Run the site locally
 
-`npm run server:web`
-
-## Web server (HTTP API)
-
-You can also run Word to Markdown as an HTTP API server, where you can make requests from elsewhere.
-
-`npm run server`
-
-The server exposes a `POST /raw` endpoint, which returns the converted Markdown.
+`npm run dev` starts the Astro dev server. To preview a production build, run
+`npm run build` followed by `npm run preview`.
 
 ## Self-Hosting
 
-To self-host Word to Markdown using Docker Compose:
+To self-host the static site using Docker Compose:
 
 1. Clone the repository
-2. Run `npm install && npm run build:web`
+2. Run `npm install && npm run build`
 3. Run `docker-compose up -d`
 4. Access at http://localhost:3000
 

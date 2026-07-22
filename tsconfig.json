@@ -19,8 +19,16 @@
     "noImplicitThis": false,
     "strictNullChecks": false,
     "esModuleInterop": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    // node-html-parser@9 ships a .d.ts with self-referential types that
+    // TypeScript 6 rejects (TS2502); skip type-checking dependency
+    // declarations, which is standard for library/app builds anyway.
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
-  "exclude": ["src/__tests__/**/*"]
+  // src/index.ts is the browser entry — Astro/Vite bundles it for the site and
+  // `astro check` type-checks it, so tsc (which builds the Node CLI + library)
+  // skips it to avoid emitting a dead build/index.js.
+  "exclude": ["src/__tests__/**/*", "src/index.ts"]
 }

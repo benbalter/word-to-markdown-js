@@ -4,7 +4,7 @@ This directory contains the configuration for using this project with GitHub Cod
 
 ## What's Included
 
-- **Node.js 20**: The development environment uses Node.js 20, matching the project requirements
+- **Node.js 22**: The development environment uses Node.js 22, matching the project requirements
 - **Pre-configured Extensions**: Essential VS Code extensions for TypeScript, ESLint, Prettier, and debugging
 - **Port Forwarding**: Automatic forwarding of ports 3000 (API server) and 8080 (web dev server)
 - **Auto-setup**: Dependencies are automatically installed when the container starts

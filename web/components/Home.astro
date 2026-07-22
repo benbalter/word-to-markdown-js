@@ -1,0 +1,80 @@
+---
+// Home page shell. Composes the page from focused section components (see
+// ./home/*) and owns only what spans them: the schema.org structured data and
+// the client script that wires up the converter. Each section takes `lang` and
+// resolves its own translations, so it can be rendered/tested in isolation.
+import Layout from '../layouts/Layout.astro';
+import { asLocale, localeMeta, useTranslations } from '../i18n';
+import Hero from './home/Hero.astro';
+import Converter from './home/Converter.astro';
+import Promo from './home/Promo.astro';
+import HowItWorks from './home/HowItWorks.astro';
+import ConversionTable from './home/ConversionTable.astro';
+import CliCallout from './home/CliCallout.astro';
+import Faq from './home/Faq.astro';
+
+interface Props {
+  /** Locale for this page; pages set it statically from their route. */
+  lang: string;
+}
+
+const lang = Astro.props.lang;
+const locale = asLocale(lang);
+const meta = localeMeta[locale];
+const t = useTranslations(locale);
+
+// Structured data (schema.org) for rich results: the app entity + the FAQ.
+// `inLanguage` and the human-readable copy follow the active locale. It spans
+// multiple sections (FAQ copy lives in Faq.astro), so it stays here at the shell.
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebApplication',
+      name: 'Word to Markdown Converter',
+      url: 'https://word2md.com',
+      description: t.schemaDescription,
+      applicationCategory: 'UtilitiesApplication',
+      operatingSystem: 'Any',
+      browserRequirements: 'Requires JavaScript',
+      inLanguage: meta.htmlLang,
+      image: 'https://word2md.com/og.png',
+      isAccessibleForFree: true,
+      featureList: t.schemaFeatureList,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      author: {
+        '@type': 'Person',
+        name: 'Ben Balter',
+        url: 'https://ben.balter.com',
+      },
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: t.faqs.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    },
+  ],
+};
+---
+
+<Layout
+  title={t.metaTitle}
+  description={t.metaDescription}
+  structuredData={structuredData}
+  i18nPath="/"
+>
+  <Hero lang={lang} />
+  <Converter lang={lang} />
+  <Promo lang={lang} />
+  <HowItWorks lang={lang} />
+  <ConversionTable lang={lang} />
+  <CliCallout lang={lang} />
+  <Faq lang={lang} />
+</Layout>
+
+<script>
+  import '../../src/index.ts';
+</script>

@@ -12,20 +12,18 @@ test.describe('Word to Markdown Web Interface', () => {
   });
 
   test('should display the main page with upload form', async ({ page }) => {
-    // Check page title
-    await expect(page).toHaveTitle('Word to Markdown');
+    // Check page title (starts with the brand; may carry an SEO suffix)
+    await expect(page).toHaveTitle(/^Word to Markdown/);
 
     // Check main heading
     await expect(page.locator('h1')).toHaveText('Word to Markdown');
 
     // Check that upload form is visible
     await expect(page.locator('#file')).toBeVisible();
-    await expect(
-      page.locator('button[type="button"].btn-primary'),
-    ).toBeVisible();
+    await expect(page.locator('label[for="file"]')).toBeVisible();
 
     // Check that results section is hidden initially
-    await expect(page.locator('#results')).toHaveClass(/d-none/);
+    await expect(page.locator('#results')).not.toBeVisible();
   });
 
   test('should upload and convert a simple Word document', async ({ page }) => {
@@ -37,7 +35,6 @@ test.describe('Word to Markdown Web Interface', () => {
 
     // Wait for conversion to complete and results to appear
     await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('#results')).not.toHaveClass(/d-none/);
 
     // Wait for content to be populated
     await expect(page.locator('#output')).not.toHaveText('', {
@@ -45,7 +42,7 @@ test.describe('Word to Markdown Web Interface', () => {
     });
 
     // Check that input form is now hidden
-    await expect(page.locator('#input')).toHaveClass(/d-none/);
+    await expect(page.locator('#input')).not.toBeVisible();
 
     // Check that filename is displayed
     await expect(page.locator('#filename')).toHaveText('h1.docx');
@@ -132,14 +129,15 @@ test.describe('Word to Markdown Web Interface', () => {
       buffer: Buffer.from('fake content'),
     });
 
-    // Should show error message and not proceed with conversion
-    // Wait for any error handling to complete by checking that results remain hidden
-    await expect(page.locator('#results')).toHaveClass(/d-none/, {
-      timeout: 5000,
-    });
+    // Should surface the friendly "save as .docx" guidance, not proceed
+    const error = page.locator('#error-message');
+    await expect(error).toBeVisible({ timeout: 5000 });
+    await expect(error).toContainText('Save As');
+    await expect(error).toContainText('.docx');
 
-    // Verify no conversion occurred by checking the input is still visible
-    await expect(page.locator('#input')).not.toHaveClass(/d-none/);
+    // Verify no conversion occurred: results hidden, input still visible
+    await expect(page.locator('#results')).not.toBeVisible();
+    await expect(page.locator('#input')).toBeVisible();
   });
 
   test('should handle copy to clipboard functionality', async ({ page }) => {
@@ -159,7 +157,7 @@ test.describe('Word to Markdown Web Interface', () => {
     // Check that copy button is visible
     const copyButton = page.locator('#copy-button');
     await expect(copyButton).toBeVisible();
-    await expect(copyButton).toHaveText('Copy markdown to clipboard');
+    await expect(copyButton).toHaveText('Copy Markdown');
 
     // Click copy button (clipboard functionality requires user interaction)
     await copyButton.click();
@@ -167,6 +165,55 @@ test.describe('Word to Markdown Web Interface', () => {
     // Note: Actually testing clipboard content requires special permissions
     // For now we just ensure the button works without errors
     await expect(copyButton).toBeVisible(); // Button should still be there after click
+  });
+
+  test('should download the converted markdown as a .md file', async ({
+    page,
+  }) => {
+    const fixturePath = path.join(__dirname, '../../__fixtures__/h1.docx');
+    await page.locator('#file').setInputFiles(fixturePath);
+    await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('#output')).not.toHaveText('', {
+      timeout: 10000,
+    });
+
+    const downloadButton = page.locator('#download-button');
+    await expect(downloadButton).toBeVisible();
+
+    // The download is named after the source document, with a .md extension.
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      downloadButton.click(),
+    ]);
+    expect(download.suggestedFilename()).toBe('h1.md');
+  });
+
+  test('should accept a file via drag-and-drop', async ({ page }) => {
+    // Drag-over highlight toggles on enter/leave (no file needed).
+    const highlight = await page.evaluate(() => {
+      const dz = document.getElementById('dropzone')!;
+      dz.dispatchEvent(new DragEvent('dragenter', { bubbles: true }));
+      const onEnter = dz.classList.contains('is-dragover');
+      dz.dispatchEvent(new DragEvent('dragleave', { bubbles: true }));
+      const onLeave = dz.classList.contains('is-dragover');
+      return { onEnter, onLeave };
+    });
+    expect(highlight.onEnter).toBe(true);
+    expect(highlight.onLeave).toBe(false);
+
+    // Dropping a file routes through the converter. An unsupported extension is
+    // the cheapest proof the drop handler reaches processFile (valid .docx
+    // conversion is already covered via the file input above).
+    await page.evaluate(() => {
+      const dt = new DataTransfer();
+      dt.items.add(new File(['x'], 'note.txt', { type: 'text/plain' }));
+      document
+        .getElementById('dropzone')!
+        .dispatchEvent(
+          new DragEvent('drop', { bubbles: true, dataTransfer: dt }),
+        );
+    });
+    await expect(page.locator('#error-alert')).toBeVisible();
   });
 
   test('should have working navigation links', async ({ page }) => {
@@ -180,8 +227,8 @@ test.describe('Word to Markdown Web Interface', () => {
     await expect(
       page.locator('a[href*="patreon.com/benbalter"]'),
     ).toBeVisible();
-    await expect(page.locator('a[href="./terms/"]')).toBeVisible();
-    await expect(page.locator('a[href="./privacy/"]')).toBeVisible();
+    await expect(page.locator('a[href="/terms/"]')).toBeVisible();
+    await expect(page.locator('a[href="/privacy/"]')).toBeVisible();
     await expect(page.locator('a[href*="ben.balter.com"]')).toBeVisible();
   });
 
@@ -192,9 +239,7 @@ test.describe('Word to Markdown Web Interface', () => {
     // Check that main elements are still visible and functional
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('#file')).toBeVisible();
-    await expect(
-      page.locator('button[type="button"].btn-primary'),
-    ).toBeVisible();
+    await expect(page.locator('label[for="file"]')).toBeVisible();
 
     // Upload a file to test mobile conversion flow
     const fixturePath = path.join(__dirname, '../../__fixtures__/p.docx');

@@ -1,0 +1,43 @@
+name: Release
+
+# Publishes the package to npm when a GitHub Release is published.
+# The release tag (e.g. v0.1.0) must match the version in package.json.
+#
+# Authentication uses npm Trusted Publishing (OIDC) — no long-lived token.
+# One-time setup on npmjs.com: on the package's Settings → Trusted Publisher,
+# add this repo (benbalter/word-to-markdown-js) with workflow filename
+# "release.yml". npm's UI requires the package to already exist, so the very
+# first version must be published manually to claim the name (see CONTRIBUTING).
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write # required for OIDC trusted publishing
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.x' # >= 22.14 required by trusted publishing
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+      # Trusted publishing requires npm CLI >= 11.5.1; Node 22.x bundles npm 10.
+      - run: npm install -g npm@latest
+      - run: npm ci
+      - name: Verify tag matches package.json version
+        run: |
+          pkg="v$(node -p "require('./package.json').version")"
+          if [ "$pkg" != "${{ github.ref_name }}" ]; then
+            echo "Release tag ${{ github.ref_name }} does not match package.json version $pkg" >&2
+            exit 1
+          fi
+      - run: npm run build:js
+      - run: npm test
+      # No token: OIDC authenticates via id-token, and provenance is automatic.
+      - run: npm publish

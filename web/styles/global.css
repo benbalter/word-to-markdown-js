@@ -1,0 +1,212 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Word to Markdown — design tokens
+   Editorial-technical: an expressive serif (Fraunces, the "document" world)
+   resolving into monospace (JetBrains Mono, the Markdown result), over a clean
+   grotesque body (Hanken Grotesk). Navy + chartreuse echo the Open & Async
+   promo card so the whole site reads as one brand. Dark mode is automatic
+   (prefers-color-scheme), which Tailwind v4's `dark:` variant tracks by default.
+   ──────────────────────────────────────────────────────────────────────── */
+@theme {
+  /* Families resolve to the self-hosted Astro Fonts API variables (set by the
+     <Font> components in Layout.astro), with static fallbacks. */
+  --font-display: var(--font-fraunces), Georgia, 'Times New Roman', serif;
+  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, 'SFMono-Regular', monospace;
+
+  /* Brand palette */
+  --color-paper: #f6f5ef; /* warm document paper (light bg) */
+  --color-paper-card: #fffdf8; /* elevated surface in light */
+  --color-ink: #0a1120; /* deep navy-black (dark bg) */
+  --color-ink-card: #111c30; /* elevated surface in dark */
+  --color-navy: #14213c; /* primary ink / brand navy */
+  --color-navy-soft: #54607a; /* muted text on paper */
+  --color-mist: #9aa6bf; /* muted text on ink */
+  --color-chartreuse: #d0d820; /* signature accent */
+  --color-chartreuse-deep: #7e8500; /* accent that passes contrast on paper */
+  --color-rule-light: #e5e3d8; /* hairline borders on paper */
+  --color-rule-dark: #243049; /* hairline borders on ink */
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-paper);
+    color: var(--color-navy);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'ss01';
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      background-color: var(--color-ink);
+      color: #e9ebf2;
+    }
+  }
+
+  /* Atmosphere: a faint engraved dot-grid in light, a soft navy aurora in dark.
+     Fixed, behind everything, non-interactive. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: radial-gradient(
+      rgba(20, 33, 60, 0.06) 1px,
+      transparent 1px
+    );
+    background-size: 22px 22px;
+    mask-image: radial-gradient(
+      ellipse 80% 60% at 50% 0%,
+      #000 30%,
+      transparent 75%
+    );
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body::before {
+      background-image:
+        radial-gradient(
+          ellipse 70% 55% at 50% -5%,
+          rgba(208, 216, 32, 0.07),
+          transparent 60%
+        ),
+        radial-gradient(rgba(154, 166, 191, 0.05) 1px, transparent 1px);
+      background-size:
+        100% 100%,
+        22px 22px;
+      mask-image: none;
+    }
+  }
+
+  ::selection {
+    background-color: var(--color-chartreuse);
+    color: #0a1120;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-chartreuse);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  /* Drag-and-drop target. Base look is composed with Tailwind in the markup;
+     this carries the transition and the JS-toggled `.is-dragover` state. */
+  .dropzone {
+    transition:
+      border-color 0.18s ease,
+      background-color 0.18s ease,
+      transform 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+  .dropzone:hover {
+    border-color: color-mix(in srgb, var(--color-chartreuse) 70%, transparent);
+  }
+  .dropzone.is-dragover {
+    border-color: var(--color-chartreuse);
+    border-style: solid;
+    background-color: color-mix(
+      in srgb,
+      var(--color-chartreuse) 9%,
+      transparent
+    );
+    transform: scale(1.012);
+    box-shadow: 0 14px 40px -18px rgba(208, 216, 32, 0.55);
+  }
+  .dropzone.is-dragover .dropzone-icon {
+    transform: translateY(-4px);
+    color: var(--color-chartreuse-deep);
+  }
+  @media (prefers-color-scheme: dark) {
+    .dropzone.is-dragover .dropzone-icon {
+      color: var(--color-chartreuse);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dropzone,
+    .dropzone.is-dragover {
+      transform: none;
+    }
+  }
+
+  /* Hairline divider used between major bands */
+  .rule {
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--color-rule-light),
+      transparent
+    );
+  }
+  @media (prefers-color-scheme: dark) {
+    .rule {
+      background: linear-gradient(
+        to right,
+        transparent,
+        var(--color-rule-dark),
+        transparent
+      );
+    }
+  }
+}
+
+@layer utilities {
+  /* Staggered page-load reveal. Disabled for reduced-motion users. */
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      opacity: 0;
+      animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* Tailwind Typography tuning for the rendered Markdown (#rendered) and the
+   legal pages — bind it to the brand fonts/accent. */
+.prose {
+  --tw-prose-headings: var(--color-navy);
+  --tw-prose-links: var(--color-navy);
+  --tw-prose-bold: var(--color-navy);
+  --tw-prose-counters: var(--color-chartreuse-deep);
+  --tw-prose-bullets: var(--color-chartreuse-deep);
+}
+.prose :where(h1, h2, h3, h4) {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.prose :where(code, pre) {
+  font-family: var(--font-mono);
+}
+.prose :where(a) {
+  text-decoration-color: var(--color-chartreuse);
+  text-underline-offset: 3px;
+}
+@media (prefers-color-scheme: dark) {
+  .prose {
+    --tw-prose-headings: #f1f2f7;
+    --tw-prose-links: #f1f2f7;
+    --tw-prose-bold: #f1f2f7;
+  }
+}

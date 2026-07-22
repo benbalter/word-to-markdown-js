@@ -1,0 +1,58 @@
+---
+// "How it works": the three-step grid. Step icons are presentational and
+// locale-independent, so they live here and pair with t.steps by index.
+import { asLocale, useTranslations } from '../../i18n';
+
+interface Props {
+  /** Locale for this page; pages set it statically from their route. */
+  lang: string;
+}
+
+const t = useTranslations(asLocale(Astro.props.lang));
+
+const stepIcons = [
+  // Upload
+  '<path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/>',
+  // Convert (transform / two-way arrows)
+  '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>',
+  // Copy or save
+  '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+];
+---
+
+<section class="mx-auto mt-20 max-w-3xl">
+  <div class="grid gap-px overflow-hidden rounded-xl border border-rule-light bg-rule-light sm:grid-cols-3 dark:border-rule-dark dark:bg-rule-dark">
+    {
+      t.steps.map((step, i) => (
+        <div class="bg-paper px-6 py-7 dark:bg-ink">
+          <div class="flex items-center gap-2.5">
+            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-chartreuse/40 bg-chartreuse/10 text-chartreuse-deep dark:text-chartreuse">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+                set:html={stepIcons[i]}
+              />
+            </span>
+            <span class="font-mono text-sm font-bold text-chartreuse-deep dark:text-chartreuse">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+          </div>
+          <h3 class="mt-3 font-display text-lg font-medium text-navy dark:text-[#f1f2f7]">
+            {step.t}
+          </h3>
+          <p class="mt-1 text-sm leading-relaxed text-navy-soft dark:text-mist">
+            {step.d}
+          </p>
+        </div>
+      ))
+    }
+  </div>
+</section>
