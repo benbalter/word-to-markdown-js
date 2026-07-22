@@ -114,9 +114,9 @@ export function validateFileExtension(filePath: string): void {
   }
 }
 
-// Validates that a file path is safe to use (Node.js only)
+// Validates that a file path is safe to use and returns the resolved path (Node.js only)
 // Prevents path traversal attacks by checking for parent directory references
-function validateFilePath(filePath: string): void {
+function validateFilePath(filePath: string): string {
   // Check for path traversal attempts
   if (filePath.includes('..')) {
     throw new Error('Invalid file path: path traversal not allowed');
@@ -146,6 +146,8 @@ function validateFilePath(filePath: string): void {
       );
     }
   }
+
+  return resolvedPath;
 }
 
 // Map of common HTML entities to decode
@@ -373,10 +375,10 @@ export async function extractDocumentProperties(
     let arrayBuffer: ArrayBuffer;
     if (typeof input === 'string') {
       // Validate the file path to prevent path traversal attacks
-      validateFilePath(input);
+      const safePath = validateFilePath(input);
 
       // Read file from path and convert to ArrayBuffer
-      const fileBuffer = await fs.readFile(input);
+      const fileBuffer = await fs.readFile(safePath);
       const slicedBuffer = fileBuffer.buffer.slice(
         fileBuffer.byteOffset,
         fileBuffer.byteOffset + fileBuffer.byteLength,
@@ -509,71 +511,121 @@ export async function convertWithWarnings(
   input: string | ArrayBuffer,
   options: convertOptions = {},
 ): Promise<ConvertResult> {
-  // Normalize input so that the underlying .docx content is read at most once
-  let mammothInput:
-    { path: string } | { buffer: Buffer } | { arrayBuffer: ArrayBuffer };
-  let propertiesInput: string | ArrayBuffer;
+  let filePath: string | undefined;
 
-  if (typeof input === 'string') {
-    // Validate file extension for file path inputs
-    validateFileExtension(input);
+  try {
+    // Normalize input so that the underlying .docx content is read at most once
+    let mammothInput:
+      { path: string } | { buffer: Buffer } | { arrayBuffer: ArrayBuffer };
+    let propertiesInput: string | ArrayBuffer;
 
-    // Validate the file path to prevent path traversal attacks
-    validateFilePath(input);
+    if (typeof input === 'string') {
+      filePath = input;
+      // Validate file extension for file path inputs
+      validateFileExtension(input);
 
-    // Read the file once and share the buffer between
-    // property extraction and Mammoth conversion to avoid
-    // redundant disk reads for large documents
-    const fileBuffer = await fs.readFile(input);
-    const slicedBuffer = fileBuffer.buffer.slice(
-      fileBuffer.byteOffset,
-      fileBuffer.byteOffset + fileBuffer.byteLength,
+      // Validate the file path to prevent path traversal attacks
+      const safePath = validateFilePath(input);
+
+      // Read the file once and share the buffer between
+      // property extraction and Mammoth conversion to avoid
+      // redundant disk reads for large documents
+      const fileBuffer = await fs.readFile(safePath);
+      const slicedBuffer = fileBuffer.buffer.slice(
+        fileBuffer.byteOffset,
+        fileBuffer.byteOffset + fileBuffer.byteLength,
+      );
+
+      // Ensure we have an ArrayBuffer (not SharedArrayBuffer) for property extraction
+      let arrayBuffer: ArrayBuffer;
+      if (slicedBuffer instanceof ArrayBuffer) {
+        arrayBuffer = slicedBuffer;
+      } else {
+        // Convert SharedArrayBuffer to ArrayBuffer by copying the data
+        const uint8Array = new Uint8Array(slicedBuffer);
+        const newArrayBuffer = new ArrayBuffer(uint8Array.byteLength);
+        new Uint8Array(newArrayBuffer).set(uint8Array);
+        arrayBuffer = newArrayBuffer;
+      }
+
+      propertiesInput = arrayBuffer;
+      mammothInput = { buffer: fileBuffer };
+    } else {
+      propertiesInput = input;
+      // In Node.js, mammoth expects { buffer }, in browser it expects { arrayBuffer }
+      // Check for Buffer availability to determine the environment
+      if (typeof Buffer !== 'undefined') {
+        mammothInput = { buffer: Buffer.from(input) };
+      } else {
+        mammothInput = { arrayBuffer: input };
+      }
+    }
+
+    // Extract document properties to check for confidentiality flags
+    const properties = await extractDocumentProperties(propertiesInput);
+    const warnings = generateWarnings(properties);
+
+    const mammothResult = await mammoth.convertToHtml(
+      mammothInput,
+      options.mammoth,
     );
+    const processedHtml = processHtml(mammothResult.value);
+    const md = htmlToMd(processedHtml, options.turndown);
+    const mdWithBullets = convertNumberedListsToBullets(md);
+    const normalizedMd = normalizeText(mdWithBullets);
+    const cleanedMd = lint(normalizedMd);
+    const formattedMd = await prettify(cleanedMd);
 
-    // Ensure we have an ArrayBuffer (not SharedArrayBuffer) for property extraction
-    let arrayBuffer: ArrayBuffer;
-    if (slicedBuffer instanceof ArrayBuffer) {
-      arrayBuffer = slicedBuffer;
-    } else {
-      // Convert SharedArrayBuffer to ArrayBuffer by copying the data
-      const uint8Array = new Uint8Array(slicedBuffer);
-      const newArrayBuffer = new ArrayBuffer(uint8Array.byteLength);
-      new Uint8Array(newArrayBuffer).set(uint8Array);
-      arrayBuffer = newArrayBuffer;
+    return {
+      markdown: formattedMd,
+      warnings,
+    };
+  } catch (error) {
+    // Re-throw our custom errors as-is
+    if (
+      error instanceof UnsupportedFileError ||
+      error instanceof FileNotFoundError ||
+      error instanceof InvalidFileError ||
+      error instanceof FilePermissionError ||
+      error instanceof ConversionError
+    ) {
+      throw error;
     }
 
-    propertiesInput = arrayBuffer;
-    mammothInput = { buffer: fileBuffer };
-  } else {
-    propertiesInput = input;
-    // In Node.js, mammoth expects { buffer }, in browser it expects { arrayBuffer }
-    // Check for Buffer availability to determine the environment
-    if (typeof Buffer !== 'undefined') {
-      mammothInput = { buffer: Buffer.from(input) };
-    } else {
-      mammothInput = { arrayBuffer: input };
+    // Handle specific error types from underlying libraries
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorCode =
+      error && typeof error === 'object' && 'code' in error
+        ? (error as { code: string }).code
+        : undefined;
+
+    // File not found errors (only occur with file path inputs)
+    if (errorCode === 'ENOENT') {
+      throw new FileNotFoundError(filePath);
     }
+
+    // Permission errors (only occur with file path inputs)
+    if (errorCode === 'EACCES' || errorCode === 'EPERM') {
+      throw new FilePermissionError(filePath);
+    }
+
+    // Invalid .docx file errors (from JSZip or mammoth during file parsing)
+    if (
+      errorMessage.includes('end of central directory') ||
+      errorMessage.includes('zip file') ||
+      errorMessage.includes('Corrupted zip') ||
+      errorMessage.includes('End of data reached') ||
+      errorMessage.includes('Could not find file')
+    ) {
+      throw new InvalidFileError(filePath);
+    }
+
+    // Wrap other errors with a general conversion error
+    throw new ConversionError(
+      'An error occurred while converting the document. Please ensure the file is a valid .docx file and try again.',
+      error instanceof Error ? error : undefined,
+    );
   }
-
-  // Extract document properties to check for confidentiality flags
-  const properties = await extractDocumentProperties(propertiesInput);
-  const warnings = generateWarnings(properties);
-
-  const mammothResult = await mammoth.convertToHtml(
-    mammothInput,
-    options.mammoth,
-  );
-  const processedHtml = processHtml(mammothResult.value);
-  const md = htmlToMd(processedHtml, options.turndown);
-  const mdWithBullets = convertNumberedListsToBullets(md);
-  const normalizedMd = normalizeText(mdWithBullets);
-  const cleanedMd = lint(normalizedMd);
-  const formattedMd = await prettify(cleanedMd);
-
-  return {
-    markdown: formattedMd,
-    warnings,
-  };
 }
 
 // Converts a Word document to crisp, clean Markdown
@@ -589,7 +641,9 @@ export default async function convert(
       filePath = input;
       // Validate file extension for file path inputs
       validateFileExtension(input);
-      inputObj = { path: input };
+      // Validate the file path to prevent path traversal attacks
+      const safePath = validateFilePath(input);
+      inputObj = { path: safePath };
     } else {
       inputObj = { arrayBuffer: input };
     }
