@@ -84,6 +84,18 @@ At a high level, [the process for proposing changes](https://guides.github.com/i
 
 `script/cibuild`
 
+## Publishing a release
+
+The package is published to npm as [`word-to-markdown`](https://www.npmjs.com/package/word-to-markdown) automatically by the [`Release`](.github/workflows/release.yml) workflow whenever a GitHub Release is published.
+
+One-time setup (maintainers): add an `NPM_TOKEN` repository secret. It must be an **automation** (or granular) access token — a classic publish token is rejected in CI when the account has 2FA enabled.
+
+To cut a release:
+
+1. Bump `version` in `package.json` (e.g. `0.1.0` → `0.1.1`) and merge it to `main`.
+2. Create a GitHub Release whose tag matches the new version, prefixed with `v` (e.g. `v0.1.1`). The workflow verifies the tag matches `package.json` and fails the publish if they drift.
+3. The workflow builds, tests, and runs `npm publish --provenance`.
+
 ## Code of conduct
 
 This project is governed by [the Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.

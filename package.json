@@ -1,8 +1,26 @@
 {
   "name": "word-to-markdown",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Convert Word documents to beautiful Markdown.",
   "type": "module",
+  "keywords": [
+    "word",
+    "docx",
+    "markdown",
+    "convert",
+    "converter",
+    "mammoth",
+    "turndown",
+    "cli"
+  ],
+  "homepage": "https://word2md.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benbalter/word-to-markdown-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/benbalter/word-to-markdown-js/issues"
+  },
   "engines": {
     "node": ">= 22.13"
   },
@@ -44,7 +62,8 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
     "all": "npm run fix && npm run test && npm run build && npm run check-builds",
-    "check-builds": "./scripts/check-builds.sh"
+    "check-builds": "./scripts/check-builds.sh",
+    "prepack": "rm -rf build && npm run build:js"
   },
   "author": "Ben Balter <ben@balter.com>",
   "license": "ISC",
@@ -71,7 +90,14 @@
     "node": "22.13.0"
   },
   "bin": {
-    "w2m": "build/cli.js"
+    "w2m": "build/cli.js",
+    "word-to-markdown": "build/cli.js"
   },
-  "main": "build/main.js"
+  "main": "build/main.js",
+  "files": [
+    "build/cli.js",
+    "build/cli.js.map",
+    "build/main.js",
+    "build/main.js.map"
+  ]
 }
