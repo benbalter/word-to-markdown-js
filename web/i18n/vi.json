@@ -11,7 +11,9 @@
   "convertSectionAria": "Chuyển đổi tài liệu",
   "convertedLabel": "Đã chuyển đổi",
   "copyButton": "Sao chép Markdown",
+  "copiedButton": "Đã sao chép!",
   "downloadButton": "Tải .md",
+  "convertAnother": "Chuyển đổi tệp khác",
   "panelMarkdown": "Markdown",
   "panelPreview": "Xem trước",
   "steps": [
@@ -99,6 +101,8 @@
   ],
   "errorGeneric": "Đã xảy ra lỗi không mong muốn khi chuyển đổi tài liệu. Vui lòng thử lại.",
   "docFileError": "Công cụ này đọc các tệp .docx hiện đại, không phải tệp .doc cũ. Trong Word, hãy mở tài liệu của bạn và chọn Tệp → Lưu dưới dạng → Tài liệu Word (.docx), rồi kéo tệp .docx đó vào đây.",
+  "fileTooLargeError": "Tệp này quá lớn để chuyển đổi trong trình duyệt của bạn. Vui lòng thử tệp .docx nhỏ hơn 20 MB.",
+  "conversionAnnouncement": "Chuyển đổi hoàn tất. Markdown của bạn đã sẵn sàng.",
   "dismiss": "Đóng",
   "promo": {
     "label": "Từ người tạo ra công cụ",

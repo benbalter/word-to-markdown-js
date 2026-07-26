@@ -36,7 +36,11 @@ export interface UIStrings {
   // Results
   convertedLabel: string;
   copyButton: string;
+  /** Transient confirmation shown on the copy button after a successful copy. */
+  copiedButton: string;
   downloadButton: string;
+  /** Resets the converter to accept another document. */
+  convertAnother: string;
   panelMarkdown: string;
   panelPreview: string;
 
@@ -82,6 +86,10 @@ export interface UIStrings {
   // Converter runtime (injected into the DOM as data-* and read by src/index.ts)
   errorGeneric: string;
   docFileError: string;
+  /** Shown when a dropped file exceeds the in-browser size limit. */
+  fileTooLargeError: string;
+  /** Announced to assistive tech (aria-live) when a conversion succeeds. */
+  conversionAnnouncement: string;
   dismiss: string;
 
   // Open & Async promo. `card.*` is the standalone sponsor card (Promo.astro);

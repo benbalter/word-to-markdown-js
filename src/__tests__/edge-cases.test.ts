@@ -194,16 +194,20 @@ describe('edge cases and advanced features', () => {
       },
     };
 
-    // This tests the main convert function with options
-    // Since we can't easily create a .docx file, we'll test the htmlToMd function directly
+    // htmlToMd runs Turndown directly (no lint/prettify), so caller options
+    // must take effect verbatim.
     const { htmlToMd } = await import('../main.js');
     const result = htmlToMd(testHtml, options.turndown);
 
-    // The conversion process may override some options due to the linting step
-    expect(result).toContain('Heading');
-    // Bullet markers may be normalized by the linting process
-    expect(result).toContain('Item 1');
-    expect(result).toContain('Item 2');
+    // setext heading style underlines h1 with '=' instead of using '#'
+    expect(result).toContain('Heading\n=====');
+    expect(result).not.toContain('# Heading');
+    // custom bullet marker is respected
+    expect(result).toContain('* Item 1');
+    expect(result).toContain('* Item 2');
+    // indented code block style uses 4-space indentation, not fences
+    expect(result).toContain('    code block');
+    expect(result).not.toContain('```');
   });
 
   // Test performance with large content

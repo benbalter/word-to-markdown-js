@@ -113,6 +113,14 @@
   .dropzone:hover {
     border-color: color-mix(in srgb, var(--color-chartreuse) 70%, transparent);
   }
+  /* The file <input> is visually hidden (sr-only), so keyboard focus lands on
+     it invisibly. Surface a clear focus ring on the surrounding dropzone. */
+  .dropzone:focus-within {
+    border-color: var(--color-chartreuse);
+    border-style: solid;
+    outline: 2px solid var(--color-chartreuse);
+    outline-offset: 2px;
+  }
   .dropzone.is-dragover {
     border-color: var(--color-chartreuse);
     border-style: solid;

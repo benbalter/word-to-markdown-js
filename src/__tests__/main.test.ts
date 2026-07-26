@@ -76,6 +76,24 @@ describe('main', () => {
     expect(result).toEqual(expectedMarkdown);
   });
 
+  it('should decode astral-plane numeric entities (code points > U+FFFF)', async () => {
+    const { htmlToMd } = await import('../main.js');
+    // U+1F600 (😀) and U+1F4A9 (💩) live outside the BMP; fromCharCode would
+    // truncate them, fromCodePoint decodes them correctly.
+    const htmlWithAstralEntities = '<p>&#128512; &#x1F4A9;</p>';
+    const expectedMarkdown = '😀 💩';
+
+    const result = htmlToMd(htmlWithAstralEntities);
+    expect(result).toEqual(expectedMarkdown);
+  });
+
+  it('should not throw on out-of-range numeric entities', async () => {
+    const { htmlToMd } = await import('../main.js');
+    // Code point beyond U+10FFFF is invalid; decoding must not throw
+    // (fromCodePoint raises RangeError, which our guard swallows).
+    expect(() => htmlToMd('<p>&#99999999;</p>')).not.toThrow();
+  });
+
   it('should decode hex entities with both lowercase and uppercase X', async () => {
     const { htmlToMd } = await import('../main.js');
     // Test both &#x27; (lowercase) and &#X27; (uppercase)
@@ -347,5 +365,106 @@ describe('main', () => {
       expect(result).toBeDefined();
       expect(typeof result).toBe('string');
     });
+  });
+});
+
+describe('extractMammothWarnings', () => {
+  it('surfaces messages that indicate dropped or unconvertible content', async () => {
+    const { extractMammothWarnings } = await import('../main.js');
+    const warnings = extractMammothWarnings([
+      {
+        type: 'warning',
+        message: 'An unrecognised element was ignored: v:shape',
+      },
+      {
+        type: 'warning',
+        message: 'Image of type image/x-emf could not be converted',
+      },
+    ]);
+    expect(warnings).toHaveLength(2);
+    expect(warnings[0]).toContain('v:shape');
+    expect(warnings[1]).toContain('image/x-emf');
+  });
+
+  it('filters out cosmetic style notices that do not lose content', async () => {
+    const { extractMammothWarnings } = await import('../main.js');
+    const warnings = extractMammothWarnings([
+      {
+        type: 'warning',
+        message: "Unrecognised run style: 'null' (Style ID: FootnoteReference)",
+      },
+      {
+        type: 'warning',
+        message:
+          'Run style with ID FootnoteReference was referenced but not defined in the document',
+      },
+    ]);
+    expect(warnings).toEqual([]);
+  });
+
+  it('de-duplicates repeated messages', async () => {
+    const { extractMammothWarnings } = await import('../main.js');
+    const warnings = extractMammothWarnings([
+      {
+        type: 'warning',
+        message: 'An unrecognised element was ignored: w:drawing',
+      },
+      {
+        type: 'warning',
+        message: 'An unrecognised element was ignored: w:drawing',
+      },
+    ]);
+    expect(warnings).toHaveLength(1);
+  });
+});
+
+describe('convert vs convertWithWarnings parity', () => {
+  it('produce identical markdown for the same document', async () => {
+    const { default: convert, convertWithWarnings } =
+      await import('../main.js');
+    const path = 'src/__fixtures__/footnote.docx';
+    const [plain, withWarnings] = await Promise.all([
+      convert(path),
+      convertWithWarnings(path),
+    ]);
+    expect(withWarnings.markdown).toEqual(plain);
+  });
+
+  it('does not emit noise warnings for an ordinary document', async () => {
+    const { convertWithWarnings } = await import('../main.js');
+    // footnote.docx emits only cosmetic mammoth style notices, which must be filtered
+    const { warnings } = await convertWithWarnings(
+      'src/__fixtures__/footnote.docx',
+    );
+    expect(warnings).toEqual([]);
+  });
+
+  it('classify a missing file identically', async () => {
+    const {
+      default: convert,
+      convertWithWarnings,
+      FileNotFoundError,
+    } = await import('../main.js');
+    await expect(
+      convert('src/__fixtures__/does-not-exist.docx'),
+    ).rejects.toBeInstanceOf(FileNotFoundError);
+    await expect(
+      convertWithWarnings('src/__fixtures__/does-not-exist.docx'),
+    ).rejects.toBeInstanceOf(FileNotFoundError);
+  });
+
+  it('classify an invalid (non-docx) file identically', async () => {
+    const {
+      default: convert,
+      convertWithWarnings,
+      InvalidFileError,
+    } = await import('../main.js');
+    // package.json is a valid file but not a valid .docx ZIP
+    await expect(convert('package.json')).rejects.toBeInstanceOf(
+      InvalidFileError,
+    );
+    await expect(convertWithWarnings('package.json')).rejects.toBeInstanceOf(
+      InvalidFileError,
+    );
   });
 });

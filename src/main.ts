@@ -175,6 +175,17 @@ const decodeMap: { [key: string]: string } = {
 // Maximum iterations for decoding nested HTML entities to prevent infinite loops
 const MAX_DECODE_ITERATIONS = 10;
 
+// Convert a numeric code point to a string, returning the original entity text
+// for out-of-range values (fromCodePoint throws a RangeError on those, unlike
+// the legacy fromCharCode which silently wrapped).
+function codePointToString(codePoint: number, original: string): string {
+  try {
+    return String.fromCodePoint(codePoint);
+  } catch {
+    return original;
+  }
+}
+
 // Decode HTML entities in text content
 function decodeHtmlEntities(html: string): string {
   function decodeOnce(text: string): string {
@@ -190,16 +201,17 @@ function decodeHtmlEntities(html: string): string {
         return decodeMap[entity];
       }
 
-      // Handle numeric entities &#123;
+      // Handle numeric entities &#123; (fromCodePoint handles astral-plane
+      // code points > U+FFFF, e.g. emoji, which fromCharCode would truncate)
       const numericMatch = entity.match(/^&#(\d+);$/);
       if (numericMatch) {
-        return String.fromCharCode(parseInt(numericMatch[1], 10));
+        return codePointToString(parseInt(numericMatch[1], 10), entity);
       }
 
       // Handle hex entities &#x1A;
       const hexMatch = entity.match(/^&#x([0-9a-fA-F]+);$/i);
       if (hexMatch) {
-        return String.fromCharCode(parseInt(hexMatch[1], 16));
+        return codePointToString(parseInt(hexMatch[1], 16), entity);
       }
 
       // Return original if not recognized
@@ -289,8 +301,8 @@ function getTurndownService(options: object = {}): TurndownService {
   // Create a new instance if options are provided, otherwise reuse the singleton
   if (Object.keys(options).length > 0) {
     const service = new TurndownService({
-      ...options,
       ...defaultTurndownOptions,
+      ...options,
     });
     service.use(turndownPluginGfm.gfm);
     return service;
@@ -379,22 +391,12 @@ export async function extractDocumentProperties(
 
       // Read file from path and convert to ArrayBuffer
       const fileBuffer = await fs.readFile(safePath);
-      const slicedBuffer = fileBuffer.buffer.slice(
-        fileBuffer.byteOffset,
-        fileBuffer.byteOffset + fileBuffer.byteLength,
+      arrayBuffer = toArrayBuffer(
+        fileBuffer.buffer.slice(
+          fileBuffer.byteOffset,
+          fileBuffer.byteOffset + fileBuffer.byteLength,
+        ),
       );
-      // Ensure we have an ArrayBuffer (not SharedArrayBuffer)
-      // In practice, Node.js Buffer.buffer returns an ArrayBuffer, but TypeScript
-      // can't guarantee this, so we handle both cases
-      if (slicedBuffer instanceof ArrayBuffer) {
-        arrayBuffer = slicedBuffer;
-      } else {
-        // Convert SharedArrayBuffer to ArrayBuffer by copying the data
-        const uint8Array = new Uint8Array(slicedBuffer);
-        const newArrayBuffer = new ArrayBuffer(uint8Array.byteLength);
-        new Uint8Array(newArrayBuffer).set(uint8Array);
-        arrayBuffer = newArrayBuffer;
-      }
     } else {
       arrayBuffer = input;
     }
@@ -506,6 +508,143 @@ export function generateWarnings(properties: DocumentProperties): string[] {
   return warnings;
 }
 
+// The input shapes mammoth accepts across environments
+type MammothInput =
+  { path: string } | { buffer: Buffer } | { arrayBuffer: ArrayBuffer };
+
+// A conversion message emitted by mammoth (e.g. dropped/unsupported content)
+interface MammothMessage {
+  type: string;
+  message: string;
+}
+
+// Ensure we have an ArrayBuffer (not a SharedArrayBuffer) by copying if needed
+function toArrayBuffer(buffer: ArrayBufferLike): ArrayBuffer {
+  if (buffer instanceof ArrayBuffer) {
+    return buffer;
+  }
+  const uint8Array = new Uint8Array(buffer);
+  const newArrayBuffer = new ArrayBuffer(uint8Array.byteLength);
+  new Uint8Array(newArrayBuffer).set(uint8Array);
+  return newArrayBuffer;
+}
+
+// The shared conversion pipeline: mammoth HTML -> cleaned, formatted Markdown.
+// Returns mammoth's messages so callers can surface content-loss warnings.
+async function runConversionPipeline(
+  mammothInput: MammothInput,
+  options: convertOptions,
+): Promise<{ markdown: string; messages: MammothMessage[] }> {
+  const mammothResult = await mammoth.convertToHtml(
+    mammothInput,
+    options.mammoth,
+  );
+  const processedHtml = processHtml(mammothResult.value);
+  const md = htmlToMd(processedHtml, options.turndown);
+  const mdWithBullets = convertNumberedListsToBullets(md);
+  const normalizedMd = normalizeText(mdWithBullets);
+  const cleanedMd = lint(normalizedMd);
+  const formattedMd = await prettify(cleanedMd);
+  return { markdown: formattedMd, messages: mammothResult.messages };
+}
+
+// Translate the errors thrown by the pipeline into our typed, user-facing
+// error classes. Always throws (never returns normally).
+function classifyConversionError(error: unknown, filePath?: string): never {
+  // Re-throw our custom errors as-is
+  if (
+    error instanceof UnsupportedFileError ||
+    error instanceof FileNotFoundError ||
+    error instanceof InvalidFileError ||
+    error instanceof FilePermissionError ||
+    error instanceof ConversionError
+  ) {
+    throw error;
+  }
+
+  // Handle specific error types from underlying libraries
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  const errorCode =
+    error && typeof error === 'object' && 'code' in error
+      ? (error as { code: string }).code
+      : undefined;
+
+  // File not found errors (only occur with file path inputs)
+  if (errorCode === 'ENOENT') {
+    throw new FileNotFoundError(filePath);
+  }
+
+  // Permission errors (only occur with file path inputs)
+  if (errorCode === 'EACCES' || errorCode === 'EPERM') {
+    throw new FilePermissionError(filePath);
+  }
+
+  // Invalid .docx file errors (from JSZip or mammoth during file parsing).
+  // These patterns typically come from JSZip/mammoth when parsing the file
+  // structure. While there's a small theoretical risk of matching document
+  // content in unusual scenarios (e.g., embedded error messages), these
+  // specific technical phrases are highly unlikely to appear in normal content.
+  if (
+    errorMessage.includes('end of central directory') || // JSZip: invalid ZIP structure
+    errorMessage.includes('zip file') || // JSZip: not a valid ZIP
+    errorMessage.includes('Corrupted zip') || // JSZip: corrupted ZIP file
+    errorMessage.includes('End of data reached') || // JSZip: truncated file
+    errorMessage.includes('Could not find file') // mammoth: missing required file in .docx
+  ) {
+    // Note: For ArrayBuffer inputs (e.g., web uploads), filePath will be
+    // undefined, so the message won't include the original filename.
+    throw new InvalidFileError(filePath);
+  }
+
+  // Wrap other errors with a general conversion error
+  throw new ConversionError(
+    'An error occurred while converting the document. Please ensure the file is a valid .docx file and try again.',
+    error instanceof Error ? error : undefined,
+  );
+}
+
+// Turn mammoth's conversion messages into user-facing warnings. Mammoth is
+// chatty and emits many cosmetic "unrecognised style" notices on ordinary
+// documents; we surface only messages that indicate actual content loss
+// (dropped/ignored elements or unconvertible images), de-duplicated.
+export function extractMammothWarnings(
+  messages: readonly MammothMessage[],
+): string[] {
+  const seen = new Set<string>();
+  const warnings: string[] = [];
+
+  for (const message of messages) {
+    if (message.type !== 'warning' && message.type !== 'error') {
+      continue;
+    }
+
+    const text = message.message.toLowerCase();
+
+    // Skip cosmetic style-mapping notices — they don't drop content
+    if (text.includes('style')) {
+      continue;
+    }
+
+    // Surface only messages that signal dropped or unconvertible content
+    const indicatesContentLoss =
+      text.includes('ignored') ||
+      text.includes('unsupported') ||
+      text.includes('could not') ||
+      text.includes('image');
+    if (!indicatesContentLoss) {
+      continue;
+    }
+
+    const warning = `Warning: Some document content may not have converted cleanly (${message.message}).`;
+    if (!seen.has(warning)) {
+      seen.add(warning);
+      warnings.push(warning);
+    }
+  }
+
+  return warnings;
+}
+
 // Converts a Word document to crisp, clean Markdown with warnings
 export async function convertWithWarnings(
   input: string | ArrayBuffer,
@@ -515,8 +654,7 @@ export async function convertWithWarnings(
 
   try {
     // Normalize input so that the underlying .docx content is read at most once
-    let mammothInput:
-      { path: string } | { buffer: Buffer } | { arrayBuffer: ArrayBuffer };
+    let mammothInput: MammothInput;
     let propertiesInput: string | ArrayBuffer;
 
     if (typeof input === 'string') {
@@ -527,28 +665,15 @@ export async function convertWithWarnings(
       // Validate the file path to prevent path traversal attacks
       const safePath = validateFilePath(input);
 
-      // Read the file once and share the buffer between
-      // property extraction and Mammoth conversion to avoid
-      // redundant disk reads for large documents
+      // Read the file once and share the buffer between property extraction
+      // and Mammoth conversion to avoid redundant disk reads for large documents
       const fileBuffer = await fs.readFile(safePath);
-      const slicedBuffer = fileBuffer.buffer.slice(
-        fileBuffer.byteOffset,
-        fileBuffer.byteOffset + fileBuffer.byteLength,
+      propertiesInput = toArrayBuffer(
+        fileBuffer.buffer.slice(
+          fileBuffer.byteOffset,
+          fileBuffer.byteOffset + fileBuffer.byteLength,
+        ),
       );
-
-      // Ensure we have an ArrayBuffer (not SharedArrayBuffer) for property extraction
-      let arrayBuffer: ArrayBuffer;
-      if (slicedBuffer instanceof ArrayBuffer) {
-        arrayBuffer = slicedBuffer;
-      } else {
-        // Convert SharedArrayBuffer to ArrayBuffer by copying the data
-        const uint8Array = new Uint8Array(slicedBuffer);
-        const newArrayBuffer = new ArrayBuffer(uint8Array.byteLength);
-        new Uint8Array(newArrayBuffer).set(uint8Array);
-        arrayBuffer = newArrayBuffer;
-      }
-
-      propertiesInput = arrayBuffer;
       mammothInput = { buffer: fileBuffer };
     } else {
       propertiesInput = input;
@@ -565,151 +690,44 @@ export async function convertWithWarnings(
     const properties = await extractDocumentProperties(propertiesInput);
     const warnings = generateWarnings(properties);
 
-    const mammothResult = await mammoth.convertToHtml(
+    const { markdown, messages } = await runConversionPipeline(
       mammothInput,
-      options.mammoth,
+      options,
     );
-    const processedHtml = processHtml(mammothResult.value);
-    const md = htmlToMd(processedHtml, options.turndown);
-    const mdWithBullets = convertNumberedListsToBullets(md);
-    const normalizedMd = normalizeText(mdWithBullets);
-    const cleanedMd = lint(normalizedMd);
-    const formattedMd = await prettify(cleanedMd);
+    warnings.push(...extractMammothWarnings(messages));
 
-    return {
-      markdown: formattedMd,
-      warnings,
-    };
+    return { markdown, warnings };
   } catch (error) {
-    // Re-throw our custom errors as-is
-    if (
-      error instanceof UnsupportedFileError ||
-      error instanceof FileNotFoundError ||
-      error instanceof InvalidFileError ||
-      error instanceof FilePermissionError ||
-      error instanceof ConversionError
-    ) {
-      throw error;
-    }
-
-    // Handle specific error types from underlying libraries
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorCode =
-      error && typeof error === 'object' && 'code' in error
-        ? (error as { code: string }).code
-        : undefined;
-
-    // File not found errors (only occur with file path inputs)
-    if (errorCode === 'ENOENT') {
-      throw new FileNotFoundError(filePath);
-    }
-
-    // Permission errors (only occur with file path inputs)
-    if (errorCode === 'EACCES' || errorCode === 'EPERM') {
-      throw new FilePermissionError(filePath);
-    }
-
-    // Invalid .docx file errors (from JSZip or mammoth during file parsing)
-    if (
-      errorMessage.includes('end of central directory') ||
-      errorMessage.includes('zip file') ||
-      errorMessage.includes('Corrupted zip') ||
-      errorMessage.includes('End of data reached') ||
-      errorMessage.includes('Could not find file')
-    ) {
-      throw new InvalidFileError(filePath);
-    }
-
-    // Wrap other errors with a general conversion error
-    throw new ConversionError(
-      'An error occurred while converting the document. Please ensure the file is a valid .docx file and try again.',
-      error instanceof Error ? error : undefined,
-    );
+    classifyConversionError(error, filePath);
   }
 }
 
-// Converts a Word document to crisp, clean Markdown
+// Converts a Word document to crisp, clean Markdown.
+// Unlike convertWithWarnings, this skips document-property extraction (and its
+// extra ZIP parse) so callers that only need the Markdown pay no overhead.
 export default async function convert(
   input: string | ArrayBuffer,
   options: convertOptions = {},
 ): Promise<string> {
-  let inputObj: { path: string } | { arrayBuffer: ArrayBuffer };
   let filePath: string | undefined;
 
   try {
+    let mammothInput: MammothInput;
+
     if (typeof input === 'string') {
       filePath = input;
       // Validate file extension for file path inputs
       validateFileExtension(input);
       // Validate the file path to prevent path traversal attacks
       const safePath = validateFilePath(input);
-      inputObj = { path: safePath };
+      mammothInput = { path: safePath };
     } else {
-      inputObj = { arrayBuffer: input };
+      mammothInput = { arrayBuffer: input };
     }
 
-    const mammothResult = await mammoth.convertToHtml(
-      inputObj,
-      options.mammoth,
-    );
-    const processedHtml = processHtml(mammothResult.value);
-    const md = htmlToMd(processedHtml, options.turndown);
-    const mdWithBullets = convertNumberedListsToBullets(md);
-    const normalizedMd = normalizeText(mdWithBullets);
-    const cleanedMd = lint(normalizedMd);
-    const formattedMd = await prettify(cleanedMd);
-    return formattedMd;
+    const { markdown } = await runConversionPipeline(mammothInput, options);
+    return markdown;
   } catch (error) {
-    // Re-throw our custom errors as-is
-    if (
-      error instanceof UnsupportedFileError ||
-      error instanceof FileNotFoundError ||
-      error instanceof InvalidFileError ||
-      error instanceof FilePermissionError ||
-      error instanceof ConversionError
-    ) {
-      throw error;
-    }
-
-    // Handle specific error types from underlying libraries
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorCode =
-      error && typeof error === 'object' && 'code' in error
-        ? (error as { code: string }).code
-        : undefined;
-
-    // File not found errors (only occur with file path inputs)
-    if (errorCode === 'ENOENT') {
-      throw new FileNotFoundError(filePath);
-    }
-
-    // Permission errors (only occur with file path inputs)
-    if (errorCode === 'EACCES' || errorCode === 'EPERM') {
-      throw new FilePermissionError(filePath);
-    }
-
-    // Invalid .docx file errors (from JSZip or mammoth during file parsing)
-    // These patterns typically come from JSZip/mammoth when parsing the file structure.
-    // While there's a small theoretical risk of matching document content in unusual
-    // scenarios (e.g., embedded error messages), these specific technical phrases are
-    // highly unlikely to appear in normal document content.
-    if (
-      errorMessage.includes('end of central directory') || // JSZip: invalid ZIP structure
-      errorMessage.includes('zip file') || // JSZip: not a valid ZIP
-      errorMessage.includes('Corrupted zip') || // JSZip: corrupted ZIP file
-      errorMessage.includes('End of data reached') || // JSZip: truncated file
-      errorMessage.includes('Could not find file') // mammoth: missing required file in .docx
-    ) {
-      // Note: For ArrayBuffer inputs (e.g., web uploads), filePath will be undefined,
-      // so the error message won't include the original filename. The web interface
-      // could be enhanced to pass the filename separately if needed.
-      throw new InvalidFileError(filePath);
-    }
-
-    // Wrap other errors with a general conversion error
-    throw new ConversionError(
-      'An error occurred while converting the document. Please ensure the file is a valid .docx file and try again.',
-      error instanceof Error ? error : undefined,
-    );
+    classifyConversionError(error, filePath);
   }
 }

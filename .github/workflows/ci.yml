@@ -2,7 +2,18 @@ name: CI
 permissions:
   contents: read
 
-on: [push]
+# Run on pushes to main (post-merge) and on every PR — including forks, which
+# `push` alone would skip. Scoping `push` to main avoids double runs on branches
+# that also have an open PR.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Cancel superseded runs on the same ref so rapid pushes don't stack up.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -14,7 +25,7 @@ jobs:
         with:
           node-version: '22.x'
           cache: 'npm'
-      - run: npm install
+      - run: npm ci
       - run: npm run check-builds
       - run: npm run test
       - run: npm run lint
@@ -29,6 +40,6 @@ jobs:
         with:
           node-version: '22.x'
           cache: 'npm'
-      - run: npm install
+      - run: npm ci
       - run: npm run build
       - run: npm run test:e2e

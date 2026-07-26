@@ -162,9 +162,51 @@ test.describe('Word to Markdown Web Interface', () => {
     // Click copy button (clipboard functionality requires user interaction)
     await copyButton.click();
 
-    // Note: Actually testing clipboard content requires special permissions
-    // For now we just ensure the button works without errors
-    await expect(copyButton).toBeVisible(); // Button should still be there after click
+    // The label flips to a transient "Copied!" confirmation, then restores.
+    await expect(page.locator('#copy-label')).toHaveText('Copied!');
+    await expect(page.locator('#copy-label')).toHaveText('Copy Markdown', {
+      timeout: 5000,
+    });
+  });
+
+  test('should reset to accept another file via "Convert another"', async ({
+    page,
+  }) => {
+    const fixturePath = path.join(__dirname, '../../__fixtures__/h1.docx');
+    await page.locator('#file').setInputFiles(fixturePath);
+    await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('#input')).not.toBeVisible();
+
+    // Reset returns to the initial state without a page reload.
+    await page.locator('#convert-another').click();
+    await expect(page.locator('#results')).not.toBeVisible();
+    await expect(page.locator('#input')).toBeVisible();
+
+    // A second document converts as if it were the first.
+    const secondPath = path.join(
+      __dirname,
+      '../../__fixtures__/multiple-headings.docx',
+    );
+    await page.locator('#file').setInputFiles(secondPath);
+    await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('#filename')).toHaveText(
+      'multiple-headings.docx',
+    );
+  });
+
+  test('should reject a file larger than the size limit', async ({ page }) => {
+    // 21 MB of zeros with a .docx name — rejected on size before any parsing.
+    await page.locator('#file').setInputFiles({
+      name: 'huge.docx',
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      buffer: Buffer.alloc(21 * 1024 * 1024),
+    });
+
+    const error = page.locator('#error-message');
+    await expect(error).toBeVisible({ timeout: 5000 });
+    await expect(error).toContainText('too large');
+    await expect(page.locator('#results')).not.toBeVisible();
   });
 
   test('should download the converted markdown as a .md file', async ({

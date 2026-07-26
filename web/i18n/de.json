@@ -11,7 +11,9 @@
   "convertSectionAria": "Dokument umwandeln",
   "convertedLabel": "Umgewandelt",
   "copyButton": "Markdown kopieren",
+  "copiedButton": "Kopiert!",
   "downloadButton": ".md herunterladen",
+  "convertAnother": "Weitere Datei konvertieren",
   "panelMarkdown": "Markdown",
   "panelPreview": "Vorschau",
   "steps": [
@@ -99,6 +101,8 @@
   ],
   "errorGeneric": "Beim Umwandeln des Dokuments ist ein unerwarteter Fehler aufgetreten. Bitte versuche es erneut.",
   "docFileError": "Dieses Tool liest moderne .docx-Dateien, keine älteren .doc-Dateien. Öffnen Sie Ihr Dokument in Word und wählen Sie Datei → Speichern unter → Word-Dokument (.docx), und ziehen Sie die .docx-Datei dann hierher.",
+  "fileTooLargeError": "Diese Datei ist zu groß, um sie im Browser zu konvertieren. Bitte verwenden Sie eine .docx-Datei, die kleiner als 20 MB ist.",
+  "conversionAnnouncement": "Konvertierung abgeschlossen. Ihr Markdown ist fertig.",
   "dismiss": "Schließen",
   "promo": {
     "label": "Vom Macher",

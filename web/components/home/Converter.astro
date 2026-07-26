@@ -17,10 +17,17 @@ const t = useTranslations(asLocale(Astro.props.lang));
   style="animation-delay:.24s"
   aria-label={t.convertSectionAria}
 >
+  <!-- Polite live region: a successful conversion announces here for screen
+       readers (the results reveal is otherwise silent). -->
+  <div id="sr-status" role="status" class="sr-only"></div>
+
   <div
     id="input"
     data-error-generic={t.errorGeneric}
     data-doc-file-error={t.docFileError}
+    data-file-too-large={t.fileTooLargeError}
+    data-conversion-announcement={t.conversionAnnouncement}
+    data-copied={t.copiedButton}
     data-dismiss={t.dismiss}
   >
     <label
@@ -102,7 +109,7 @@ const t = useTranslations(asLocale(Astro.props.lang));
             <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
             <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
           </svg>
-          {t.copyButton}
+          <span id="copy-label">{t.copyButton}</span>
         </button>
         <button
           id="download-button"
@@ -126,6 +133,30 @@ const t = useTranslations(asLocale(Astro.props.lang));
             <path d="M12 15V3" />
           </svg>
           {t.downloadButton}
+        </button>
+        <button
+          id="convert-another"
+          type="button"
+          class="inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-[#eef0f6] dark:hover:border-chartreuse"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 6.7 3H21" />
+            <path d="M21 3v3h-3" />
+            <path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-6.7-3H3" />
+            <path d="M3 21v-3h3" />
+          </svg>
+          {t.convertAnother}
         </button>
       </div>
     </div>

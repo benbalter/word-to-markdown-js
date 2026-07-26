@@ -1,5 +1,10 @@
 import ClipboardJS from 'clipboard';
 
+// Upper bound on the file we'll attempt to read into memory and convert
+// client-side. Comfortably above any real Word document; guards against a
+// mistaken drop of a huge file freezing the tab.
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
+
 // The Word→Markdown converter and the Markdown→HTML renderer pull in heavy
 // dependencies (mammoth, turndown, jszip, unified/remark/rehype, prettier,
 // markdownlint — ~400KB gzipped). They are dynamically imported on first use so
@@ -111,6 +116,19 @@ async function processFile(file: File | undefined): Promise<void> {
     throw error;
   }
 
+  // Guard against files too large to convert comfortably in the browser —
+  // reading a huge ArrayBuffer and running the pipeline can exhaust memory or
+  // hang the tab, so fail fast with friendly guidance instead.
+  if (file.size > MAX_FILE_SIZE) {
+    showError(
+      uiString(
+        'fileTooLarge',
+        'This file is too large to convert in your browser. Please try a .docx smaller than 20 MB.',
+      ),
+    );
+    return;
+  }
+
   const reader = new FileReader();
   reader.readAsArrayBuffer(file);
   reader.onload = async (): Promise<void> => {
@@ -145,6 +163,18 @@ async function processFile(file: File | undefined): Promise<void> {
       const promoCard = document.getElementById('promo-card');
       if (promoCard) promoCard.style.display = 'none';
 
+      // Announce success to assistive tech (the results reveal is otherwise
+      // silent) and move focus to the first result action so keyboard users
+      // aren't stranded on the now-hidden file input.
+      const status = document.getElementById('sr-status');
+      if (status) {
+        status.textContent = uiString(
+          'conversionAnnouncement',
+          'Conversion complete. Your Markdown is ready.',
+        );
+      }
+      document.getElementById('copy-button')?.focus();
+
       recordConversion('success');
     } catch (error) {
       recordConversion('error');
@@ -174,7 +204,13 @@ async function processFile(file: File | undefined): Promise<void> {
 // language-agnostic. Falls back to English when the attribute is absent (e.g.
 // in unit tests that mount a bare DOM).
 function uiString(
-  key: 'errorGeneric' | 'docFileError' | 'dismiss',
+  key:
+    | 'errorGeneric'
+    | 'docFileError'
+    | 'dismiss'
+    | 'copied'
+    | 'fileTooLarge'
+    | 'conversionAnnouncement',
   fallback: string,
 ): string {
   const input = document.getElementById('input');
@@ -228,8 +264,9 @@ function showWarnings(warnings: string[]): void {
 
   const warningElement = document.createElement('div');
   warningElement.id = 'warning-alert';
+  // role="alert" already implies an assertive live region; a separate
+  // aria-live="polite" would conflict, so we rely on the role alone.
   warningElement.setAttribute('role', 'alert');
-  warningElement.setAttribute('aria-live', 'polite');
   warningElement.className =
     'relative mt-4 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-left text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200';
 
@@ -287,6 +324,31 @@ function initDragAndDrop(dropzone: HTMLElement): void {
     dropzone.classList.remove('is-dragover');
     void processFile(event.dataTransfer?.files?.[0]);
   });
+}
+
+// Reset the converter back to its initial state so another document can be
+// dropped without reloading the page.
+function resetConverter(): void {
+  // Clear the file input so re-selecting the same file still fires "change".
+  const fileInput = document.getElementById('file') as HTMLInputElement | null;
+  if (fileInput) fileInput.value = '';
+
+  document.getElementById('error-alert')?.remove();
+  document.getElementById('warning-alert')?.remove();
+
+  document.getElementById('results')?.classList.add('hidden');
+  document.getElementById('input')?.classList.remove('hidden');
+
+  // Restore the standalone promo card that a successful conversion hid.
+  const promoCard = document.getElementById('promo-card');
+  if (promoCard) promoCard.style.display = '';
+
+  // Clear the live status region so a prior success isn't re-announced.
+  const status = document.getElementById('sr-status');
+  if (status) status.textContent = '';
+
+  // Return focus to the file input (inside the dropzone) for keyboard users.
+  fileInput?.focus();
 }
 
 // Download the converted Markdown as a .md file named after the source document.
@@ -350,12 +412,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const copyButton = document.getElementById('copy-button');
   if (copyButton !== null) {
-    new ClipboardJS('#copy-button');
+    const clipboard = new ClipboardJS('#copy-button');
+    const copyLabel = document.getElementById('copy-label');
+    const copyLabelDefault = copyLabel?.textContent ?? '';
+    let copyResetTimer: number | undefined;
+    clipboard.on('success', (event) => {
+      event.clearSelection();
+      if (!copyLabel) return;
+      // Flip the label to a transient confirmation, then restore it. Guard the
+      // captured default against rapid re-clicks by resetting the timer.
+      copyLabel.textContent = uiString('copied', 'Copied!');
+      window.clearTimeout(copyResetTimer);
+      copyResetTimer = window.setTimeout(() => {
+        copyLabel.textContent = copyLabelDefault;
+      }, 2000);
+    });
   }
 
   const downloadButton = document.getElementById('download-button');
   if (downloadButton !== null) {
     downloadButton.addEventListener('click', downloadMarkdown);
+  }
+
+  const convertAnotherButton = document.getElementById('convert-another');
+  if (convertAnotherButton !== null) {
+    convertAnotherButton.addEventListener('click', resetConverter);
   }
 
   // Theme changes are handled automatically by CSS using prefers-color-scheme.

@@ -20,7 +20,7 @@ Here are a few tips for writing _great_ bug reports:
 - Include screenshots or screencasts whenever possible
 - Even if you don't know how to fix the bug, including a failing test may help others track it down
 
-**If you find a security vulnerability, do not open an issue. Please email ben@balter.com instead.**
+**If you find a security vulnerability, do not open an issue.** Please follow the process in [`SECURITY.md`](SECURITY.md) (private GitHub advisory or email ben@balter.com) instead.
 
 ## How to suggest a feature or enhancement
 
@@ -67,8 +67,8 @@ Here's a few general guidelines for proposing changes:
 At a high level, [the process for proposing changes](https://guides.github.com/introduction/flow/) is:
 
 1. [Fork](https://github.com/benbalter/word-to-markdown-js/fork) and clone the project
-2. Configure and install the dependencies: `script/bootstrap`
-3. Make sure the tests pass on your machine: `script/cibuild`
+2. Configure and install the dependencies: `npm install`
+3. Make sure the tests pass on your machine: `npm run all`
 4. Create a descriptively named branch: `git checkout -b my-branch-name`
 5. Make your change, add tests and documentation, and make sure the tests still pass
 6. Push to your fork and [submit a pull request](https://github.com/benbalter/word-to-markdown-js/compare) describing your change
@@ -78,11 +78,13 @@ At a high level, [the process for proposing changes](https://guides.github.com/i
 
 ## Bootstrapping your local development environment
 
-`script/bootstrap`
+`npm install` (Node 22.13.0 is pinned via `.nvmrc` / `.tool-versions` / Volta)
 
 ## Running tests
 
-`script/cibuild`
+`npm test` runs the Jest unit/integration suite; `npm run test:e2e` runs the
+Playwright end-to-end tests. `npm run all` (fix + test + build + check-builds) is
+the full gate to run before pushing.
 
 ## Publishing a release
 

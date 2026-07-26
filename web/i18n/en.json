@@ -11,7 +11,9 @@
   "convertSectionAria": "Convert a document",
   "convertedLabel": "Converted",
   "copyButton": "Copy Markdown",
+  "copiedButton": "Copied!",
   "downloadButton": "Download .md",
+  "convertAnother": "Convert another file",
   "panelMarkdown": "Markdown",
   "panelPreview": "Preview",
   "steps": [
@@ -99,6 +101,8 @@
   ],
   "errorGeneric": "An unexpected error occurred while converting the document. Please try again.",
   "docFileError": "This tool reads modern .docx files, not older .doc files. In Word, open your document and choose File → Save As → Word Document (.docx), then drop the .docx here.",
+  "fileTooLargeError": "This file is too large to convert in your browser. Please try a .docx smaller than 20 MB.",
+  "conversionAnnouncement": "Conversion complete. Your Markdown is ready.",
   "dismiss": "Dismiss",
   "promo": {
     "label": "From the maker",
