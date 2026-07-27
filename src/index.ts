@@ -45,6 +45,145 @@ async function renderMarkdown(markdown: string): Promise<string> {
   return String(result);
 }
 
+// --- Off-main-thread conversion --------------------------------------------
+// The docx→Markdown pipeline is CPU-bound; running it in a Web Worker keeps the
+// page responsive (no frozen tab) on large or complex documents.
+interface ConversionResult {
+  markdown: string;
+  warnings: string[];
+}
+
+// How long to wait for the worker to signal it has loaded before giving up and
+// converting on the main thread instead. Only guards a broken/hung worker load,
+// not the conversion itself (which is unbounded — it runs off-thread).
+const WORKER_READY_TIMEOUT = 5000;
+
+let converterWorker: Worker | null = null;
+let workerReady: Promise<void> | null = null;
+// Latches once the worker proves unusable, so we stop paying the readiness
+// timeout on every subsequent conversion and go straight to the main thread.
+let workerUnavailable = false;
+let workerMessageId = 0;
+const pendingConversions = new Map<
+  number,
+  { resolve: (r: ConversionResult) => void; reject: (e: unknown) => void }
+>();
+
+// Distinguishes a worker that failed to load/run (→ fall back to the main
+// thread) from a genuine conversion error (→ surface it to the user).
+class WorkerInfraError extends Error {}
+
+// Reject and clear all in-flight conversions, then drop the worker so the next
+// attempt uses the main-thread fallback.
+function failWorker(reason: string): void {
+  for (const [id, pending] of pendingConversions) {
+    pendingConversions.delete(id);
+    pending.reject(new WorkerInfraError(reason));
+  }
+  converterWorker = null;
+  workerReady = null;
+  workerUnavailable = true;
+}
+
+function getConverterWorker(): Worker {
+  if (converterWorker) return converterWorker;
+  const worker = new Worker(new URL('./converter.worker.ts', import.meta.url), {
+    type: 'module',
+  });
+  workerReady = new Promise<void>((resolve, reject) => {
+    const timer = window.setTimeout(() => {
+      reject(new WorkerInfraError('worker did not become ready'));
+      failWorker('worker did not become ready');
+    }, WORKER_READY_TIMEOUT);
+    worker.onmessage = (event: MessageEvent): void => {
+      const data = event.data;
+      if (data?.type === 'ready') {
+        window.clearTimeout(timer);
+        resolve();
+        return;
+      }
+      const { id, ok, result, error } = data;
+      const pending = pendingConversions.get(id);
+      if (!pending) return;
+      pendingConversions.delete(id);
+      if (ok) pending.resolve(result as ConversionResult);
+      else pending.reject(error);
+    };
+    worker.onerror = (): void => {
+      window.clearTimeout(timer);
+      reject(new WorkerInfraError('conversion worker failed'));
+      failWorker('conversion worker failed');
+    };
+  });
+  // A rejected readiness promise is handled by whoever awaits it in
+  // convertBuffer; attach a no-op catch so it isn't an unhandled rejection.
+  workerReady.catch(() => {});
+  converterWorker = worker;
+  return worker;
+}
+
+function convertViaWorker(buffer: ArrayBuffer): Promise<ConversionResult> {
+  const worker = getConverterWorker();
+  const id = ++workerMessageId;
+  return new Promise<ConversionResult>((resolve, reject) => {
+    pendingConversions.set(id, { resolve, reject });
+    // Structured-clone (don't transfer) the buffer so it stays valid for a
+    // main-thread fallback if the worker turns out to be unavailable.
+    worker.postMessage({ id, buffer });
+  });
+}
+
+// Convert an ArrayBuffer to Markdown, off the main thread when possible, with a
+// transparent main-thread fallback (older browsers, or a worker that never
+// loads or hangs). A genuine conversion error propagates; only infrastructure
+// failures fall back.
+async function convertBuffer(buffer: ArrayBuffer): Promise<ConversionResult> {
+  if (typeof Worker !== 'undefined' && !workerUnavailable) {
+    try {
+      getConverterWorker();
+      await workerReady; // rejects (WorkerInfraError) on load timeout/failure
+      return await convertViaWorker(buffer);
+    } catch (error) {
+      if (!(error instanceof WorkerInfraError)) throw error;
+    }
+  }
+  const { convertWithWarnings } = await import('./main.js');
+  return convertWithWarnings(buffer);
+}
+
+// True for legacy .doc files. Checked on the main thread because the worker
+// only sees the file's bytes, not its name. Mirrors validateFileExtension.
+function isLegacyDocFile(name: string): boolean {
+  const lower = name.toLowerCase();
+  const dot = lower.lastIndexOf('.');
+  return dot !== -1 && lower.slice(dot) === '.doc';
+}
+
+// Conversion errors thrown in the worker arrive as { name, message } (class
+// identity doesn't survive the boundary). Map known names back to their
+// already-localized messages; anything else is an unexpected failure.
+const CONVERSION_ERROR_NAMES = new Set([
+  'UnsupportedFileError',
+  'InvalidFileError',
+  'ConversionError',
+]);
+
+function showConversionError(error: unknown): void {
+  const name = (error as { name?: string })?.name;
+  const message = (error as { message?: string })?.message;
+  if (name && message && CONVERSION_ERROR_NAMES.has(name)) {
+    showError(message);
+    return;
+  }
+  showError(
+    uiString(
+      'errorGeneric',
+      'An unexpected error occurred while converting the document. Please try again.',
+    ),
+  );
+  console.error(error);
+}
+
 // Speculatively warm the heavy converter + Markdown-renderer chunks (~340KB
 // gzipped) so the first conversion resolves from cache instead of waiting on a
 // download. Runs at most once, only on user intent or browser idle — never on
@@ -54,9 +193,19 @@ function prefetchConverter(): void {
   if (converterWarmed) return;
   converterWarmed = true;
   const ignore = (): void => {};
-  // Same specifiers as processFile()/renderMarkdown(), so these resolve to the
-  // exact chunks the real conversion reuses.
-  import('./main.js').catch(ignore);
+  // Warm the conversion worker (loads mammoth/turndown/jszip/etc. off-thread),
+  // falling back to a main-thread import where Workers are unavailable so the
+  // deps are still cached before the first conversion.
+  if (typeof Worker !== 'undefined') {
+    try {
+      getConverterWorker();
+    } catch {
+      import('./main.js').catch(ignore);
+    }
+  } else {
+    import('./main.js').catch(ignore);
+  }
+  // The Markdown-preview renderer still runs on the main thread.
   import('unified').catch(ignore);
   import('remark-parse').catch(ignore);
   import('remark-gfm').catch(ignore);
@@ -94,31 +243,17 @@ function recordConversion(outcome: 'success' | 'error'): void {
 async function processFile(file: File | undefined): Promise<void> {
   if (!file) return;
 
-  const {
-    convertWithWarnings,
-    UnsupportedFileError,
-    InvalidFileError,
-    ConversionError,
-    validateFileExtension,
-  } = await import('./main.js');
-
-  // Check file extension before processing
-  try {
-    validateFileExtension(file.name);
-  } catch (error) {
-    if (error instanceof UnsupportedFileError) {
-      // validateFileExtension only rejects legacy .doc files, so show the
-      // friendlier localized "save as .docx" guidance rather than the raw
-      // (English, CLI-oriented) error message.
-      showError(
-        uiString(
-          'docFileError',
-          'This tool reads modern .docx files, not older .doc files. In Word, open your document and choose File → Save As → Word Document (.docx), then drop the .docx here.',
-        ),
-      );
-      return;
-    }
-    throw error;
+  // Reject legacy .doc files up front with the friendlier localized "save as
+  // .docx" guidance. Done here (not in the worker) since only the main thread
+  // sees the filename, and it avoids loading the converter for a doomed file.
+  if (isLegacyDocFile(file.name)) {
+    showError(
+      uiString(
+        'docFileError',
+        'This tool reads modern .docx files, not older .doc files. In Word, open your document and choose File → Save As → Word Document (.docx), then drop the .docx here.',
+      ),
+    );
+    return;
   }
 
   // Guard against files too large to convert comfortably in the browser —
@@ -146,7 +281,7 @@ async function processFile(file: File | undefined): Promise<void> {
       srStatus.textContent = uiString('converting', 'Converting…');
     }
     try {
-      const result = await convertWithWarnings(reader.result);
+      const result = await convertBuffer(reader.result as ArrayBuffer);
       inputRegion?.removeAttribute('aria-busy');
 
       // Display warnings if any
@@ -195,23 +330,7 @@ async function processFile(file: File | undefined): Promise<void> {
       inputRegion?.removeAttribute('aria-busy');
       if (srStatus) srStatus.textContent = '';
       recordConversion('error');
-      // Handle all our custom errors with specific messages
-      if (
-        error instanceof UnsupportedFileError ||
-        error instanceof InvalidFileError ||
-        error instanceof ConversionError
-      ) {
-        showError(error.message);
-        return;
-      }
-      // For unexpected errors, show a generic message
-      showError(
-        uiString(
-          'errorGeneric',
-          'An unexpected error occurred while converting the document. Please try again.',
-        ),
-      );
-      console.error(error);
+      showConversionError(error);
     }
   };
 }

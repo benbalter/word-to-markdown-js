@@ -16,9 +16,20 @@ program.description('Convert Word documents to beautiful Markdown');
 program
   .command('convert', { isDefault: true })
   .argument('<file>', 'The Word document to convert')
-  .action(async (file) => {
+  .option(
+    '--strip-images',
+    'Remove images instead of embedding them as base64 data URIs',
+  )
+  .option(
+    '--ordered-lists',
+    'Keep numbered lists as 1./2./3. rather than converting them to bullets',
+  )
+  .action(async (file, options) => {
     try {
-      const result = await convertWithWarnings(file);
+      const result = await convertWithWarnings(file, {
+        images: options.stripImages ? 'strip' : 'inline',
+        numberedLists: options.orderedLists ? 'ordered' : 'bullets',
+      });
 
       // Display warnings to stderr if any
       if (result.warnings.length > 0) {

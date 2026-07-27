@@ -13,6 +13,18 @@ import path from 'path';
 interface convertOptions {
   mammoth?: object;
   turndown?: object;
+  /**
+   * How to handle images. `'inline'` (default) keeps Mammoth's base64 data
+   * URIs; `'strip'` removes images entirely (useful to avoid multi-MB output
+   * from image-heavy documents).
+   */
+  images?: 'inline' | 'strip';
+  /**
+   * How to render Word's numbered lists. `'bullets'` (default) converts them to
+   * bullet lists (matching the classic word-to-markdown behavior); `'ordered'`
+   * keeps them as `1.`/`2.`/… ordered lists.
+   */
+  numberedLists?: 'bullets' | 'ordered';
 }
 
 export interface ConvertResult {
@@ -244,10 +256,20 @@ const bulletRegex = new RegExp(
   `^\\s*[${unicodeBullets.map((b) => b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('')}]\\s*`,
 );
 
-// Process HTML in a single pass: convert table headers and remove unicode bullets
-// This is more efficient than parsing the HTML twice
-function processHtml(html: string): string {
+// Process HTML in a single pass: optionally strip images, convert table
+// headers, and remove unicode bullets. This is more efficient than parsing the
+// HTML twice.
+function processHtml(
+  html: string,
+  opts: { stripImages?: boolean } = {},
+): string {
   const root = parse(html);
+
+  // Remove images (Mammoth inlines them as base64 data URIs by default, which
+  // can bloat the output for image-heavy documents).
+  if (opts.stripImages) {
+    root.querySelectorAll('img').forEach((img) => img.remove());
+  }
 
   // Process tables - convert first row to table headers
   root.querySelectorAll('table').forEach((table) => {
@@ -537,10 +559,16 @@ async function runConversionPipeline(
     mammothInput,
     options.mammoth,
   );
-  const processedHtml = processHtml(mammothResult.value);
+  const processedHtml = processHtml(mammothResult.value, {
+    stripImages: options.images === 'strip',
+  });
   const md = htmlToMd(processedHtml, options.turndown);
-  const mdWithBullets = convertNumberedListsToBullets(md);
-  const normalizedMd = normalizeText(mdWithBullets);
+  // Numbered lists convert to bullets by default; keep them ordered on request.
+  const listMd =
+    options.numberedLists === 'ordered'
+      ? md
+      : convertNumberedListsToBullets(md);
+  const normalizedMd = normalizeText(listMd);
   const cleanedMd = lint(normalizedMd);
   const formattedMd = await prettify(cleanedMd);
   return { markdown: formattedMd, messages: mammothResult.messages };

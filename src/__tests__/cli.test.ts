@@ -83,4 +83,21 @@ describe('w2m CLI', () => {
     expect(result.status).toBe(1);
     expect(result.stderr.trim()).not.toBe('');
   });
+
+  it('--strip-images removes embedded images', () => {
+    const withImages = runCli([fixture('image.docx')]);
+    expect(withImages.stdout).toContain('data:image/png;base64');
+
+    const stripped = runCli(['--strip-images', fixture('image.docx')]);
+    expect(stripped.status).toBe(0);
+    expect(stripped.stdout).not.toContain('data:image');
+    expect(stripped.stdout).toContain('Text after image.');
+  });
+
+  it('--ordered-lists keeps numbered lists ordered', () => {
+    const result = runCli(['--ordered-lists', fixture('ol.docx')]);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toMatch(/^\s*1\.\s+One/m);
+    expect(result.stdout).not.toContain('- One');
+  });
 });

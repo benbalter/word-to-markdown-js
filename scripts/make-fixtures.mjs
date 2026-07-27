@@ -71,4 +71,64 @@ const footnote = await docx({
 });
 fs.writeFileSync('src/__fixtures__/footnote.docx', footnote);
 
-console.log('wrote strikethrough.docx and footnote.docx');
+// --- image.docx -------------------------------------------------------------
+// An inline DrawingML picture. Mammoth emits <img src="data:image/png;base64,…">
+// which the pipeline keeps by default and drops with `{ images: 'strip' }`.
+const R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+const WP =
+  'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing';
+const A = 'http://schemas.openxmlformats.org/drawingml/2006/main';
+const PIC = 'http://schemas.openxmlformats.org/drawingml/2006/picture';
+// Smallest valid PNG (1×1 transparent pixel).
+const png = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+  'base64',
+);
+
+const imageDoc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="${W}" xmlns:r="${R}" xmlns:wp="${WP}" xmlns:a="${A}" xmlns:pic="${PIC}"><w:body>
+  <w:p><w:r><w:drawing><wp:inline><wp:extent cx="100" cy="100"/><wp:docPr id="1" name="img"/><a:graphic><a:graphicData uri="${PIC}"><pic:pic><pic:nvPicPr><pic:cNvPr id="1" name="img"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rId1"/></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="100" cy="100"/></a:xfrm><a:prstGeom prst="rect"/></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>
+  <w:p><w:r><w:t>Text after image.</w:t></w:r></w:p>
+</w:body></w:document>`;
+
+const imageContentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Default Extension="png" ContentType="image/png"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+</Types>`;
+
+const imageRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="${R}/image" Target="media/image1.png"/>
+</Relationships>`;
+
+const image = await docx({
+  '[Content_Types].xml': imageContentTypes,
+  '_rels/.rels': rels,
+  'word/document.xml': imageDoc,
+  'word/_rels/document.xml.rels': imageRels,
+  'word/media/image1.png': png,
+});
+fs.writeFileSync('src/__fixtures__/image.docx', image);
+
+// --- dropped-content.docx ---------------------------------------------------
+// An unrecognised element Mammoth ignores, dropping its content and emitting a
+// warning-level message ("An unrecognised element was ignored: …"). Exercises
+// the content-loss warning surfaced by convertWithWarnings.
+const droppedDoc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="${W}"><w:body>
+  <w:p><w:r><w:t xml:space="preserve">Before.</w:t></w:r><w:someUnknownElement><w:r><w:t>hidden</w:t></w:r></w:someUnknownElement><w:r><w:t xml:space="preserve"> After.</w:t></w:r></w:p>
+</w:body></w:document>`;
+
+const dropped = await docx({
+  '[Content_Types].xml': contentTypes(),
+  '_rels/.rels': rels,
+  'word/document.xml': droppedDoc,
+});
+fs.writeFileSync('src/__fixtures__/dropped-content.docx', dropped);
+
+console.log(
+  'wrote strikethrough.docx, footnote.docx, image.docx, dropped-content.docx',
+);

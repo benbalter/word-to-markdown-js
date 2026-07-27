@@ -60,6 +60,21 @@ test.describe('Word to Markdown Web Interface', () => {
     expect(renderedHTML).toContain('<h1>Heading 1</h1>');
   });
 
+  test('runs the conversion in a Web Worker (off the main thread)', async ({
+    page,
+  }) => {
+    const fixturePath = path.join(__dirname, '../../__fixtures__/h1.docx');
+    await page.locator('#file').setInputFiles(fixturePath);
+    await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('#output')).toContainText('# Heading 1');
+
+    // A dedicated converter Worker should exist once the result is in.
+    const workers = page.workers();
+    expect(workers.some((w) => w.url().includes('converter.worker'))).toBe(
+      true,
+    );
+  });
+
   test('should convert multiple heading levels document', async ({ page }) => {
     const fixturePath = path.join(
       __dirname,

@@ -43,12 +43,14 @@ export default defineConfig({
       },
     },
 
-    // Disable other browsers for now to simplify setup
+    // Firefox/WebKit left disabled: cross-browser runs stall in this
+    // environment, so they can't be verified here. Re-enabling Firefox is a
+    // one-line addition plus `npx playwright install firefox` in CI, once it
+    // can be validated with a real run.
     // {
     //   name: 'firefox',
     //   use: { ...devices['Desktop Firefox'] },
     // },
-
     // {
     //   name: 'webkit',
     //   use: { ...devices['Desktop Safari'] },

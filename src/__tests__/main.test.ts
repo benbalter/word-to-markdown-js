@@ -468,3 +468,57 @@ describe('convert vs convertWithWarnings parity', () => {
     );
   });
 });
+
+describe('conversion options', () => {
+  const IMAGE = 'src/__fixtures__/image.docx';
+  const OL = 'src/__fixtures__/ol.docx';
+
+  it('inlines images as base64 data URIs by default', async () => {
+    const { default: convert } = await import('../main.js');
+    const md = await convert(IMAGE);
+    expect(md).toContain('data:image/png;base64');
+    expect(md).toContain('Text after image.');
+  });
+
+  it('strips images with { images: "strip" }', async () => {
+    const { default: convert } = await import('../main.js');
+    const md = await convert(IMAGE, { images: 'strip' });
+    expect(md).not.toContain('data:image');
+    expect(md).not.toContain('!['); // no image markdown at all
+    expect(md).toContain('Text after image.');
+  });
+
+  it('converts numbered lists to bullets by default', async () => {
+    const { default: convert } = await import('../main.js');
+    const md = await convert(OL);
+    expect(md).toContain('- One');
+    expect(md).not.toMatch(/^\s*1\.\s/m);
+  });
+
+  it('keeps ordered lists with { numberedLists: "ordered" }', async () => {
+    const { default: convert } = await import('../main.js');
+    const md = await convert(OL, { numberedLists: 'ordered' });
+    expect(md).toMatch(/^\s*1\.\s+One/m);
+    expect(md).not.toContain('- One');
+  });
+});
+
+describe('content-loss warnings (real fixture)', () => {
+  const DROPPED = 'src/__fixtures__/dropped-content.docx';
+
+  it('warns when Mammoth drops unrecognised content', async () => {
+    const { convertWithWarnings } = await import('../main.js');
+    const { markdown, warnings } = await convertWithWarnings(DROPPED);
+    // The recognised text survives; the dropped element is reported.
+    expect(markdown).toContain('Before.');
+    expect(markdown).toContain('After.');
+    expect(warnings.some((w) => /converted cleanly/i.test(w))).toBe(true);
+  });
+
+  it('convert() (no warnings) still returns the surviving content', async () => {
+    const { default: convert } = await import('../main.js');
+    const md = await convert(DROPPED);
+    expect(md).toContain('Before.');
+    expect(md).toContain('After.');
+  });
+});
