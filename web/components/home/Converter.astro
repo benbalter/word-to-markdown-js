@@ -27,7 +27,9 @@ const t = useTranslations(asLocale(Astro.props.lang));
     data-doc-file-error={t.docFileError}
     data-file-too-large={t.fileTooLargeError}
     data-conversion-announcement={t.conversionAnnouncement}
+    data-converting={t.convertingStatus}
     data-copied={t.copiedButton}
+    data-downloaded={t.downloadedButton}
     data-dismiss={t.dismiss}
   >
     <label
@@ -132,7 +134,7 @@ const t = useTranslations(asLocale(Astro.props.lang));
             <path d="M7 10l5 5 5-5" />
             <path d="M12 15V3" />
           </svg>
-          {t.downloadButton}
+          <span id="download-label">{t.downloadButton}</span>
         </button>
         <button
           id="convert-another"

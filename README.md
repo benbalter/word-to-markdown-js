@@ -13,22 +13,29 @@ Try it in your browser at [word2md.com](https://word2md.com), or use it from the
 npx word-to-markdown input.docx > output.md
 ```
 
-## Supports
+## What it converts
 
-- Paragraphs
-- Numbered lists
-- Bullet lists
-- Nested Lists
+- Paragraphs and line breaks
 - Headings
-- Lists
+- Bold, italic, and strikethrough
+- Bullet lists, including nested lists
 - Tables
-- Footnotes and endnotes
-- Images
-- Bold, italics, underlines, strikethrough, superscript and subscript.
 - Links
-- Line breaks
-- Text boxes
-- Comments
+- Footnotes and endnotes
+- Images — embedded inline as base64 data URIs
+
+### Notes and limitations
+
+- **Numbered lists** are converted to bullet lists.
+- **Images** are inlined as base64 data URIs rather than extracted to separate
+  files. To change this, pass a custom [Mammoth image handler](https://github.com/mwilliamson/mammoth.js/#images)
+  via `options.mammoth` (see [Use as a library](#use-as-a-library)).
+- **Comments, text boxes, and equations are not converted** — Mammoth drops
+  them during the `.docx` → HTML step. When content is dropped this way,
+  `convertWithWarnings` surfaces a warning.
+- **Underline, superscript, and subscript** have no standard Markdown
+  equivalent; the text is preserved but the formatting is not.
+- Heading levels come from Word's paragraph styles, not from font size.
 
 ## How is this different from the original?
 

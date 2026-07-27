@@ -115,16 +115,14 @@ export function validateFileExtension(filePath: string): void {
 }
 
 // Validates that a file path is safe to use and returns the resolved path (Node.js only)
-// Prevents path traversal attacks by checking for parent directory references
 function validateFilePath(filePath: string): string {
-  // Check for path traversal attempts
-  if (filePath.includes('..')) {
-    throw new Error('Invalid file path: path traversal not allowed');
-  }
-
-  // Resolve to absolute path to check for traversal
-  // Note: This uses the path module which is Node.js-only, but this function
-  // is only called in Node.js contexts (CLI, server, direct API use with file paths)
+  // Resolve to an absolute path first. path.resolve normalizes any `..`
+  // segments, so we deliberately do NOT reject paths that merely contain `..`:
+  // a relative path like `../report.docx`, or a filename like `notes..docx`, is
+  // legitimate CLI/library usage. (There is no sandbox to escape here — a local
+  // caller already has full filesystem access.)
+  // Note: the path module is Node.js-only, but this function is only called in
+  // Node.js contexts (CLI, direct API use with file paths).
   const resolvedPath = path.resolve(filePath);
 
   // Check for absolute paths to dangerous system directories (Unix-like systems)
@@ -548,6 +546,22 @@ async function runConversionPipeline(
   return { markdown: formattedMd, messages: mammothResult.messages };
 }
 
+// Substrings (lower-cased) that, in a thrown error's message, indicate the
+// input isn't a readable .docx (invalid/corrupt/truncated ZIP, or a missing
+// required part). Sourced from JSZip and mammoth, which throw untyped Errors.
+const INVALID_DOCX_ERROR_PATTERNS = [
+  'end of central directory', // JSZip: invalid ZIP structure
+  'zip file', // JSZip: not a valid ZIP
+  'corrupted zip', // JSZip: corrupted ZIP file
+  'end of data reached', // JSZip: truncated file
+  'could not find file', // mammoth: missing required file in .docx
+];
+
+function isInvalidDocxError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return INVALID_DOCX_ERROR_PATTERNS.some((pattern) => lower.includes(pattern));
+}
+
 // Translate the errors thrown by the pipeline into our typed, user-facing
 // error classes. Always throws (never returns normally).
 function classifyConversionError(error: unknown, filePath?: string): never {
@@ -580,17 +594,13 @@ function classifyConversionError(error: unknown, filePath?: string): never {
   }
 
   // Invalid .docx file errors (from JSZip or mammoth during file parsing).
-  // These patterns typically come from JSZip/mammoth when parsing the file
-  // structure. While there's a small theoretical risk of matching document
-  // content in unusual scenarios (e.g., embedded error messages), these
-  // specific technical phrases are highly unlikely to appear in normal content.
-  if (
-    errorMessage.includes('end of central directory') || // JSZip: invalid ZIP structure
-    errorMessage.includes('zip file') || // JSZip: not a valid ZIP
-    errorMessage.includes('Corrupted zip') || // JSZip: corrupted ZIP file
-    errorMessage.includes('End of data reached') || // JSZip: truncated file
-    errorMessage.includes('Could not find file') // mammoth: missing required file in .docx
-  ) {
+  // JSZip/mammoth throw plain, untyped Errors with no error code, so message
+  // matching is the only signal available. Matching is case-insensitive so a
+  // minor wording/capitalization change upstream is less likely to slip through
+  // (see INVALID_DOCX_ERROR_PATTERNS). There is a small theoretical risk of
+  // matching document content, but these technical phrases are highly unlikely
+  // to appear in normal content.
+  if (isInvalidDocxError(errorMessage)) {
     // Note: For ArrayBuffer inputs (e.g., web uploads), filePath will be
     // undefined, so the message won't include the original filename.
     throw new InvalidFileError(filePath);

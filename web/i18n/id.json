@@ -13,6 +13,7 @@
   "copyButton": "Salin Markdown",
   "copiedButton": "Tersalin!",
   "downloadButton": "Unduh .md",
+  "downloadedButton": "Terunduh",
   "convertAnother": "Konversi berkas lain",
   "panelMarkdown": "Markdown",
   "panelPreview": "Pratinjau",
@@ -103,6 +104,7 @@
   "docFileError": "Alat ini membaca berkas .docx modern, bukan berkas .doc lama. Di Word, buka dokumen Anda dan pilih Berkas → Simpan Sebagai → Dokumen Word (.docx), lalu seret berkas .docx itu ke sini.",
   "fileTooLargeError": "Berkas ini terlalu besar untuk dikonversi di browser Anda. Coba berkas .docx yang lebih kecil dari 20 MB.",
   "conversionAnnouncement": "Konversi selesai. Markdown Anda sudah siap.",
+  "convertingStatus": "Mengonversi…",
   "dismiss": "Tutup",
   "promo": {
     "label": "Dari pembuatnya",

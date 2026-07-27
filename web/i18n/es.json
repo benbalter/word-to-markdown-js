@@ -13,6 +13,7 @@
   "copyButton": "Copiar Markdown",
   "copiedButton": "¡Copiado!",
   "downloadButton": "Descargar .md",
+  "downloadedButton": "Descargado",
   "convertAnother": "Convertir otro archivo",
   "panelMarkdown": "Markdown",
   "panelPreview": "Vista previa",
@@ -103,6 +104,7 @@
   "docFileError": "Esta herramienta lee archivos .docx modernos, no archivos .doc más antiguos. En Word, abre tu documento y elige Archivo → Guardar como → Documento de Word (.docx), y luego arrastra el .docx aquí.",
   "fileTooLargeError": "Este archivo es demasiado grande para convertirlo en tu navegador. Prueba con un .docx de menos de 20 MB.",
   "conversionAnnouncement": "Conversión completada. Tu Markdown está listo.",
+  "convertingStatus": "Convirtiendo…",
   "dismiss": "Descartar",
   "promo": {
     "label": "De quien lo creó",

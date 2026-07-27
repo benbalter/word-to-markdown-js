@@ -39,6 +39,8 @@ export interface UIStrings {
   /** Transient confirmation shown on the copy button after a successful copy. */
   copiedButton: string;
   downloadButton: string;
+  /** Transient confirmation shown on the download button after a download. */
+  downloadedButton: string;
   /** Resets the converter to accept another document. */
   convertAnother: string;
   panelMarkdown: string;
@@ -90,6 +92,8 @@ export interface UIStrings {
   fileTooLargeError: string;
   /** Announced to assistive tech (aria-live) when a conversion succeeds. */
   conversionAnnouncement: string;
+  /** Announced to assistive tech while a conversion is in progress. */
+  convertingStatus: string;
   dismiss: string;
 
   // Open & Async promo. `card.*` is the standalone sponsor card (Promo.astro);

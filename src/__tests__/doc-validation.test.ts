@@ -85,6 +85,20 @@ describe('DOC file validation', () => {
       );
     });
 
+    it('should accept a relative path containing ".." segments', async () => {
+      // `..` is legitimate in a file path; the resolved path is what matters.
+      const md = await convert('src/__fixtures__/../__fixtures__/h1.docx');
+      expect(md).toContain('# Heading 1');
+    });
+
+    it('should reject an invalid (non-.docx) file with InvalidFileError', async () => {
+      const { InvalidFileError } = await import('../main.js');
+      // package.json is readable but not a valid .docx ZIP.
+      await expect(convert('package.json')).rejects.toBeInstanceOf(
+        InvalidFileError,
+      );
+    });
+
     it('should allow ArrayBuffer inputs (browser uploads)', async () => {
       // ArrayBuffer inputs should not be validated for file extension
       // since we cannot determine the original filename

@@ -5,6 +5,11 @@ import ClipboardJS from 'clipboard';
 // mistaken drop of a huge file freezing the tab.
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 
+// Captured default label + reset timer for the download button's transient
+// "Downloaded" confirmation (mirrors the copy button). Initialized on load.
+let downloadLabelDefault = '';
+let downloadResetTimer: number | undefined;
+
 // The Word→Markdown converter and the Markdown→HTML renderer pull in heavy
 // dependencies (mammoth, turndown, jszip, unified/remark/rehype, prettier,
 // markdownlint — ~400KB gzipped). They are dynamically imported on first use so
@@ -132,8 +137,17 @@ async function processFile(file: File | undefined): Promise<void> {
   const reader = new FileReader();
   reader.readAsArrayBuffer(file);
   reader.onload = async (): Promise<void> => {
+    // Enter a busy state: mark the input region busy and announce progress, so
+    // a slow conversion (large/complex doc) isn't a silent, frozen-looking wait.
+    const inputRegion = document.getElementById('input');
+    const srStatus = document.getElementById('sr-status');
+    inputRegion?.setAttribute('aria-busy', 'true');
+    if (srStatus) {
+      srStatus.textContent = uiString('converting', 'Converting…');
+    }
     try {
       const result = await convertWithWarnings(reader.result);
+      inputRegion?.removeAttribute('aria-busy');
 
       // Display warnings if any
       if (result.warnings.length > 0) {
@@ -177,6 +191,9 @@ async function processFile(file: File | undefined): Promise<void> {
 
       recordConversion('success');
     } catch (error) {
+      // Leave the busy state and clear the "Converting…" announcement.
+      inputRegion?.removeAttribute('aria-busy');
+      if (srStatus) srStatus.textContent = '';
       recordConversion('error');
       // Handle all our custom errors with specific messages
       if (
@@ -209,8 +226,10 @@ function uiString(
     | 'docFileError'
     | 'dismiss'
     | 'copied'
+    | 'downloaded'
     | 'fileTooLarge'
-    | 'conversionAnnouncement',
+    | 'conversionAnnouncement'
+    | 'converting',
   fallback: string,
 ): string {
   const input = document.getElementById('input');
@@ -367,6 +386,16 @@ function downloadMarkdown(): void {
   anchor.click();
   anchor.remove();
   URL.revokeObjectURL(url);
+
+  // Briefly confirm the download on the button label.
+  const label = document.getElementById('download-label');
+  if (label) {
+    label.textContent = uiString('downloaded', 'Downloaded');
+    window.clearTimeout(downloadResetTimer);
+    downloadResetTimer = window.setTimeout(() => {
+      label.textContent = downloadLabelDefault;
+    }, 2000);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -431,6 +460,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const downloadButton = document.getElementById('download-button');
   if (downloadButton !== null) {
+    downloadLabelDefault =
+      document.getElementById('download-label')?.textContent ?? '';
     downloadButton.addEventListener('click', downloadMarkdown);
   }
 
