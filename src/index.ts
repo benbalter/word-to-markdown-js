@@ -45,6 +45,27 @@ async function renderMarkdown(markdown: string): Promise<string> {
   return String(result);
 }
 
+// Fill the preview pane with the rendered Markdown, kept off the interaction's
+// critical path. A frame is yielded first so the results reveal (the raw
+// Markdown) paints before this main-thread render/parse begins — on a large or
+// complex document the unified/rehype pass plus its innerHTML parse is a
+// multi-second long task. A failure here is non-fatal: the raw Markdown (the
+// primary output, and the copy/download source) is already on screen.
+async function renderPreview(
+  target: HTMLElement | null,
+  markdown: string,
+): Promise<void> {
+  if (!target) return;
+  try {
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve());
+    });
+    target.innerHTML = await renderMarkdown(markdown);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 // --- Off-main-thread conversion --------------------------------------------
 // The docx→Markdown pipeline is CPU-bound; running it in a Web Worker keeps the
 // page responsive (no frozen tab) on large or complex documents.
@@ -272,28 +293,34 @@ async function processFile(file: File | undefined): Promise<void> {
   const reader = new FileReader();
   reader.readAsArrayBuffer(file);
   reader.onload = async (): Promise<void> => {
-    // Enter a busy state: mark the input region busy and announce progress, so
-    // a slow conversion (large/complex doc) isn't a silent, frozen-looking wait.
+    // Enter a busy state: mark the input region busy, spin the dropzone icon,
+    // and announce progress, so a slow conversion (large/complex doc) isn't a
+    // silent, frozen-looking wait. The dropzone stays visible until the results
+    // reveal, so the spinner is the immediate visual feedback for the drop.
     const inputRegion = document.getElementById('input');
+    const dropzone = document.getElementById('dropzone');
     const srStatus = document.getElementById('sr-status');
     inputRegion?.setAttribute('aria-busy', 'true');
+    dropzone?.classList.add('is-converting');
     if (srStatus) {
       srStatus.textContent = uiString('converting', 'Converting…');
     }
     try {
       const result = await convertBuffer(reader.result as ArrayBuffer);
       inputRegion?.removeAttribute('aria-busy');
+      dropzone?.classList.remove('is-converting');
 
       // Display warnings if any
       if (result.warnings.length > 0) {
         showWarnings(result.warnings);
       }
 
+      // Reveal the results with the raw Markdown (the primary output, and the
+      // copy/download source) straight away; the HTML preview is rendered
+      // afterwards via renderPreview(), off the critical path, so its render
+      // doesn't sit between the drop and the user seeing their result.
       const outputElement = document.getElementById('output');
       outputElement.innerText = result.markdown;
-
-      const renderedElement = document.getElementById('rendered');
-      renderedElement.innerHTML = await renderMarkdown(result.markdown);
 
       const filenameElement = document.getElementById('filename');
       filenameElement.innerText = file.name;
@@ -325,9 +352,13 @@ async function processFile(file: File | undefined): Promise<void> {
       document.getElementById('copy-button')?.focus();
 
       recordConversion('success');
+
+      // Render the HTML preview last, off the interaction's critical path.
+      void renderPreview(document.getElementById('rendered'), result.markdown);
     } catch (error) {
       // Leave the busy state and clear the "Converting…" announcement.
       inputRegion?.removeAttribute('aria-busy');
+      dropzone?.classList.remove('is-converting');
       if (srStatus) srStatus.textContent = '';
       recordConversion('error');
       showConversionError(error);

@@ -148,6 +148,60 @@
     }
   }
 
+  /* Conversion in progress: the dropzone stays visible while the (off-thread)
+     convert runs, so swap the upload icon for a spinner as immediate feedback
+     that the drop registered — the results reveal is otherwise the first cue. */
+  .dropzone.is-converting {
+    cursor: progress;
+  }
+  .dropzone.is-converting .dropzone-icon {
+    position: relative;
+    color: var(--color-chartreuse-deep);
+  }
+  .dropzone.is-converting .dropzone-icon svg {
+    opacity: 0;
+  }
+  .dropzone.is-converting .dropzone-icon::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 22px;
+    height: 22px;
+    margin: auto;
+    border: 2px solid
+      color-mix(in srgb, var(--color-chartreuse) 30%, transparent);
+    border-top-color: var(--color-chartreuse-deep);
+    border-radius: 9999px;
+    animation: dropzone-spin 0.7s linear infinite;
+  }
+  @media (prefers-color-scheme: dark) {
+    .dropzone.is-converting .dropzone-icon {
+      color: var(--color-chartreuse);
+    }
+    .dropzone.is-converting .dropzone-icon::after {
+      border-top-color: var(--color-chartreuse);
+    }
+  }
+  @keyframes dropzone-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  /* Reduced-motion: keep the icon and skip the spin, but still change state. */
+  @media (prefers-reduced-motion: reduce) {
+    .dropzone.is-converting .dropzone-icon svg {
+      opacity: 1;
+    }
+    .dropzone.is-converting .dropzone-icon::after {
+      animation: none;
+      border-top-color: color-mix(
+        in srgb,
+        var(--color-chartreuse) 30%,
+        transparent
+      );
+    }
+  }
+
   /* Hairline divider used between major bands */
   .rule {
     height: 1px;
@@ -177,6 +231,17 @@
       opacity: 0;
       animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
+    /* Rise-only variant for the LCP-critical hero <h1>: same upward motion, but
+       it never drops to opacity:0. Chrome discounts an opacity:0 element as an
+       LCP candidate until it fades in, which would push the largest element's
+       LCP time out past its animation-delay and let a smaller always-opaque
+       element (the promo cover) win LCP instead. Keeping opacity at 1 makes the
+       <h1> a contentful paint from the first frame; a transform offset doesn't
+       affect contentfulness, so the motion is preserved. */
+    .reveal-rise {
+      transform: translateY(14px);
+      animation: rise-solid 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
   }
   @keyframes rise {
     from {
@@ -185,6 +250,14 @@
     }
     to {
       opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes rise-solid {
+    from {
+      transform: translateY(14px);
+    }
+    to {
       transform: none;
     }
   }

@@ -53,11 +53,13 @@ test.describe('Word to Markdown Web Interface', () => {
     const markdownText = await markdownOutput.textContent();
     expect(markdownText).toContain('# Heading 1');
 
-    // Check that rendered HTML is present
+    // Check that rendered HTML is present. The preview renders off the critical
+    // path (after the results reveal), so poll rather than read innerHTML once.
     const renderedOutput = page.locator('#rendered');
     await expect(renderedOutput).toBeVisible();
-    const renderedHTML = await renderedOutput.innerHTML();
-    expect(renderedHTML).toContain('<h1>Heading 1</h1>');
+    await expect
+      .poll(() => renderedOutput.innerHTML())
+      .toContain('<h1>Heading 1</h1>');
   });
 
   test('runs the conversion in a Web Worker (off the main thread)', async ({
@@ -99,10 +101,13 @@ test.describe('Word to Markdown Web Interface', () => {
     expect(markdownText).toContain('## H2');
     expect(markdownText).toContain('### H3');
 
-    // Check rendered output has proper HTML headings
+    // Check rendered output has proper HTML headings. The preview renders off
+    // the critical path, so wait for it to populate before asserting.
     const renderedOutput = page.locator('#rendered');
+    await expect
+      .poll(() => renderedOutput.innerHTML())
+      .toContain('<h1>H1</h1>');
     const renderedHTML = await renderedOutput.innerHTML();
-    expect(renderedHTML).toContain('<h1>H1</h1>');
     expect(renderedHTML).toContain('<h2>H2</h2>');
     expect(renderedHTML).toContain('<h3>H3</h3>');
   });
@@ -127,10 +132,11 @@ test.describe('Word to Markdown Web Interface', () => {
     expect(markdownText).toContain('|');
     expect(markdownText).toMatch(/\|.*\|/); // Should contain pipe-separated content
 
-    // Check rendered output has table HTML
+    // Check rendered output has table HTML. The preview renders off the
+    // critical path, so wait for it to populate before asserting.
     const renderedOutput = page.locator('#rendered');
+    await expect.poll(() => renderedOutput.innerHTML()).toContain('<table>');
     const renderedHTML = await renderedOutput.innerHTML();
-    expect(renderedHTML).toContain('<table>');
     expect(renderedHTML).toContain('<tr>');
     expect(renderedHTML).toContain('<td>');
   });

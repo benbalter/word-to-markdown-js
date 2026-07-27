@@ -212,6 +212,8 @@ const t = useTranslations(asLocale(Astro.props.lang));
         src="/open-and-async-cover.png"
         width="48"
         height="66"
+        decoding="async"
+        loading="lazy"
         alt={t.promo.coverAlt}
         class="hidden shrink-0 rounded shadow-sm sm:block"
       />
