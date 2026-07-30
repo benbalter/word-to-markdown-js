@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
+import { mkdir, writeFile } from 'fs/promises';
 import {
   convertWithWarnings,
   UnsupportedFileError,
@@ -21,6 +22,11 @@ program
     'Remove images instead of embedding them as base64 data URIs',
   )
   .option(
+    '--image-dir <dir>',
+    'Extract images to <dir> and link them relatively, instead of embedding ' +
+      'them as base64. Links resolve relative to where you save the Markdown.',
+  )
+  .option(
     '--bullet-lists',
     'Convert numbered lists to bullets rather than keeping them as 1./2./3.',
   )
@@ -30,11 +36,30 @@ program
   )
   .action(async (file, options) => {
     try {
+      // --image-dir (extract) takes precedence over --strip-images.
+      const images = options.imageDir
+        ? 'extract'
+        : options.stripImages
+          ? 'strip'
+          : 'inline';
       const result = await convertWithWarnings(file, {
-        images: options.stripImages ? 'strip' : 'inline',
+        images,
+        imageDir: options.imageDir,
         numberedLists: options.bulletLists ? 'bullets' : 'ordered',
         underline: options.underline ? 'preserve' : 'ignore',
       });
+
+      // Write extracted images to disk before emitting the Markdown that links
+      // them. Paths are already prefixed with the requested directory.
+      if (result.images && result.images.length > 0) {
+        await mkdir(options.imageDir, { recursive: true });
+        await Promise.all(
+          result.images.map((image) => writeFile(image.path, image.bytes)),
+        );
+        console.error(
+          `Wrote ${result.images.length} image(s) to ${options.imageDir}/`,
+        );
+      }
 
       // Display warnings to stderr if any
       if (result.warnings.length > 0) {

@@ -24,17 +24,20 @@ npx word-to-markdown input.docx > output.md
 - Tables
 - Links
 - Footnotes and endnotes
-- Images — embedded inline as base64 data URIs
+- Images — embedded inline as base64 data URIs, or extracted to files
 
 ### Notes and limitations
 
 - **Numbered lists** are kept as `1./2./3.` ordered lists. Pass
   `{ numberedLists: 'bullets' }` (library) or `--bullet-lists` (CLI) to convert
   them to bullet lists instead (matching the original word-to-markdown).
-- **Images** are inlined as base64 data URIs rather than extracted to separate
-  files. To change this, pass a custom [Mammoth image handler](https://github.com/mwilliamson/mammoth.js/#images)
-  via `options.mammoth` (see [Use as a library](#use-as-a-library)), or drop
-  images entirely with `{ images: 'strip' }` / `--strip-images`.
+- **Images** are inlined as base64 data URIs by default. To extract them to
+  files with relative links instead, use `{ images: 'extract' }` (library — the
+  bytes come back on `ConvertResult.images`) or `--image-dir <dir>` (CLI). Drop
+  them entirely with `{ images: 'strip' }` / `--strip-images`. On the web,
+  documents with images offer a **Download .zip** (Markdown + an `images/`
+  folder). For full control, pass a custom [Mammoth image handler](https://github.com/mwilliamson/mammoth.js/#images)
+  via `options.mammoth`.
 - **Underline** is dropped by default (Mammoth's default, since underlines are
   easily confused with links). Pass `{ underline: 'preserve' }` (library) or
   `--underline` (CLI) to keep it as an inline `<u>` tag.
@@ -81,6 +84,9 @@ Options:
 - `--bullet-lists` — convert numbered lists to bullets instead of keeping `1./2./3.`.
 - `--underline` — preserve underlined text as inline `<u>` tags (dropped by default).
 - `--strip-images` — remove images instead of embedding them as base64 data URIs.
+- `--image-dir <dir>` — extract images to `<dir>` and link them relatively, instead
+  of embedding base64. Links resolve relative to where you save the Markdown, e.g.
+  `w2m --image-dir images report.docx > report.md`.
 
 ## Use as a library
 
@@ -111,20 +117,22 @@ const { markdown } = await convertWithWarnings(arrayBuffer);
 ### API
 
 - **`convert(input, options?): Promise<string>`** — resolves to the Markdown.
-- **`convertWithWarnings(input, options?): Promise<{ markdown: string; warnings: string[] }>`** — also returns human-readable warnings for encrypted, protected, or sensitivity-labeled documents.
+- **`convertWithWarnings(input, options?): Promise<{ markdown: string; warnings: string[]; images? }>`** — also returns human-readable warnings for encrypted, protected, or sensitivity-labeled documents, and (in `extract` mode) the extracted images.
 
 `input` is a file-path `string` (Node) or an `ArrayBuffer` (browser). `options` is optional:
 
-- **`images`** — `'inline'` (default) embeds images as base64 data URIs; `'strip'` removes them.
+- **`images`** — `'inline'` (default) embeds images as base64 data URIs; `'strip'` removes them; `'extract'` replaces each with a relative `![](imageDir/imageN.ext)` link and returns the bytes on `ConvertResult.images` (use `convertWithWarnings` to retrieve them).
+- **`imageDir`** — link/path prefix for extracted images (default `'images'`); only applies with `images: 'extract'`.
 - **`numberedLists`** — `'ordered'` (default) keeps `1./2./3.`; `'bullets'` converts numbered lists to bullets.
 - **`underline`** — `'ignore'` (default) drops underlines; `'preserve'` keeps them as inline `<u>` tags.
 - **`mammoth`** / **`turndown`** — escape hatches forwarded to [Mammoth](https://github.com/mwilliamson/mammoth.js/) and [Turndown](https://github.com/mixmark-io/turndown) respectively.
 
 ```js
-const markdown = await convert('file.docx', {
-  numberedLists: 'bullets',
-  underline: 'preserve',
+// Extract images to files and write them out yourself:
+const { markdown, images } = await convertWithWarnings('file.docx', {
+  images: 'extract',
 });
+// markdown → ![](images/image1.png); images → [{ path, contentType, bytes }]
 ```
 
 ### Error handling

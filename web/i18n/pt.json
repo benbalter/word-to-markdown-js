@@ -14,6 +14,8 @@
   "copiedButton": "Copiado!",
   "downloadButton": "Baixar .md",
   "downloadedButton": "Baixado",
+  "downloadZipButton": "Baixar .zip",
+  "downloadedZipButton": "Baixado",
   "convertAnother": "Converter outro arquivo",
   "panelMarkdown": "Markdown",
   "panelPreview": "Visualização",

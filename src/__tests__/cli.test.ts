@@ -1,5 +1,6 @@
 import { execFileSync } from 'child_process';
-import { existsSync } from 'fs';
+import { existsSync, mkdtempSync, rmSync, statSync } from 'fs';
+import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -92,6 +93,24 @@ describe('w2m CLI', () => {
     expect(stripped.status).toBe(0);
     expect(stripped.stdout).not.toContain('data:image');
     expect(stripped.stdout).toContain('Text after image.');
+  });
+
+  it('--image-dir extracts images to files and links them relatively', () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'w2m-images-'));
+    try {
+      const result = runCli(['--image-dir', dir, fixture('image.docx')]);
+      expect(result.status).toBe(0);
+      // No base64 in the Markdown; a relative link to the written file instead.
+      // (runCli only captures stderr on a non-zero exit, so the "Wrote N image"
+      // notice isn't asserted here — the written file below is the real proof.)
+      expect(result.stdout).not.toContain('data:image');
+      expect(result.stdout).toContain(`${dir}/image1.png`);
+      // The file exists on disk with real bytes.
+      expect(existsSync(path.join(dir, 'image1.png'))).toBe(true);
+      expect(statSync(path.join(dir, 'image1.png')).size).toBeGreaterThan(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it('keeps numbered lists numbered by default', () => {

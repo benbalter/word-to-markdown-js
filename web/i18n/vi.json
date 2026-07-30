@@ -14,6 +14,8 @@
   "copiedButton": "Đã sao chép!",
   "downloadButton": "Tải .md",
   "downloadedButton": "Đã tải xuống",
+  "downloadZipButton": "Tải .zip",
+  "downloadedZipButton": "Đã tải xuống",
   "convertAnother": "Chuyển đổi tệp khác",
   "panelMarkdown": "Markdown",
   "panelPreview": "Xem trước",
