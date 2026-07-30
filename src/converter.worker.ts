@@ -9,6 +9,9 @@ import { convertWithWarnings } from './main.js';
 interface ConvertRequest {
   id: number;
   buffer: ArrayBuffer;
+  // When true, extract images to relative files (returned on result.images)
+  // instead of inlining them as base64. Used by the "Download .zip" action.
+  extract?: boolean;
 }
 
 const ctx = self as unknown as DedicatedWorkerGlobalScope;
@@ -19,9 +22,12 @@ const ctx = self as unknown as DedicatedWorkerGlobalScope;
 ctx.postMessage({ type: 'ready' });
 
 ctx.onmessage = async (event: MessageEvent<ConvertRequest>): Promise<void> => {
-  const { id, buffer } = event.data;
+  const { id, buffer, extract } = event.data;
   try {
-    const result = await convertWithWarnings(buffer);
+    const result = await convertWithWarnings(
+      buffer,
+      extract ? { images: 'extract' } : undefined,
+    );
     ctx.postMessage({ id, ok: true, result });
   } catch (error) {
     // Errors can't cross the worker boundary as class instances, so forward the

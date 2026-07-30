@@ -16,9 +16,18 @@ interface convertOptions {
   /**
    * How to handle images. `'inline'` (default) keeps Mammoth's base64 data
    * URIs; `'strip'` removes images entirely (useful to avoid multi-MB output
-   * from image-heavy documents).
+   * from image-heavy documents); `'extract'` replaces each image with a
+   * relative `![](imageDir/imageN.ext)` link and returns the image bytes on
+   * `ConvertResult.images` (use `convertWithWarnings` to retrieve them).
    */
-  images?: 'inline' | 'strip';
+  images?: 'inline' | 'strip' | 'extract';
+  /**
+   * Directory prefix used for extracted image links and paths (default
+   * `'images'`). Only applies when `images` is `'extract'`. The same value is
+   * used for the Markdown link (`![](imageDir/imageN.ext)`) and the returned
+   * `ExtractedImage.path`, so links and files always agree.
+   */
+  imageDir?: string;
   /**
    * How to render Word's numbered lists. `'ordered'` (default) keeps them as
    * `1.`/`2.`/… ordered lists; `'bullets'` converts them to bullet lists
@@ -43,9 +52,20 @@ interface MammothOptions {
   [key: string]: unknown;
 }
 
+// An image pulled out of the document by `images: 'extract'`. `path` is the
+// relative link used in the Markdown (e.g. `images/image1.png`); `bytes` is the
+// raw file content for the caller to write to disk or bundle into a zip.
+export interface ExtractedImage {
+  path: string;
+  contentType: string;
+  bytes: Uint8Array;
+}
+
 export interface ConvertResult {
   markdown: string;
   warnings: string[];
+  /** Present (possibly empty) when converting with `images: 'extract'`. */
+  images?: ExtractedImage[];
 }
 
 interface DocumentProperties {
@@ -590,19 +610,94 @@ function withUnderlineStyleMap(
   return { ...mammothOptions, styleMap: [...existing, 'u => u'] };
 }
 
+// Common image content types → file extension. Word most often embeds PNG and
+// JPEG; the rest cover formats Mammoth may surface. EMF/WMF are extracted as
+// bytes for completeness but browsers can't render them (Mammoth won't transcode).
+const CONTENT_TYPE_EXTENSIONS: { [contentType: string]: string } = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+  'image/gif': 'gif',
+  'image/tiff': 'tiff',
+  'image/bmp': 'bmp',
+  'image/webp': 'webp',
+  'image/svg+xml': 'svg',
+  'image/x-emf': 'emf',
+  'image/x-wmf': 'wmf',
+};
+
+// Pick a file extension for an extracted image. Falls back to the content
+// type's subtype when it's a clean alphanumeric token, else `bin`. Exported for
+// unit testing since only a PNG fixture exists.
+export function extensionForContentType(contentType: string): string {
+  const normalized = contentType.toLowerCase();
+  const known = CONTENT_TYPE_EXTENSIONS[normalized];
+  if (known) return known;
+  const subtype = normalized.split('/')[1] ?? '';
+  return /^[a-z0-9]+$/.test(subtype) ? subtype : 'bin';
+}
+
+// Decode a base64 string to bytes in both Node (Buffer) and the browser (atob).
+// Mammoth's `image.read('base64')` is the one encoding available in every build.
+function base64ToBytes(b64: string): Uint8Array {
+  if (typeof Buffer !== 'undefined') {
+    return new Uint8Array(Buffer.from(b64, 'base64'));
+  }
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+// Build a Mammoth `convertImage` handler that pulls each image out into a byte
+// array with a deterministic relative path (`imageDir/imageN.ext`) instead of
+// inlining it as a base64 data URI. The collected images are exposed on the
+// returned `images` array once conversion finishes.
+function createImageExtractor(imageDir: string): {
+  images: ExtractedImage[];
+  convertImage: unknown;
+} {
+  const images: ExtractedImage[] = [];
+  const convertImage = mammoth.images.imgElement(async (image) => {
+    const bytes = base64ToBytes(await image.read('base64'));
+    const ext = extensionForContentType(image.contentType);
+    const path = `${imageDir}/image${images.length + 1}.${ext}`;
+    images.push({ path, contentType: image.contentType, bytes });
+    return { src: path };
+  });
+  return { images, convertImage };
+}
+
 // The shared conversion pipeline: mammoth HTML -> cleaned, formatted Markdown.
-// Returns mammoth's messages so callers can surface content-loss warnings.
+// Returns mammoth's messages so callers can surface content-loss warnings, and
+// (in extract mode) the extracted image assets.
 async function runConversionPipeline(
   mammothInput: MammothInput,
   options: convertOptions,
-): Promise<{ markdown: string; messages: MammothMessage[] }> {
+): Promise<{
+  markdown: string;
+  messages: MammothMessage[];
+  images?: ExtractedImage[];
+}> {
   // Preserving underline requires cooperation at both ends of the pipeline:
   // Mammoth must be told to emit `<u>` (it drops underlines by default), and
   // Turndown must be told to keep that tag rather than flatten it to text.
   const preserveUnderline = options.underline === 'preserve';
-  const mammothOptions = preserveUnderline
+  let mammothOptions: MammothOptions | undefined = preserveUnderline
     ? withUnderlineStyleMap(options.mammoth as MammothOptions | undefined)
-    : options.mammoth;
+    : (options.mammoth as MammothOptions | undefined);
+
+  // Extract mode swaps Mammoth's default base64 inliner for a collector that
+  // returns each image's bytes and rewrites the src to a relative path.
+  let extractor:
+    { images: ExtractedImage[]; convertImage: unknown } | undefined;
+  if (options.images === 'extract') {
+    extractor = createImageExtractor(options.imageDir ?? 'images');
+    mammothOptions = {
+      ...mammothOptions,
+      convertImage: extractor.convertImage,
+    };
+  }
 
   const mammothResult = await mammoth.convertToHtml(
     mammothInput,
@@ -624,7 +719,11 @@ async function runConversionPipeline(
   const normalizedMd = normalizeText(listMd);
   const cleanedMd = lint(normalizedMd);
   const formattedMd = await prettify(cleanedMd);
-  return { markdown: formattedMd, messages: mammothResult.messages };
+  return {
+    markdown: formattedMd,
+    messages: mammothResult.messages,
+    images: extractor?.images,
+  };
 }
 
 // Substrings (lower-cased) that, in a thrown error's message, indicate the
@@ -781,13 +880,13 @@ export async function convertWithWarnings(
     const properties = await extractDocumentProperties(propertiesInput);
     const warnings = generateWarnings(properties);
 
-    const { markdown, messages } = await runConversionPipeline(
+    const { markdown, messages, images } = await runConversionPipeline(
       mammothInput,
       options,
     );
     warnings.push(...extractMammothWarnings(messages));
 
-    return { markdown, warnings };
+    return images ? { markdown, warnings, images } : { markdown, warnings };
   } catch (error) {
     classifyConversionError(error, filePath);
   }

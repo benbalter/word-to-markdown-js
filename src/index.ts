@@ -1,4 +1,5 @@
 import ClipboardJS from 'clipboard';
+import type { ExtractedImage } from './main.js';
 
 // Upper bound on the file we'll attempt to read into memory and convert
 // client-side. Comfortably above any real Word document; guards against a
@@ -9,6 +10,13 @@ const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 // "Downloaded" confirmation (mirrors the copy button). Initialized on load.
 let downloadLabelDefault = '';
 let downloadResetTimer: number | undefined;
+// Same, for the "Download .zip" button (shown only when a doc has images).
+let downloadZipLabelDefault = '';
+let downloadZipResetTimer: number | undefined;
+// The most recently converted document's bytes, retained so "Download .zip" can
+// re-run the conversion in extract mode (the on-screen Markdown inlines images
+// as base64; the zip needs them as separate files).
+let lastConvertedBuffer: ArrayBuffer | null = null;
 
 // The Word→Markdown converter and the Markdown→HTML renderer pull in heavy
 // dependencies (mammoth, turndown, jszip, unified/remark/rehype, prettier,
@@ -72,6 +80,7 @@ async function renderPreview(
 interface ConversionResult {
   markdown: string;
   warnings: string[];
+  images?: ExtractedImage[];
 }
 
 // How long to wait for the worker to signal it has loaded before giving up and
@@ -143,14 +152,17 @@ function getConverterWorker(): Worker {
   return worker;
 }
 
-function convertViaWorker(buffer: ArrayBuffer): Promise<ConversionResult> {
+function convertViaWorker(
+  buffer: ArrayBuffer,
+  extract = false,
+): Promise<ConversionResult> {
   const worker = getConverterWorker();
   const id = ++workerMessageId;
   return new Promise<ConversionResult>((resolve, reject) => {
     pendingConversions.set(id, { resolve, reject });
     // Structured-clone (don't transfer) the buffer so it stays valid for a
     // main-thread fallback if the worker turns out to be unavailable.
-    worker.postMessage({ id, buffer });
+    worker.postMessage({ id, buffer, extract });
   });
 }
 
@@ -158,18 +170,24 @@ function convertViaWorker(buffer: ArrayBuffer): Promise<ConversionResult> {
 // transparent main-thread fallback (older browsers, or a worker that never
 // loads or hangs). A genuine conversion error propagates; only infrastructure
 // failures fall back.
-async function convertBuffer(buffer: ArrayBuffer): Promise<ConversionResult> {
+async function convertBuffer(
+  buffer: ArrayBuffer,
+  extract = false,
+): Promise<ConversionResult> {
   if (typeof Worker !== 'undefined' && !workerUnavailable) {
     try {
       getConverterWorker();
       await workerReady; // rejects (WorkerInfraError) on load timeout/failure
-      return await convertViaWorker(buffer);
+      return await convertViaWorker(buffer, extract);
     } catch (error) {
       if (!(error instanceof WorkerInfraError)) throw error;
     }
   }
   const { convertWithWarnings } = await import('./main.js');
-  return convertWithWarnings(buffer);
+  return convertWithWarnings(
+    buffer,
+    extract ? { images: 'extract' } : undefined,
+  );
 }
 
 // True for legacy .doc files. Checked on the main thread because the worker
@@ -325,6 +343,16 @@ async function processFile(file: File | undefined): Promise<void> {
       const filenameElement = document.getElementById('filename');
       filenameElement.innerText = file.name;
 
+      // Retain the source bytes and offer "Download .zip" only when the document
+      // actually has images (inline mode embeds them as base64 data URIs).
+      lastConvertedBuffer = reader.result as ArrayBuffer;
+      const zipButton = document.getElementById('download-zip-button');
+      if (zipButton) {
+        zipButton.style.display = result.markdown.includes('data:image')
+          ? 'inline-flex'
+          : 'none';
+      }
+
       const inputElement = document.getElementById('input');
       inputElement.classList.add('hidden');
 
@@ -377,6 +405,7 @@ function uiString(
     | 'dismiss'
     | 'copied'
     | 'downloaded'
+    | 'downloadedZip'
     | 'fileTooLarge'
     | 'conversionAnnouncement'
     | 'converting',
@@ -502,6 +531,11 @@ function resetConverter(): void {
   const fileInput = document.getElementById('file') as HTMLInputElement | null;
   if (fileInput) fileInput.value = '';
 
+  // Drop the retained bytes and re-hide the zip button for the next document.
+  lastConvertedBuffer = null;
+  const zipButton = document.getElementById('download-zip-button');
+  if (zipButton) zipButton.style.display = 'none';
+
   document.getElementById('error-alert')?.remove();
   document.getElementById('warning-alert')?.remove();
 
@@ -545,6 +579,56 @@ function downloadMarkdown(): void {
     downloadResetTimer = window.setTimeout(() => {
       label.textContent = downloadLabelDefault;
     }, 2000);
+  }
+}
+
+// Download a .zip containing the Markdown (with relative image links) plus an
+// images/ folder. Re-runs the conversion in extract mode against the retained
+// source bytes, then bundles the result with JSZip (already a dependency).
+async function downloadZip(): Promise<void> {
+  if (!lastConvertedBuffer) return;
+  const button = document.getElementById(
+    'download-zip-button',
+  ) as HTMLButtonElement | null;
+  const label = document.getElementById('download-zip-label');
+  const sourceName =
+    document.getElementById('filename')?.innerText ?? 'document';
+  const baseName = sourceName.replace(/\.docx$/i, '') || 'document';
+
+  if (button) button.disabled = true;
+  try {
+    const [{ default: JSZip }, result] = await Promise.all([
+      import('jszip'),
+      convertBuffer(lastConvertedBuffer, true),
+    ]);
+
+    const zip = new JSZip();
+    zip.file(`${baseName}.md`, result.markdown);
+    for (const image of result.images ?? []) {
+      zip.file(image.path, image.bytes);
+    }
+    const blob = await zip.generateAsync({ type: 'blob' });
+
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `${baseName}.zip`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+
+    if (label) {
+      label.textContent = uiString('downloadedZip', 'Downloaded');
+      window.clearTimeout(downloadZipResetTimer);
+      downloadZipResetTimer = window.setTimeout(() => {
+        label.textContent = downloadZipLabelDefault;
+      }, 2000);
+    }
+  } catch (error) {
+    showConversionError(error);
+  } finally {
+    if (button) button.disabled = false;
   }
 }
 
@@ -613,6 +697,13 @@ document.addEventListener('DOMContentLoaded', () => {
     downloadLabelDefault =
       document.getElementById('download-label')?.textContent ?? '';
     downloadButton.addEventListener('click', downloadMarkdown);
+  }
+
+  const downloadZipButton = document.getElementById('download-zip-button');
+  if (downloadZipButton !== null) {
+    downloadZipLabelDefault =
+      document.getElementById('download-zip-label')?.textContent ?? '';
+    downloadZipButton.addEventListener('click', () => void downloadZip());
   }
 
   const convertAnotherButton = document.getElementById('convert-another');

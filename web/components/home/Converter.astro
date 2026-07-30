@@ -30,6 +30,7 @@ const t = useTranslations(asLocale(Astro.props.lang));
     data-converting={t.convertingStatus}
     data-copied={t.copiedButton}
     data-downloaded={t.downloadedButton}
+    data-downloaded-zip={t.downloadedZipButton}
     data-dismiss={t.dismiss}
   >
     <label
@@ -135,6 +136,33 @@ const t = useTranslations(asLocale(Astro.props.lang));
             <path d="M12 15V3" />
           </svg>
           <span id="download-label">{t.downloadButton}</span>
+        </button>
+        <button
+          id="download-zip-button"
+          type="button"
+          style="display:none"
+          class="inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 disabled:opacity-60 dark:border-white/15 dark:bg-ink-card dark:text-[#eef0f6] dark:hover:border-chartreuse"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path
+              d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
+            />
+            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+            <rect x="9" y="12" width="2" height="2" />
+            <rect x="9" y="16" width="2" height="2" />
+          </svg>
+          <span id="download-zip-label">{t.downloadZipButton}</span>
         </button>
         <button
           id="convert-another"

@@ -14,6 +14,8 @@
   "copiedButton": "Kopiert!",
   "downloadButton": ".md herunterladen",
   "downloadedButton": "Heruntergeladen",
+  "downloadZipButton": ".zip herunterladen",
+  "downloadedZipButton": "Heruntergeladen",
   "convertAnother": "Weitere Datei konvertieren",
   "panelMarkdown": "Markdown",
   "panelPreview": "Vorschau",
@@ -28,7 +30,7 @@
     },
     {
       "t": "Kopieren oder speichern",
-      "d": "Kopiere das Markdown oder lade eine .md-Datei herunter."
+      "d": "Kopiere das Markdown, lade eine .md-Datei herunter oder ein .zip mit deinen Bildern."
     }
   ],
   "conversionHeading": "Was konvertiert wird",
@@ -99,7 +101,8 @@
     "Word (.docx) in Markdown umwandeln",
     "Google Docs in Markdown umwandeln",
     "Markdown-Ausgabe im GitHub-Stil",
-    "100% clientseitig — nichts wird hochgeladen"
+    "100% clientseitig — nichts wird hochgeladen",
+    "Bilder als Dateien extrahieren"
   ],
   "errorGeneric": "Beim Umwandeln des Dokuments ist ein unerwarteter Fehler aufgetreten. Bitte versuche es erneut.",
   "docFileError": "Dieses Tool liest moderne .docx-Dateien, keine älteren .doc-Dateien. Öffnen Sie Ihr Dokument in Word und wählen Sie Datei → Speichern unter → Word-Dokument (.docx), und ziehen Sie die .docx-Datei dann hierher.",

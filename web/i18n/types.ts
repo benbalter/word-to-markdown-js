@@ -41,6 +41,10 @@ export interface UIStrings {
   downloadButton: string;
   /** Transient confirmation shown on the download button after a download. */
   downloadedButton: string;
+  /** Label for the button that downloads a .zip of the Markdown + extracted images. */
+  downloadZipButton: string;
+  /** Transient confirmation shown on the .zip download button after a download. */
+  downloadedZipButton: string;
   /** Resets the converter to accept another document. */
   convertAnother: string;
   panelMarkdown: string;
