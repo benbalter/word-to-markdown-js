@@ -27,8 +27,14 @@
     "skipLibCheck": true
   },
   "include": ["src/**/*"],
-  // src/index.ts is the browser entry and src/converter.worker.ts is its Web
-  // Worker — Astro/Vite bundles both for the site, so tsc (which builds the Node
-  // CLI + library) skips them to avoid emitting dead build/ output.
-  "exclude": ["src/__tests__/**/*", "src/index.ts", "src/converter.worker.ts"]
+  // src/index.ts is the browser entry and src/converter.worker.ts (plus its
+  // worker-only DOM shim) is its Web Worker — Astro/Vite bundles these for the
+  // site, so tsc (which builds the Node CLI + library) skips them to avoid
+  // emitting dead build/ output.
+  "exclude": [
+    "src/__tests__/**/*",
+    "src/index.ts",
+    "src/converter.worker.ts",
+    "src/worker-dom-polyfill.ts"
+  ]
 }

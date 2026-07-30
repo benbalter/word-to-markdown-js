@@ -65,6 +65,44 @@ test.describe('Word to Markdown Web Interface', () => {
   test('runs the conversion in a Web Worker (off the main thread)', async ({
     page,
   }) => {
+    // The worker bundles browser builds of turndown/markdownlint/domino that
+    // assume a DOM; a worker has none, so a regression there throws
+    // "window/document/require is not defined" at load. That crash is caught as a
+    // WorkerInfraError and the app silently falls back to the main thread — the
+    // output still looks right, so asserting only on output would hide the
+    // regression (that was the old false-positive). Instead, tap the worker's
+    // messages to prove the *worker* produced the result, and fail on any
+    // worker/page error. (The tap must be installed before the worker is
+    // created, so add the init script then re-navigate — beforeEach already
+    // loaded the page, so the script needs a fresh load to take effect.)
+    await page.addInitScript(() => {
+      (window as unknown as { __workerConverted: boolean }).__workerConverted =
+        false;
+      const OriginalWorker = window.Worker;
+      window.Worker = class extends OriginalWorker {
+        constructor(scriptURL: string | URL, options?: WorkerOptions) {
+          super(scriptURL, options);
+          this.addEventListener('message', (event: MessageEvent) => {
+            if (event.data?.id != null && event.data?.ok === true) {
+              (
+                window as unknown as { __workerConverted: boolean }
+              ).__workerConverted = true;
+            }
+          });
+        }
+      } as typeof Worker;
+    });
+
+    const workerErrors: string[] = [];
+    page.on('pageerror', (error) => workerErrors.push(error.message));
+    page.on('console', (message) => {
+      if (message.type() === 'error') workerErrors.push(message.text());
+    });
+
+    // Fresh load so the init script (and thus the Worker tap) is in place before
+    // the app lazily creates the converter worker.
+    await page.goto('http://localhost:8080');
+
     const fixturePath = path.join(__dirname, '../../__fixtures__/h1.docx');
     await page.locator('#file').setInputFiles(fixturePath);
     await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
@@ -75,6 +113,19 @@ test.describe('Word to Markdown Web Interface', () => {
     expect(workers.some((w) => w.url().includes('converter.worker'))).toBe(
       true,
     );
+
+    // The worker — not the main-thread fallback — must have produced the result,
+    // and it must have loaded without throwing.
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            (window as unknown as { __workerConverted: boolean })
+              .__workerConverted,
+        ),
+      )
+      .toBe(true);
+    expect(workerErrors).toEqual([]);
   });
 
   test('should convert multiple heading levels document', async ({ page }) => {

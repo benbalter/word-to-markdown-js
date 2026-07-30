@@ -4,6 +4,11 @@
 // turndown, prettier, markdownlint, jszip) load in this worker's context rather
 // than on the page. Excluded from tsc (see tsconfig.json); Astro/Vite bundles
 // it via the `new Worker(new URL(...))` reference in src/index.ts.
+//
+// The DOM shim MUST be imported before the converter: turndown reads
+// `window.DOMParser` at load and a worker has no `window`. See
+// ./worker-dom-polyfill.ts for why this is a separate module.
+import './worker-dom-polyfill.js';
 import { convertWithWarnings } from './main.js';
 
 interface ConvertRequest {
@@ -15,11 +20,6 @@ interface ConvertRequest {
 }
 
 const ctx = self as unknown as DedicatedWorkerGlobalScope;
-
-// Signal that the module (and its heavy deps) finished loading. The main thread
-// waits for this before sending work; if it never arrives, it falls back to
-// converting on the main thread rather than hanging.
-ctx.postMessage({ type: 'ready' });
 
 ctx.onmessage = async (event: MessageEvent<ConvertRequest>): Promise<void> => {
   const { id, buffer, extract } = event.data;
@@ -39,3 +39,9 @@ ctx.onmessage = async (event: MessageEvent<ConvertRequest>): Promise<void> => {
     ctx.postMessage({ id, ok: false, error: serialized });
   }
 };
+
+// Signal that the module (and its heavy deps) finished loading. The main thread
+// waits for this before sending work; if it never arrives, it falls back to
+// converting on the main thread rather than hanging. Posted after onmessage is
+// wired up so no early message can be missed.
+ctx.postMessage({ type: 'ready' });

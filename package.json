@@ -76,6 +76,7 @@
   "dependencies": {
     "@joplin/turndown": "^4.0.85",
     "@joplin/turndown-plugin-gfm": "^1.0.67",
+    "@mixmark-io/domino": "^2.2.0",
     "commander": "^15.0.0",
     "jszip": "^3.10.1",
     "mammoth": "^1.12.0",

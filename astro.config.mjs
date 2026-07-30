@@ -119,6 +119,16 @@ export default defineConfig({
   ],
   vite: {
     plugins: [tailwindcss()],
+    // Bundle the conversion Web Worker (src/converter.worker.ts) as ES modules
+    // rather than Vite's default IIFE. The worker is already created with
+    // `{ type: 'module' }`, and the heavy CJS deps (markdownlint, domino) rely on
+    // Rollup's ESM interop `require` shim — under IIFE output those free `require`
+    // references stay bare globals and throw "require is not defined" in the
+    // worker (the main-thread bundle is ESM and gets the shim, which is why the
+    // fallback path works). ES output matches it, so the worker converts for real.
+    // Safe compatibility-wise: the worker is already created as a module worker
+    // (`{ type: 'module' }`), so ES output doesn't narrow browser support.
+    worker: { format: 'es' },
     optimizeDeps: {
       // The converter UI's client <script> imports src/index.ts, which pulls
       // in heavy deps (mammoth, jszip, turndown). Point Vite's cold-start
