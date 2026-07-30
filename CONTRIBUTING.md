@@ -104,8 +104,8 @@ Because npm's UI only lets you configure a trusted publisher on a package that a
 
 ### Cutting a release
 
-1. Bump `version` in `package.json` (e.g. `0.1.0` → `0.1.1`) and merge it to `main`.
-2. Create a GitHub Release whose tag matches the new version, prefixed with `v` (e.g. `v0.1.1`). The workflow verifies the tag matches `package.json` and fails the publish if they drift.
+1. Bump `version` in `package.json` (e.g. `0.1.0` → `0.1.1`), add a matching entry to [`CHANGELOG.md`](CHANGELOG.md), and merge both to `main`.
+2. Create a GitHub Release whose tag matches the new version, prefixed with `v` (e.g. `v0.1.1`), using the CHANGELOG entry as the release notes. The workflow verifies the tag matches `package.json` and fails the publish if they drift.
 3. The workflow builds, tests, and runs `npm publish`, authenticating via OIDC.
 
 ## Code of conduct
