@@ -12,9 +12,9 @@ const expectations = {
   table:
     '| **Foo** | **Bar** |\n| ------- | ------- |\n| One     | Two     |\n| Three   | Four    |',
   ul: '- One\n- Two\n- Three',
-  ol: '- One\n- Two\n- Three',
+  ol: '1. One\n2. Two\n3. Three',
   'nested-ol':
-    '- One\n  - Sub one\n  - Sub two\n- Two\n  - Sub one\n    - Sub sub one\n    - Sub sub two\n  - Sub two\n- Three',
+    '1. One\n   1. Sub one\n   2. Sub two\n2. Two\n   1. Sub one\n      1. Sub sub one\n      2. Sub sub two\n   2. Sub two\n3. Three',
   'nested-ul':
     '- One\n  - Sub one\n    - Sub sub one\n    - Sub sub two\n  - Sub two\n- Two',
   'list-with-links':
@@ -488,18 +488,18 @@ describe('conversion options', () => {
     expect(md).toContain('Text after image.');
   });
 
-  it('converts numbered lists to bullets by default', async () => {
+  it('keeps numbered lists numbered by default', async () => {
     const { default: convert } = await import('../main.js');
     const md = await convert(OL);
-    expect(md).toContain('- One');
-    expect(md).not.toMatch(/^\s*1\.\s/m);
-  });
-
-  it('keeps ordered lists with { numberedLists: "ordered" }', async () => {
-    const { default: convert } = await import('../main.js');
-    const md = await convert(OL, { numberedLists: 'ordered' });
     expect(md).toMatch(/^\s*1\.\s+One/m);
     expect(md).not.toContain('- One');
+  });
+
+  it('converts numbered lists to bullets with { numberedLists: "bullets" }', async () => {
+    const { default: convert } = await import('../main.js');
+    const md = await convert(OL, { numberedLists: 'bullets' });
+    expect(md).toContain('- One');
+    expect(md).not.toMatch(/^\s*1\.\s/m);
   });
 });
 

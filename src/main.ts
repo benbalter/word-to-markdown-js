@@ -20,11 +20,27 @@ interface convertOptions {
    */
   images?: 'inline' | 'strip';
   /**
-   * How to render Word's numbered lists. `'bullets'` (default) converts them to
-   * bullet lists (matching the classic word-to-markdown behavior); `'ordered'`
-   * keeps them as `1.`/`2.`/… ordered lists.
+   * How to render Word's numbered lists. `'ordered'` (default) keeps them as
+   * `1.`/`2.`/… ordered lists; `'bullets'` converts them to bullet lists
+   * (matching the classic word-to-markdown behavior).
    */
   numberedLists?: 'bullets' | 'ordered';
+  /**
+   * How to handle underlined text. `'ignore'` (default) drops the underline —
+   * Mammoth's default, since underlines are easily confused with links in HTML.
+   * `'preserve'` keeps it as an inline `<u>…</u>` tag (rendered by GitHub-flavored
+   * Markdown). Note that superscript and subscript are always preserved as
+   * `<sup>`/`<sub>` and need no option.
+   */
+  underline?: 'ignore' | 'preserve';
+}
+
+// Mammoth's options object, narrowed to the field we merge into. Mammoth appends
+// a provided styleMap to its default map, so adding an entry keeps the built-in
+// mappings (including superscript/subscript) intact.
+interface MammothOptions {
+  styleMap?: string[];
+  [key: string]: unknown;
 }
 
 export interface ConvertResult {
@@ -317,14 +333,22 @@ function processHtml(
 // Reusable TurndownService instance to avoid recreating it for each conversion
 let turndownServiceInstance: TurndownService | null = null;
 
-function getTurndownService(options: object = {}): TurndownService {
-  // Create a new instance if options are provided, otherwise reuse the singleton
-  if (Object.keys(options).length > 0) {
+function getTurndownService(
+  options: object = {},
+  keepTags: string[] = [],
+): TurndownService {
+  // Create a new instance if options or keep-tags are provided; otherwise reuse
+  // the singleton. `keep()` mutates the instance, so it must never touch the
+  // shared singleton — a fresh service is required whenever keepTags is set.
+  if (Object.keys(options).length > 0 || keepTags.length > 0) {
     const service = new TurndownService({
       ...defaultTurndownOptions,
       ...options,
     });
     service.use(turndownPluginGfm.gfm);
+    if (keepTags.length > 0) {
+      service.keep(keepTags);
+    }
     return service;
   }
 
@@ -335,12 +359,18 @@ function getTurndownService(options: object = {}): TurndownService {
   return turndownServiceInstance;
 }
 
-// Convert HTML to GitHub-flavored Markdown
-export function htmlToMd(html: string, options: object = {}): string {
+// Convert HTML to GitHub-flavored Markdown. `keepTags` lists HTML tags to
+// preserve verbatim as inline HTML (e.g. `['u']` to keep underlines) rather
+// than let Turndown strip them to plain text.
+export function htmlToMd(
+  html: string,
+  options: object = {},
+  keepTags: string[] = [],
+): string {
   // Decode HTML entities before conversion
   const decodedHtml = decodeHtmlEntities(html);
 
-  const turndownService = getTurndownService(options);
+  const turndownService = getTurndownService(options, keepTags);
   return turndownService.turndown(decodedHtml).trim();
 }
 
@@ -549,25 +579,48 @@ function toArrayBuffer(buffer: ArrayBufferLike): ArrayBuffer {
   return newArrayBuffer;
 }
 
+// Append the underline style-mapping to any caller-supplied Mammoth options.
+// Mammoth ignores underlines unless the style map maps them; `u => u` emits a
+// `<u>` element. The entry is appended (not replaced) so Mammoth's default
+// mappings — including superscript/subscript — are preserved.
+function withUnderlineStyleMap(
+  mammothOptions: MammothOptions | undefined,
+): MammothOptions {
+  const existing = mammothOptions?.styleMap ?? [];
+  return { ...mammothOptions, styleMap: [...existing, 'u => u'] };
+}
+
 // The shared conversion pipeline: mammoth HTML -> cleaned, formatted Markdown.
 // Returns mammoth's messages so callers can surface content-loss warnings.
 async function runConversionPipeline(
   mammothInput: MammothInput,
   options: convertOptions,
 ): Promise<{ markdown: string; messages: MammothMessage[] }> {
+  // Preserving underline requires cooperation at both ends of the pipeline:
+  // Mammoth must be told to emit `<u>` (it drops underlines by default), and
+  // Turndown must be told to keep that tag rather than flatten it to text.
+  const preserveUnderline = options.underline === 'preserve';
+  const mammothOptions = preserveUnderline
+    ? withUnderlineStyleMap(options.mammoth as MammothOptions | undefined)
+    : options.mammoth;
+
   const mammothResult = await mammoth.convertToHtml(
     mammothInput,
-    options.mammoth,
+    mammothOptions,
   );
   const processedHtml = processHtml(mammothResult.value, {
     stripImages: options.images === 'strip',
   });
-  const md = htmlToMd(processedHtml, options.turndown);
-  // Numbered lists convert to bullets by default; keep them ordered on request.
+  const md = htmlToMd(
+    processedHtml,
+    options.turndown,
+    preserveUnderline ? ['u'] : [],
+  );
+  // Numbered lists stay numbered by default; flatten to bullets on request.
   const listMd =
-    options.numberedLists === 'ordered'
-      ? md
-      : convertNumberedListsToBullets(md);
+    options.numberedLists === 'bullets'
+      ? convertNumberedListsToBullets(md)
+      : md;
   const normalizedMd = normalizeText(listMd);
   const cleanedMd = lint(normalizedMd);
   const formattedMd = await prettify(cleanedMd);

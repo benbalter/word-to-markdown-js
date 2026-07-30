@@ -94,10 +94,17 @@ describe('w2m CLI', () => {
     expect(stripped.stdout).toContain('Text after image.');
   });
 
-  it('--ordered-lists keeps numbered lists ordered', () => {
-    const result = runCli(['--ordered-lists', fixture('ol.docx')]);
+  it('keeps numbered lists numbered by default', () => {
+    const result = runCli([fixture('ol.docx')]);
     expect(result.status).toBe(0);
     expect(result.stdout).toMatch(/^\s*1\.\s+One/m);
     expect(result.stdout).not.toContain('- One');
+  });
+
+  it('--bullet-lists converts numbered lists to bullets', () => {
+    const result = runCli(['--bullet-lists', fixture('ol.docx')]);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('- One');
+    expect(result.stdout).not.toMatch(/^\s*1\.\s/m);
   });
 });

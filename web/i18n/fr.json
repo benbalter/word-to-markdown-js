@@ -42,7 +42,8 @@
     "Liens",
     "Code",
     "Images",
-    "Barré"
+    "Barré",
+    "Exposant et indice"
   ],
   "cliHeading": "Vous préférez la ligne de commande ?",
   "cliBody": "Word to Markdown est gratuit et open source. Utilisez-le en ligne de commande pour des conversions scriptées ou par lots : le même convertisseur, sans navigateur.",
@@ -71,7 +72,7 @@
     },
     {
       "q": "Quelle mise en forme est conservée ?",
-      "a": "Les titres, le texte en gras et en italique, les listes ordonnées et imbriquées, les tableaux, les liens et le code sont convertis en Markdown propre au format GitHub."
+      "a": "Les titres, le texte en gras, en italique et barré, les exposants et indices, les listes ordonnées et imbriquées, les tableaux, les liens, le code et les images sont convertis en Markdown propre au format GitHub."
     },
     {
       "q": "En quoi est-ce différent de Pandoc ?",

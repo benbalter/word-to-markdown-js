@@ -42,7 +42,8 @@
     "Links",
     "Código",
     "Imagens",
-    "Tachado"
+    "Tachado",
+    "Sobrescrito e subscrito"
   ],
   "cliHeading": "Prefere a linha de comando?",
   "cliBody": "O Word to Markdown é gratuito e de código aberto. Use-o como ferramenta de linha de comando para conversões automatizadas ou em lote — o mesmo conversor, sem precisar de navegador.",
@@ -71,7 +72,7 @@
     },
     {
       "q": "Qual formatação é preservada?",
-      "a": "Títulos, texto em negrito e itálico, listas ordenadas e aninhadas, tabelas, links e código são convertidos em Markdown limpo no padrão GitHub."
+      "a": "Títulos, texto em negrito, itálico e tachado, sobrescrito e subscrito, listas ordenadas e aninhadas, tabelas, links, código e imagens são convertidos em Markdown limpo no padrão GitHub."
     },
     {
       "q": "Qual a diferença para o Pandoc?",

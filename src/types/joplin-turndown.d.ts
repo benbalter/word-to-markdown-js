@@ -9,6 +9,7 @@ declare module '@joplin/turndown' {
     constructor(options?: object);
     turndown(html: string): string;
     use(plugin: unknown): this;
+    keep(filter: string | string[]): this;
   }
   export default TurndownService;
 }
