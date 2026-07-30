@@ -169,7 +169,9 @@ async function convertBuffer(buffer: ArrayBuffer): Promise<ConversionResult> {
     }
   }
   const { convertWithWarnings } = await import('./main.js');
-  return convertWithWarnings(buffer);
+  // Match the worker's web default: keep numbered lists numbered (see
+  // converter.worker.ts).
+  return convertWithWarnings(buffer, { numberedLists: 'ordered' });
 }
 
 // True for legacy .doc files. Checked on the main thread because the worker

@@ -24,11 +24,16 @@ program
     '--ordered-lists',
     'Keep numbered lists as 1./2./3. rather than converting them to bullets',
   )
+  .option(
+    '--underline',
+    'Preserve underlined text as inline <u> tags (dropped by default)',
+  )
   .action(async (file, options) => {
     try {
       const result = await convertWithWarnings(file, {
         images: options.stripImages ? 'strip' : 'inline',
         numberedLists: options.orderedLists ? 'ordered' : 'bullets',
+        underline: options.underline ? 'preserve' : 'ignore',
       });
 
       // Display warnings to stderr if any

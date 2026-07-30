@@ -129,6 +129,49 @@ const dropped = await docx({
 });
 fs.writeFileSync('src/__fixtures__/dropped-content.docx', dropped);
 
+// --- superscript.docx / subscript.docx --------------------------------------
+// Runs with w:vertAlign. Mammoth maps these to <sup>/<sub> by default, and the
+// pipeline preserves them as inline HTML with no option required.
+const superscriptDoc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="${W}"><w:body>
+  <w:p><w:r><w:t xml:space="preserve">E = mc</w:t></w:r><w:r><w:rPr><w:vertAlign w:val="superscript"/></w:rPr><w:t>2</w:t></w:r></w:p>
+</w:body></w:document>`;
+
+const subscriptDoc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="${W}"><w:body>
+  <w:p><w:r><w:t>H</w:t></w:r><w:r><w:rPr><w:vertAlign w:val="subscript"/></w:rPr><w:t>2</w:t></w:r><w:r><w:t>O</w:t></w:r></w:p>
+</w:body></w:document>`;
+
+const superscript = await docx({
+  '[Content_Types].xml': contentTypes(),
+  '_rels/.rels': rels,
+  'word/document.xml': superscriptDoc,
+});
+fs.writeFileSync('src/__fixtures__/superscript.docx', superscript);
+
+const subscript = await docx({
+  '[Content_Types].xml': contentTypes(),
+  '_rels/.rels': rels,
+  'word/document.xml': subscriptDoc,
+});
+fs.writeFileSync('src/__fixtures__/subscript.docx', subscript);
+
+// --- underline.docx ---------------------------------------------------------
+// A run with w:u. Mammoth drops underlines by default (they resemble links), so
+// the pipeline yields plain text unless `{ underline: 'preserve' }` is passed,
+// which maps it to an inline <u> tag.
+const underlineDoc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="${W}"><w:body>
+  <w:p><w:r><w:rPr><w:u w:val="single"/></w:rPr><w:t>underlined</w:t></w:r><w:r><w:t xml:space="preserve"> word</w:t></w:r></w:p>
+</w:body></w:document>`;
+
+const underline = await docx({
+  '[Content_Types].xml': contentTypes(),
+  '_rels/.rels': rels,
+  'word/document.xml': underlineDoc,
+});
+fs.writeFileSync('src/__fixtures__/underline.docx', underline);
+
 console.log(
-  'wrote strikethrough.docx, footnote.docx, image.docx, dropped-content.docx',
+  'wrote strikethrough.docx, footnote.docx, image.docx, dropped-content.docx, superscript.docx, subscript.docx, underline.docx',
 );

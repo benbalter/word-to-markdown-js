@@ -42,7 +42,8 @@
     "Liên kết",
     "Mã",
     "Hình ảnh",
-    "Gạch ngang"
+    "Gạch ngang",
+    "Chỉ số trên và chỉ số dưới"
   ],
   "cliHeading": "Thích dùng dòng lệnh hơn?",
   "cliBody": "Word to Markdown là phần mềm miễn phí và mã nguồn mở. Hãy dùng nó như một công cụ dòng lệnh để chuyển đổi theo kịch bản hoặc hàng loạt — vẫn là trình chuyển đổi đó, không cần trình duyệt.",
@@ -71,7 +72,7 @@
     },
     {
       "q": "Những định dạng nào được giữ lại?",
-      "a": "Tiêu đề, chữ in đậm và in nghiêng, danh sách có thứ tự và lồng nhau, bảng, liên kết, và mã được chuyển thành Markdown gọn gàng theo chuẩn GitHub."
+      "a": "Tiêu đề, chữ in đậm, in nghiêng và gạch ngang, chỉ số trên và chỉ số dưới, danh sách có thứ tự và lồng nhau, bảng, liên kết, mã và hình ảnh được chuyển thành Markdown gọn gàng theo chuẩn GitHub."
     },
     {
       "q": "Công cụ này khác Pandoc như thế nào?",

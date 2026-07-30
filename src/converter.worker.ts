@@ -21,7 +21,12 @@ ctx.postMessage({ type: 'ready' });
 ctx.onmessage = async (event: MessageEvent<ConvertRequest>): Promise<void> => {
   const { id, buffer } = event.data;
   try {
-    const result = await convertWithWarnings(buffer);
+    // The web UI keeps numbered lists numbered — the intuitive default for a
+    // point-and-click tool. (The library/CLI still default to bullets for
+    // backwards compatibility; see convertOptions in main.ts.)
+    const result = await convertWithWarnings(buffer, {
+      numberedLists: 'ordered',
+    });
     ctx.postMessage({ id, ok: true, result });
   } catch (error) {
     // Errors can't cross the worker boundary as class instances, so forward the

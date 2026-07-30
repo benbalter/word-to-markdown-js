@@ -18,7 +18,9 @@ npx word-to-markdown input.docx > output.md
 - Paragraphs and line breaks
 - Headings
 - Bold, italic, and strikethrough
-- Bullet lists, including nested lists
+- Superscript and subscript — preserved as inline `<sup>`/`<sub>` tags
+- Bullet lists, and numbered lists (as bullets by default, or `1./2./3.` on request)
+- Nested lists
 - Tables
 - Links
 - Footnotes and endnotes
@@ -26,15 +28,19 @@ npx word-to-markdown input.docx > output.md
 
 ### Notes and limitations
 
-- **Numbered lists** are converted to bullet lists.
+- **Numbered lists** are converted to bullet lists by default (matching the
+  original word-to-markdown). Pass `{ numberedLists: 'ordered' }` (library) or
+  `--ordered-lists` (CLI) to keep them as `1./2./3.` ordered lists.
 - **Images** are inlined as base64 data URIs rather than extracted to separate
   files. To change this, pass a custom [Mammoth image handler](https://github.com/mwilliamson/mammoth.js/#images)
-  via `options.mammoth` (see [Use as a library](#use-as-a-library)).
+  via `options.mammoth` (see [Use as a library](#use-as-a-library)), or drop
+  images entirely with `{ images: 'strip' }` / `--strip-images`.
+- **Underline** is dropped by default (Mammoth's default, since underlines are
+  easily confused with links). Pass `{ underline: 'preserve' }` (library) or
+  `--underline` (CLI) to keep it as an inline `<u>` tag.
 - **Comments, text boxes, and equations are not converted** — Mammoth drops
   them during the `.docx` → HTML step. When content is dropped this way,
   `convertWithWarnings` surfaces a warning.
-- **Underline, superscript, and subscript** have no standard Markdown
-  equivalent; the text is preserved but the formatting is not.
 - Heading levels come from Word's paragraph styles, not from font size.
 
 ## How is this different from the original?
@@ -70,6 +76,12 @@ w2m path/to/your/file.docx > output.md
 
 The converted Markdown is written to **stdout** and any document warnings (encryption, sensitivity labels, and the like) to **stderr**, so a redirect captures only the Markdown. The command exits with a non-zero status and a friendly message if the file is missing, unreadable, or not a valid `.docx`. Only `.docx` is supported — re-save older `.doc` files as `.docx` first.
 
+Options:
+
+- `--ordered-lists` — keep numbered lists as `1./2./3.` instead of bullets.
+- `--underline` — preserve underlined text as inline `<u>` tags (dropped by default).
+- `--strip-images` — remove images instead of embedding them as base64 data URIs.
+
 ## Use as a library
 
 Published to npm as [`word-to-markdown`](https://www.npmjs.com/package/word-to-markdown). It ships as an ES module and requires Node 22.13 or later.
@@ -101,7 +113,19 @@ const { markdown } = await convertWithWarnings(arrayBuffer);
 - **`convert(input, options?): Promise<string>`** — resolves to the Markdown.
 - **`convertWithWarnings(input, options?): Promise<{ markdown: string; warnings: string[] }>`** — also returns human-readable warnings for encrypted, protected, or sensitivity-labeled documents.
 
-`input` is a file-path `string` (Node) or an `ArrayBuffer` (browser). `options` is optional — `{ mammoth?, turndown? }` — forwarded to [Mammoth](https://github.com/mwilliamson/mammoth.js/) and [Turndown](https://github.com/mixmark-io/turndown) respectively.
+`input` is a file-path `string` (Node) or an `ArrayBuffer` (browser). `options` is optional:
+
+- **`images`** — `'inline'` (default) embeds images as base64 data URIs; `'strip'` removes them.
+- **`numberedLists`** — `'bullets'` (default) converts numbered lists to bullets; `'ordered'` keeps `1./2./3.`.
+- **`underline`** — `'ignore'` (default) drops underlines; `'preserve'` keeps them as inline `<u>` tags.
+- **`mammoth`** / **`turndown`** — escape hatches forwarded to [Mammoth](https://github.com/mwilliamson/mammoth.js/) and [Turndown](https://github.com/mixmark-io/turndown) respectively.
+
+```js
+const markdown = await convert('file.docx', {
+  numberedLists: 'ordered',
+  underline: 'preserve',
+});
+```
 
 ### Error handling
 
