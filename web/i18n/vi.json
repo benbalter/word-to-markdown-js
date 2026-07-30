@@ -30,7 +30,7 @@
     },
     {
       "t": "Sao chép hoặc lưu",
-      "d": "Sao chép Markdown, hoặc tải tệp .md."
+      "d": "Sao chép Markdown, tải tệp .md, hoặc tệp .zip kèm hình ảnh của bạn."
     }
   ],
   "conversionHeading": "Những gì được chuyển đổi",
@@ -101,7 +101,8 @@
     "Chuyển Word (.docx) sang Markdown",
     "Chuyển Google Docs sang Markdown",
     "Kết quả Markdown chuẩn GitHub",
-    "100% phía máy khách — không có gì được tải lên"
+    "100% phía máy khách — không có gì được tải lên",
+    "Trích xuất hình ảnh ra tệp"
   ],
   "errorGeneric": "Đã xảy ra lỗi không mong muốn khi chuyển đổi tài liệu. Vui lòng thử lại.",
   "docFileError": "Công cụ này đọc các tệp .docx hiện đại, không phải tệp .doc cũ. Trong Word, hãy mở tài liệu của bạn và chọn Tệp → Lưu dưới dạng → Tài liệu Word (.docx), rồi kéo tệp .docx đó vào đây.",

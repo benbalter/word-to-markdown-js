@@ -30,7 +30,7 @@
     },
     {
       "t": "Salin atau simpan",
-      "d": "Salin Markdown, atau unduh file .md."
+      "d": "Salin Markdown, unduh file .md, atau .zip berisi gambar Anda."
     }
   ],
   "conversionHeading": "Apa yang dikonversi",
@@ -101,7 +101,8 @@
     "Konversi Word (.docx) ke Markdown",
     "Konversi Google Docs ke Markdown",
     "Keluaran Markdown bergaya GitHub",
-    "100% di sisi klien — tidak ada yang diunggah"
+    "100% di sisi klien — tidak ada yang diunggah",
+    "Ekstrak gambar ke file"
   ],
   "errorGeneric": "Terjadi kesalahan tak terduga saat mengonversi dokumen. Silakan coba lagi.",
   "docFileError": "Alat ini membaca berkas .docx modern, bukan berkas .doc lama. Di Word, buka dokumen Anda dan pilih Berkas → Simpan Sebagai → Dokumen Word (.docx), lalu seret berkas .docx itu ke sini.",
