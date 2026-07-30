@@ -19,7 +19,7 @@ npx word-to-markdown input.docx > output.md
 - Headings
 - Bold, italic, and strikethrough
 - Superscript and subscript — preserved as inline `<sup>`/`<sub>` tags
-- Bullet lists, and numbered lists (as bullets by default, or `1./2./3.` on request)
+- Bullet lists, and numbered lists (kept as `1./2./3.` by default)
 - Nested lists
 - Tables
 - Links
@@ -28,9 +28,9 @@ npx word-to-markdown input.docx > output.md
 
 ### Notes and limitations
 
-- **Numbered lists** are converted to bullet lists by default (matching the
-  original word-to-markdown). Pass `{ numberedLists: 'ordered' }` (library) or
-  `--ordered-lists` (CLI) to keep them as `1./2./3.` ordered lists.
+- **Numbered lists** are kept as `1./2./3.` ordered lists. Pass
+  `{ numberedLists: 'bullets' }` (library) or `--bullet-lists` (CLI) to convert
+  them to bullet lists instead (matching the original word-to-markdown).
 - **Images** are inlined as base64 data URIs rather than extracted to separate
   files. To change this, pass a custom [Mammoth image handler](https://github.com/mwilliamson/mammoth.js/#images)
   via `options.mammoth` (see [Use as a library](#use-as-a-library)), or drop
@@ -78,7 +78,7 @@ The converted Markdown is written to **stdout** and any document warnings (encry
 
 Options:
 
-- `--ordered-lists` — keep numbered lists as `1./2./3.` instead of bullets.
+- `--bullet-lists` — convert numbered lists to bullets instead of keeping `1./2./3.`.
 - `--underline` — preserve underlined text as inline `<u>` tags (dropped by default).
 - `--strip-images` — remove images instead of embedding them as base64 data URIs.
 
@@ -116,13 +116,13 @@ const { markdown } = await convertWithWarnings(arrayBuffer);
 `input` is a file-path `string` (Node) or an `ArrayBuffer` (browser). `options` is optional:
 
 - **`images`** — `'inline'` (default) embeds images as base64 data URIs; `'strip'` removes them.
-- **`numberedLists`** — `'bullets'` (default) converts numbered lists to bullets; `'ordered'` keeps `1./2./3.`.
+- **`numberedLists`** — `'ordered'` (default) keeps `1./2./3.`; `'bullets'` converts numbered lists to bullets.
 - **`underline`** — `'ignore'` (default) drops underlines; `'preserve'` keeps them as inline `<u>` tags.
 - **`mammoth`** / **`turndown`** — escape hatches forwarded to [Mammoth](https://github.com/mwilliamson/mammoth.js/) and [Turndown](https://github.com/mixmark-io/turndown) respectively.
 
 ```js
 const markdown = await convert('file.docx', {
-  numberedLists: 'ordered',
+  numberedLists: 'bullets',
   underline: 'preserve',
 });
 ```

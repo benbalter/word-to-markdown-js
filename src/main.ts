@@ -20,9 +20,9 @@ interface convertOptions {
    */
   images?: 'inline' | 'strip';
   /**
-   * How to render Word's numbered lists. `'bullets'` (default) converts them to
-   * bullet lists (matching the classic word-to-markdown behavior); `'ordered'`
-   * keeps them as `1.`/`2.`/… ordered lists.
+   * How to render Word's numbered lists. `'ordered'` (default) keeps them as
+   * `1.`/`2.`/… ordered lists; `'bullets'` converts them to bullet lists
+   * (matching the classic word-to-markdown behavior).
    */
   numberedLists?: 'bullets' | 'ordered';
   /**
@@ -616,11 +616,11 @@ async function runConversionPipeline(
     options.turndown,
     preserveUnderline ? ['u'] : [],
   );
-  // Numbered lists convert to bullets by default; keep them ordered on request.
+  // Numbered lists stay numbered by default; flatten to bullets on request.
   const listMd =
-    options.numberedLists === 'ordered'
-      ? md
-      : convertNumberedListsToBullets(md);
+    options.numberedLists === 'bullets'
+      ? convertNumberedListsToBullets(md)
+      : md;
   const normalizedMd = normalizeText(listMd);
   const cleanedMd = lint(normalizedMd);
   const formattedMd = await prettify(cleanedMd);

@@ -114,7 +114,7 @@ describe('integration tests', () => {
     // Test specific fixture patterns
     expect(results[0]).toMatch(/^#+\s/m); // multiple-headings should have heading markers
     expect(results[1]).toMatch(/^\s*-\s/m); // nested-ul should have list markers
-    expect(results[2]).toMatch(/^\s*-\s/m); // nested-ol should have list markers
+    expect(results[2]).toMatch(/^\s*\d+\.\s/m); // nested-ol should have ordered list markers
     expect(results[3]).toMatch(/\[.*\]\(.*\)/); // list-with-links should have link syntax
     expect(results[4]).toMatch(/\|.*\|/); // table should have table syntax
     expect(results[4]).toMatch(/\|[\s-]+\|/); // table should have table divider

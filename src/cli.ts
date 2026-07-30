@@ -21,8 +21,8 @@ program
     'Remove images instead of embedding them as base64 data URIs',
   )
   .option(
-    '--ordered-lists',
-    'Keep numbered lists as 1./2./3. rather than converting them to bullets',
+    '--bullet-lists',
+    'Convert numbered lists to bullets rather than keeping them as 1./2./3.',
   )
   .option(
     '--underline',
@@ -32,7 +32,7 @@ program
     try {
       const result = await convertWithWarnings(file, {
         images: options.stripImages ? 'strip' : 'inline',
-        numberedLists: options.orderedLists ? 'ordered' : 'bullets',
+        numberedLists: options.bulletLists ? 'bullets' : 'ordered',
         underline: options.underline ? 'preserve' : 'ignore',
       });
 

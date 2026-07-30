@@ -38,25 +38,23 @@ describe('inline run formatting (end to end)', () => {
 });
 
 describe('numbered lists (end to end)', () => {
-  it('converts numbered lists to bullets by default', async () => {
+  it('keeps numbered lists numbered by default', async () => {
     const md = await convert('src/__fixtures__/ol.docx');
-    expect(md).toContain('- One');
-    expect(md).not.toMatch(/^\s*1\.\s/m);
-  });
-
-  it("keeps numbering with { numberedLists: 'ordered' }", async () => {
-    const md = await convert('src/__fixtures__/ol.docx', {
-      numberedLists: 'ordered',
-    });
     expect(md).toContain('1. One');
     expect(md).toContain('2. Two');
     expect(md).toContain('3. Three');
   });
 
-  it('preserves numbering in nested ordered lists when requested', async () => {
-    const md = await convert('src/__fixtures__/nested-ol.docx', {
-      numberedLists: 'ordered',
+  it("converts numbered lists to bullets with { numberedLists: 'bullets' }", async () => {
+    const md = await convert('src/__fixtures__/ol.docx', {
+      numberedLists: 'bullets',
     });
+    expect(md).toContain('- One');
+    expect(md).not.toMatch(/^\s*1\.\s/m);
+  });
+
+  it('preserves numbering in nested ordered lists by default', async () => {
+    const md = await convert('src/__fixtures__/nested-ol.docx');
     expect(md).toContain('1. One');
     expect(md).toMatch(/^\s+1\. Sub one/m);
   });
