@@ -1,0 +1,98 @@
+{
+  "name": "quarterly-ops-headings-skip-after-table-v1",
+  "description": "A short operations memo where headings skip from H1 to H3 and another heading appears immediately after a table.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 1,
+      "text": "Quarterly Operations Review"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Warehouse Exceptions"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "The East Hub reported a brief rise in misroutes during the second week of April, but corrective scanning checks brought the rate back under target by month end."
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "cells": [
+            {
+              "text": "Site",
+              "header": true
+            },
+            {
+              "text": "Misroutes",
+              "header": true
+            },
+            {
+              "text": "Action",
+              "header": true
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "East Hub"
+            },
+            {
+              "text": "18"
+            },
+            {
+              "text": "Retrained night shift"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "North Annex"
+            },
+            {
+              "text": "6"
+            },
+            {
+              "text": "Adjusted sorter timing"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Follow-up Actions"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "runs": [
+            {
+              "text": "Audit scanner calibration every Friday for the next six weeks."
+            }
+          ],
+          "level": 0
+        },
+        {
+          "runs": [
+            {
+              "text": "Publish a one-page exception guide to shift supervisors."
+            }
+          ],
+          "level": 0
+        }
+      ]
+    }
+  ]
+}

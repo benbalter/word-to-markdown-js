@@ -1,0 +1,10 @@
+{
+  "score": 0.9,
+  "idealMarkdown": "## Mobile App Release Readiness\n\nThe product team reviewed launch blockers and summarized the remaining work by area.\n\n| Area | Status | Open items |\n| --- | --- | --- |\n| Payments | At risk | • Confirm bank fallback flow<br>• Retry card tokenization on timeout<br>• Update support macros for declined prepaid cards |\n| Onboarding | On track | Finalize welcome email copy |\n\n- Release candidate build is scheduled for Thursday afternoon.\n- Compliance sign-off is still pending for the payments flow.",
+  "issues": [
+    {
+      "severity": "medium",
+      "description": "The bullet list inside the Payments/Open items table cell was flattened into a single line, losing the intended multi-item structure. In GFM, preserve line breaks within the cell (for example with `<br>` separators) so each bullet remains distinct."
+    }
+  ]
+}

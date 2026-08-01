@@ -1,0 +1,7 @@
+# Golden Markdown snapshots must stay byte-identical to the converter's own
+# output (the eval-corpus test asserts exact equality). Prettier would re-add a
+# trailing newline the converter strips, so it must not touch these.
+src/__fixtures__/eval/*.md
+
+# Raw Azure Foundry responses kept for provenance — not source to format.
+scripts/.gen-cache/

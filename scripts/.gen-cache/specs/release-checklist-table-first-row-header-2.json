@@ -1,0 +1,153 @@
+{
+  "name": "release-checklist-table-first-row-header-2",
+  "description": "A compact project-status document where the table’s first row is the actual header row and subsequent rows mix plain text with linked and formatted content.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Release Readiness Snapshot"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "The operations team reviewed the final release checklist below before approving the Friday deployment."
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "cells": [
+            {
+              "text": "Area",
+              "header": true
+            },
+            {
+              "text": "Owner",
+              "header": true
+            },
+            {
+              "text": "Status",
+              "header": true
+            },
+            {
+              "text": "Notes",
+              "header": true
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "runs": [
+                {
+                  "text": "Database migrations"
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "Priya Shah"
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "Complete",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "Verified against staging backup taken at 02:00."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "runs": [
+                {
+                  "text": "Monitoring"
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "Alex Moreno"
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "In progress",
+                  "italic": true
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "Dashboard update tracked in "
+                },
+                {
+                  "text": "OPS-214",
+                  "link": "https://tracker.example.com/OPS-214"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "runs": [
+                {
+                  "text": "Rollback plan"
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "Mina Park"
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "Ready"
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "Printed copy stored in the war room; cloud copy marked "
+                },
+                {
+                  "text": "latest",
+                  "underline": true
+                },
+                {
+                  "text": "."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

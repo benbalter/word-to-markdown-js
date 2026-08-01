@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"editor-note-smart-quotes-em-dash-nbsp-variant-a\",\n  \"description\": \"A short editorial note uses curly quotes, em dashes, and non-breaking spaces within paragraphs, which can be altered or normalized incorrectly during conversion.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 2,\n      \"text\": \"Editor’s Note\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"When Mara wrote, “We’ll reopen on May 1—if the permits arrive,” the staff copied the line exactly; later drafts replaced the smart quotes and collapsed the non-breaking spaces around the date.\"\n        }\n      ]\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"The printed notice read, “Members only—no guests after 9 p.m.”—a small change, but one that mattered to the front desk team.\"\n        }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555181,
+  "id": "chatcmpl-E7ul3iKyx24w067tejFOc0zplEEIf",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 225,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 11,
+      "engine_ttft_ms": 65,
+      "engine_ttlt_ms": 2580,
+      "pre_inference_ms": 95,
+      "service_tbt_ms": 11,
+      "service_ttft_ms": 229,
+      "service_ttlt_ms": 2720,
+      "total_duration_ms": 2634,
+      "user_visible_ttft_ms": 134
+    },
+    "prompt_tokens": 324,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 549
+  }
+}

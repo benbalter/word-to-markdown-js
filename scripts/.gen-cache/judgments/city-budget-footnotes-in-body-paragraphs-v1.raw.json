@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"score\":0.9,\"idealMarkdown\":\"# City Budget Brief\\n\\nThe finance office reported that transit ridership recovered to 92% of pre-2020 levels[^1], while fuel costs for the municipal fleet rose by 14% year over year[^2].\\n\\nCouncil also approved a reserve transfer of $3.5 million[^3] to cover storm drain repairs identified after the spring audit[^4], but deferred sidewalk lighting upgrades until next quarter[^5].\\n\\n[^1]: Ridership estimate is based on fare-gate counts from January through September.\\n[^2]: Fuel costs reflect blended diesel and gasoline purchasing contracts.\\n[^3]: The transfer comes from the capital stabilization reserve.\\n[^4]: The audit reviewed 118 drain segments across three districts.\\n[^5]: Lighting upgrades were postponed pending revised contractor bids.\",\"issues\":[{\"severity\":\"medium\",\"description\":\"Footnotes are rendered as raw HTML superscript links plus a numbered list instead of clean GitHub-Flavored Markdown footnote syntax (`[^1]` / `[^1]: ...`).\"},{\"severity\":\"low\",\"description\":\"The dollar sign in `$3.5 million` is unnecessarily escaped as `\\\\$3.5 million`, reducing Markdown cleanliness.\"},{\"severity\":\"low\",\"description\":\"Back-reference anchors (`#footnote-ref-*`) are included, but no matching reference IDs are defined in the body, so the return links are not valid.\"}]}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555224,
+  "id": "chatcmpl-E7ulkZ1EPaH63au69Osy3dbUsBWyZ",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 301,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 88,
+      "engine_ttlt_ms": 2230,
+      "pre_inference_ms": 88,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 227,
+      "service_ttlt_ms": 2364,
+      "total_duration_ms": 2284,
+      "user_visible_ttft_ms": 139
+    },
+    "prompt_tokens": 778,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 1079
+  }
+}

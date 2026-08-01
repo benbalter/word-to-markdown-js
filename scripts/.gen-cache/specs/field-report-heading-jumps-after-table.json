@@ -1,0 +1,84 @@
+{
+  "name": "field-report-heading-jumps-after-table",
+  "description": "A short field report uses non-sequential heading levels and places a lower-level heading immediately after a table, which can confuse Markdown heading structure.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 1,
+      "text": "Wetland Survey Summary"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "This memo captures the first morning of sampling at Heron Marsh and highlights the stations with the highest nitrate readings."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Sampling Stations"
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "cells": [
+            {
+              "text": "Station",
+              "header": true
+            },
+            {
+              "text": "Depth (cm)",
+              "header": true
+            },
+            {
+              "text": "Nitrate (mg/L)",
+              "header": true
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "North Inlet"
+            },
+            {
+              "text": "35"
+            },
+            {
+              "text": "4.8"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "Reed Bend"
+            },
+            {
+              "text": "22"
+            },
+            {
+              "text": "6.1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 4,
+      "text": "Follow-up Notes"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "Reed Bend should be revisited after rainfall because the elevated reading may reflect overnight runoff rather than a persistent source."
+        }
+      ]
+    }
+  ]
+}

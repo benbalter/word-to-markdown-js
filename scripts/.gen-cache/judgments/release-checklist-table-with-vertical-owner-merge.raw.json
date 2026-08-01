@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"score\":0.58,\"idealMarkdown\":\"## Release Readiness Checklist\\n\\nThis snapshot from the launch review groups two deployment tasks under the same owner.\\n\\n| Owner | Task | Status |\\n| --- | --- | --- |\\n| Mina Patel | Finalize rollback steps | Done |\\n| Mina Patel | Verify production feature flags | In progress |\\n| Rafael Ortiz | Approve customer notice | Blocked |\\n\\nThe merged owner cell should remain associated with both deployment tasks after conversion.\",\"issues\":[{\"severity\":\"high\",\"description\":\"The vertically merged Owner cell was not preserved correctly. The second task row should repeat or otherwise retain 'Mina Patel' as the owner, but the output instead loses that association.\"},{\"severity\":\"high\",\"description\":\"The second table row is structurally broken: 'Verify production feature flags' was placed in the Owner column and 'In progress' in the Task column, leaving the Status column missing.\"},{\"severity\":\"medium\",\"description\":\"The Markdown table has an inconsistent number of columns in the second data row, which makes the table malformed in GitHub-Flavored Markdown.\"}]}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555272,
+  "id": "chatcmpl-E7umWv3cCvdlhRSZqerQLwlCOcAJC",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 235,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 63,
+      "engine_ttlt_ms": 1619,
+      "pre_inference_ms": 97,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 214,
+      "service_ttlt_ms": 1766,
+      "total_duration_ms": 1678,
+      "user_visible_ttft_ms": 117
+    },
+    "prompt_tokens": 673,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 908
+  }
+}

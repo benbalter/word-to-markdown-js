@@ -1,0 +1,130 @@
+{
+  "name": "release-checklist-links-in-lists-and-table-cells-v1",
+  "description": "A short project document where hyperlinks appear within bulleted checklist items and inside table cells alongside plain text.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Website Launch Prep"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "Before Friday's launch, confirm that each owner has reviewed the linked resources below."
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "level": 0,
+          "runs": [
+            {
+              "text": "Read the "
+            },
+            {
+              "text": "deployment checklist",
+              "link": "https://ops.example.com/deploy-checklist"
+            },
+            {
+              "text": " and sign off in Slack."
+            }
+          ]
+        },
+        {
+          "level": 0,
+          "runs": [
+            {
+              "text": "Verify redirects listed in the "
+            },
+            {
+              "text": "migration sheet",
+              "link": "https://docs.example.com/migration-sheet"
+            },
+            {
+              "text": "."
+            }
+          ]
+        },
+        {
+          "level": 1,
+          "runs": [
+            {
+              "text": "If any path is unclear, add a note to the "
+            },
+            {
+              "text": "QA board",
+              "link": "https://pm.example.com/boards/qa-launch"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "cells": [
+            {
+              "text": "Owner",
+              "header": true
+            },
+            {
+              "text": "Reference",
+              "header": true
+            },
+            {
+              "text": "Status",
+              "header": true
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "Mina"
+            },
+            {
+              "runs": [
+                {
+                  "text": "Analytics spec"
+                },
+                {
+                  "text": " (view)",
+                  "link": "https://specs.example.com/analytics"
+                }
+              ]
+            },
+            {
+              "text": "Approved"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "Jared"
+            },
+            {
+              "runs": [
+                {
+                  "text": "Rollback plan: "
+                },
+                {
+                  "text": "runbook",
+                  "link": "https://ops.example.com/runbooks/rollback"
+                }
+              ]
+            },
+            {
+              "text": "Pending"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

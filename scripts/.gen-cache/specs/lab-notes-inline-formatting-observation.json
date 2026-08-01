@@ -1,0 +1,97 @@
+{
+  "name": "lab-notes-inline-formatting-observation",
+  "description": "A short lab note uses a single paragraph that mixes bold, italic, strikethrough, superscript, and subscript inline around technical notation.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Catalyst Bench Notes"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "Batch "
+        },
+        {
+          "text": "B-17",
+          "bold": true
+        },
+        {
+          "text": " showed "
+        },
+        {
+          "text": "unexpected",
+          "italic": true
+        },
+        {
+          "text": " uptake after replacing "
+        },
+        {
+          "text": "MnO"
+        },
+        {
+          "text": "2",
+          "sub": true
+        },
+        {
+          "text": " with "
+        },
+        {
+          "text": "Fe"
+        },
+        {
+          "text": "3+",
+          "sup": true
+        },
+        {
+          "text": "; the earlier reading of "
+        },
+        {
+          "text": "41.8%",
+          "strike": true
+        },
+        {
+          "text": " was corrected to "
+        },
+        {
+          "text": "38.6%",
+          "bold": true,
+          "italic": true
+        },
+        {
+          "text": " after recalibration."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "Final remark: keep the "
+        },
+        {
+          "text": "sealed vial",
+          "underline": true
+        },
+        {
+          "text": " at 5"
+        },
+        {
+          "text": "o",
+          "sup": true
+        },
+        {
+          "text": "C and label the control as H"
+        },
+        {
+          "text": "2",
+          "sub": true
+        },
+        {
+          "text": "O."
+        }
+      ]
+    }
+  ]
+}

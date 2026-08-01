@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"release-checklist-links-in-lists-and-table-cells-v1\",\n  \"description\": \"A short project document where hyperlinks appear within bulleted checklist items and inside table cells alongside plain text.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 2,\n      \"text\": \"Website Launch Prep\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"Before Friday's launch, confirm that each owner has reviewed the linked resources below.\"\n        }\n      ]\n    },\n    {\n      \"type\": \"list\",\n      \"ordered\": false,\n      \"items\": [\n        {\n          \"level\": 0,\n          \"runs\": [\n            {\n              \"text\": \"Read the \"\n            },\n            {\n              \"text\": \"deployment checklist\",\n              \"link\": \"https://ops.example.com/deploy-checklist\"\n            },\n            {\n              \"text\": \" and sign off in Slack.\"\n            }\n          ]\n        },\n        {\n          \"level\": 0,\n          \"runs\": [\n            {\n              \"text\": \"Verify redirects listed in the \"\n            },\n            {\n              \"text\": \"migration sheet\",\n              \"link\": \"https://docs.example.com/migration-sheet\"\n            },\n            {\n              \"text\": \".\"\n            }\n          ]\n        },\n        {\n          \"level\": 1,\n          \"runs\": [\n            {\n              \"text\": \"If any path is unclear, add a note to the \"\n            },\n            {\n              \"text\": \"QA board\",\n              \"link\": \"https://pm.example.com/boards/qa-launch\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"type\": \"table\",\n      \"rows\": [\n        {\n          \"cells\": [\n            {\n              \"text\": \"Owner\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Reference\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Status\",\n              \"header\": true\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"Mina\"\n            },\n            {\n              \"runs\": [\n                {\n                  \"text\": \"Analytics spec\"\n                },\n                {\n                  \"text\": \" (view)\",\n                  \"link\": \"https://specs.example.com/analytics\"\n                }\n              ]\n            },\n            {\n              \"text\": \"Approved\"\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"Jared\"\n            },\n            {\n              \"runs\": [\n                {\n                  \"text\": \"Rollback plan: \"\n                },\n                {\n                  \"text\": \"runbook\",\n                  \"link\": \"https://ops.example.com/runbooks/rollback\"\n                }\n              ]\n            },\n            {\n              \"text\": \"Pending\"\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555144,
+  "id": "chatcmpl-E7ukSTWxheQTamZml2U1biEpiuCXR",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 610,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 72,
+      "engine_ttlt_ms": 4234,
+      "pre_inference_ms": 90,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 238,
+      "service_ttlt_ms": 4378,
+      "total_duration_ms": 4297,
+      "user_visible_ttft_ms": 149
+    },
+    "prompt_tokens": 320,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 930
+  }
+}

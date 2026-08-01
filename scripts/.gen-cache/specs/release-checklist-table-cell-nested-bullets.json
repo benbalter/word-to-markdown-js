@@ -1,0 +1,110 @@
+{
+  "name": "release-checklist-table-cell-nested-bullets",
+  "description": "A compact release-planning document where one table cell contains multiple bullet-style lines that should remain associated with that single cell during conversion.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Q3 Launch Readiness"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "The team tracks launch owners and open items in the table below; the risks cell includes its own bullet-style list."
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "cells": [
+            {
+              "text": "Workstream",
+              "header": true
+            },
+            {
+              "text": "Owner",
+              "header": true
+            },
+            {
+              "text": "Open risks",
+              "header": true
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "runs": [
+                {
+                  "text": "Payments rollout"
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "Nina Shah"
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "• Fraud rules not tuned for new region"
+                },
+                {
+                  "text": "\n• Settlement report still missing weekend totals"
+                },
+                {
+                  "text": "\n• Support macros need updated refund wording"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "runs": [
+                {
+                  "text": "Status page refresh"
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "Leo Martin"
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "No blocking issues; legal review scheduled Thursday."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "runs": [
+            {
+              "text": "Confirm whether nested bullets inside table cells are preserved as in-cell content rather than promoted to a document-level list."
+            }
+          ],
+          "level": 0
+        }
+      ]
+    }
+  ]
+}

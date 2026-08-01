@@ -1,0 +1,47 @@
+{
+  "name": "city-budget-footnotes-in-body-paragraphs-v1",
+  "description": "Two body paragraphs each contain multiple footnote references inline, requiring the converter to preserve several distinct notes attached to ordinary prose.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 1,
+      "text": "City Budget Brief"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "The finance office reported that transit ridership recovered to 92% of pre-2020 levels",
+          "footnote": "Ridership estimate is based on fare-gate counts from January through September."
+        },
+        {
+          "text": ", while fuel costs for the municipal fleet rose by 14% year over year",
+          "footnote": "Fuel costs reflect blended diesel and gasoline purchasing contracts."
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "Council also approved a reserve transfer of $3.5 million",
+          "footnote": "The transfer comes from the capital stabilization reserve."
+        },
+        {
+          "text": " to cover storm drain repairs identified after the spring audit",
+          "footnote": "The audit reviewed 118 drain segments across three districts."
+        },
+        {
+          "text": ", but deferred sidewalk lighting upgrades until next quarter",
+          "footnote": "Lighting upgrades were postponed pending revised contractor bids."
+        },
+        {
+          "text": "."
+        }
+      ]
+    }
+  ]
+}

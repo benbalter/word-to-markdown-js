@@ -1,0 +1,85 @@
+{
+  "name": "quarterly-sales-table-colspan-header",
+  "description": "A compact report table uses horizontally merged header cells to group quarterly columns above a single body row.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Quarterly Sales Snapshot"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "The table groups quarters under merged regional headers, which can be lost in Markdown conversion."
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "cells": [
+            {
+              "text": "Product",
+              "header": true
+            },
+            {
+              "text": "North America",
+              "colSpan": 2,
+              "header": true
+            },
+            {
+              "text": "Europe",
+              "colSpan": 2,
+              "header": true
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "Product",
+              "header": true
+            },
+            {
+              "text": "Q1",
+              "header": true
+            },
+            {
+              "text": "Q2",
+              "header": true
+            },
+            {
+              "text": "Q1",
+              "header": true
+            },
+            {
+              "text": "Q2",
+              "header": true
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "Trail Shoes"
+            },
+            {
+              "text": "$1.2M"
+            },
+            {
+              "text": "$1.4M"
+            },
+            {
+              "text": "€860K"
+            },
+            {
+              "text": "€910K"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

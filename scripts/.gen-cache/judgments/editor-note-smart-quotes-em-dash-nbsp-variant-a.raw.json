@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"score\":0.42,\"idealMarkdown\":\"## Editor’s Note\\n\\nWhen Mara wrote, “We’ll reopen on May 1—if the permits arrive,” the staff copied the line exactly; later drafts replaced the smart quotes and collapsed the non-breaking spaces around the date.\\n\\nThe printed notice read, “Members only—no guests after 9 p.m.”—a small change, but one that mattered to the front desk team.\",\"issues\":[{\"severity\":\"medium\",\"description\":\"The heading apostrophe was normalized from curly to straight: `Editor’s Note` became `Editor's Note`.\"},{\"severity\":\"high\",\"description\":\"Smart quotes/apostrophes were replaced with straight ASCII quotes in both paragraphs, changing intended punctuation and typography.\"},{\"severity\":\"high\",\"description\":\"Em dashes were incorrectly converted to hyphens in both quoted phrases and before `a small change`, altering the intended punctuation.\"},{\"severity\":\"medium\",\"description\":\"Non-breaking spaces in `May 1` and `after 9 p.m.` were collapsed to regular spaces, losing the intended no-wrap behavior.\"}]}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555231,
+  "id": "chatcmpl-E7ulrLlnGpcn3WyQBzlSPq8yiA7mY",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 232,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 8,
+      "engine_ttft_ms": 88,
+      "engine_ttlt_ms": 1854,
+      "pre_inference_ms": 102,
+      "service_tbt_ms": 8,
+      "service_ttft_ms": 240,
+      "service_ttlt_ms": 2001,
+      "total_duration_ms": 1908,
+      "user_visible_ttft_ms": 138
+    },
+    "prompt_tokens": 470,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 702
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "name": "regional-sales-table-merged-quarter-header",
+  "description": "A compact report uses a table whose top header row merges quarter labels across multiple columns before a single body row of regional sales data.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Regional Sales Snapshot"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "The table groups monthly figures under merged quarter headers, which can be difficult to preserve when converting to Markdown."
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "cells": [
+            {
+              "text": "Region",
+              "header": true,
+              "rowSpan": 2
+            },
+            {
+              "text": "Q1",
+              "header": true,
+              "colSpan": 3
+            },
+            {
+              "text": "Q2",
+              "header": true,
+              "colSpan": 3
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "",
+              "header": true,
+              "rowSpan": 0
+            },
+            {
+              "text": "Jan",
+              "header": true
+            },
+            {
+              "text": "Feb",
+              "header": true
+            },
+            {
+              "text": "Mar",
+              "header": true
+            },
+            {
+              "text": "Apr",
+              "header": true
+            },
+            {
+              "text": "May",
+              "header": true
+            },
+            {
+              "text": "Jun",
+              "header": true
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "Midwest"
+            },
+            {
+              "text": "$118k"
+            },
+            {
+              "text": "$121k"
+            },
+            {
+              "text": "$127k"
+            },
+            {
+              "text": "$130k"
+            },
+            {
+              "text": "$126k"
+            },
+            {
+              "text": "$134k"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

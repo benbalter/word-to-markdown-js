@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"city-budget-footnotes-in-body-paragraphs-v1\",\n  \"description\": \"Two body paragraphs each contain multiple footnote references inline, requiring the converter to preserve several distinct notes attached to ordinary prose.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 1,\n      \"text\": \"City Budget Brief\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"The finance office reported that transit ridership recovered to 92% of pre-2020 levels\",\n          \"footnote\": \"Ridership estimate is based on fare-gate counts from January through September.\"\n        },\n        {\n          \"text\": \", while fuel costs for the municipal fleet rose by 14% year over year\",\n          \"footnote\": \"Fuel costs reflect blended diesel and gasoline purchasing contracts.\"\n        },\n        {\n          \"text\": \".\"\n        }\n      ]\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"Council also approved a reserve transfer of $3.5 million\",\n          \"footnote\": \"The transfer comes from the capital stabilization reserve.\"\n        },\n        {\n          \"text\": \" to cover storm drain repairs identified after the spring audit\",\n          \"footnote\": \"The audit reviewed 118 drain segments across three districts.\"\n        },\n        {\n          \"text\": \", but deferred sidewalk lighting upgrades until next quarter\",\n          \"footnote\": \"Lighting upgrades were postponed pending revised contractor bids.\"\n        },\n        {\n          \"text\": \".\"\n        }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555134,
+  "id": "chatcmpl-E7ukI702RegC22iYAIO8669epqZR0",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 343,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 10,
+      "engine_ttft_ms": 66,
+      "engine_ttlt_ms": 3403,
+      "pre_inference_ms": 106,
+      "service_tbt_ms": 10,
+      "service_ttft_ms": 220,
+      "service_ttlt_ms": 3581,
+      "total_duration_ms": 3499,
+      "user_visible_ttft_ms": 114
+    },
+    "prompt_tokens": 318,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 661
+  }
+}

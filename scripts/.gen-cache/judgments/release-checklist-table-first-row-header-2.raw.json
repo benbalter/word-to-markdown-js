@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"score\":0.94,\"idealMarkdown\":\"## Release Readiness Snapshot\\n\\nThe operations team reviewed the final release checklist below before approving the Friday deployment.\\n\\n| Area | Owner | Status | Notes |\\n| --- | --- | --- | --- |\\n| Database migrations | Priya Shah | **Complete** | Verified against staging backup taken at 02:00. |\\n| Monitoring | Alex Moreno | *In progress* | Dashboard update tracked in [OPS-214](https://tracker.example.com/OPS-214) |\\n| Rollback plan | Mina Park | Ready | Printed copy stored in the war room; cloud copy marked <u>latest</u>. |\",\"issues\":[{\"severity\":\"medium\",\"description\":\"Underline formatting on the word \\\"latest\\\" in the final table row was lost. In clean GFM this should be preserved with inline HTML such as `<u>latest</u>`.\"}]}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555270,
+  "id": "chatcmpl-E7umUGv8va7EPj7IwOaDWicmCjRdN",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 196,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 65,
+      "engine_ttlt_ms": 1371,
+      "pre_inference_ms": 112,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 246,
+      "service_ttlt_ms": 1544,
+      "total_duration_ms": 1444,
+      "user_visible_ttft_ms": 134
+    },
+    "prompt_tokens": 929,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 1125
+  }
+}

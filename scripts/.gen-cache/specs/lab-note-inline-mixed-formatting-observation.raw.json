@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"lab-note-inline-mixed-formatting-observation\",\n  \"description\": \"A short lab note uses a single paragraph that mixes bold, italic, strikethrough, superscript, and subscript inline around technical content.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 2,\n      \"text\": \"Catalyst Bench Note\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        { \"text\": \"During run \" },\n        { \"text\": \"B-17\", \"bold\": true },\n        { \"text\": \", the \" },\n        { \"text\": \"visible haze\", \"italic\": true },\n        { \"text\": \" appeared after 12 min, the previous target of \" },\n        { \"text\": \"85°C\", \"strike\": true },\n        { \"text\": \" was discarded, and the revised endpoint was 92\" },\n        { \"text\": \"°\", \"sup\": true },\n        { \"text\": \"C while the solution shifted from Fe\" },\n        { \"text\": \"2\", \"sub\": true },\n        { \"text\": \"O\" },\n        { \"text\": \"3\", \"sub\": true },\n        { \"text\": \" red to a darker brown.\" }\n      ]\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        { \"text\": \"Operator note: confirm whether the inline style changes survive export to Markdown without splitting the sentence incorrectly.\" }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555126,
+  "id": "chatcmpl-E7ukAF62zDaq7k58bG7kY0GBgR8XX",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 330,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 8,
+      "engine_ttft_ms": 67,
+      "engine_ttlt_ms": 2844,
+      "pre_inference_ms": 100,
+      "service_tbt_ms": 8,
+      "service_ttft_ms": 217,
+      "service_ttlt_ms": 3016,
+      "total_duration_ms": 2921,
+      "user_visible_ttft_ms": 117
+    },
+    "prompt_tokens": 330,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 660
+  }
+}

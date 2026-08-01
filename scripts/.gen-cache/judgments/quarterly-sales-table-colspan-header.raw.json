@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"score\":0.56,\"idealMarkdown\":\"## Quarterly Sales Snapshot\\n\\nThe table groups quarters under merged regional headers, which can be lost in Markdown conversion.\\n\\n| Product | North America |  | Europe |  |\\n| --- | --- | --- | --- | --- |\\n| Product | Q1 | Q2 | Q1 | Q2 |\\n| Trail Shoes | $1.2M | $1.4M | €860K | €910K |\",\"issues\":[{\"severity\":\"high\",\"description\":\"The table separator row is malformed: `| --- | --- | | --- | | --- | --- |` has the wrong number of cells and empty separator entries, producing an invalid/broken Markdown table.\"},{\"severity\":\"medium\",\"description\":\"The merged header cells are represented only by empty placeholder columns (`| North America | | Europe | |`), which does not cleanly convey the intended horizontal grouping in GitHub-Flavored Markdown.\"},{\"severity\":\"low\",\"description\":\"Dollar signs in body cells are unnecessarily escaped (`\\\\$1.2M`, `\\\\$1.4M`), reducing fidelity to the source text.\"}]}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555255,
+  "id": "chatcmpl-E7umFUx8KwwKfj57yUD5TWzNJV0An",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 245,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 87,
+      "engine_ttlt_ms": 1880,
+      "pre_inference_ms": 91,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 235,
+      "service_ttlt_ms": 2023,
+      "total_duration_ms": 1939,
+      "user_visible_ttft_ms": 144
+    },
+    "prompt_tokens": 653,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 898
+  }
+}

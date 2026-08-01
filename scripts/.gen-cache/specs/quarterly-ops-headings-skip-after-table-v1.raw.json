@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"quarterly-ops-headings-skip-after-table-v1\",\n  \"description\": \"A short operations memo where headings skip from H1 to H3 and another heading appears immediately after a table.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 1,\n      \"text\": \"Quarterly Operations Review\"\n    },\n    {\n      \"type\": \"heading\",\n      \"level\": 3,\n      \"text\": \"Warehouse Exceptions\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"The East Hub reported a brief rise in misroutes during the second week of April, but corrective scanning checks brought the rate back under target by month end.\"\n        }\n      ]\n    },\n    {\n      \"type\": \"table\",\n      \"rows\": [\n        {\n          \"cells\": [\n            {\n              \"text\": \"Site\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Misroutes\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Action\",\n              \"header\": true\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"East Hub\"\n            },\n            {\n              \"text\": \"18\"\n            },\n            {\n              \"text\": \"Retrained night shift\"\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"North Annex\"\n            },\n            {\n              \"text\": \"6\"\n            },\n            {\n              \"text\": \"Adjusted sorter timing\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"type\": \"heading\",\n      \"level\": 3,\n      \"text\": \"Follow-up Actions\"\n    },\n    {\n      \"type\": \"list\",\n      \"ordered\": false,\n      \"items\": [\n        {\n          \"runs\": [\n            {\n              \"text\": \"Audit scanner calibration every Friday for the next six weeks.\"\n            }\n          ],\n          \"level\": 0\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Publish a one-page exception guide to shift supervisors.\"\n            }\n          ],\n          \"level\": 0\n        }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555156,
+  "id": "chatcmpl-E7ukeWkExQs2v8sJHPmGQym91ILYY",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 475,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 8,
+      "engine_ttft_ms": 70,
+      "engine_ttlt_ms": 3778,
+      "pre_inference_ms": 116,
+      "service_tbt_ms": 8,
+      "service_ttft_ms": 244,
+      "service_ttlt_ms": 3946,
+      "total_duration_ms": 3837,
+      "user_visible_ttft_ms": 128
+    },
+    "prompt_tokens": 328,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 803
+  }
+}

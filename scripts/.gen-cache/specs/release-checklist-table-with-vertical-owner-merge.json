@@ -1,0 +1,89 @@
+{
+  "name": "release-checklist-table-with-vertical-owner-merge",
+  "description": "A release checklist uses a table where the owner cell is vertically merged across two rows, which can be misread when converting to Markdown.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Release Readiness Checklist"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "This snapshot from the launch review groups two deployment tasks under the same owner."
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "cells": [
+            {
+              "text": "Owner",
+              "header": true
+            },
+            {
+              "text": "Task",
+              "header": true
+            },
+            {
+              "text": "Status",
+              "header": true
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "Mina Patel",
+              "rowSpan": 2
+            },
+            {
+              "text": "Finalize rollback steps"
+            },
+            {
+              "text": "Done"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "",
+              "rowSpan": 0
+            },
+            {
+              "text": "Verify production feature flags"
+            },
+            {
+              "text": "In progress"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "Rafael Ortiz"
+            },
+            {
+              "text": "Approve customer notice"
+            },
+            {
+              "text": "Blocked"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "The merged owner cell should remain associated with both deployment tasks after conversion."
+        }
+      ]
+    }
+  ]
+}

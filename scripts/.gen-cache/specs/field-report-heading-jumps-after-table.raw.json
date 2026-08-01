@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"field-report-heading-jumps-after-table\",\n  \"description\": \"A short field report uses non-sequential heading levels and places a lower-level heading immediately after a table, which can confuse Markdown heading structure.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 1,\n      \"text\": \"Wetland Survey Summary\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"This memo captures the first morning of sampling at Heron Marsh and highlights the stations with the highest nitrate readings.\"\n        }\n      ]\n    },\n    {\n      \"type\": \"heading\",\n      \"level\": 3,\n      \"text\": \"Sampling Stations\"\n    },\n    {\n      \"type\": \"table\",\n      \"rows\": [\n        {\n          \"cells\": [\n            {\n              \"text\": \"Station\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Depth (cm)\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Nitrate (mg/L)\",\n              \"header\": true\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"North Inlet\"\n            },\n            {\n              \"text\": \"35\"\n            },\n            {\n              \"text\": \"4.8\"\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"Reed Bend\"\n            },\n            {\n              \"text\": \"22\"\n            },\n            {\n              \"text\": \"6.1\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"type\": \"heading\",\n      \"level\": 4,\n      \"text\": \"Follow-up Notes\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"Reed Bend should be revisited after rainfall because the elevated reading may reflect overnight runoff rather than a persistent source.\"\n        }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555161,
+  "id": "chatcmpl-E7ukjxDWNIoClzhNLXRkjP3TseLfi",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 424,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 70,
+      "engine_ttlt_ms": 3221,
+      "pre_inference_ms": 87,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 216,
+      "service_ttlt_ms": 3358,
+      "total_duration_ms": 3283,
+      "user_visible_ttft_ms": 128
+    },
+    "prompt_tokens": 328,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 752
+  }
+}

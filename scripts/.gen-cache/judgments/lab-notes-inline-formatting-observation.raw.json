@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"score\":0.94,\"idealMarkdown\":\"## Catalyst Bench Notes\\n\\nBatch **B-17** showed _unexpected_ uptake after replacing MnO<sub>2</sub> with Fe<sup>3+</sup>; the earlier reading of ~~41.8%~~ was corrected to ***38.6%*** after recalibration.\\n\\nFinal remark: keep the <u>sealed vial</u> at 5<sup>o</sup>C and label the control as H<sub>2</sub>O.\",\"issues\":[{\"severity\":\"medium\",\"description\":\"Underline formatting on \\\"sealed vial\\\" was lost. In GFM this could be preserved with inline HTML, e.g. `<u>sealed vial</u>`.\"},{\"severity\":\"low\",\"description\":\"Bold+italic formatting for \\\"38.6%\\\" is represented as `**_38.6%_**` instead of the cleaner equivalent `***38.6%***`. Fidelity is preserved, but the Markdown is less clean than ideal.\"}]}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555241,
+  "id": "chatcmpl-E7um1OddXNYjLITfsHwocKD8jH2OC",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 218,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 8,
+      "engine_ttft_ms": 83,
+      "engine_ttlt_ms": 1723,
+      "pre_inference_ms": 87,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 279,
+      "service_ttlt_ms": 1876,
+      "total_duration_ms": 1805,
+      "user_visible_ttft_ms": 192
+    },
+    "prompt_tokens": 724,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 942
+  }
+}

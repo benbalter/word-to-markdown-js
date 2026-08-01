@@ -1,0 +1,5 @@
+{
+  "score": 1,
+  "idealMarkdown": "## Release checklist\n\n1. Confirm the build passed smoke tests in staging.\n2. Tag the release candidate in Git.\n\nNote: If legal has not approved the updated privacy wording, pause the rollout and notify support.\n\n1. Post the customer-facing changelog.\n2. Archive the signed release notes PDF.",
+  "issues": []
+}

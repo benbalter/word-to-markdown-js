@@ -1,0 +1,92 @@
+{
+  "name": "release-checklist-table-cell-bullets-v1",
+  "description": "A compact status table includes a cell whose content is a nested bullet list, which is difficult to flatten cleanly into Markdown while preserving table structure.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Mobile App Release Readiness"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "The product team reviewed launch blockers and summarized the remaining work by area."
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "cells": [
+            {
+              "text": "Area",
+              "header": true
+            },
+            {
+              "text": "Status",
+              "header": true
+            },
+            {
+              "text": "Open items",
+              "header": true
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "Payments"
+            },
+            {
+              "text": "At risk"
+            },
+            {
+              "runs": [
+                {
+                  "text": "• Confirm bank fallback flow\n  • Retry card tokenization on timeout\n• Update support macros for declined prepaid cards"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "Onboarding"
+            },
+            {
+              "text": "On track"
+            },
+            {
+              "text": "Finalize welcome email copy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "runs": [
+            {
+              "text": "Release candidate build is scheduled for Thursday afternoon."
+            }
+          ],
+          "level": 0
+        },
+        {
+          "runs": [
+            {
+              "text": "Compliance sign-off is still pending for the payments flow."
+            }
+          ],
+          "level": 0
+        }
+      ]
+    }
+  ]
+}

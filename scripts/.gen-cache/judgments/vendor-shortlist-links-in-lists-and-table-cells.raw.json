@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"score\":0.86,\"idealMarkdown\":\"# Vendor Shortlist for Office Wi-Fi Refresh\\n\\nBefore the Friday review, compare the candidate vendors, confirm current pricing, and save the latest product sheets.\\n\\n- Check [Aster Networks](https://www.aster-networks.example/vendors) for updated reseller terms and download the [channel guide](https://www.aster-networks.example/docs/channel-guide.pdf).\\n- Review [North Pier Wireless](https://northpier.example/products/wifi) and note whether the [installation checklist](https://northpier.example/support/install-checklist) still matches our branch layout.\\n  - If North Pier is shortlisted, request a quote through the [partner portal](https://partners.northpier.example/login).\\n\\n| Vendor | Reference Links | Notes |\\n| --- | --- | --- |\\n| Aster Networks | Catalog [ ](https://www.aster-networks.example/catalog) and [warranty terms](https://www.aster-networks.example/legal/warranty) | Lead time improved after the April update. |\\n| North Pier Wireless | See [access point specs](https://northpier.example/specs/ap-820) and [mounting guide](https://northpier.example/docs/mounting-guide.pdf) | Ceiling bracket details are only in the linked PDF. |\",\"issues\":[{\"severity\":\"high\",\"description\":\"In the Aster Networks table row, the first link in the Reference Links cell was mangled as `[](https://www.aster-networks.example/catalog)` with no visible linked text, so the cell content is not faithfully represented.\"},{\"severity\":\"medium\",\"description\":\"The Aster Networks Reference Links cell lost spacing around the first link, producing `Catalog [](…)and ...` instead of preserving readable separation between `Catalog`, the linked content, and `and`.\"}]}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555275,
+  "id": "chatcmpl-E7umZd4Zqc716Wt1A32y6HgUxLuIh",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 385,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 6,
+      "engine_ttft_ms": 87,
+      "engine_ttlt_ms": 2392,
+      "pre_inference_ms": 281,
+      "service_tbt_ms": 6,
+      "service_ttft_ms": 484,
+      "service_ttlt_ms": 2723,
+      "total_duration_ms": 2537,
+      "user_visible_ttft_ms": 203
+    },
+    "prompt_tokens": 1292,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 1677
+  }
+}

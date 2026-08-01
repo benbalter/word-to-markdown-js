@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"vendor-shortlist-links-in-lists-and-table-cells\",\n  \"description\": \"A procurement note mixes hyperlinks within bulleted list items and inside table cells, including multiple links in a single cell and linked text alongside plain text.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 1,\n      \"text\": \"Vendor Shortlist for Office Wi-Fi Refresh\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"Before the Friday review, compare the candidate vendors, confirm current pricing, and save the latest product sheets.\"\n        }\n      ]\n    },\n    {\n      \"type\": \"list\",\n      \"ordered\": false,\n      \"items\": [\n        {\n          \"level\": 0,\n          \"runs\": [\n            {\n              \"text\": \"Check \"\n            },\n            {\n              \"text\": \"Aster Networks\",\n              \"link\": \"https://www.aster-networks.example/vendors\"\n            },\n            {\n              \"text\": \" for updated reseller terms and download the \"\n            },\n            {\n              \"text\": \"channel guide\",\n              \"link\": \"https://www.aster-networks.example/docs/channel-guide.pdf\"\n            },\n            {\n              \"text\": \".\"\n            }\n          ]\n        },\n        {\n          \"level\": 0,\n          \"runs\": [\n            {\n              \"text\": \"Review \"\n            },\n            {\n              \"text\": \"North Pier Wireless\",\n              \"link\": \"https://northpier.example/products/wifi\"\n            },\n            {\n              \"text\": \" and note whether the \"\n            },\n            {\n              \"text\": \"installation checklist\",\n              \"link\": \"https://northpier.example/support/install-checklist\"\n            },\n            {\n              \"text\": \" still matches our branch layout.\"\n            }\n          ]\n        },\n        {\n          \"level\": 1,\n          \"runs\": [\n            {\n              \"text\": \"If North Pier is shortlisted, request a quote through the \"\n            },\n            {\n              \"text\": \"partner portal\",\n              \"link\": \"https://partners.northpier.example/login\"\n            },\n            {\n              \"text\": \".\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"type\": \"table\",\n      \"rows\": [\n        {\n          \"cells\": [\n            {\n              \"text\": \"Vendor\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Reference Links\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Notes\",\n              \"header\": true\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"runs\": [\n                {\n                  \"text\": \"Aster Networks\"\n                }\n              ]\n            },\n            {\n              \"runs\": [\n                {\n                  \"text\": \"Catalog\"\n                },\n                {\n                  \"text\": \" \",\n                \"link\": \"https://www.aster-networks.example/catalog\"\n                },\n                {\n                  \"text\": \"and \"\n                },\n                {\n                  \"text\": \"warranty terms\",\n                  \"link\": \"https://www.aster-networks.example/legal/warranty\"\n                }\n              ]\n            },\n            {\n              \"runs\": [\n                {\n                  \"text\": \"Lead time improved after the April update.\"\n                }\n              ]\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"runs\": [\n                {\n                  \"text\": \"North Pier Wireless\"\n                }\n              ]\n            },\n            {\n              \"runs\": [\n                {\n                  \"text\": \"See \"\n                },\n                {\n                  \"text\": \"access point specs\",\n                  \"link\": \"https://northpier.example/specs/ap-820\"\n                },\n                {\n                  \"text\": \" and \"\n                },\n                {\n                  \"text\": \"mounting guide\",\n                  \"link\": \"https://northpier.example/docs/mounting-guide.pdf\"\n                }\n              ]\n            },\n            {\n              \"runs\": [\n                {\n                  \"text\": \"Ceiling bracket details are only in the linked PDF.\"\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555149,
+  "id": "chatcmpl-E7ukX1caTj6ZtoZdhNLK6p3yBvhNG",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 862,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 60,
+      "engine_ttlt_ms": 6419,
+      "pre_inference_ms": 96,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 210,
+      "service_ttlt_ms": 6565,
+      "total_duration_ms": 6475,
+      "user_visible_ttft_ms": 114
+    },
+    "prompt_tokens": 320,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 1182
+  }
+}

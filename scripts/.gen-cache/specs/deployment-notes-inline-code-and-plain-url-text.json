@@ -1,0 +1,99 @@
+{
+  "name": "deployment-notes-inline-code-and-plain-url-text",
+  "description": "A short deployment note mixes several inline code spans with a plain-text URL-looking string that should not become a link.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Deployment Notes"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "Set "
+        },
+        {
+          "text": "NODE_ENV=production",
+          "underline": true
+        },
+        {
+          "text": " before running "
+        },
+        {
+          "text": "npm run migrate",
+          "underline": true
+        },
+        {
+          "text": ". The string "
+        },
+        {
+          "text": "https://status.internal.example/local",
+          "italic": true
+        },
+        {
+          "text": " appears in the checklist as plain text, not a hyperlink."
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "level": 0,
+          "runs": [
+            {
+              "text": "Verify "
+            },
+            {
+              "text": "APP_PORT=8080",
+              "underline": true
+            },
+            {
+              "text": " in "
+            },
+            {
+              "text": ".env.production",
+              "underline": true
+            }
+          ]
+        },
+        {
+          "level": 0,
+          "runs": [
+            {
+              "text": "Restart the service with "
+            },
+            {
+              "text": "systemctl restart api.service",
+              "underline": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "If rollback is needed, execute "
+        },
+        {
+          "text": "git revert --no-edit HEAD",
+          "underline": true
+        },
+        {
+          "text": " and post confirmation in "
+        },
+        {
+          "text": "#release-ops",
+          "bold": true
+        },
+        {
+          "text": "."
+        }
+      ]
+    }
+  ]
+}

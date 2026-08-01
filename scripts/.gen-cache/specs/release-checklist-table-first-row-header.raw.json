@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"release-checklist-table-first-row-header\",\n  \"description\": \"A compact status table uses the first row as labeled column headers, which should become the Markdown header row during conversion.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 2,\n      \"text\": \"Release Readiness\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"The engineering manager shared the current launch checklist for Friday's mobile app release.\"\n        }\n      ]\n    },\n    {\n      \"type\": \"table\",\n      \"rows\": [\n        {\n          \"cells\": [\n            {\n              \"text\": \"Workstream\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Owner\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Status\",\n              \"header\": true\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"Crash reporting\"\n            },\n            {\n              \"text\": \"Nina\"\n            },\n            {\n              \"text\": \"Verified\"\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"App store copy\"\n            },\n            {\n              \"text\": \"Marcus\"\n            },\n            {\n              \"text\": \"Awaiting legal\"\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"Support macros\"\n            },\n            {\n              \"text\": \"Jules\"\n            },\n            {\n              \"text\": \"Done\"\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555172,
+  "id": "chatcmpl-E7ukuydIbkHk5RkwA8ikNicMmLOIP",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 347,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 64,
+      "engine_ttlt_ms": 2520,
+      "pre_inference_ms": 80,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 191,
+      "service_ttlt_ms": 2642,
+      "total_duration_ms": 2570,
+      "user_visible_ttft_ms": 111
+    },
+    "prompt_tokens": 322,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 669
+  }
+}

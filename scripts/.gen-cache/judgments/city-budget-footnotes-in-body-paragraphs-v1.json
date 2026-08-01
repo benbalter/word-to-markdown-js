@@ -1,0 +1,18 @@
+{
+  "score": 0.9,
+  "idealMarkdown": "# City Budget Brief\n\nThe finance office reported that transit ridership recovered to 92% of pre-2020 levels[^1], while fuel costs for the municipal fleet rose by 14% year over year[^2].\n\nCouncil also approved a reserve transfer of $3.5 million[^3] to cover storm drain repairs identified after the spring audit[^4], but deferred sidewalk lighting upgrades until next quarter[^5].\n\n[^1]: Ridership estimate is based on fare-gate counts from January through September.\n[^2]: Fuel costs reflect blended diesel and gasoline purchasing contracts.\n[^3]: The transfer comes from the capital stabilization reserve.\n[^4]: The audit reviewed 118 drain segments across three districts.\n[^5]: Lighting upgrades were postponed pending revised contractor bids.",
+  "issues": [
+    {
+      "severity": "medium",
+      "description": "Footnotes are rendered as raw HTML superscript links plus a numbered list instead of clean GitHub-Flavored Markdown footnote syntax (`[^1]` / `[^1]: ...`)."
+    },
+    {
+      "severity": "low",
+      "description": "The dollar sign in `$3.5 million` is unnecessarily escaped as `\\$3.5 million`, reducing Markdown cleanliness."
+    },
+    {
+      "severity": "low",
+      "description": "Back-reference anchors (`#footnote-ref-*`) are included, but no matching reference IDs are defined in the body, so the return links are not valid."
+    }
+  ]
+}

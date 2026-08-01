@@ -1,0 +1,27 @@
+{
+  "name": "editor-note-smart-quotes-em-dash-nbsp-variant-a",
+  "description": "A short editorial note uses curly quotes, em dashes, and non-breaking spaces within paragraphs, which can be altered or normalized incorrectly during conversion.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Editor’s Note"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "When Mara wrote, “We’ll reopen on May 1—if the permits arrive,” the staff copied the line exactly; later drafts replaced the smart quotes and collapsed the non-breaking spaces around the date."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "The printed notice read, “Members only—no guests after 9 p.m.”—a small change, but one that mattered to the front desk team."
+        }
+      ]
+    }
+  ]
+}

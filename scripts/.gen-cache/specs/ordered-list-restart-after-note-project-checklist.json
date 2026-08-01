@@ -1,0 +1,63 @@
+{
+  "name": "ordered-list-restart-after-note-project-checklist",
+  "description": "An ordered list is interrupted by a normal paragraph and then resumes as a restarted numbered list, which can be mistaken for continuous numbering in Markdown conversion.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Site Visit Preparation"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "runs": [
+            {
+              "text": "Confirm access with the building manager."
+            }
+          ],
+          "level": 0
+        },
+        {
+          "runs": [
+            {
+              "text": "Print two copies of the inspection checklist."
+            }
+          ],
+          "level": 0
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "Note: The first two steps are handled by the office coordinator before the field team leaves."
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "runs": [
+            {
+              "text": "Pack a flashlight, tape measure, and spare batteries."
+            }
+          ],
+          "level": 0
+        },
+        {
+          "runs": [
+            {
+              "text": "Photograph any visible water damage on arrival."
+            }
+          ],
+          "level": 0
+        }
+      ]
+    }
+  ]
+}

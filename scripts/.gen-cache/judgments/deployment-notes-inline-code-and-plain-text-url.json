@@ -1,0 +1,14 @@
+{
+  "score": 0.62,
+  "idealMarkdown": "## Deployment Notes\n\nBefore restarting the service, set <u>NODE_ENV=production</u> and run <u>npm run migrate</u> from the release directory.\n\nFor the rollback checklist, refer to *https://status.example.net/rollback* in the printed runbook; this text should remain plain text, not a link.\n\n- Verify that <u>systemctl status api</u> returns <u>active (running)</u>\n- If health checks fail, inspect <u>/var/log/api/error.log</u> before paging the on-call engineer.",
+  "issues": [
+    {
+      "severity": "high",
+      "description": "The URL-looking text was converted into an autolink (`<https://status.example.net/rollback>`), but it should remain plain text while italicized, not a hyperlink."
+    },
+    {
+      "severity": "medium",
+      "description": "All underlined spans were flattened to plain text. Underline formatting is missing for `NODE_ENV=production`, `npm run migrate`, `systemctl status api`, `active (running)`, and `/var/log/api/error.log`."
+    }
+  ]
+}

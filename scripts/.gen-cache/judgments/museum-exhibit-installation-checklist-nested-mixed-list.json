@@ -1,0 +1,10 @@
+{
+  "score": 0.96,
+  "idealMarkdown": "# Exhibit Installation Checklist\n\nUse this sequence for the maritime gallery refresh scheduled before the public preview on Friday.\n\n1. Prepare the entry bay\n   - Confirm wall labels are printed and trimmed\n     1. Check the title panel for the _North Atlantic Crossing_ section\n        - Replace any label with visible toner streaks\n   - Verify adhesive strips are rated for painted masonry\n2. Stage display cases\n   - Position the brass compass case under track light B\n     1. Use foam shims if the base rocks\n        - Record shim thickness in the install log\n          1. If thickness exceeds 6 mm, notify conservation\n     2. Secure the vitrine lock and test both keys\n3. Mount graphics\n   - Hang the harbor panorama at eye level\n     1. Center on the blue datum line marked by facilities\n        - Do not cover the emergency shutoff placard\n   - Install donor credits beside the exit arch\n4. Final walkthrough\n   - Test audio loop volume from three visitor positions\n     1. Note any narration clipping during the storm segment\n        - Request a revised file from media services if clipping persists\n   - Sign off with facilities and front-of-house\n\nAny unresolved issue should be added to the opening-day punch list before 4:00 p.m.",
+  "issues": [
+    {
+      "severity": "medium",
+      "description": "The nested list lost the intended mixed ordered/unordered structure. All sublevels were rendered as ordered lists, but the source alternates between ordered and unordered items across levels."
+    }
+  ]
+}

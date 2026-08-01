@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"release-checklist-table-with-vertical-owner-merge\",\n  \"description\": \"A release checklist uses a table where the owner cell is vertically merged across two rows, which can be misread when converting to Markdown.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 2,\n      \"text\": \"Release Readiness Checklist\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"This snapshot from the launch review groups two deployment tasks under the same owner.\"\n        }\n      ]\n    },\n    {\n      \"type\": \"table\",\n      \"rows\": [\n        {\n          \"cells\": [\n            {\n              \"text\": \"Owner\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Task\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Status\",\n              \"header\": true\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"Mina Patel\",\n              \"rowSpan\": 2\n            },\n            {\n              \"text\": \"Finalize rollback steps\"\n            },\n            {\n              \"text\": \"Done\"\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"\",\n              \"rowSpan\": 0\n            },\n            {\n              \"text\": \"Verify production feature flags\"\n            },\n            {\n              \"text\": \"In progress\"\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"Rafael Ortiz\"\n            },\n            {\n              \"text\": \"Approve customer notice\"\n            },\n            {\n              \"text\": \"Blocked\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"The merged owner cell should remain associated with both deployment tasks after conversion.\"\n        }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555107,
+  "id": "chatcmpl-E7ujr0rDfqP5qBOWmzwTQnifTKHen",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 413,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 71,
+      "engine_ttlt_ms": 2924,
+      "pre_inference_ms": 77,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 197,
+      "service_ttlt_ms": 3038,
+      "total_duration_ms": 2974,
+      "user_visible_ttft_ms": 120
+    },
+    "prompt_tokens": 324,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 737
+  }
+}

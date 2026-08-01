@@ -1,0 +1,81 @@
+{
+  "name": "maintenance-window-table-vertical-merge",
+  "description": "A compact operations note includes a table where the environment cell is vertically merged across two maintenance rows.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Planned Maintenance Windows"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "The infrastructure team published the following schedule for next week."
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "cells": [
+            {
+              "text": "Environment",
+              "header": true
+            },
+            {
+              "text": "Window",
+              "header": true
+            },
+            {
+              "text": "Scope",
+              "header": true
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "Production",
+              "rowSpan": 2
+            },
+            {
+              "text": "Tue 22:00–23:00 UTC"
+            },
+            {
+              "text": "Database patching"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "",
+              "rowSpan": 0
+            },
+            {
+              "text": "Thu 21:30–22:15 UTC"
+            },
+            {
+              "text": "Load balancer failover test"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "Staging"
+            },
+            {
+              "text": "Wed 18:00–18:30 UTC"
+            },
+            {
+              "text": "API deploy rehearsal"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

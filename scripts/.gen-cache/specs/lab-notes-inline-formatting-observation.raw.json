@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"lab-notes-inline-formatting-observation\",\n  \"description\": \"A short lab note uses a single paragraph that mixes bold, italic, strikethrough, superscript, and subscript inline around technical notation.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 2,\n      \"text\": \"Catalyst Bench Notes\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        { \"text\": \"Batch \" },\n        { \"text\": \"B-17\", \"bold\": true },\n        { \"text\": \" showed \" },\n        { \"text\": \"unexpected\", \"italic\": true },\n        { \"text\": \" uptake after replacing \" },\n        { \"text\": \"MnO\", \"text\": \"MnO\" },\n        { \"text\": \"2\", \"sub\": true },\n        { \"text\": \" with \" },\n        { \"text\": \"Fe\", \"text\": \"Fe\" },\n        { \"text\": \"3+\", \"sup\": true },\n        { \"text\": \"; the earlier reading of \" },\n        { \"text\": \"41.8%\", \"strike\": true },\n        { \"text\": \" was corrected to \" },\n        { \"text\": \"38.6%\", \"bold\": true, \"italic\": true },\n        { \"text\": \" after recalibration.\" }\n      ]\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        { \"text\": \"Final remark: keep the \" },\n        { \"text\": \"sealed vial\", \"underline\": true },\n        { \"text\": \" at 5\" },\n        { \"text\": \"o\", \"sup\": true },\n        { \"text\": \"C and label the control as H\" },\n        { \"text\": \"2\", \"sub\": true },\n        { \"text\": \"O.\" }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555130,
+  "id": "chatcmpl-E7ukEOVAtiOLB2h0V7zWJngHzd6Qr",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 410,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 8,
+      "engine_ttft_ms": 80,
+      "engine_ttlt_ms": 3432,
+      "pre_inference_ms": 85,
+      "service_tbt_ms": 8,
+      "service_ttft_ms": 252,
+      "service_ttlt_ms": 3598,
+      "total_duration_ms": 3520,
+      "user_visible_ttft_ms": 167
+    },
+    "prompt_tokens": 330,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 740
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "score": 0.58,
+  "idealMarkdown": "## Release Readiness Checklist\n\nThis snapshot from the launch review groups two deployment tasks under the same owner.\n\n| Owner | Task | Status |\n| --- | --- | --- |\n| Mina Patel | Finalize rollback steps | Done |\n| Mina Patel | Verify production feature flags | In progress |\n| Rafael Ortiz | Approve customer notice | Blocked |\n\nThe merged owner cell should remain associated with both deployment tasks after conversion.",
+  "issues": [
+    {
+      "severity": "high",
+      "description": "The vertically merged Owner cell was not preserved correctly. The second task row should repeat or otherwise retain 'Mina Patel' as the owner, but the output instead loses that association."
+    },
+    {
+      "severity": "high",
+      "description": "The second table row is structurally broken: 'Verify production feature flags' was placed in the Owner column and 'In progress' in the Task column, leaving the Status column missing."
+    },
+    {
+      "severity": "medium",
+      "description": "The Markdown table has an inconsistent number of columns in the second data row, which makes the table malformed in GitHub-Flavored Markdown."
+    }
+  ]
+}

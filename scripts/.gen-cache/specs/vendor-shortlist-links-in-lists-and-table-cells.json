@@ -1,0 +1,177 @@
+{
+  "name": "vendor-shortlist-links-in-lists-and-table-cells",
+  "description": "A procurement note mixes hyperlinks within bulleted list items and inside table cells, including multiple links in a single cell and linked text alongside plain text.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 1,
+      "text": "Vendor Shortlist for Office Wi-Fi Refresh"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "Before the Friday review, compare the candidate vendors, confirm current pricing, and save the latest product sheets."
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "level": 0,
+          "runs": [
+            {
+              "text": "Check "
+            },
+            {
+              "text": "Aster Networks",
+              "link": "https://www.aster-networks.example/vendors"
+            },
+            {
+              "text": " for updated reseller terms and download the "
+            },
+            {
+              "text": "channel guide",
+              "link": "https://www.aster-networks.example/docs/channel-guide.pdf"
+            },
+            {
+              "text": "."
+            }
+          ]
+        },
+        {
+          "level": 0,
+          "runs": [
+            {
+              "text": "Review "
+            },
+            {
+              "text": "North Pier Wireless",
+              "link": "https://northpier.example/products/wifi"
+            },
+            {
+              "text": " and note whether the "
+            },
+            {
+              "text": "installation checklist",
+              "link": "https://northpier.example/support/install-checklist"
+            },
+            {
+              "text": " still matches our branch layout."
+            }
+          ]
+        },
+        {
+          "level": 1,
+          "runs": [
+            {
+              "text": "If North Pier is shortlisted, request a quote through the "
+            },
+            {
+              "text": "partner portal",
+              "link": "https://partners.northpier.example/login"
+            },
+            {
+              "text": "."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "cells": [
+            {
+              "text": "Vendor",
+              "header": true
+            },
+            {
+              "text": "Reference Links",
+              "header": true
+            },
+            {
+              "text": "Notes",
+              "header": true
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "runs": [
+                {
+                  "text": "Aster Networks"
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "Catalog"
+                },
+                {
+                  "text": " ",
+                  "link": "https://www.aster-networks.example/catalog"
+                },
+                {
+                  "text": "and "
+                },
+                {
+                  "text": "warranty terms",
+                  "link": "https://www.aster-networks.example/legal/warranty"
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "Lead time improved after the April update."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "runs": [
+                {
+                  "text": "North Pier Wireless"
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "See "
+                },
+                {
+                  "text": "access point specs",
+                  "link": "https://northpier.example/specs/ap-820"
+                },
+                {
+                  "text": " and "
+                },
+                {
+                  "text": "mounting guide",
+                  "link": "https://northpier.example/docs/mounting-guide.pdf"
+                }
+              ]
+            },
+            {
+              "runs": [
+                {
+                  "text": "Ceiling bracket details are only in the linked PDF."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

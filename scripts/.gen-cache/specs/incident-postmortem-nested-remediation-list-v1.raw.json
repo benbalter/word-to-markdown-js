@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"incident-postmortem-nested-remediation-list-v1\",\n  \"description\": \"A postmortem document with a deeply nested list that alternates between ordered and unordered items across four levels.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 1,\n      \"text\": \"API Outage Postmortem\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"The team recorded the remediation plan below during the follow-up review for the 14 May outage.\"\n        }\n      ]\n    },\n    {\n      \"type\": \"list\",\n      \"ordered\": true,\n      \"items\": [\n        {\n          \"runs\": [\n            {\n              \"text\": \"Stabilize production\"\n            }\n          ],\n          \"level\": 0\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Roll back the rate-limit rule added at 09:10\"\n            }\n          ],\n          \"level\": 1\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Confirm rollback on all edge regions\"\n            }\n          ],\n          \"level\": 2\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Check Frankfurt and Sydney first because they lagged during deploy\"\n            }\n          ],\n          \"level\": 3\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Capture timestamps from the gateway logs\"\n            }\n          ],\n          \"level\": 2\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Notify support once error rates remain below 1% for 15 minutes\"\n            }\n          ],\n          \"level\": 1\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Investigate root cause\"\n            }\n          ],\n          \"level\": 0\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Review configuration changes merged that morning\"\n            }\n          ],\n          \"level\": 1\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Compare the gateway policy diff with the staging version\"\n            }\n          ],\n          \"level\": 2\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Flag any missing allowlist entries\"\n            }\n          ],\n          \"level\": 3\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Include partner IP ranges used by billing callbacks\"\n            }\n          ],\n          \"level\": 4\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Interview the on-call engineer\"\n            }\n          ],\n          \"level\": 1\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Ask which alerts were noisy versus actionable\"\n            }\n          ],\n          \"level\": 2\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Document preventive actions\"\n            }\n          ],\n          \"level\": 0\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Add a canary rollout for policy changes\"\n            }\n          ],\n          \"level\": 1\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Start with 5% of traffic\"\n            }\n          ],\n          \"level\": 2\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Monitor\"\n            }\n          ],\n          \"level\": 3\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"5xx rate\"\n            }\n          ],\n          \"level\": 4\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"p95 latency\"\n            }\n          ],\n          \"level\": 4\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Expand to 25% only after two clean intervals\"\n            }\n          ],\n          \"level\": 2\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Update the runbook with rollback screenshots\"\n            }\n          ],\n          \"level\": 1\n        }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555110,
+  "id": "chatcmpl-E7uju9Lvnsxpe1IINF9XgWgQpW3Nq",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 888,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 66,
+      "engine_ttlt_ms": 6314,
+      "pre_inference_ms": 87,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 223,
+      "service_ttlt_ms": 6444,
+      "total_duration_ms": 6366,
+      "user_visible_ttft_ms": 136
+    },
+    "prompt_tokens": 326,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 1214
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "name": "release-checklist-ordered-list-restarts-after-note",
+  "description": "An ordered list is interrupted by a normal paragraph note, then resumes with numbering restarted at 1, which can be misread as a continuation in Markdown conversion.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Release checklist"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "runs": [
+            {
+              "text": "Confirm the build passed smoke tests in staging."
+            }
+          ],
+          "level": 0
+        },
+        {
+          "runs": [
+            {
+              "text": "Tag the release candidate in Git."
+            }
+          ],
+          "level": 0
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "Note: If legal has not approved the updated privacy wording, pause the rollout and notify support."
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "runs": [
+            {
+              "text": "Post the customer-facing changelog."
+            }
+          ],
+          "level": 0
+        },
+        {
+          "runs": [
+            {
+              "text": "Archive the signed release notes PDF."
+            }
+          ],
+          "level": 0
+        }
+      ]
+    }
+  ]
+}

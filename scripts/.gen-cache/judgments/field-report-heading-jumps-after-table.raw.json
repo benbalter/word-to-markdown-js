@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"score\":1,\"idealMarkdown\":\"# Wetland Survey Summary\\n\\nThis memo captures the first morning of sampling at Heron Marsh and highlights the stations with the highest nitrate readings.\\n\\n### Sampling Stations\\n\\n| Station | Depth (cm) | Nitrate (mg/L) |\\n| --- | --- | --- |\\n| North Inlet | 35 | 4.8 |\\n| Reed Bend | 22 | 6.1 |\\n\\n#### Follow-up Notes\\n\\nReed Bend should be revisited after rainfall because the elevated reading may reflect overnight runoff rather than a persistent source.\",\"issues\":[]}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555234,
+  "id": "chatcmpl-E7ulu42mDTqEDVnsxK0kjxsrV6x7n",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 135,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 9,
+      "engine_ttft_ms": 126,
+      "engine_ttlt_ms": 1284,
+      "pre_inference_ms": 123,
+      "service_tbt_ms": 9,
+      "service_ttft_ms": 304,
+      "service_ttlt_ms": 1455,
+      "total_duration_ms": 1344,
+      "user_visible_ttft_ms": 181
+    },
+    "prompt_tokens": 709,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 844
+  }
+}

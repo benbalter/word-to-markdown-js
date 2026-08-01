@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"regional-sales-table-merged-quarter-header\",\n  \"description\": \"A compact report uses a table whose top header row merges quarter labels across multiple columns before a single body row of regional sales data.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 2,\n      \"text\": \"Regional Sales Snapshot\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"The table groups monthly figures under merged quarter headers, which can be difficult to preserve when converting to Markdown.\"\n        }\n      ]\n    },\n    {\n      \"type\": \"table\",\n      \"rows\": [\n        {\n          \"cells\": [\n            {\n              \"text\": \"Region\",\n              \"header\": true,\n              \"rowSpan\": 2\n            },\n            {\n              \"text\": \"Q1\",\n              \"header\": true,\n              \"colSpan\": 3\n            },\n            {\n              \"text\": \"Q2\",\n              \"header\": true,\n              \"colSpan\": 3\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"\",\n              \"header\": true,\n              \"rowSpan\": 0\n            },\n            {\n              \"text\": \"Jan\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Feb\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Mar\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Apr\",\n              \"header\": true\n            },\n            {\n              \"text\": \"May\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Jun\",\n              \"header\": true\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"Midwest\"\n            },\n            {\n              \"text\": \"$118k\"\n            },\n            {\n              \"text\": \"$121k\"\n            },\n            {\n              \"text\": \"$127k\"\n            },\n            {\n              \"text\": \"$130k\"\n            },\n            {\n              \"text\": \"$126k\"\n            },\n            {\n              \"text\": \"$134k\"\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555100,
+  "id": "chatcmpl-E7ujk3UqrJj42RqtNsh84CfunnLe2",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 472,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 78,
+      "engine_ttlt_ms": 3296,
+      "pre_inference_ms": 88,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 220,
+      "service_ttlt_ms": 3432,
+      "total_duration_ms": 3354,
+      "user_visible_ttft_ms": 132
+    },
+    "prompt_tokens": 326,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 798
+  }
+}

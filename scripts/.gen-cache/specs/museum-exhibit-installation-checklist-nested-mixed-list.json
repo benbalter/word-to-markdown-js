@@ -1,0 +1,208 @@
+{
+  "name": "museum-exhibit-installation-checklist-nested-mixed-list",
+  "description": "A compact exhibit-planning document centered on a deeply nested list that alternates between ordered and unordered items across four levels.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 1,
+      "text": "Exhibit Installation Checklist"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "Use this sequence for the maritime gallery refresh scheduled before the public preview on Friday."
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "runs": [
+            {
+              "text": "Prepare the entry bay"
+            }
+          ],
+          "level": 0
+        },
+        {
+          "runs": [
+            {
+              "text": "Confirm wall labels are printed and trimmed"
+            }
+          ],
+          "level": 1
+        },
+        {
+          "runs": [
+            {
+              "text": "Check the title panel for the "
+            },
+            {
+              "text": "North Atlantic Crossing",
+              "italic": true
+            },
+            {
+              "text": " section"
+            }
+          ],
+          "level": 2
+        },
+        {
+          "runs": [
+            {
+              "text": "Replace any label with visible toner streaks"
+            }
+          ],
+          "level": 3
+        },
+        {
+          "runs": [
+            {
+              "text": "Verify adhesive strips are rated for painted masonry"
+            }
+          ],
+          "level": 1
+        },
+        {
+          "runs": [
+            {
+              "text": "Stage display cases"
+            }
+          ],
+          "level": 0
+        },
+        {
+          "runs": [
+            {
+              "text": "Position the brass compass case under track light B"
+            }
+          ],
+          "level": 1
+        },
+        {
+          "runs": [
+            {
+              "text": "Use foam shims if the base rocks"
+            }
+          ],
+          "level": 2
+        },
+        {
+          "runs": [
+            {
+              "text": "Record shim thickness in the install log"
+            }
+          ],
+          "level": 3
+        },
+        {
+          "runs": [
+            {
+              "text": "If thickness exceeds 6 mm, notify conservation"
+            }
+          ],
+          "level": 4
+        },
+        {
+          "runs": [
+            {
+              "text": "Secure the vitrine lock and test both keys"
+            }
+          ],
+          "level": 2
+        },
+        {
+          "runs": [
+            {
+              "text": "Mount graphics"
+            }
+          ],
+          "level": 0
+        },
+        {
+          "runs": [
+            {
+              "text": "Hang the harbor panorama at eye level"
+            }
+          ],
+          "level": 1
+        },
+        {
+          "runs": [
+            {
+              "text": "Center on the blue datum line marked by facilities"
+            }
+          ],
+          "level": 2
+        },
+        {
+          "runs": [
+            {
+              "text": "Do not cover the emergency shutoff placard"
+            }
+          ],
+          "level": 3
+        },
+        {
+          "runs": [
+            {
+              "text": "Install donor credits beside the exit arch"
+            }
+          ],
+          "level": 1
+        },
+        {
+          "runs": [
+            {
+              "text": "Final walkthrough"
+            }
+          ],
+          "level": 0
+        },
+        {
+          "runs": [
+            {
+              "text": "Test audio loop volume from three visitor positions"
+            }
+          ],
+          "level": 1
+        },
+        {
+          "runs": [
+            {
+              "text": "Note any narration clipping during the storm segment"
+            }
+          ],
+          "level": 2
+        },
+        {
+          "runs": [
+            {
+              "text": "Request a revised file from media services if clipping persists"
+            }
+          ],
+          "level": 3
+        },
+        {
+          "runs": [
+            {
+              "text": "Sign off with facilities and front-of-house"
+            }
+          ],
+          "level": 1
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "Any unresolved issue should be added to the opening-day punch list before 4:00 p.m."
+        }
+      ]
+    }
+  ]
+}

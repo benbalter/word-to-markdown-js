@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"release-checklist-table-cell-nested-bullets\",\n  \"description\": \"A compact release-planning document where one table cell contains multiple bullet-style lines that should remain associated with that single cell during conversion.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 2,\n      \"text\": \"Q3 Launch Readiness\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"The team tracks launch owners and open items in the table below; the risks cell includes its own bullet-style list.\"\n        }\n      ]\n    },\n    {\n      \"type\": \"table\",\n      \"rows\": [\n        {\n          \"cells\": [\n            {\n              \"text\": \"Workstream\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Owner\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Open risks\",\n              \"header\": true\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"runs\": [\n                {\n                  \"text\": \"Payments rollout\"\n                }\n              ]\n            },\n            {\n              \"runs\": [\n                {\n                  \"text\": \"Nina Shah\"\n                }\n              ]\n            },\n            {\n              \"runs\": [\n                {\n                  \"text\": \"• Fraud rules not tuned for new region\"\n                },\n                {\n                  \"text\": \"\\n• Settlement report still missing weekend totals\"\n                },\n                {\n                  \"text\": \"\\n• Support macros need updated refund wording\"\n                }\n              ]\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"runs\": [\n                {\n                  \"text\": \"Status page refresh\"\n                }\n              ]\n            },\n            {\n              \"runs\": [\n                {\n                  \"text\": \"Leo Martin\"\n                }\n              ]\n            },\n            {\n              \"runs\": [\n                {\n                  \"text\": \"No blocking issues; legal review scheduled Thursday.\"\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"type\": \"list\",\n      \"ordered\": false,\n      \"items\": [\n        {\n          \"runs\": [\n            {\n              \"text\": \"Confirm whether nested bullets inside table cells are preserved as in-cell content rather than promoted to a document-level list.\"\n            }\n          ],\n          \"level\": 0\n        }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555200,
+  "id": "chatcmpl-E7ulMAHTY5H42FWG8rOWeNDUr4uEh",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 507,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 8,
+      "engine_ttft_ms": 73,
+      "engine_ttlt_ms": 4085,
+      "pre_inference_ms": 168,
+      "service_tbt_ms": 8,
+      "service_ttft_ms": 295,
+      "service_ttlt_ms": 4302,
+      "total_duration_ms": 4142,
+      "user_visible_ttft_ms": 127
+    },
+    "prompt_tokens": 320,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 827
+  }
+}

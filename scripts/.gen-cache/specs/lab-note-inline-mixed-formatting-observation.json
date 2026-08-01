@@ -1,0 +1,69 @@
+{
+  "name": "lab-note-inline-mixed-formatting-observation",
+  "description": "A short lab note uses a single paragraph that mixes bold, italic, strikethrough, superscript, and subscript inline around technical content.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Catalyst Bench Note"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "During run "
+        },
+        {
+          "text": "B-17",
+          "bold": true
+        },
+        {
+          "text": ", the "
+        },
+        {
+          "text": "visible haze",
+          "italic": true
+        },
+        {
+          "text": " appeared after 12 min, the previous target of "
+        },
+        {
+          "text": "85°C",
+          "strike": true
+        },
+        {
+          "text": " was discarded, and the revised endpoint was 92"
+        },
+        {
+          "text": "°",
+          "sup": true
+        },
+        {
+          "text": "C while the solution shifted from Fe"
+        },
+        {
+          "text": "2",
+          "sub": true
+        },
+        {
+          "text": "O"
+        },
+        {
+          "text": "3",
+          "sub": true
+        },
+        {
+          "text": " red to a darker brown."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "Operator note: confirm whether the inline style changes survive export to Markdown without splitting the sentence incorrectly."
+        }
+      ]
+    }
+  ]
+}

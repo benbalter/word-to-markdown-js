@@ -1,0 +1,18 @@
+{
+  "score": 0.56,
+  "idealMarkdown": "## Planned Maintenance Windows\n\nThe infrastructure team published the following schedule for next week.\n\n| Environment | Window | Scope |\n| --- | --- | --- |\n| Production | Tue 22:00–23:00 UTC | Database patching |\n|  | Thu 21:30–22:15 UTC | Load balancer failover test |\n| Staging | Wed 18:00–18:30 UTC | API deploy rehearsal |",
+  "issues": [
+    {
+      "severity": "high",
+      "description": "The vertically merged 'Production' cell was not preserved correctly. The second maintenance row is malformed and missing the empty Environment placeholder, causing the table to have only two cells in that row."
+    },
+    {
+      "severity": "high",
+      "description": "The second data row is shifted left: 'Thu 21:30-22:15 UTC' appears under Environment and 'Load balancer failover test' under Window, with the Scope cell lost entirely."
+    },
+    {
+      "severity": "medium",
+      "description": "En dashes in time ranges were converted to hyphens ('22:00-23:00', '21:30-22:15', '18:00-18:30') instead of preserving the original punctuation."
+    }
+  ]
+}

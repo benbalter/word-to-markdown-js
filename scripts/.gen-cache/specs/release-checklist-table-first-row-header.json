@@ -1,0 +1,79 @@
+{
+  "name": "release-checklist-table-first-row-header",
+  "description": "A compact status table uses the first row as labeled column headers, which should become the Markdown header row during conversion.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Release Readiness"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "The engineering manager shared the current launch checklist for Friday's mobile app release."
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "cells": [
+            {
+              "text": "Workstream",
+              "header": true
+            },
+            {
+              "text": "Owner",
+              "header": true
+            },
+            {
+              "text": "Status",
+              "header": true
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "Crash reporting"
+            },
+            {
+              "text": "Nina"
+            },
+            {
+              "text": "Verified"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "App store copy"
+            },
+            {
+              "text": "Marcus"
+            },
+            {
+              "text": "Awaiting legal"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "Support macros"
+            },
+            {
+              "text": "Jules"
+            },
+            {
+              "text": "Done"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

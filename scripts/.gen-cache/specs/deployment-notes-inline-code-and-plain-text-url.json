@@ -1,0 +1,88 @@
+{
+  "name": "deployment-notes-inline-code-and-plain-text-url",
+  "description": "This document is tricky because it mixes inline code-like spans in prose with a URL-looking string that is intentionally plain text rather than a hyperlink.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Deployment Notes"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "Before restarting the service, set "
+        },
+        {
+          "text": "NODE_ENV=production",
+          "underline": true
+        },
+        {
+          "text": " and run "
+        },
+        {
+          "text": "npm run migrate",
+          "underline": true
+        },
+        {
+          "text": " from the release directory."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "For the rollback checklist, refer to "
+        },
+        {
+          "text": "https://status.example.net/rollback",
+          "italic": true
+        },
+        {
+          "text": " in the printed runbook; this text should remain plain text, not a link."
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "level": 0,
+          "runs": [
+            {
+              "text": "Verify that "
+            },
+            {
+              "text": "systemctl status api",
+              "underline": true
+            },
+            {
+              "text": " returns "
+            },
+            {
+              "text": "active (running)",
+              "underline": true
+            }
+          ]
+        },
+        {
+          "level": 0,
+          "runs": [
+            {
+              "text": "If health checks fail, inspect "
+            },
+            {
+              "text": "/var/log/api/error.log",
+              "underline": true
+            },
+            {
+              "text": " before paging the on-call engineer."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

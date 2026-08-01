@@ -1,0 +1,18 @@
+{
+  "score": 0.56,
+  "idealMarkdown": "## Quarterly Sales Snapshot\n\nThe table groups quarters under merged regional headers, which can be lost in Markdown conversion.\n\n| Product | North America |  | Europe |  |\n| --- | --- | --- | --- | --- |\n| Product | Q1 | Q2 | Q1 | Q2 |\n| Trail Shoes | $1.2M | $1.4M | €860K | €910K |",
+  "issues": [
+    {
+      "severity": "high",
+      "description": "The table separator row is malformed: `| --- | --- | | --- | | --- | --- |` has the wrong number of cells and empty separator entries, producing an invalid/broken Markdown table."
+    },
+    {
+      "severity": "medium",
+      "description": "The merged header cells are represented only by empty placeholder columns (`| North America | | Europe | |`), which does not cleanly convey the intended horizontal grouping in GitHub-Flavored Markdown."
+    },
+    {
+      "severity": "low",
+      "description": "Dollar signs in body cells are unnecessarily escaped (`\\$1.2M`, `\\$1.4M`), reducing fidelity to the source text."
+    }
+  ]
+}

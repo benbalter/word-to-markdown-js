@@ -1,0 +1,10 @@
+{
+  "score": 0.97,
+  "idealMarkdown": "## Website Launch Prep\n\nBefore Friday's launch, confirm that each owner has reviewed the linked resources below.\n\n- Read the [deployment checklist](https://ops.example.com/deploy-checklist) and sign off in Slack.\n- Verify redirects listed in the [migration sheet](https://docs.example.com/migration-sheet).\n  - If any path is unclear, add a note to the [QA board](https://pm.example.com/boards/qa-launch)\n\n| Owner | Reference | Status |\n| --- | --- | --- |\n| Mina | Analytics spec [(view)](https://specs.example.com/analytics) | Approved |\n| Jared | Rollback plan: [runbook](https://ops.example.com/runbooks/rollback) | Pending |",
+  "issues": [
+    {
+      "severity": "low",
+      "description": "Table formatting uses padded column widths, which is acceptable GFM but not the cleanest minimal Markdown representation."
+    }
+  ]
+}

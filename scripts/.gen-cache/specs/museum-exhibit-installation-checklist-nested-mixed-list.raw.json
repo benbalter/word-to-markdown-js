@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"museum-exhibit-installation-checklist-nested-mixed-list\",\n  \"description\": \"A compact exhibit-planning document centered on a deeply nested list that alternates between ordered and unordered items across four levels.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 1,\n      \"text\": \"Exhibit Installation Checklist\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"Use this sequence for the maritime gallery refresh scheduled before the public preview on Friday.\"\n        }\n      ]\n    },\n    {\n      \"type\": \"list\",\n      \"ordered\": true,\n      \"items\": [\n        {\n          \"runs\": [\n            {\n              \"text\": \"Prepare the entry bay\"\n            }\n          ],\n          \"level\": 0\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Confirm wall labels are printed and trimmed\"\n            }\n          ],\n          \"level\": 1\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Check the title panel for the \"\n            },\n            {\n              \"text\": \"North Atlantic Crossing\",\n              \"italic\": true\n            },\n            {\n              \"text\": \" section\"\n            }\n          ],\n          \"level\": 2\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Replace any label with visible toner streaks\"\n            }\n          ],\n          \"level\": 3\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Verify adhesive strips are rated for painted masonry\"\n            }\n          ],\n          \"level\": 1\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Stage display cases\"\n            }\n          ],\n          \"level\": 0\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Position the brass compass case under track light B\"\n            }\n          ],\n          \"level\": 1\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Use foam shims if the base rocks\"\n            }\n          ],\n          \"level\": 2\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Record shim thickness in the install log\"\n            }\n          ],\n          \"level\": 3\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"If thickness exceeds 6 mm, notify conservation\"\n            }\n          ],\n          \"level\": 4\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Secure the vitrine lock and test both keys\"\n            }\n          ],\n          \"level\": 2\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Mount graphics\"\n            }\n          ],\n          \"level\": 0\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Hang the harbor panorama at eye level\"\n            }\n          ],\n          \"level\": 1\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Center on the blue datum line marked by facilities\"\n            }\n          ],\n          \"level\": 2\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Do not cover the emergency shutoff placard\"\n            }\n          ],\n          \"level\": 3\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Install donor credits beside the exit arch\"\n            }\n          ],\n          \"level\": 1\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Final walkthrough\"\n            }\n          ],\n          \"level\": 0\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Test audio loop volume from three visitor positions\"\n            }\n          ],\n          \"level\": 1\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Note any narration clipping during the storm segment\"\n            }\n          ],\n          \"level\": 2\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Request a revised file from media services if clipping persists\"\n            }\n          ],\n          \"level\": 3\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Sign off with facilities and front-of-house\"\n            }\n          ],\n          \"level\": 1\n        }\n      ]\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"Any unresolved issue should be added to the opening-day punch list before 4:00 p.m.\"\n        }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555118,
+  "id": "chatcmpl-E7uk2VKMwjEoyebssg5zsHOiQs8eK",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 971,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 8,
+      "engine_ttft_ms": 69,
+      "engine_ttlt_ms": 7444,
+      "pre_inference_ms": 88,
+      "service_tbt_ms": 8,
+      "service_ttft_ms": 197,
+      "service_ttlt_ms": 7567,
+      "total_duration_ms": 7487,
+      "user_visible_ttft_ms": 109
+    },
+    "prompt_tokens": 326,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 1297
+  }
+}

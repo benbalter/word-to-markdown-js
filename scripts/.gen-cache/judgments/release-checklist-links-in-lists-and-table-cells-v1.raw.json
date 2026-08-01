@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"score\":0.97,\"idealMarkdown\":\"## Website Launch Prep\\n\\nBefore Friday's launch, confirm that each owner has reviewed the linked resources below.\\n\\n- Read the [deployment checklist](https://ops.example.com/deploy-checklist) and sign off in Slack.\\n- Verify redirects listed in the [migration sheet](https://docs.example.com/migration-sheet).\\n  - If any path is unclear, add a note to the [QA board](https://pm.example.com/boards/qa-launch)\\n\\n| Owner | Reference | Status |\\n| --- | --- | --- |\\n| Mina | Analytics spec [(view)](https://specs.example.com/analytics) | Approved |\\n| Jared | Rollback plan: [runbook](https://ops.example.com/runbooks/rollback) | Pending |\",\"issues\":[{\"severity\":\"low\",\"description\":\"Table formatting uses padded column widths, which is acceptable GFM but not the cleanest minimal Markdown representation.\"}]}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555261,
+  "id": "chatcmpl-E7umLuTP7QSMrQkiIvWlEy0IrOPBH",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 210,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 6,
+      "engine_ttft_ms": 80,
+      "engine_ttlt_ms": 1383,
+      "pre_inference_ms": 100,
+      "service_tbt_ms": 6,
+      "service_ttft_ms": 256,
+      "service_ttlt_ms": 1534,
+      "total_duration_ms": 1445,
+      "user_visible_ttft_ms": 156
+    },
+    "prompt_tokens": 936,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 1146
+  }
+}

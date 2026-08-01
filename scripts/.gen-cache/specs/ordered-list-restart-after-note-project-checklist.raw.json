@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"ordered-list-restart-after-note-project-checklist\",\n  \"description\": \"An ordered list is interrupted by a normal paragraph and then resumes as a restarted numbered list, which can be mistaken for continuous numbering in Markdown conversion.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 2,\n      \"text\": \"Site Visit Preparation\"\n    },\n    {\n      \"type\": \"list\",\n      \"ordered\": true,\n      \"items\": [\n        {\n          \"runs\": [\n            {\n              \"text\": \"Confirm access with the building manager.\"\n            }\n          ],\n          \"level\": 0\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Print two copies of the inspection checklist.\"\n            }\n          ],\n          \"level\": 0\n        }\n      ]\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"Note: The first two steps are handled by the office coordinator before the field team leaves.\"\n        }\n      ]\n    },\n    {\n      \"type\": \"list\",\n      \"ordered\": true,\n      \"items\": [\n        {\n          \"runs\": [\n            {\n              \"text\": \"Pack a flashlight, tape measure, and spare batteries.\"\n            }\n          ],\n          \"level\": 0\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Photograph any visible water damage on arrival.\"\n            }\n          ],\n          \"level\": 0\n        }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555191,
+  "id": "chatcmpl-E7ulDavZXdmDKTwrdL4NtM34DmFqP",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 328,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 8,
+      "engine_ttft_ms": 75,
+      "engine_ttlt_ms": 2673,
+      "pre_inference_ms": 81,
+      "service_tbt_ms": 8,
+      "service_ttft_ms": 206,
+      "service_ttlt_ms": 2798,
+      "total_duration_ms": 2725,
+      "user_visible_ttft_ms": 126
+    },
+    "prompt_tokens": 323,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 651
+  }
+}

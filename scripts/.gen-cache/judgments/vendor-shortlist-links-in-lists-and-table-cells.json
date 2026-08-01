@@ -1,0 +1,14 @@
+{
+  "score": 0.86,
+  "idealMarkdown": "# Vendor Shortlist for Office Wi-Fi Refresh\n\nBefore the Friday review, compare the candidate vendors, confirm current pricing, and save the latest product sheets.\n\n- Check [Aster Networks](https://www.aster-networks.example/vendors) for updated reseller terms and download the [channel guide](https://www.aster-networks.example/docs/channel-guide.pdf).\n- Review [North Pier Wireless](https://northpier.example/products/wifi) and note whether the [installation checklist](https://northpier.example/support/install-checklist) still matches our branch layout.\n  - If North Pier is shortlisted, request a quote through the [partner portal](https://partners.northpier.example/login).\n\n| Vendor | Reference Links | Notes |\n| --- | --- | --- |\n| Aster Networks | Catalog [ ](https://www.aster-networks.example/catalog) and [warranty terms](https://www.aster-networks.example/legal/warranty) | Lead time improved after the April update. |\n| North Pier Wireless | See [access point specs](https://northpier.example/specs/ap-820) and [mounting guide](https://northpier.example/docs/mounting-guide.pdf) | Ceiling bracket details are only in the linked PDF. |",
+  "issues": [
+    {
+      "severity": "high",
+      "description": "In the Aster Networks table row, the first link in the Reference Links cell was mangled as `[](https://www.aster-networks.example/catalog)` with no visible linked text, so the cell content is not faithfully represented."
+    },
+    {
+      "severity": "medium",
+      "description": "The Aster Networks Reference Links cell lost spacing around the first link, producing `Catalog [](…)and ...` instead of preserving readable separation between `Catalog`, the linked content, and `and`."
+    }
+  ]
+}

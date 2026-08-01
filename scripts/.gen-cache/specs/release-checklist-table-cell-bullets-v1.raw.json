@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"release-checklist-table-cell-bullets-v1\",\n  \"description\": \"A compact status table includes a cell whose content is a nested bullet list, which is difficult to flatten cleanly into Markdown while preserving table structure.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 2,\n      \"text\": \"Mobile App Release Readiness\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"The product team reviewed launch blockers and summarized the remaining work by area.\"\n        }\n      ]\n    },\n    {\n      \"type\": \"table\",\n      \"rows\": [\n        {\n          \"cells\": [\n            {\n              \"text\": \"Area\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Status\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Open items\",\n              \"header\": true\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"Payments\"\n            },\n            {\n              \"text\": \"At risk\"\n            },\n            {\n              \"runs\": [\n                {\n                  \"text\": \"• Confirm bank fallback flow\\n  • Retry card tokenization on timeout\\n• Update support macros for declined prepaid cards\"\n                }\n              ]\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"Onboarding\"\n            },\n            {\n              \"text\": \"On track\"\n            },\n            {\n              \"text\": \"Finalize welcome email copy\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"type\": \"list\",\n      \"ordered\": false,\n      \"items\": [\n        {\n          \"runs\": [\n            {\n              \"text\": \"Release candidate build is scheduled for Thursday afternoon.\"\n            }\n          ],\n          \"level\": 0\n        },\n        {\n          \"runs\": [\n            {\n              \"text\": \"Compliance sign-off is still pending for the payments flow.\"\n            }\n          ],\n          \"level\": 0\n        }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555195,
+  "id": "chatcmpl-E7ulHF1IA3byzFTkn7EVrDqstLZq4",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 442,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 9,
+      "engine_ttft_ms": 74,
+      "engine_ttlt_ms": 3890,
+      "pre_inference_ms": 170,
+      "service_tbt_ms": 9,
+      "service_ttft_ms": 320,
+      "service_ttlt_ms": 4124,
+      "total_duration_ms": 3964,
+      "user_visible_ttft_ms": 150
+    },
+    "prompt_tokens": 320,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 762
+  }
+}

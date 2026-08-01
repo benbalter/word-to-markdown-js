@@ -1,0 +1,14 @@
+{
+  "score": 0.62,
+  "idealMarkdown": "## Deployment Notes\n\nSet <u>NODE_ENV=production</u> before running <u>npm run migrate</u>. The string _https://status.internal.example/local_ appears in the checklist as plain text, not a hyperlink.\n\n1. Verify <u>APP_PORT=8080</u> in <u>.env.production</u>\n2. Restart the service with <u>systemctl restart api.service</u>\n\nIf rollback is needed, execute <u>git revert --no-edit HEAD</u> and post confirmation in **#release-ops**.",
+  "issues": [
+    {
+      "severity": "high",
+      "description": "The plain-text URL-looking string was converted into an autolink (`<https://status.internal.example/local>`), but it should remain plain text and not become a hyperlink."
+    },
+    {
+      "severity": "medium",
+      "description": "All underlined inline runs were lost: `NODE_ENV=production`, `npm run migrate`, `APP_PORT=8080`, `.env.production`, `systemctl restart api.service`, and `git revert --no-edit HEAD` should preserve underline styling."
+    }
+  ]
+}

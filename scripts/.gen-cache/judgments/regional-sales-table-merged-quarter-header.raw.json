@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"score\":0.42,\"idealMarkdown\":\"## Regional Sales Snapshot\\n\\nThe table groups monthly figures under merged quarter headers, which can be difficult to preserve when converting to Markdown.\\n\\n| Region | Q1 |  |  | Q2 |  |  |\\n| --- | --- | --- | --- | --- | --- | --- |\\n|  | Jan | Feb | Mar | Apr | May | Jun |\\n| Midwest | $118k | $121k | $127k | $130k | $126k | $134k |\",\"issues\":[{\"severity\":\"high\",\"description\":\"The table separator/alignment row is malformed: it contains more cells than the header row and includes empty alignment cells (`| | |`), which makes the Markdown table invalid or inconsistently rendered.\"},{\"severity\":\"high\",\"description\":\"The second header row is missing the leading empty placeholder cell needed to represent the row-spanned 'Region' header, causing the month labels to shift left under the wrong columns.\"},{\"severity\":\"medium\",\"description\":\"Currency values were unnecessarily escaped as `\\\\$118k` etc. The intended content is plain `$118k`; while often rendered similarly, this is not faithful Markdown output.\"},{\"severity\":\"medium\",\"description\":\"Merged header structure is not cleanly preserved in valid GFM. Since Markdown cannot truly merge cells, the converter should approximate it with a consistent 7-column table using blank placeholder cells rather than producing broken syntax.\"}]}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555257,
+  "id": "chatcmpl-E7umHkPiqV6hpOd7TF9pTk3drGNu5",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 307,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 9,
+      "engine_ttft_ms": 66,
+      "engine_ttlt_ms": 2719,
+      "pre_inference_ms": 104,
+      "service_tbt_ms": 9,
+      "service_ttft_ms": 212,
+      "service_ttlt_ms": 2861,
+      "total_duration_ms": 2766,
+      "user_visible_ttft_ms": 108
+    },
+    "prompt_tokens": 740,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 1047
+  }
+}

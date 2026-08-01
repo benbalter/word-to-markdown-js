@@ -1,0 +1,10 @@
+{
+  "score": 0.94,
+  "idealMarkdown": "## Release Readiness Snapshot\n\nThe operations team reviewed the final release checklist below before approving the Friday deployment.\n\n| Area | Owner | Status | Notes |\n| --- | --- | --- | --- |\n| Database migrations | Priya Shah | **Complete** | Verified against staging backup taken at 02:00. |\n| Monitoring | Alex Moreno | *In progress* | Dashboard update tracked in [OPS-214](https://tracker.example.com/OPS-214) |\n| Rollback plan | Mina Park | Ready | Printed copy stored in the war room; cloud copy marked <u>latest</u>. |",
+  "issues": [
+    {
+      "severity": "medium",
+      "description": "Underline formatting on the word \"latest\" in the final table row was lost. In clean GFM this should be preserved with inline HTML such as `<u>latest</u>`."
+    }
+  ]
+}

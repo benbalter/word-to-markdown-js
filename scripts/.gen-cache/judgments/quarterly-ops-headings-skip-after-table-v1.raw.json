@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"score\":1,\"idealMarkdown\":\"# Quarterly Operations Review\\n\\n### Warehouse Exceptions\\n\\nThe East Hub reported a brief rise in misroutes during the second week of April, but corrective scanning checks brought the rate back under target by month end.\\n\\n| Site | Misroutes | Action |\\n| --- | --- | --- |\\n| East Hub | 18 | Retrained night shift |\\n| North Annex | 6 | Adjusted sorter timing |\\n\\n### Follow-up Actions\\n\\n- Audit scanner calibration every Friday for the next six weeks.\\n- Publish a one-page exception guide to shift supervisors.\",\"issues\":[]}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555253,
+  "id": "chatcmpl-E7umDmm8C0MSFeeau8ioc0zHLZGja",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 136,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 6,
+      "engine_ttft_ms": 90,
+      "engine_ttlt_ms": 853,
+      "pre_inference_ms": 96,
+      "service_tbt_ms": 5,
+      "service_ttft_ms": 324,
+      "service_ttlt_ms": 995,
+      "total_duration_ms": 910,
+      "user_visible_ttft_ms": 228
+    },
+    "prompt_tokens": 761,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 897
+  }
+}

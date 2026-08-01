@@ -1,0 +1,10 @@
+{
+  "score": 0.9,
+  "idealMarkdown": "## Q3 Launch Readiness\n\nThe team tracks launch owners and open items in the table below; the risks cell includes its own bullet-style list.\n\n| Workstream | Owner | Open risks |\n| --- | --- | --- |\n| Payments rollout | Nina Shah | • Fraud rules not tuned for new region<br>• Settlement report still missing weekend totals<br>• Support macros need updated refund wording |\n| Status page refresh | Leo Martin | No blocking issues; legal review scheduled Thursday. |\n\n- Confirm whether nested bullets inside table cells are preserved as in-cell content rather than promoted to a document-level list.",
+  "issues": [
+    {
+      "severity": "medium",
+      "description": "The three bullet-style lines in the 'Open risks' cell were flattened into a single line. They should remain distinct in-cell lines, e.g. separated with `<br>` in Markdown to preserve the original cell structure."
+    }
+  ]
+}

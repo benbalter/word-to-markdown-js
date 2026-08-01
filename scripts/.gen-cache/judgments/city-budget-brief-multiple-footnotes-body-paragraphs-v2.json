@@ -1,0 +1,18 @@
+{
+  "score": 0.72,
+  "idealMarkdown": "# Downtown Mobility Budget Brief\n\nThe draft budget shifts operating funds from peak-hour parking enforcement<sup>[1](#footnote-1)</sup> to evening bus frequency pilots in the central corridor<sup>[2](#footnote-2)</sup>, with the stated goal of reducing wait times before winter service changes take effect.\n\nAnalysts note that the projected ridership gain depends on temporary signal-priority equipment<sup>[3](#footnote-3)</sup> and on extending the regional fare cap to municipal passes<sup>[4](#footnote-4)</sup>, neither of which is fully funded in the current ordinance.\n\nCouncil staff also warned that storefront loading zones may be reduced on two blocks near the market<sup>[5](#footnote-5)</sup>, a tradeoff merchants accepted only after the city promised a six-month review<sup>[6](#footnote-6)</sup>.\n\n1. Parking enforcement redeployment is described in the March staffing memo approved by the transportation committee.\n2. The pilot covers Route 6 and Route 14 between 6 p.m. and 10 p.m. on weekdays.\n3. Temporary signal-priority units are leased for nine months and require separate maintenance funding.\n4. The fare-cap extension is contingent on a data-sharing agreement with the regional transit authority.\n5. The affected blocks are on Alder Street between 3rd and 5th Avenue.\n6. The review period begins after installation and includes monthly delivery-time observations.",
+  "issues": [
+    {
+      "severity": "high",
+      "description": "Each footnote marker in the body incorrectly includes the literal source numeral before the superscript link (e.g. `enforcement1<sup>...`), duplicating the footnote number instead of rendering a single inline footnote reference."
+    },
+    {
+      "severity": "medium",
+      "description": "The inline footnote markup is malformed/noisy: `1<sup>[\\[1\\]](#footnote-1)</sup>` shows escaped brackets inside `<sup>` rather than clean Markdown like `<sup>[1](#footnote-1)</sup>` or standard GFM footnote syntax."
+    },
+    {
+      "severity": "low",
+      "description": "The footnote list adds backlink arrows and anchor targets not present in the intended content. While not content loss, this introduces extra output beyond the source document."
+    }
+  ]
+}

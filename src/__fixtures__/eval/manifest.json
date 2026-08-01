@@ -1,0 +1,98 @@
+[
+  {
+    "name": "city-budget-brief-multiple-footnotes-body-paragraphs-v2",
+    "description": "A short policy brief with several body paragraphs that each contain multiple footnote references, testing how repeated inline notes are preserved across paragraphs."
+  },
+  {
+    "name": "city-budget-footnotes-in-body-paragraphs-v1",
+    "description": "Two body paragraphs each contain multiple footnote references inline, requiring the converter to preserve several distinct notes attached to ordinary prose."
+  },
+  {
+    "name": "deployment-notes-inline-code-and-plain-text-url",
+    "description": "This document is tricky because it mixes inline code-like spans in prose with a URL-looking string that is intentionally plain text rather than a hyperlink."
+  },
+  {
+    "name": "deployment-notes-inline-code-and-plain-url-text",
+    "description": "A short deployment note mixes several inline code spans with a plain-text URL-looking string that should not become a link."
+  },
+  {
+    "name": "editor-note-smart-quotes-em-dash-nbsp-variant-a",
+    "description": "A short editorial note uses curly quotes, em dashes, and non-breaking spaces within paragraphs, which can be altered or normalized incorrectly during conversion."
+  },
+  {
+    "name": "field-report-heading-jumps-after-table",
+    "description": "A short field report uses non-sequential heading levels and places a lower-level heading immediately after a table, which can confuse Markdown heading structure."
+  },
+  {
+    "name": "incident-postmortem-nested-remediation-list-v1",
+    "description": "A postmortem document with a deeply nested list that alternates between ordered and unordered items across four levels."
+  },
+  {
+    "name": "lab-note-inline-mixed-formatting-observation",
+    "description": "A short lab note uses a single paragraph that mixes bold, italic, strikethrough, superscript, and subscript inline around technical content."
+  },
+  {
+    "name": "lab-notes-inline-formatting-observation",
+    "description": "A short lab note uses a single paragraph that mixes bold, italic, strikethrough, superscript, and subscript inline around technical notation."
+  },
+  {
+    "name": "maintenance-window-table-vertical-merge",
+    "description": "A compact operations note includes a table where the environment cell is vertically merged across two maintenance rows."
+  },
+  {
+    "name": "museum-exhibit-installation-checklist-nested-mixed-list",
+    "description": "A compact exhibit-planning document centered on a deeply nested list that alternates between ordered and unordered items across four levels."
+  },
+  {
+    "name": "museum-label-smart-punctuation-nbsp",
+    "description": "A short museum-style document where paragraphs mix smart quotes, em dashes, and non-breaking spaces that must survive conversion without normalization."
+  },
+  {
+    "name": "ordered-list-restart-after-note-project-checklist",
+    "description": "An ordered list is interrupted by a normal paragraph and then resumes as a restarted numbered list, which can be mistaken for continuous numbering in Markdown conversion."
+  },
+  {
+    "name": "quarterly-ops-headings-skip-after-table-v1",
+    "description": "A short operations memo where headings skip from H1 to H3 and another heading appears immediately after a table."
+  },
+  {
+    "name": "quarterly-sales-table-colspan-header",
+    "description": "A compact report table uses horizontally merged header cells to group quarterly columns above a single body row."
+  },
+  {
+    "name": "regional-sales-table-merged-quarter-header",
+    "description": "A compact report uses a table whose top header row merges quarter labels across multiple columns before a single body row of regional sales data."
+  },
+  {
+    "name": "release-checklist-links-in-lists-and-table-cells-v1",
+    "description": "A short project document where hyperlinks appear within bulleted checklist items and inside table cells alongside plain text."
+  },
+  {
+    "name": "release-checklist-ordered-list-restarts-after-note",
+    "description": "An ordered list is interrupted by a normal paragraph note, then resumes with numbering restarted at 1, which can be misread as a continuation in Markdown conversion."
+  },
+  {
+    "name": "release-checklist-table-cell-bullets-v1",
+    "description": "A compact status table includes a cell whose content is a nested bullet list, which is difficult to flatten cleanly into Markdown while preserving table structure."
+  },
+  {
+    "name": "release-checklist-table-cell-nested-bullets",
+    "description": "A compact release-planning document where one table cell contains multiple bullet-style lines that should remain associated with that single cell during conversion."
+  },
+  {
+    "name": "release-checklist-table-first-row-header",
+    "description": "A compact status table uses the first row as labeled column headers, which should become the Markdown header row during conversion."
+  },
+  {
+    "name": "release-checklist-table-first-row-header-2",
+    "description": "A compact project-status document where the table’s first row is the actual header row and subsequent rows mix plain text with linked and formatted content."
+  },
+  {
+    "name": "release-checklist-table-with-vertical-owner-merge",
+    "description": "A release checklist uses a table where the owner cell is vertically merged across two rows, which can be misread when converting to Markdown."
+  },
+  {
+    "name": "vendor-shortlist-links-in-lists-and-table-cells",
+    "description": "A procurement note mixes hyperlinks within bulleted list items and inside table cells, including multiple links in a single cell and linked text alongside plain text."
+  }
+]

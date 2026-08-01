@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"city-budget-brief-multiple-footnotes-body-paragraphs-v2\",\n  \"description\": \"A short policy brief with several body paragraphs that each contain multiple footnote references, testing how repeated inline notes are preserved across paragraphs.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 1,\n      \"text\": \"Downtown Mobility Budget Brief\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"The draft budget shifts operating funds from peak-hour parking enforcement\"\n        },\n        {\n          \"text\": \"1\",\n          \"sup\": true,\n          \"footnote\": \"Parking enforcement redeployment is described in the March staffing memo approved by the transportation committee.\"\n        },\n        {\n          \"text\": \" to evening bus frequency pilots in the central corridor\"\n        },\n        {\n          \"text\": \"2\",\n          \"sup\": true,\n          \"footnote\": \"The pilot covers Route 6 and Route 14 between 6 p.m. and 10 p.m. on weekdays.\"\n        },\n        {\n          \"text\": \", with the stated goal of reducing wait times before winter service changes take effect.\"\n        }\n      ]\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"Analysts note that the projected ridership gain depends on temporary signal-priority equipment\"\n        },\n        {\n          \"text\": \"3\",\n          \"sup\": true,\n          \"footnote\": \"Temporary signal-priority units are leased for nine months and require separate maintenance funding.\"\n        },\n        {\n          \"text\": \" and on extending the regional fare cap to municipal passes\"\n        },\n        {\n          \"text\": \"4\",\n          \"sup\": true,\n          \"footnote\": \"The fare-cap extension is contingent on a data-sharing agreement with the regional transit authority.\"\n        },\n        {\n          \"text\": \", neither of which is fully funded in the current ordinance.\"\n        }\n      ]\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"Council staff also warned that storefront loading zones may be reduced on two blocks near the market\"\n        },\n        {\n          \"text\": \"5\",\n          \"sup\": true,\n          \"footnote\": \"The affected blocks are on Alder Street between 3rd and 5th Avenue.\"\n        },\n        {\n          \"text\": \", a tradeoff merchants accepted only after the city promised a six-month review\"\n        },\n        {\n          \"text\": \"6\",\n          \"sup\": true,\n          \"footnote\": \"The review period begins after installation and includes monthly delivery-time observations.\"\n        },\n        {\n          \"text\": \".\"\n        }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555138,
+  "id": "chatcmpl-E7ukMJLV15OYepjfvS7hi4OqRJz6u",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 584,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 9,
+      "engine_ttft_ms": 73,
+      "engine_ttlt_ms": 5266,
+      "pre_inference_ms": 87,
+      "service_tbt_ms": 9,
+      "service_ttft_ms": 210,
+      "service_ttlt_ms": 5397,
+      "total_duration_ms": 5318,
+      "user_visible_ttft_ms": 123
+    },
+    "prompt_tokens": 318,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 902
+  }
+}

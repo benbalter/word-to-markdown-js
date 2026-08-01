@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"score\":0.62,\"idealMarkdown\":\"## Gallery Notes\\n\\nThe wall label reads, “Please stand at least 2 meters back”—a rule added after the 2019 renovation.\\n\\nOne curator called the piece “quietly defiant”; another wrote that it “refuses easy categories”—both remarks appear in the catalog, page 14.\\n\\nVisitors often pause at the note “Oil on panel, c. 1880”—then ask whether the date is approximate or simply unknown.\",\"issues\":[{\"severity\":\"medium\",\"description\":\"Smart quotes were normalized to straight ASCII quotes in all three paragraphs; the intended curly quotation marks should be preserved.\"},{\"severity\":\"high\",\"description\":\"Em dashes were converted to hyphens in all three paragraphs, changing punctuation and typography (e.g., `back”—a` became `back\\\"-a`).\"},{\"severity\":\"medium\",\"description\":\"Non-breaking spaces were lost in `least 2`, `page 14`, and `c. 1880`, which may allow unwanted line breaks and does not preserve the source text faithfully.\"}]}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555249,
+  "id": "chatcmpl-E7um960I1vXHD91ku8VO3UNQHfi8b",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 231,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 86,
+      "engine_ttlt_ms": 1771,
+      "pre_inference_ms": 139,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 336,
+      "service_ttlt_ms": 1959,
+      "total_duration_ms": 1855,
+      "user_visible_ttft_ms": 197
+    },
+    "prompt_tokens": 512,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 743
+  }
+}

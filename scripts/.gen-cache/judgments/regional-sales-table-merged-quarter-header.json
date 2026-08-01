@@ -1,0 +1,22 @@
+{
+  "score": 0.42,
+  "idealMarkdown": "## Regional Sales Snapshot\n\nThe table groups monthly figures under merged quarter headers, which can be difficult to preserve when converting to Markdown.\n\n| Region | Q1 |  |  | Q2 |  |  |\n| --- | --- | --- | --- | --- | --- | --- |\n|  | Jan | Feb | Mar | Apr | May | Jun |\n| Midwest | $118k | $121k | $127k | $130k | $126k | $134k |",
+  "issues": [
+    {
+      "severity": "high",
+      "description": "The table separator/alignment row is malformed: it contains more cells than the header row and includes empty alignment cells (`| | |`), which makes the Markdown table invalid or inconsistently rendered."
+    },
+    {
+      "severity": "high",
+      "description": "The second header row is missing the leading empty placeholder cell needed to represent the row-spanned 'Region' header, causing the month labels to shift left under the wrong columns."
+    },
+    {
+      "severity": "medium",
+      "description": "Currency values were unnecessarily escaped as `\\$118k` etc. The intended content is plain `$118k`; while often rendered similarly, this is not faithful Markdown output."
+    },
+    {
+      "severity": "medium",
+      "description": "Merged header structure is not cleanly preserved in valid GFM. Since Markdown cannot truly merge cells, the converter should approximate it with a consistent 7-column table using blank placeholder cells rather than producing broken syntax."
+    }
+  ]
+}

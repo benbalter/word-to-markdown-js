@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"name\": \"maintenance-window-table-vertical-merge\",\n  \"description\": \"A compact operations note includes a table where the environment cell is vertically merged across two maintenance rows.\",\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"level\": 2,\n      \"text\": \"Planned Maintenance Windows\"\n    },\n    {\n      \"type\": \"paragraph\",\n      \"runs\": [\n        {\n          \"text\": \"The infrastructure team published the following schedule for next week.\"\n        }\n      ]\n    },\n    {\n      \"type\": \"table\",\n      \"rows\": [\n        {\n          \"cells\": [\n            {\n              \"text\": \"Environment\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Window\",\n              \"header\": true\n            },\n            {\n              \"text\": \"Scope\",\n              \"header\": true\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"Production\",\n              \"rowSpan\": 2\n            },\n            {\n              \"text\": \"Tue 22:00–23:00 UTC\"\n            },\n            {\n              \"text\": \"Database patching\"\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"\",\n              \"rowSpan\": 0\n            },\n            {\n              \"text\": \"Thu 21:30–22:15 UTC\"\n            },\n            {\n              \"text\": \"Load balancer failover test\"\n            }\n          ]\n        },\n        {\n          \"cells\": [\n            {\n              \"text\": \"Staging\"\n            },\n            {\n              \"text\": \"Wed 18:00–18:30 UTC\"\n            },\n            {\n              \"text\": \"API deploy rehearsal\"\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555104,
+  "id": "chatcmpl-E7ujoVPrBpv9PiRXGqm7VDtSvIPVD",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 382,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 63,
+      "engine_ttlt_ms": 2734,
+      "pre_inference_ms": 72,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 179,
+      "service_ttlt_ms": 2845,
+      "total_duration_ms": 2826,
+      "user_visible_ttft_ms": 108
+    },
+    "prompt_tokens": 324,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 706
+  }
+}

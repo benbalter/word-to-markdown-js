@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"score\":0.62,\"idealMarkdown\":\"## Deployment Notes\\n\\nBefore restarting the service, set <u>NODE_ENV=production</u> and run <u>npm run migrate</u> from the release directory.\\n\\nFor the rollback checklist, refer to *https://status.example.net/rollback* in the printed runbook; this text should remain plain text, not a link.\\n\\n- Verify that <u>systemctl status api</u> returns <u>active (running)</u>\\n- If health checks fail, inspect <u>/var/log/api/error.log</u> before paging the on-call engineer.\",\"issues\":[{\"severity\":\"high\",\"description\":\"The URL-looking text was converted into an autolink (`<https://status.example.net/rollback>`), but it should remain plain text while italicized, not a hyperlink.\"},{\"severity\":\"medium\",\"description\":\"All underlined spans were flattened to plain text. Underline formatting is missing for `NODE_ENV=production`, `npm run migrate`, `systemctl status api`, `active (running)`, and `/var/log/api/error.log`.\"}]}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555226,
+  "id": "chatcmpl-E7ulm3SDEIpGnXnixor3gcyY1mUh3",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 242,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 8,
+      "engine_ttft_ms": 80,
+      "engine_ttlt_ms": 1961,
+      "pre_inference_ms": 92,
+      "service_tbt_ms": 8,
+      "service_ttft_ms": 217,
+      "service_ttlt_ms": 2092,
+      "total_duration_ms": 2024,
+      "user_visible_ttft_ms": 125
+    },
+    "prompt_tokens": 710,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 952
+  }
+}

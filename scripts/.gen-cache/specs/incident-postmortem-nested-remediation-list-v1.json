@@ -1,0 +1,193 @@
+{
+  "name": "incident-postmortem-nested-remediation-list-v1",
+  "description": "A postmortem document with a deeply nested list that alternates between ordered and unordered items across four levels.",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 1,
+      "text": "API Outage Postmortem"
+    },
+    {
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "The team recorded the remediation plan below during the follow-up review for the 14 May outage."
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "runs": [
+            {
+              "text": "Stabilize production"
+            }
+          ],
+          "level": 0
+        },
+        {
+          "runs": [
+            {
+              "text": "Roll back the rate-limit rule added at 09:10"
+            }
+          ],
+          "level": 1
+        },
+        {
+          "runs": [
+            {
+              "text": "Confirm rollback on all edge regions"
+            }
+          ],
+          "level": 2
+        },
+        {
+          "runs": [
+            {
+              "text": "Check Frankfurt and Sydney first because they lagged during deploy"
+            }
+          ],
+          "level": 3
+        },
+        {
+          "runs": [
+            {
+              "text": "Capture timestamps from the gateway logs"
+            }
+          ],
+          "level": 2
+        },
+        {
+          "runs": [
+            {
+              "text": "Notify support once error rates remain below 1% for 15 minutes"
+            }
+          ],
+          "level": 1
+        },
+        {
+          "runs": [
+            {
+              "text": "Investigate root cause"
+            }
+          ],
+          "level": 0
+        },
+        {
+          "runs": [
+            {
+              "text": "Review configuration changes merged that morning"
+            }
+          ],
+          "level": 1
+        },
+        {
+          "runs": [
+            {
+              "text": "Compare the gateway policy diff with the staging version"
+            }
+          ],
+          "level": 2
+        },
+        {
+          "runs": [
+            {
+              "text": "Flag any missing allowlist entries"
+            }
+          ],
+          "level": 3
+        },
+        {
+          "runs": [
+            {
+              "text": "Include partner IP ranges used by billing callbacks"
+            }
+          ],
+          "level": 4
+        },
+        {
+          "runs": [
+            {
+              "text": "Interview the on-call engineer"
+            }
+          ],
+          "level": 1
+        },
+        {
+          "runs": [
+            {
+              "text": "Ask which alerts were noisy versus actionable"
+            }
+          ],
+          "level": 2
+        },
+        {
+          "runs": [
+            {
+              "text": "Document preventive actions"
+            }
+          ],
+          "level": 0
+        },
+        {
+          "runs": [
+            {
+              "text": "Add a canary rollout for policy changes"
+            }
+          ],
+          "level": 1
+        },
+        {
+          "runs": [
+            {
+              "text": "Start with 5% of traffic"
+            }
+          ],
+          "level": 2
+        },
+        {
+          "runs": [
+            {
+              "text": "Monitor"
+            }
+          ],
+          "level": 3
+        },
+        {
+          "runs": [
+            {
+              "text": "5xx rate"
+            }
+          ],
+          "level": 4
+        },
+        {
+          "runs": [
+            {
+              "text": "p95 latency"
+            }
+          ],
+          "level": 4
+        },
+        {
+          "runs": [
+            {
+              "text": "Expand to 25% only after two clean intervals"
+            }
+          ],
+          "level": 2
+        },
+        {
+          "runs": [
+            {
+              "text": "Update the runbook with rollback screenshots"
+            }
+          ],
+          "level": 1
+        }
+      ]
+    }
+  ]
+}
