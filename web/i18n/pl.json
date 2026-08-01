@@ -1,0 +1,121 @@
+{
+  "eyebrow": "Darmowe · Open source · 100% w Twojej przeglądarce",
+  "tagline": "Konwertuj pliki Word (.docx) do czystego Markdown — całkowicie w Twojej przeglądarce. Twoje pliki nigdy nie są przesyłane.",
+  "trustBadge": "Cieszy się zaufaniem od 2014",
+  "flowFromAlt": "Dokument Word",
+  "flowToAlt": "Plik Markdown",
+  "dropzoneTitle": "Upuść tutaj plik .docx",
+  "dropzoneBrowsePrefix": "lub ",
+  "dropzoneBrowseLink": "kliknij, aby wybrać plik",
+  "googleDocHint": "Google Doc? File → Download → Microsoft Word (.docx)",
+  "convertSectionAria": "Konwertuj dokument",
+  "convertedLabel": "Przekonwertowano",
+  "copyButton": "Kopiuj Markdown",
+  "copiedButton": "Skopiowano!",
+  "downloadButton": "Pobierz .md",
+  "downloadedButton": "Pobrano",
+  "downloadZipButton": "Pobierz .zip",
+  "downloadedZipButton": "Pobrano",
+  "convertAnother": "Konwertuj kolejny plik",
+  "panelMarkdown": "Markdown",
+  "panelPreview": "Podgląd",
+  "steps": [
+    {
+      "t": "Prześlij",
+      "d": "Przeciągnij plik .docx lub kliknij, aby go wybrać."
+    },
+    {
+      "t": "Konwertuj",
+      "d": "Konwersja odbywa się w Twojej przeglądarce — bez serwera, bez czekania."
+    },
+    {
+      "t": "Kopiuj lub zapisz",
+      "d": "Skopiuj Markdown, pobierz plik .md lub pobierz .zip z obrazami."
+    }
+  ],
+  "conversionHeading": "Co jest konwertowane",
+  "conversionColElement": "Element Word",
+  "conversionColOutput": "Wynik w Markdown",
+  "conversionRows": [
+    "Nagłówki",
+    "Pogrubienie i kursywa",
+    "Listy numerowane i zagnieżdżone",
+    "Tabele",
+    "Linki",
+    "Kod",
+    "Obrazy",
+    "Przekreślenie",
+    "Indeks górny i dolny"
+  ],
+  "cliHeading": "Wolisz wiersz poleceń?",
+  "cliBody": "Word to Markdown jest darmowe i open source. Uruchom je jako narzędzie wiersza poleceń do konwersji skryptowych lub wsadowych — ten sam konwerter, bez potrzeby używania przeglądarki.",
+  "cliCta": "Pobierz CLI",
+  "faqHeading": "Często zadawane pytania",
+  "faqs": [
+    {
+      "q": "Jak przekonwertować dokument Word do Markdown?",
+      "a": "Przeciągnij plik .docx na stronę (lub kliknij, aby go wybrać). Word to Markdown przekonwertuje go w Twojej przeglądarce i od razu pokaże Markdown — możesz go skopiować lub pobrać plik .md."
+    },
+    {
+      "q": "Czy Word to Markdown jest darmowe?",
+      "a": "Tak. Jest całkowicie darmowe i open source — bez rejestracji, limitów plików i reklam."
+    },
+    {
+      "q": "Czy moje dokumenty są przesyłane na serwer?",
+      "a": "Nie. Konwersja odbywa się całkowicie w Twojej przeglądarce przy użyciu JavaScript. Twoje pliki nigdy nie opuszczają urządzenia i nie są przesyłane, przechowywane ani rejestrowane."
+    },
+    {
+      "q": "Jak przekonwertować Google Doc do Markdown?",
+      "a": "W Google Docs wybierz File → Download → Microsoft Word (.docx), a następnie upuść ten plik .docx do Word to Markdown."
+    },
+    {
+      "q": "Czy mogę przekonwertować plik .doc do Markdown?",
+      "a": "Word to Markdown odczytuje nowoczesne pliki .docx. Jeśli masz starszy plik .doc, otwórz go w Word i zapisz jako .docx (File → Save As → Word Document .docx), a następnie upuść ten plik .docx."
+    },
+    {
+      "q": "Jakie formatowanie jest zachowywane?",
+      "a": "Nagłówki, pogrubienie, kursywa i przekreślenie, indeks górny i dolny, listy numerowane i zagnieżdżone, tabele, linki, kod i obrazy są konwertowane do czystego Markdown w stylu GitHub."
+    },
+    {
+      "q": "Czym to się różni od Pandoc?",
+      "a": "Pandoc to potężny konwerter wiersza poleceń, ale najpierw trzeba go zainstalować i skonfigurować. Word to Markdown działa od razu w Twojej przeglądarce, bez instalacji — po prostu upuść plik .docx. Dostępna jest też wersja wiersza poleceń do zadań skryptowych lub wsadowych."
+    },
+    {
+      "q": "Czy mogę użyć tego do przygotowania dokumentów dla ChatGPT, Claude lub innych narzędzi AI?",
+      "a": "Tak. Markdown to czysty, oszczędny pod względem tokenów format dla dużych modeli językowych i pipeline’ów RAG. Konwersja dokumentu Word do Markdown najpierw daje narzędziom AI dobrze uporządkowany tekst — nagłówki, listy i tabele — bez szumu binarnego formatowania .docx."
+    }
+  ],
+  "footer": {
+    "feedback": "Opinie",
+    "source": "Kod źródłowy",
+    "donate": "Wesprzyj",
+    "terms": "Warunki",
+    "privacy": "Prywatność"
+  },
+  "footerTagline": "Konwersja w Twojej przeglądarce · nic nie jest przesyłane",
+  "homeAria": "Word to Markdown — strona główna",
+  "metaTitle": "Word to Markdown — Darmowy konwerter .docx do .md",
+  "metaDescription": "Darmowy konwerter open source zamienia Word (.docx) i Google Docs w czysty Markdown w stylu GitHub — działa w przeglądarce. Nic nie jest wysyłane.",
+  "schemaDescription": "Darmowe narzędzie open source, które konwertuje Word (.docx) i Google Docs do czystego Markdown w stylu GitHub całkowicie w Twojej przeglądarce.",
+  "schemaFeatureList": [
+    "Konwertuj Word (.docx) do Markdown",
+    "Konwertuj Google Docs do Markdown",
+    "Wynik w Markdown w stylu GitHub",
+    "100% po stronie klienta — nic nie jest przesyłane",
+    "Wyodrębnianie obrazów do plików"
+  ],
+  "errorGeneric": "Wystąpił nieoczekiwany błąd podczas konwersji dokumentu. Spróbuj ponownie.",
+  "docFileError": "To narzędzie odczytuje nowoczesne pliki .docx, a nie starsze pliki .doc. W Word otwórz dokument i wybierz File → Save As → Word Document (.docx), a następnie upuść tutaj plik .docx.",
+  "fileTooLargeError": "Ten plik jest zbyt duży, aby przekonwertować go w Twojej przeglądarce. Spróbuj użyć pliku .docx mniejszego niż 20 MB.",
+  "conversionAnnouncement": "Konwersja zakończona. Twój Markdown jest gotowy.",
+  "convertingStatus": "Konwertowanie…",
+  "dismiss": "Zamknij",
+  "promo": {
+    "label": "Od twórcy",
+    "body": "Stworzyłem to darmowe narzędzie — i napisałem książkę o pracy w otwarty sposób. <strong>Open &amp; Async</strong> to sprawdzony na GitHub przewodnik dla zespołów zdalnych i rozproszonych.",
+    "cta": "Kup teraz",
+    "coverAlt": "Okładka książki Open & Async",
+    "resultsLead": "Świetnie — kolejny dokument wyciągnięty z Word i przeniesiony do otwartego świata. Napisałem przewodnik po takiej pracy:",
+    "resultsCta": "Zobacz Open & Async"
+  }
+}

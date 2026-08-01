@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"eyebrow\": \"Gratis · Open source · 100% in je browser\",\n  \"tagline\": \"Converteer Word (.docx)-bestanden naar schone Markdown — volledig in je browser. Je bestanden worden nooit geüpload.\",\n  \"trustBadge\": \"Vertrouwd sinds 2014\",\n  \"flowFromAlt\": \"Word-document\",\n  \"flowToAlt\": \"Markdown-bestand\",\n  \"dropzoneTitle\": \"Sleep je .docx hierheen\",\n  \"dropzoneBrowsePrefix\": \"of \",\n  \"dropzoneBrowseLink\": \"klik om een bestand te kiezen\",\n  \"googleDocHint\": \"Google Doc? File → Download → Microsoft Word (.docx)\",\n  \"convertSectionAria\": \"Een document converteren\",\n  \"convertedLabel\": \"Geconverteerd\",\n  \"copyButton\": \"Markdown kopiëren\",\n  \"copiedButton\": \"Gekopieerd!\",\n  \"downloadButton\": \".md downloaden\",\n  \"downloadedButton\": \"Gedownload\",\n  \"downloadZipButton\": \".zip downloaden\",\n  \"downloadedZipButton\": \"Gedownload\",\n  \"convertAnother\": \"Nog een bestand converteren\",\n  \"panelMarkdown\": \"Markdown\",\n  \"panelPreview\": \"Voorbeeld\",\n  \"steps.0.t\": \"Uploaden\",\n  \"steps.0.d\": \"Sleep een .docx-bestand hierheen, of klik om er een te kiezen.\",\n  \"steps.1.t\": \"Converteren\",\n  \"steps.1.d\": \"Het wordt in je browser geconverteerd — geen server, geen wachttijd.\",\n  \"steps.2.t\": \"Kopiëren of opslaan\",\n  \"steps.2.d\": \"Kopieer de Markdown, download een .md-bestand of pak een .zip met je afbeeldingen.\",\n  \"conversionHeading\": \"Wat wordt geconverteerd\",\n  \"conversionColElement\": \"Word-element\",\n  \"conversionColOutput\": \"Markdown-uitvoer\",\n  \"conversionRows.0\": \"Koppen\",\n  \"conversionRows.1\": \"Vet & cursief\",\n  \"conversionRows.2\": \"Geordende & geneste lijsten\",\n  \"conversionRows.3\": \"Tabellen\",\n  \"conversionRows.4\": \"Links\",\n  \"conversionRows.5\": \"Code\",\n  \"conversionRows.6\": \"Afbeeldingen\",\n  \"conversionRows.7\": \"Doorhalen\",\n  \"conversionRows.8\": \"Superscript & subscript\",\n  \"cliHeading\": \"Liever de command line?\",\n  \"cliBody\": \"Word to Markdown is gratis en open source. Gebruik het als command-line-tool voor gescripte of batchconversies — dezelfde converter, zonder browser.\",\n  \"cliCta\": \"Download de CLI\",\n  \"faqHeading\": \"Veelgestelde vragen\",\n  \"faqs.0.q\": \"Hoe converteer ik een Word-document naar Markdown?\",\n  \"faqs.0.a\": \"Sleep een .docx-bestand naar de pagina (of klik om te bladeren). Word to Markdown converteert het in je browser en toont direct de Markdown — kopieer die of download een .md-bestand.\",\n  \"faqs.1.q\": \"Is Word to Markdown gratis?\",\n  \"faqs.1.a\": \"Ja. Het is volledig gratis en open source — geen registratie, geen bestandslimieten en geen advertenties.\",\n  \"faqs.2.q\": \"Worden mijn documenten naar een server geüpload?\",\n  \"faqs.2.a\": \"Nee. De conversie gebeurt volledig in je browser met JavaScript. Je bestanden verlaten je apparaat nooit en worden nooit geüpload, opgeslagen of gelogd.\",\n  \"faqs.3.q\": \"Hoe converteer ik een Google Doc naar Markdown?\",\n  \"faqs.3.a\": \"Kies in Google Docs File → Download → Microsoft Word (.docx) en sleep vervolgens dat .docx-bestand naar Word to Markdown.\",\n  \"faqs.4.q\": \"Kan ik een .doc-bestand naar Markdown converteren?\",\n  \"faqs.4.a\": \"Word to Markdown leest moderne .docx-bestanden. Heb je een ouder .doc-bestand, open het dan in Word en sla het op als .docx (File → Save As → Word Document .docx). Sleep daarna dat .docx-bestand hierheen.\",\n  \"faqs.5.q\": \"Welke opmaak blijft behouden?\",\n  \"faqs.5.a\": \"Koppen, vette, cursieve en doorgestreepte tekst, superscript en subscript, geordende en geneste lijsten, tabellen, links, code en afbeeldingen worden geconverteerd naar schone Markdown in GitHub-stijl.\",\n  \"faqs.6.q\": \"Wat is het verschil met Pandoc?\",\n  \"faqs.6.a\": \"Pandoc is een krachtige command-line-converter, maar moet eerst worden geïnstalleerd en geconfigureerd. Word to Markdown werkt direct in je browser zonder iets te installeren — sleep gewoon een .docx-bestand erin. Voor gescripte of batchtaken is er ook een command-line-versie beschikbaar.\",\n  \"faqs.7.q\": \"Kan ik dit gebruiken om documenten voor te bereiden voor ChatGPT, Claude of andere AI-tools?\",\n  \"faqs.7.a\": \"Ja. Markdown is een schoon, token-efficiënt formaat voor large language models en RAG-pipelines. Door een Word-document eerst naar Markdown te converteren, krijgen AI-tools goed gestructureerde tekst — koppen, lijsten en tabellen — zonder de ruis van binaire .docx-opmaak.\",\n  \"footer.feedback\": \"Feedback\",\n  \"footer.source\": \"Broncode\",\n  \"footer.donate\": \"Doneren\",\n  \"footer.terms\": \"Voorwaarden\",\n  \"footer.privacy\": \"Privacy\",\n  \"footerTagline\": \"Geconverteerd in je browser · er wordt niets geüpload\",\n  \"homeAria\": \"Word to Markdown — home\",\n  \"metaTitle\": \"Word to Markdown — Gratis .docx naar .md-converter\",\n  \"metaDescription\": \"Gratis open-source-converter die Word (.docx) en Google Docs omzet naar schone Markdown in GitHub-stijl — volledig in je browser. Er wordt niets geüpload.\",\n  \"schemaDescription\": \"Gratis open-source-tool die Word (.docx) en Google Docs omzet naar schone Markdown in GitHub-stijl, volledig in je browser.\",\n  \"schemaFeatureList.0\": \"Word (.docx) naar Markdown converteren\",\n  \"schemaFeatureList.1\": \"Google Docs naar Markdown converteren\",\n  \"schemaFeatureList.2\": \"Markdown-uitvoer in GitHub-stijl\",\n  \"schemaFeatureList.3\": \"100% client-side — er wordt niets geüpload\",\n  \"schemaFeatureList.4\": \"Afbeeldingen naar bestanden extraheren\",\n  \"errorGeneric\": \"Er is een onverwachte fout opgetreden tijdens het converteren van het document. Probeer het opnieuw.\",\n  \"docFileError\": \"Deze tool leest moderne .docx-bestanden, geen oudere .doc-bestanden. Open je document in Word en kies File → Save As → Word Document (.docx). Sleep daarna het .docx-bestand hierheen.\",\n  \"fileTooLargeError\": \"Dit bestand is te groot om in je browser te converteren. Probeer een .docx kleiner dan 20 MB.\",\n  \"conversionAnnouncement\": \"Conversie voltooid. Je Markdown is klaar.\",\n  \"convertingStatus\": \"Converteren…\",\n  \"dismiss\": \"Sluiten\",\n  \"promo.label\": \"Van de maker\",\n  \"promo.body\": \"Ik heb deze gratis tool gebouwd — en ik schreef het boek over open werken. <strong>Open &amp; Async</strong> is het op GitHub geteste handboek voor remote en gedistribueerde teams.\",\n  \"promo.cta\": \"Koop nu\",\n  \"promo.coverAlt\": \"Boekomslag van Open and Async\",\n  \"promo.resultsLead\": \"Mooi — weer een doc minder in Word en meer in de openheid. Ik schreef het handboek om zo te werken:\",\n  \"promo.resultsCta\": \"Bekijk Open & Async\"\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555403,
+  "id": "chatcmpl-E7uodBwC1oFHnnMTvIXMnHBDUaIL4",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 1750,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 9,
+      "engine_ttft_ms": 176,
+      "engine_ttlt_ms": 16189,
+      "pre_inference_ms": 100,
+      "service_tbt_ms": 9,
+      "service_ttft_ms": 484,
+      "service_ttlt_ms": 16493,
+      "total_duration_ms": 16402,
+      "user_visible_ttft_ms": 384
+    },
+    "prompt_tokens": 1809,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 3559
+  }
+}

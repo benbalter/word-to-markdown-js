@@ -52,7 +52,7 @@ Privacy is a core constraint: **all conversion happens client-side; nothing is u
 
 English lives at the root (`prefixDefaultLocale: false`); other locales under a prefix (`/de/`, `/es/`, …). Each `web/pages/<locale>/index.astro` is a one-liner that renders the shared `web/components/Home.astro` with a `lang` prop. UI strings are per-locale JSON in `web/i18n/`, typed by `web/i18n/types.ts`.
 
-**The locale list is duplicated in four places that MUST stay in sync** when adding a language: the top-level `i18n` block in `astro.config.mjs`, the `sitemap` `i18n` block in the same file, `locales` in `web/i18n/index.ts`, and `SUPPORTED_LOCALES` in `worker/index.js`. `src/__tests__/i18n-completeness.test.ts` enforces that every locale has every key (astro check can't see missing JSON keys).
+**The locale list is duplicated in five places that MUST stay in sync** when adding a language: the top-level `i18n` block in `astro.config.mjs`, the `sitemap` `i18n` block in the same file, `locales` (plus `localeMeta` and `dictionaries`) in `web/i18n/index.ts`, `SUPPORTED_LOCALES` in `worker/index.js`, and the hardcoded `SUPPORTED_LOCALES` assertion in `src/__tests__/i18n-redirect.test.ts` (which also uses genuinely-unsupported languages like `ar`/`he`/`el` in its "skips unsupported languages" case — pick codes not in the list). You also need a one-line page at `web/pages/<locale>/index.astro`. `src/__tests__/i18n-completeness.test.ts` enforces that every locale has every key (astro check can't see missing JSON keys). To bulk-add locales, `scripts/translate-i18n.mjs` generates structure-preserving `web/i18n/<locale>.json` files (see `scripts/README.md`).
 
 ### Deployment
 

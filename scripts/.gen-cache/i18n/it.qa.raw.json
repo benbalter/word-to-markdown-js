@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"corrections\":{\"trustBadge\":\"Scelto dal 2014\",\"steps.2.d\":\"Copia il Markdown, scarica un file .md oppure prendi un file .zip con le tue immagini.\",\"footer.source\":\"Codice sorgente\",\"homeAria\":\"Word to Markdown — pagina iniziale\",\"promo.coverAlt\":\"Copertina del libro Open & Async\",\"promo.resultsLead\":\"Bene — un documento in meno in Word e uno in più in formato aperto. Ho scritto il playbook per lavorare in questo modo:\"}}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555402,
+  "id": "chatcmpl-E7uocYzDGcCVNkTiUzOmtpJGVhq6J",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 119,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 125,
+      "engine_ttlt_ms": 992,
+      "pre_inference_ms": 93,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 285,
+      "service_ttlt_ms": 1146,
+      "total_duration_ms": 1062,
+      "user_visible_ttft_ms": 193
+    },
+    "prompt_tokens": 4285,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 4404
+  }
+}

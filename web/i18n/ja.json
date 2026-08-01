@@ -1,0 +1,121 @@
+{
+  "eyebrow": "無料 · オープンソース · 100%ブラウザ内で動作",
+  "tagline": "Word (.docx) ファイルをクリーンなMarkdownに変換 — すべてブラウザ内で完結します。ファイルがアップロードされることはありません。",
+  "trustBadge": "2014年から信頼されています",
+  "flowFromAlt": "Word文書",
+  "flowToAlt": "Markdownファイル",
+  "dropzoneTitle": ".docx をここにドロップ",
+  "dropzoneBrowsePrefix": "または ",
+  "dropzoneBrowseLink": "クリックしてファイルを選択",
+  "googleDocHint": "Google Docs？ File → Download → Microsoft Word (.docx)",
+  "convertSectionAria": "文書を変換",
+  "convertedLabel": "変換済み",
+  "copyButton": "Markdownをコピー",
+  "copiedButton": "コピーしました！",
+  "downloadButton": ".md をダウンロード",
+  "downloadedButton": "ダウンロード済み",
+  "downloadZipButton": ".zip をダウンロード",
+  "downloadedZipButton": "ダウンロード済み",
+  "convertAnother": "別のファイルを変換",
+  "panelMarkdown": "Markdown",
+  "panelPreview": "プレビュー",
+  "steps": [
+    {
+      "t": "アップロード",
+      "d": ".docx ファイルをドラッグ＆ドロップするか、クリックして選択します。"
+    },
+    {
+      "t": "変換",
+      "d": "ブラウザ内で変換されます — サーバー不要、待ち時間なし。"
+    },
+    {
+      "t": "コピーまたは保存",
+      "d": "Markdownをコピーするか、.md ファイルをダウンロードするか、画像入りの .zip を取得できます。"
+    }
+  ],
+  "conversionHeading": "変換される内容",
+  "conversionColElement": "Wordの要素",
+  "conversionColOutput": "Markdown出力",
+  "conversionRows": [
+    "見出し",
+    "太字と斜体",
+    "番号付きリストとネストしたリスト",
+    "表",
+    "リンク",
+    "コード",
+    "画像",
+    "取り消し線",
+    "上付き文字と下付き文字"
+  ],
+  "cliHeading": "コマンドラインを使いますか？",
+  "cliBody": "Word to Markdown は無料のオープンソースです。スクリプト実行や一括変換向けにコマンドラインツールとして使えます — 同じコンバーターを、ブラウザなしで利用できます。",
+  "cliCta": "CLIを入手",
+  "faqHeading": "よくある質問",
+  "faqs": [
+    {
+      "q": "Word文書をMarkdownに変換するには？",
+      "a": ".docx ファイルをページにドラッグ＆ドロップするか（またはクリックして参照）、Word to Markdown に読み込ませてください。ブラウザ内で変換され、すぐにMarkdownが表示されます — コピーするか .md ファイルとしてダウンロードできます。"
+    },
+    {
+      "q": "Word to Markdown は無料ですか？",
+      "a": "はい。完全無料のオープンソースです — 登録不要、ファイル数の制限なし、広告もありません。"
+    },
+    {
+      "q": "文書はサーバーにアップロードされますか？",
+      "a": "いいえ。変換は JavaScript を使って完全にブラウザ内で行われます。ファイルがデバイスの外に出ることはなく、アップロード、保存、記録もされません。"
+    },
+    {
+      "q": "Google Doc をMarkdownに変換するには？",
+      "a": "Google Docs で File → Download → Microsoft Word (.docx) を選び、その .docx を Word to Markdown にドロップしてください。"
+    },
+    {
+      "q": ".doc ファイルをMarkdownに変換できますか？",
+      "a": "Word to Markdown が読み込めるのは新しい .docx ファイルです。古い .doc ファイルの場合は、Word で開いて .docx として保存し（File → Save As → Word Document .docx）、その .docx をドロップしてください。"
+    },
+    {
+      "q": "どの書式が保持されますか？",
+      "a": "見出し、太字、斜体、取り消し線、上付き文字と下付き文字、番号付きリストとネストしたリスト、表、リンク、コード、画像が、クリーンな GitHub-flavored Markdown に変換されます。"
+    },
+    {
+      "q": "Pandoc との違いは何ですか？",
+      "a": "Pandoc は強力なコマンドライン変換ツールですが、最初にインストールと設定が必要です。Word to Markdown はインストール不要で、ブラウザですぐに使えます — .docx をドロップするだけです。スクリプト実行や一括処理向けには、コマンドライン版も利用できます。"
+    },
+    {
+      "q": "ChatGPT、Claude、そのほかのAIツール向けの文書準備に使えますか？",
+      "a": "はい。Markdown は大規模言語モデルや RAG パイプラインに適した、クリーンでトークン効率のよい形式です。Word文書を先にMarkdownへ変換することで、AIツールはバイナリの .docx 書式ノイズなしに、見出し・リスト・表などの構造化されたテキストを扱えます。"
+    }
+  ],
+  "footer": {
+    "feedback": "フィードバック",
+    "source": "ソース",
+    "donate": "寄付",
+    "terms": "利用規約",
+    "privacy": "プライバシー"
+  },
+  "footerTagline": "ブラウザ内で変換 · アップロードはされません",
+  "homeAria": "Word to Markdown — ホーム",
+  "metaTitle": "Word to Markdown — 無料の .docx から .md への変換ツール",
+  "metaDescription": "Word (.docx) と Google Docs をクリーンな GitHub-flavored Markdown に変換する、無料のオープンソース変換ツールです — すべてブラウザ内で完結します。アップロードはされません。",
+  "schemaDescription": "Word (.docx) と Google Docs をクリーンな GitHub-flavored Markdown に変換する、無料のオープンソースツールです。すべてブラウザ内で完結します。",
+  "schemaFeatureList": [
+    "Word (.docx) をMarkdownに変換",
+    "Google Docs をMarkdownに変換",
+    "GitHub-flavored Markdown 出力",
+    "100%クライアントサイド — アップロードなし",
+    "画像をファイルとして抽出"
+  ],
+  "errorGeneric": "文書の変換中に予期しないエラーが発生しました。もう一度お試しください。",
+  "docFileError": "このツールが読み込めるのは新しい .docx ファイルで、古い .doc ファイルには対応していません。Word で文書を開き、File → Save As → Word Document (.docx) を選んで .docx として保存してから、ここにドロップしてください。",
+  "fileTooLargeError": "このファイルは大きすぎるため、ブラウザ内では変換できません。20 MB 未満の .docx をお試しください。",
+  "conversionAnnouncement": "変換が完了しました。Markdownの準備ができました。",
+  "convertingStatus": "変換中…",
+  "dismiss": "閉じる",
+  "promo": {
+    "label": "開発者より",
+    "body": "この無料ツールを作った私が、オープンに働く方法についての本も書きました。<strong>Open &amp; Async</strong> は、リモートチームや分散チームのための GitHub で実証された実践ガイドです。",
+    "cta": "今すぐ購入",
+    "coverAlt": "Open & Async の書影",
+    "resultsLead": "いいですね — また1つ、Wordからオープンへ。私はこの働き方の実践ガイドを書きました:",
+    "resultsCta": "Open & Asyncを見る"
+  }
+}

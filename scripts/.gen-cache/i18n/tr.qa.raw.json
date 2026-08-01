@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"corrections\":{\"googleDocHint\":\"Google Docs mu? File → Download → Microsoft Word (.docx)\",\"convertSectionAria\":\"Bir belgeyi dönüştür\",\"copyButton\":\"Markdown'ı kopyala\",\"downloadButton\":\".md dosyasını indir\",\"downloadZipButton\":\".zip dosyasını indir\",\"convertAnother\":\"Başka bir dosyayı dönüştür\",\"cliCta\":\"CLI'yi edinin\",\"faqs.7.a\":\"Evet. Markdown, büyük dil modelleri ve RAG işlem hatları için temiz, token açısından verimli bir biçimdir. Bir Word belgesini önce Markdown'a dönüştürmek, AI araçlarına ikili .docx biçimlendirmesinin gürültüsü olmadan iyi yapılandırılmış metinler — başlıklar, listeler ve tablolar — sağlar.\",\"promo.coverAlt\":\"Open & Async kitap kapağı\"}}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555454,
+  "id": "chatcmpl-E7upS2BQMgEzcapotDdQ1FT2w8gaV",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 194,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 133,
+      "engine_ttlt_ms": 1491,
+      "pre_inference_ms": 85,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 303,
+      "service_ttlt_ms": 1654,
+      "total_duration_ms": 1578,
+      "user_visible_ttft_ms": 219
+    },
+    "prompt_tokens": 4484,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 4678
+  }
+}

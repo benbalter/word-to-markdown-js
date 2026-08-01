@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"eyebrow\": \"मुफ़्त · ओपन सोर्स · 100% आपके ब्राउज़र में\",\n  \"tagline\": \"Word (.docx) फ़ाइलों को साफ़-सुथरे Markdown में बदलें — पूरी तरह आपके ब्राउज़र में। आपकी फ़ाइलें कभी अपलोड नहीं होतीं।\",\n  \"trustBadge\": \"2014 से विश्वसनीय\",\n  \"flowFromAlt\": \"Word दस्तावेज़\",\n  \"flowToAlt\": \"Markdown फ़ाइल\",\n  \"dropzoneTitle\": \"अपनी .docx यहाँ छोड़ें\",\n  \"dropzoneBrowsePrefix\": \"या \",\n  \"dropzoneBrowseLink\": \"फ़ाइल चुनने के लिए क्लिक करें\",\n  \"googleDocHint\": \"Google Doc? File → Download → Microsoft Word (.docx)\",\n  \"convertSectionAria\": \"दस्तावेज़ बदलें\",\n  \"convertedLabel\": \"बदला गया\",\n  \"copyButton\": \"Markdown कॉपी करें\",\n  \"copiedButton\": \"कॉपी हो गया!\",\n  \"downloadButton\": \".md डाउनलोड करें\",\n  \"downloadedButton\": \"डाउनलोड हो गया\",\n  \"downloadZipButton\": \".zip डाउनलोड करें\",\n  \"downloadedZipButton\": \"डाउनलोड हो गया\",\n  \"convertAnother\": \"एक और फ़ाइल बदलें\",\n  \"panelMarkdown\": \"Markdown\",\n  \"panelPreview\": \"पूर्वावलोकन\",\n  \"steps.0.t\": \"अपलोड करें\",\n  \"steps.0.d\": \".docx फ़ाइल खींचकर लाएँ, या चुनने के लिए क्लिक करें।\",\n  \"steps.1.t\": \"बदलें\",\n  \"steps.1.d\": \"यह आपके ब्राउज़र में बदलता है — न सर्वर, न इंतज़ार।\",\n  \"steps.2.t\": \"कॉपी करें या सहेजें\",\n  \"steps.2.d\": \"Markdown कॉपी करें, .md फ़ाइल डाउनलोड करें, या अपनी इमेज के साथ .zip लें।\",\n  \"conversionHeading\": \"क्या बदला जाता है\",\n  \"conversionColElement\": \"Word तत्व\",\n  \"conversionColOutput\": \"Markdown आउटपुट\",\n  \"conversionRows.0\": \"शीर्षक\",\n  \"conversionRows.1\": \"बोल्ड और इटैलिक\",\n  \"conversionRows.2\": \"क्रमबद्ध और नेस्टेड सूचियाँ\",\n  \"conversionRows.3\": \"तालिकाएँ\",\n  \"conversionRows.4\": \"लिंक\",\n  \"conversionRows.5\": \"कोड\",\n  \"conversionRows.6\": \"इमेज\",\n  \"conversionRows.7\": \"स्ट्राइकथ्रू\",\n  \"conversionRows.8\": \"सुपरस्क्रिप्ट और सबस्क्रिप्ट\",\n  \"cliHeading\": \"कमांड लाइन पसंद है?\",\n  \"cliBody\": \"Word to Markdown मुफ़्त और ओपन सोर्स है। इसे स्क्रिप्टेड या बैच कन्वर्ज़न के लिए कमांड-लाइन टूल की तरह चलाएँ — वही कन्वर्टर, ब्राउज़र की ज़रूरत नहीं।\",\n  \"cliCta\": \"CLI पाएँ\",\n  \"faqHeading\": \"अक्सर पूछे जाने वाले सवाल\",\n  \"faqs.0.q\": \"मैं Word दस्तावेज़ को Markdown में कैसे बदलूँ?\",\n  \"faqs.0.a\": \"पेज पर .docx फ़ाइल खींचकर छोड़ें (या ब्राउज़ करने के लिए क्लिक करें)। Word to Markdown इसे आपके ब्राउज़र में बदलता है और Markdown तुरंत दिखाता है — इसे कॉपी करें या .md फ़ाइल डाउनलोड करें।\",\n  \"faqs.1.q\": \"क्या Word to Markdown मुफ़्त है?\",\n  \"faqs.1.a\": \"हाँ। यह पूरी तरह मुफ़्त और ओपन सोर्स है — न साइन-अप, न फ़ाइल सीमा, और न विज्ञापन।\",\n  \"faqs.2.q\": \"क्या मेरे दस्तावेज़ सर्वर पर अपलोड होते हैं?\",\n  \"faqs.2.a\": \"नहीं। कन्वर्ज़न पूरी तरह आपके ब्राउज़र में JavaScript का उपयोग करके होता है। आपकी फ़ाइलें कभी आपके डिवाइस से बाहर नहीं जातीं और न ही अपलोड, स्टोर या लॉग की जाती हैं।\",\n  \"faqs.3.q\": \"मैं Google Doc को Markdown में कैसे बदलूँ?\",\n  \"faqs.3.a\": \"Google Docs में File → Download → Microsoft Word (.docx) चुनें, फिर उस .docx को Word to Markdown में छोड़ें।\",\n  \"faqs.4.q\": \"क्या मैं .doc फ़ाइल को Markdown में बदल सकता हूँ?\",\n  \"faqs.4.a\": \"Word to Markdown आधुनिक .docx फ़ाइलें पढ़ता है। अगर आपके पास पुरानी .doc फ़ाइल है, तो उसे Word में खोलें और .docx के रूप में सहेजें (File → Save As → Word Document .docx), फिर उस .docx को यहाँ छोड़ें।\",\n  \"faqs.5.q\": \"कौन-सा फ़ॉर्मैटिंग सुरक्षित रहता है?\",\n  \"faqs.5.a\": \"शीर्षक, बोल्ड, इटैलिक और स्ट्राइकथ्रू टेक्स्ट, सुपरस्क्रिप्ट और सबस्क्रिप्ट, क्रमबद्ध और नेस्टेड सूचियाँ, तालिकाएँ, लिंक, कोड और इमेज को साफ़, GitHub-flavored Markdown में बदला जाता है।\",\n  \"faqs.6.q\": \"यह Pandoc से कैसे अलग है?\",\n  \"faqs.6.a\": \"Pandoc एक शक्तिशाली कमांड-लाइन कन्वर्टर है, लेकिन पहले इसे इंस्टॉल और कॉन्फ़िगर करना पड़ता है। Word to Markdown आपके ब्राउज़र में तुरंत चलता है, कुछ भी इंस्टॉल करने की ज़रूरत नहीं — बस .docx छोड़ें। स्क्रिप्टेड या बैच कामों के लिए कमांड-लाइन संस्करण भी उपलब्ध है।\",\n  \"faqs.7.q\": \"क्या मैं इसका उपयोग ChatGPT, Claude या अन्य AI टूल्स के लिए दस्तावेज़ तैयार करने में कर सकता हूँ?\",\n  \"faqs.7.a\": \"हाँ। Markdown बड़े भाषा मॉडल और RAG पाइपलाइनों के लिए एक साफ़, टोकन-कुशल फ़ॉर्मैट है। पहले Word दस्तावेज़ को Markdown में बदलने से AI टूल्स को अच्छी तरह संरचित टेक्स्ट मिलता है — शीर्षक, सूचियाँ और तालिकाएँ — बिना बाइनरी .docx फ़ॉर्मैटिंग के शोर के।\",\n  \"footer.feedback\": \"फ़ीडबैक\",\n  \"footer.source\": \"स्रोत\",\n  \"footer.donate\": \"दान करें\",\n  \"footer.terms\": \"शर्तें\",\n  \"footer.privacy\": \"गोपनीयता\",\n  \"footerTagline\": \"आपके ब्राउज़र में बदला गया · कुछ भी अपलोड नहीं होता\",\n  \"homeAria\": \"Word to Markdown — होम\",\n  \"metaTitle\": \"Word to Markdown — मुफ़्त .docx से .md कन्वर्टर\",\n  \"metaDescription\": \"मुफ़्त, ओपन-सोर्स कन्वर्टर जो Word (.docx) और Google Docs को साफ़, GitHub-flavored Markdown में बदलता है — पूरी तरह आपके ब्राउज़र में। कुछ भी अपलोड नहीं होता।\",\n  \"schemaDescription\": \"मुफ़्त, ओपन-सोर्स टूल जो Word (.docx) और Google Docs को साफ़, GitHub-flavored Markdown में पूरी तरह आपके ब्राउज़र में बदलता है।\",\n  \"schemaFeatureList.0\": \"Word (.docx) को Markdown में बदलें\",\n  \"schemaFeatureList.1\": \"Google Docs को Markdown में बदलें\",\n  \"schemaFeatureList.2\": \"GitHub-flavored Markdown आउटपुट\",\n  \"schemaFeatureList.3\": \"100% क्लाइंट-साइड — कुछ भी अपलोड नहीं होता\",\n  \"schemaFeatureList.4\": \"इमेज को फ़ाइलों में निकालें\",\n  \"errorGeneric\": \"दस्तावेज़ बदलते समय एक अनपेक्षित त्रुटि हुई। कृपया फिर से कोशिश करें।\",\n  \"docFileError\": \"यह टूल आधुनिक .docx फ़ाइलें पढ़ता है, पुरानी .doc फ़ाइलें नहीं। Word में अपना दस्तावेज़ खोलें और File → Save As → Word Document (.docx) चुनें, फिर .docx को यहाँ छोड़ें।\",\n  \"fileTooLargeError\": \"यह फ़ाइल आपके ब्राउज़र में बदलने के लिए बहुत बड़ी है। कृपया 20 MB से छोटी .docx आज़माएँ।\",\n  \"conversionAnnouncement\": \"कन्वर्ज़न पूरा हुआ। आपका Markdown तैयार है।\",\n  \"convertingStatus\": \"बदला जा रहा है…\",\n  \"dismiss\": \"बंद करें\",\n  \"promo.label\": \"निर्माता की ओर से\",\n  \"promo.body\": \"मैंने यह मुफ़्त टूल बनाया — और खुले तौर पर काम करने पर किताब भी लिखी। <strong>Open &amp; Async</strong> रिमोट और वितरित टीमों के लिए GitHub-परीक्षित प्लेबुक है।\",\n  \"promo.cta\": \"अभी खरीदें\",\n  \"promo.coverAlt\": \"Open and Async पुस्तक का कवर\",\n  \"promo.resultsLead\": \"बहुत बढ़िया — Word से एक और doc बाहर और खुले में। मैंने इस तरह काम करने की प्लेबुक लिखी है:\",\n  \"promo.resultsCta\": \"Open & Async देखें\"\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555457,
+  "id": "chatcmpl-E7upV7rhOL6PoGpa53eXtqkRonA8N",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 2088,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 6,
+      "engine_ttft_ms": 69,
+      "engine_ttlt_ms": 12442,
+      "pre_inference_ms": 99,
+      "service_tbt_ms": 6,
+      "service_ttft_ms": 230,
+      "service_ttlt_ms": 12596,
+      "total_duration_ms": 12505,
+      "user_visible_ttft_ms": 131
+    },
+    "prompt_tokens": 1809,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 3897
+  }
+}

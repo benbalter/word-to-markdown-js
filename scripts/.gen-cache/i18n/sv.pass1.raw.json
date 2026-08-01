@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"eyebrow\": \"Gratis · Öppen källkod · 100 % i din webbläsare\",\n  \"tagline\": \"Konvertera Word-filer (.docx) till ren Markdown — helt i din webbläsare. Dina filer laddas aldrig upp.\",\n  \"trustBadge\": \"Betrodd sedan 2014\",\n  \"flowFromAlt\": \"Word-dokument\",\n  \"flowToAlt\": \"Markdown-fil\",\n  \"dropzoneTitle\": \"Släpp din .docx här\",\n  \"dropzoneBrowsePrefix\": \"eller \",\n  \"dropzoneBrowseLink\": \"klicka för att välja en fil\",\n  \"googleDocHint\": \"Google Doc? File → Download → Microsoft Word (.docx)\",\n  \"convertSectionAria\": \"Konvertera ett dokument\",\n  \"convertedLabel\": \"Konverterad\",\n  \"copyButton\": \"Kopiera Markdown\",\n  \"copiedButton\": \"Kopierad!\",\n  \"downloadButton\": \"Ladda ner .md\",\n  \"downloadedButton\": \"Nedladdad\",\n  \"downloadZipButton\": \"Ladda ner .zip\",\n  \"downloadedZipButton\": \"Nedladdad\",\n  \"convertAnother\": \"Konvertera en annan fil\",\n  \"panelMarkdown\": \"Markdown\",\n  \"panelPreview\": \"Förhandsvisning\",\n  \"steps.0.t\": \"Ladda upp\",\n  \"steps.0.d\": \"Dra in en .docx-fil eller klicka för att välja en.\",\n  \"steps.1.t\": \"Konvertera\",\n  \"steps.1.d\": \"Den konverteras i din webbläsare — ingen server, ingen väntan.\",\n  \"steps.2.t\": \"Kopiera eller spara\",\n  \"steps.2.d\": \"Kopiera Markdown, ladda ner en .md-fil eller hämta en .zip med dina bilder.\",\n  \"conversionHeading\": \"Vad som konverteras\",\n  \"conversionColElement\": \"Word-element\",\n  \"conversionColOutput\": \"Markdown-utdata\",\n  \"conversionRows.0\": \"Rubriker\",\n  \"conversionRows.1\": \"Fetstil & kursiv\",\n  \"conversionRows.2\": \"Numrerade & nästlade listor\",\n  \"conversionRows.3\": \"Tabeller\",\n  \"conversionRows.4\": \"Länkar\",\n  \"conversionRows.5\": \"Kod\",\n  \"conversionRows.6\": \"Bilder\",\n  \"conversionRows.7\": \"Genomstrykning\",\n  \"conversionRows.8\": \"Upphöjd & nedsänkt text\",\n  \"cliHeading\": \"Föredrar du kommandoraden?\",\n  \"cliBody\": \"Word to Markdown är gratis och har öppen källkod. Kör det som ett kommandoradsverktyg för skriptade eller batchvisa konverteringar — samma konverterare, ingen webbläsare behövs.\",\n  \"cliCta\": \"Hämta CLI\",\n  \"faqHeading\": \"Vanliga frågor\",\n  \"faqs.0.q\": \"Hur konverterar jag ett Word-dokument till Markdown?\",\n  \"faqs.0.a\": \"Dra en .docx-fil till sidan (eller klicka för att bläddra). Word to Markdown konverterar den i din webbläsare och visar Markdown direkt — kopiera den eller ladda ner en .md-fil.\",\n  \"faqs.1.q\": \"Är Word to Markdown gratis?\",\n  \"faqs.1.a\": \"Ja. Det är helt gratis och har öppen källkod — ingen registrering, inga filgränser och inga annonser.\",\n  \"faqs.2.q\": \"Laddas mina dokument upp till en server?\",\n  \"faqs.2.a\": \"Nej. Konverteringen sker helt i din webbläsare med JavaScript. Dina filer lämnar aldrig din enhet och laddas aldrig upp, lagras eller loggas.\",\n  \"faqs.3.q\": \"Hur konverterar jag ett Google Doc till Markdown?\",\n  \"faqs.3.a\": \"I Google Docs väljer du File → Download → Microsoft Word (.docx) och släpper sedan den .docx-filen i Word to Markdown.\",\n  \"faqs.4.q\": \"Kan jag konvertera en .doc-fil till Markdown?\",\n  \"faqs.4.a\": \"Word to Markdown läser moderna .docx-filer. Om du har en äldre .doc-fil öppnar du den i Word och sparar den som .docx (File → Save As → Word Document .docx), och släpper sedan in den .docx-filen.\",\n  \"faqs.5.q\": \"Vilken formatering bevaras?\",\n  \"faqs.5.a\": \"Rubriker, fet, kursiv och genomstruken text, upphöjd och nedsänkt text, numrerade och nästlade listor, tabeller, länkar, kod och bilder konverteras till ren Markdown i GitHub-stil.\",\n  \"faqs.6.q\": \"Hur skiljer sig detta från Pandoc?\",\n  \"faqs.6.a\": \"Pandoc är en kraftfull kommandoradskonverterare, men den måste först installeras och konfigureras. Word to Markdown körs direkt i din webbläsare utan att något behöver installeras — släpp bara in en .docx. För skriptade eller batchvisa jobb finns också en kommandoradsversion.\",\n  \"faqs.7.q\": \"Kan jag använda detta för att förbereda dokument för ChatGPT, Claude eller andra AI-verktyg?\",\n  \"faqs.7.a\": \"Ja. Markdown är ett rent, tokeneffektivt format för stora språkmodeller och RAG-pipelines. Att först konvertera ett Word-dokument till Markdown ger AI-verktyg välstrukturerad text — rubriker, listor och tabeller — utan bruset från binär .docx-formatering.\",\n  \"footer.feedback\": \"Feedback\",\n  \"footer.source\": \"Källkod\",\n  \"footer.donate\": \"Donera\",\n  \"footer.terms\": \"Villkor\",\n  \"footer.privacy\": \"Integritet\",\n  \"footerTagline\": \"Konverterat i din webbläsare · inget laddas upp\",\n  \"homeAria\": \"Word to Markdown — startsida\",\n  \"metaTitle\": \"Word to Markdown — Gratis .docx till .md-konverterare\",\n  \"metaDescription\": \"Gratis konverterare med öppen källkod som förvandlar Word (.docx) och Google Docs till ren Markdown i GitHub-stil — helt i din webbläsare. Inget laddas upp.\",\n  \"schemaDescription\": \"Gratis verktyg med öppen källkod som konverterar Word (.docx) och Google Docs till ren Markdown i GitHub-stil helt i din webbläsare.\",\n  \"schemaFeatureList.0\": \"Konvertera Word (.docx) till Markdown\",\n  \"schemaFeatureList.1\": \"Konvertera Google Docs till Markdown\",\n  \"schemaFeatureList.2\": \"Markdown-utdata i GitHub-stil\",\n  \"schemaFeatureList.3\": \"100 % på klientsidan — inget laddas upp\",\n  \"schemaFeatureList.4\": \"Extrahera bilder till filer\",\n  \"errorGeneric\": \"Ett oväntat fel uppstod när dokumentet konverterades. Försök igen.\",\n  \"docFileError\": \"Det här verktyget läser moderna .docx-filer, inte äldre .doc-filer. Öppna dokumentet i Word och välj File → Save As → Word Document (.docx), och släpp sedan .docx-filen här.\",\n  \"fileTooLargeError\": \"Den här filen är för stor för att konverteras i din webbläsare. Försök med en .docx som är mindre än 20 MB.\",\n  \"conversionAnnouncement\": \"Konverteringen är klar. Din Markdown är redo.\",\n  \"convertingStatus\": \"Konverterar…\",\n  \"dismiss\": \"Stäng\",\n  \"promo.label\": \"Från skaparen\",\n  \"promo.body\": \"Jag byggde det här gratisverktyget — och jag skrev boken om att arbeta öppet. <strong>Open &amp; Async</strong> är den GitHub-testade handboken för distans- och distribuerade team.\",\n  \"promo.cta\": \"Köp nu\",\n  \"promo.coverAlt\": \"Omslag till boken Open and Async\",\n  \"promo.resultsLead\": \"Snyggt — ännu ett dokument ut ur Word och in i det öppna. Jag skrev handboken för att arbeta på det här sättet:\",\n  \"promo.resultsCta\": \"Se Open & Async\"\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555504,
+  "id": "chatcmpl-E7uqGazLLyDakk99bpZLq9GGImDmn",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 1909,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 6,
+      "engine_ttft_ms": 125,
+      "engine_ttlt_ms": 11480,
+      "pre_inference_ms": 95,
+      "service_tbt_ms": 6,
+      "service_ttft_ms": 451,
+      "service_ttlt_ms": 11799,
+      "total_duration_ms": 11712,
+      "user_visible_ttft_ms": 356
+    },
+    "prompt_tokens": 1809,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 3718
+  }
+}

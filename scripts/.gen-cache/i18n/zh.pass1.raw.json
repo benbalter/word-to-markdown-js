@@ -1,0 +1,90 @@
+{
+  "choices": [
+    {
+      "content_filter_result": {
+        "error": {
+          "code": "content_filter_error",
+          "message": "The contents are not filtered"
+        }
+      },
+      "content_filter_results": {
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"eyebrow\": \"免费 · 开源 · 100% 在浏览器中运行\",\n  \"tagline\": \"将 Word (.docx) 文件转换为干净的 Markdown——全程在浏览器中完成。您的文件绝不会被上传。\",\n  \"trustBadge\": \"自 2014 年起值得信赖\",\n  \"flowFromAlt\": \"Word 文档\",\n  \"flowToAlt\": \"Markdown 文件\",\n  \"dropzoneTitle\": \"将 .docx 拖到这里\",\n  \"dropzoneBrowsePrefix\": \"或\",\n  \"dropzoneBrowseLink\": \"点击选择文件\",\n  \"googleDocHint\": \"Google Doc？文件 → 下载 → Microsoft Word (.docx)\",\n  \"convertSectionAria\": \"转换文档\",\n  \"convertedLabel\": \"已转换\",\n  \"copyButton\": \"复制 Markdown\",\n  \"copiedButton\": \"已复制！\",\n  \"downloadButton\": \"下载 .md\",\n  \"downloadedButton\": \"已下载\",\n  \"downloadZipButton\": \"下载 .zip\",\n  \"downloadedZipButton\": \"已下载\",\n  \"convertAnother\": \"转换另一个文件\",\n  \"panelMarkdown\": \"Markdown\",\n  \"panelPreview\": \"预览\",\n  \"steps.0.t\": \"上传\",\n  \"steps.0.d\": \"拖入一个 .docx 文件，或点击选择文件。\",\n  \"steps.1.t\": \"转换\",\n  \"steps.1.d\": \"直接在浏览器中转换——无需服务器，无需等待。\",\n  \"steps.2.t\": \"复制或保存\",\n  \"steps.2.d\": \"复制 Markdown、下载 .md 文件，或获取包含图片的 .zip。\",\n  \"conversionHeading\": \"可转换的内容\",\n  \"conversionColElement\": \"Word 元素\",\n  \"conversionColOutput\": \"Markdown 输出\",\n  \"conversionRows.0\": \"标题\",\n  \"conversionRows.1\": \"粗体和斜体\",\n  \"conversionRows.2\": \"有序列表和嵌套列表\",\n  \"conversionRows.3\": \"表格\",\n  \"conversionRows.4\": \"链接\",\n  \"conversionRows.5\": \"代码\",\n  \"conversionRows.6\": \"图片\",\n  \"conversionRows.7\": \"删除线\",\n  \"conversionRows.8\": \"上标和下标\",\n  \"cliHeading\": \"更喜欢命令行？\",\n  \"cliBody\": \"Word to Markdown 免费且开源。您可以将它作为命令行工具运行，用于脚本化或批量转换——同一个转换器，无需浏览器。\",\n  \"cliCta\": \"获取 CLI\",\n  \"faqHeading\": \"常见问题\",\n  \"faqs.0.q\": \"如何将 Word 文档转换为 Markdown？\",\n  \"faqs.0.a\": \"将 .docx 文件拖到页面上（或点击浏览）。Word to Markdown 会在您的浏览器中完成转换，并立即显示 Markdown——您可以复制它或下载 .md 文件。\",\n  \"faqs.1.q\": \"Word to Markdown 是免费的吗？\",\n  \"faqs.1.a\": \"是的。它完全免费且开源——无需注册、没有文件数量限制，也没有广告。\",\n  \"faqs.2.q\": \"我的文档会被上传到服务器吗？\",\n  \"faqs.2.a\": \"不会。转换完全通过浏览器中的 JavaScript 完成。您的文件绝不会离开设备，也不会被上传、存储或记录。\",\n  \"faqs.3.q\": \"如何将 Google Doc 转换为 Markdown？\",\n  \"faqs.3.a\": \"在 Google Docs 中，选择 文件 → 下载 → Microsoft Word (.docx)，然后将该 .docx 拖入 Word to Markdown。\",\n  \"faqs.4.q\": \"我可以将 .doc 文件转换为 Markdown 吗？\",\n  \"faqs.4.a\": \"Word to Markdown 读取现代 .docx 文件。如果您有较旧的 .doc 文件，请在 Word 中打开它并将其另存为 .docx（文件 → 另存为 → Word 文档 .docx），然后将该 .docx 拖入即可。\",\n  \"faqs.5.q\": \"哪些格式会被保留？\",\n  \"faqs.5.a\": \"标题、粗体、斜体和删除线文本、上标和下标、有序列表和嵌套列表、表格、链接、代码和图片都会被转换为干净的 GitHub 风格 Markdown。\",\n  \"faqs.6.q\": \"这和 Pandoc 有什么不同？\",\n  \"faqs.6.a\": \"Pandoc 是一个强大的命令行转换器，但需要先安装和配置。Word to Markdown 可直接在浏览器中立即运行，无需安装任何东西——只要拖入一个 .docx 即可。对于脚本化或批量任务，也提供命令行版本。\",\n  \"faqs.7.q\": \"我可以用它为 ChatGPT、Claude 或其他 AI 工具准备文档吗？\",\n  \"faqs.7.a\": \"可以。Markdown 是一种干净、节省 token 的格式，适合大型语言模型和 RAG 流程。先将 Word 文档转换为 Markdown，可以为 AI 工具提供结构清晰的文本——标题、列表和表格——而不会带有二进制 .docx 格式的噪音。\",\n  \"footer.feedback\": \"反馈\",\n  \"footer.source\": \"源码\",\n  \"footer.donate\": \"捐赠\",\n  \"footer.terms\": \"条款\",\n  \"footer.privacy\": \"隐私\",\n  \"footerTagline\": \"在浏览器中完成转换 · 不会上传任何内容\",\n  \"homeAria\": \"Word to Markdown——首页\",\n  \"metaTitle\": \"Word to Markdown——免费 .docx 转 .md 转换器\",\n  \"metaDescription\": \"免费、开源的转换器，可将 Word (.docx) 和 Google Docs 转换为干净的 GitHub 风格 Markdown——全程在浏览器中完成。不会上传任何内容。\",\n  \"schemaDescription\": \"免费、开源的工具，可在浏览器中将 Word (.docx) 和 Google Docs 转换为干净的 GitHub 风格 Markdown。\",\n  \"schemaFeatureList.0\": \"将 Word (.docx) 转换为 Markdown\",\n  \"schemaFeatureList.1\": \"将 Google Docs 转换为 Markdown\",\n  \"schemaFeatureList.2\": \"GitHub 风格 Markdown 输出\",\n  \"schemaFeatureList.3\": \"100% 客户端运行——不会上传任何内容\",\n  \"schemaFeatureList.4\": \"将图片提取为文件\",\n  \"errorGeneric\": \"转换文档时发生意外错误。请重试。\",\n  \"docFileError\": \"此工具读取现代 .docx 文件，不支持较旧的 .doc 文件。请在 Word 中打开您的文档并选择 文件 → 另存为 → Word 文档 (.docx)，然后将该 .docx 拖到这里。\",\n  \"fileTooLargeError\": \"此文件过大，无法在浏览器中转换。请尝试小于 20 MB 的 .docx 文件。\",\n  \"conversionAnnouncement\": \"转换完成。您的 Markdown 已准备就绪。\",\n  \"convertingStatus\": \"正在转换…\",\n  \"dismiss\": \"关闭\",\n  \"promo.label\": \"来自作者\",\n  \"promo.body\": \"我构建了这个免费工具——也写了关于开放协作工作的那本书。<strong>Open &amp; Async</strong> 是经过 GitHub 验证、适用于远程和分布式团队的实战指南。\",\n  \"promo.cta\": \"立即购买\",\n  \"promo.coverAlt\": \"Open & Async 书籍封面\",\n  \"promo.resultsLead\": \"太好了——又有一份文档脱离 Word，走向开放。我写过一本关于这种工作方式的指南：\",\n  \"promo.resultsCta\": \"查看 Open & Async\"\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555307,
+  "id": "chatcmpl-E7un5FN23lGyqczi4kRZ3ZbwBCG1M",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 1744,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 8,
+      "engine_ttft_ms": 115,
+      "engine_ttlt_ms": 13552,
+      "pre_inference_ms": 96,
+      "service_tbt_ms": 8,
+      "service_ttft_ms": 379,
+      "service_ttlt_ms": 13809,
+      "total_duration_ms": 13723,
+      "user_visible_ttft_ms": 283
+    },
+    "prompt_tokens": 1811,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 3555
+  }
+}

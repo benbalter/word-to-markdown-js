@@ -20,7 +20,11 @@
 // Non-default locales we can redirect to. English is the default and lives at
 // the root, so it is intentionally absent (a match for English means "stay").
 // Keep in sync with `locales` in web/i18n/index.ts.
-export const SUPPORTED_LOCALES = ['id', 'vi', 'pt', 'es', 'de', 'fr'];
+// prettier-ignore
+export const SUPPORTED_LOCALES = [
+  'id', 'vi', 'pt', 'es', 'de', 'fr',
+  'zh', 'ja', 'ko', 'ru', 'it', 'nl', 'pl', 'tr', 'hi', 'th', 'uk', 'sv',
+];
 
 // All site locales including the default, used to bound the analytics `locale`
 // dimension (a superset of SUPPORTED_LOCALES, which excludes the default).

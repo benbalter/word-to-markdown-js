@@ -1,0 +1,121 @@
+{
+  "eyebrow": "Ücretsiz · Açık kaynak · %100 tarayıcınızda",
+  "tagline": "Word (.docx) dosyalarını temiz Markdown biçimine dönüştürün — tamamen tarayıcınızda. Dosyalarınız asla yüklenmez.",
+  "trustBadge": "2014'ten beri güveniliyor",
+  "flowFromAlt": "Word belgesi",
+  "flowToAlt": "Markdown dosyası",
+  "dropzoneTitle": ".docx dosyanızı buraya bırakın",
+  "dropzoneBrowsePrefix": "veya ",
+  "dropzoneBrowseLink": "dosya seçmek için tıklayın",
+  "googleDocHint": "Google Docs mu? File → Download → Microsoft Word (.docx)",
+  "convertSectionAria": "Bir belgeyi dönüştür",
+  "convertedLabel": "Dönüştürüldü",
+  "copyButton": "Markdown'ı kopyala",
+  "copiedButton": "Kopyalandı!",
+  "downloadButton": ".md dosyasını indir",
+  "downloadedButton": "İndirildi",
+  "downloadZipButton": ".zip dosyasını indir",
+  "downloadedZipButton": "İndirildi",
+  "convertAnother": "Başka bir dosyayı dönüştür",
+  "panelMarkdown": "Markdown",
+  "panelPreview": "Önizleme",
+  "steps": [
+    {
+      "t": "Yükle",
+      "d": ".docx dosyasını sürükleyip bırakın veya seçmek için tıklayın."
+    },
+    {
+      "t": "Dönüştür",
+      "d": "Tarayıcınızda dönüştürülür — sunucu yok, bekleme yok."
+    },
+    {
+      "t": "Kopyala veya kaydet",
+      "d": "Markdown'ı kopyalayın, bir .md dosyası indirin veya görsellerinizle birlikte bir .zip alın."
+    }
+  ],
+  "conversionHeading": "Neler dönüştürülür",
+  "conversionColElement": "Word öğesi",
+  "conversionColOutput": "Markdown çıktısı",
+  "conversionRows": [
+    "Başlıklar",
+    "Kalın & italik",
+    "Sıralı & iç içe listeler",
+    "Tablolar",
+    "Bağlantılar",
+    "Kod",
+    "Görseller",
+    "Üstü çizili",
+    "Üst simge & alt simge"
+  ],
+  "cliHeading": "Komut satırını mı tercih ediyorsunuz?",
+  "cliBody": "Word to Markdown ücretsiz ve açık kaynaklıdır. Betikli veya toplu dönüştürmeler için bunu bir komut satırı aracı olarak çalıştırın — aynı dönüştürücü, tarayıcı gerekmez.",
+  "cliCta": "CLI'yi edinin",
+  "faqHeading": "Sık sorulan sorular",
+  "faqs": [
+    {
+      "q": "Bir Word belgesini Markdown'a nasıl dönüştürürüm?",
+      "a": "Bir .docx dosyasını sayfaya sürükleyip bırakın (veya göz atmak için tıklayın). Word to Markdown bunu tarayıcınızda dönüştürür ve Markdown'ı anında gösterir — kopyalayabilir veya bir .md dosyası indirebilirsiniz."
+    },
+    {
+      "q": "Word to Markdown ücretsiz mi?",
+      "a": "Evet. Tamamen ücretsiz ve açık kaynaklıdır — kayıt yok, dosya sınırı yok, reklam yok."
+    },
+    {
+      "q": "Belgelerim bir sunucuya yükleniyor mu?",
+      "a": "Hayır. Dönüştürme tamamen tarayıcınızda JavaScript kullanılarak gerçekleşir. Dosyalarınız cihazınızdan asla çıkmaz ve hiçbir zaman yüklenmez, saklanmaz veya kaydedilmez."
+    },
+    {
+      "q": "Bir Google Doc'u Markdown'a nasıl dönüştürürüm?",
+      "a": "Google Docs içinde File → Download → Microsoft Word (.docx) seçeneğini seçin, ardından bu .docx dosyasını Word to Markdown içine bırakın."
+    },
+    {
+      "q": "Bir .doc dosyasını Markdown'a dönüştürebilir miyim?",
+      "a": "Word to Markdown modern .docx dosyalarını okur. Elinizde eski bir .doc dosyası varsa, bunu Word içinde açın ve .docx olarak kaydedin (File → Save As → Word Document .docx), ardından bu .docx dosyasını bırakın."
+    },
+    {
+      "q": "Hangi biçimlendirmeler korunur?",
+      "a": "Başlıklar, kalın, italik ve üstü çizili metinler, üst simge ve alt simge, sıralı ve iç içe listeler, tablolar, bağlantılar, kod ve görseller temiz, GitHub-flavored Markdown biçimine dönüştürülür."
+    },
+    {
+      "q": "Bu, Pandoc'tan nasıl farklı?",
+      "a": "Pandoc güçlü bir komut satırı dönüştürücüsüdür, ancak önce kurulup yapılandırılması gerekir. Word to Markdown ise hiçbir kurulum gerektirmeden tarayıcınızda anında çalışır — sadece bir .docx bırakın. Betikli veya toplu işler için komut satırı sürümü de mevcuttur."
+    },
+    {
+      "q": "Bunu ChatGPT, Claude veya diğer AI araçları için belge hazırlamakta kullanabilir miyim?",
+      "a": "Evet. Markdown, büyük dil modelleri ve RAG işlem hatları için temiz, token açısından verimli bir biçimdir. Bir Word belgesini önce Markdown'a dönüştürmek, AI araçlarına ikili .docx biçimlendirmesinin gürültüsü olmadan iyi yapılandırılmış metinler — başlıklar, listeler ve tablolar — sağlar."
+    }
+  ],
+  "footer": {
+    "feedback": "Geri bildirim",
+    "source": "Kaynak",
+    "donate": "Bağış yap",
+    "terms": "Koşullar",
+    "privacy": "Gizlilik"
+  },
+  "footerTagline": "Tarayıcınızda dönüştürülür · hiçbir şey yüklenmez",
+  "homeAria": "Word to Markdown — ana sayfa",
+  "metaTitle": "Word to Markdown — Ücretsiz .docx'ten .md'ye Dönüştürücü",
+  "metaDescription": "Word (.docx) ve Google Docs'u temiz, GitHub uyumlu Markdown'a çeviren ücretsiz, açık kaynaklı araç — tamamen tarayıcınızda. Yükleme yok.",
+  "schemaDescription": "Word (.docx) ve Google Docs dosyalarını tamamen tarayıcınızda temiz, GitHub-flavored Markdown biçimine dönüştüren ücretsiz, açık kaynaklı araç.",
+  "schemaFeatureList": [
+    "Word (.docx) dosyalarını Markdown'a dönüştürün",
+    "Google Docs dosyalarını Markdown'a dönüştürün",
+    "GitHub-flavored Markdown çıktısı",
+    "%100 istemci tarafında — hiçbir şey yüklenmez",
+    "Görselleri dosyalara çıkarın"
+  ],
+  "errorGeneric": "Belge dönüştürülürken beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.",
+  "docFileError": "Bu araç eski .doc dosyalarını değil, modern .docx dosyalarını okur. Word içinde belgenizi açın ve File → Save As → Word Document (.docx) seçeneğini seçin, ardından .docx dosyasını buraya bırakın.",
+  "fileTooLargeError": "Bu dosya tarayıcınızda dönüştürmek için çok büyük. Lütfen 20 MB'tan küçük bir .docx deneyin.",
+  "conversionAnnouncement": "Dönüştürme tamamlandı. Markdown'ınız hazır.",
+  "convertingStatus": "Dönüştürülüyor…",
+  "dismiss": "Kapat",
+  "promo": {
+    "label": "Üreticisinden",
+    "body": "Bu ücretsiz aracı ben yaptım — ve açık çalışmak üzerine kitabı da ben yazdım. <strong>Open &amp; Async</strong>, uzak ve dağıtık ekipler için GitHub'da test edilmiş çalışma rehberidir.",
+    "cta": "Şimdi satın al",
+    "coverAlt": "Open & Async kitap kapağı",
+    "resultsLead": "Harika — Word'den çıkıp açıklığa geçen bir belge daha. Bu şekilde çalışmanın rehberini ben yazdım:",
+    "resultsCta": "Open & Async'i inceleyin"
+  }
+}

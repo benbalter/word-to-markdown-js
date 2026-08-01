@@ -27,9 +27,9 @@ describe('pickLocale', () => {
   });
 
   it('skips unsupported languages', () => {
-    expect(pickLocale('ja,ko;q=0.9')).toBeNull();
-    expect(pickLocale('zh-CN,zh;q=0.9')).toBeNull();
-    expect(pickLocale('ja,es;q=0.8')).toBe('es');
+    expect(pickLocale('ar,he;q=0.9')).toBeNull();
+    expect(pickLocale('el-GR,el;q=0.9')).toBeNull();
+    expect(pickLocale('ar,es;q=0.8')).toBe('es');
   });
 
   it('handles empty / missing / wildcard input', () => {
@@ -41,6 +41,10 @@ describe('pickLocale', () => {
 
   it('only lists non-default locales (English stays at the root)', () => {
     expect(SUPPORTED_LOCALES).not.toContain('en');
-    expect(SUPPORTED_LOCALES).toEqual(['id', 'vi', 'pt', 'es', 'de', 'fr']);
+    // prettier-ignore
+    expect(SUPPORTED_LOCALES).toEqual([
+      'id', 'vi', 'pt', 'es', 'de', 'fr',
+      'zh', 'ja', 'ko', 'ru', 'it', 'nl', 'pl', 'tr', 'hi', 'th', 'uk', 'sv',
+    ]);
   });
 });

@@ -1,0 +1,121 @@
+{
+  "eyebrow": "Gratis · Öppen källkod · 100 % i din webbläsare",
+  "tagline": "Konvertera Word-filer (.docx) till ren Markdown — helt i din webbläsare. Dina filer laddas aldrig upp.",
+  "trustBadge": "Använd sedan 2014",
+  "flowFromAlt": "Word-dokument",
+  "flowToAlt": "Markdown-fil",
+  "dropzoneTitle": "Släpp din .docx här",
+  "dropzoneBrowsePrefix": "eller ",
+  "dropzoneBrowseLink": "klicka för att välja en fil",
+  "googleDocHint": "Google Doc? Arkiv → Ladda ned → Microsoft Word (.docx)",
+  "convertSectionAria": "Konvertera ett dokument",
+  "convertedLabel": "Konverterad",
+  "copyButton": "Kopiera Markdown",
+  "copiedButton": "Kopierat!",
+  "downloadButton": "Ladda ner .md",
+  "downloadedButton": "Nedladdat",
+  "downloadZipButton": "Ladda ner .zip",
+  "downloadedZipButton": "Nedladdat",
+  "convertAnother": "Konvertera en annan fil",
+  "panelMarkdown": "Markdown",
+  "panelPreview": "Förhandsvisning",
+  "steps": [
+    {
+      "t": "Ladda upp",
+      "d": "Dra in en .docx-fil eller klicka för att välja en."
+    },
+    {
+      "t": "Konvertera",
+      "d": "Den konverteras i din webbläsare — ingen server, ingen väntan."
+    },
+    {
+      "t": "Kopiera eller spara",
+      "d": "Kopiera Markdown, ladda ner en .md-fil eller hämta en .zip med dina bilder."
+    }
+  ],
+  "conversionHeading": "Vad som konverteras",
+  "conversionColElement": "Word-element",
+  "conversionColOutput": "Markdown-resultat",
+  "conversionRows": [
+    "Rubriker",
+    "Fetstil & kursiv",
+    "Numrerade & nästlade listor",
+    "Tabeller",
+    "Länkar",
+    "Kod",
+    "Bilder",
+    "Genomstrykning",
+    "Upphöjd & nedsänkt text"
+  ],
+  "cliHeading": "Föredrar du kommandoraden?",
+  "cliBody": "Word to Markdown är gratis och har öppen källkod. Kör det som ett kommandoradsverktyg för skriptade eller batchvisa konverteringar — samma konverterare, ingen webbläsare behövs.",
+  "cliCta": "Hämta CLI",
+  "faqHeading": "Vanliga frågor",
+  "faqs": [
+    {
+      "q": "Hur konverterar jag ett Word-dokument till Markdown?",
+      "a": "Dra en .docx-fil till sidan (eller klicka för att bläddra). Word to Markdown konverterar den i din webbläsare och visar Markdown direkt — kopiera den eller ladda ner en .md-fil."
+    },
+    {
+      "q": "Är Word to Markdown gratis?",
+      "a": "Ja. Det är helt gratis och har öppen källkod — ingen registrering, inga filgränser och inga annonser."
+    },
+    {
+      "q": "Laddas mina dokument upp till en server?",
+      "a": "Nej. Konverteringen sker helt i din webbläsare med JavaScript. Dina filer lämnar aldrig din enhet och laddas aldrig upp, lagras eller loggas."
+    },
+    {
+      "q": "Hur konverterar jag ett Google Doc till Markdown?",
+      "a": "I Google Docs väljer du File → Download → Microsoft Word (.docx) och släpper sedan den .docx-filen i Word to Markdown."
+    },
+    {
+      "q": "Kan jag konvertera en .doc-fil till Markdown?",
+      "a": "Word to Markdown läser moderna .docx-filer. Om du har en äldre .doc-fil öppnar du den i Word och sparar den som .docx (File → Save As → Word Document .docx), och släpper sedan in den .docx-filen."
+    },
+    {
+      "q": "Vilken formatering bevaras?",
+      "a": "Rubriker, fet, kursiv och genomstruken text, upphöjd och nedsänkt text, numrerade och nästlade listor, tabeller, länkar, kod och bilder konverteras till ren Markdown i GitHub-stil."
+    },
+    {
+      "q": "Hur skiljer sig detta från Pandoc?",
+      "a": "Pandoc är en kraftfull kommandoradskonverterare, men den måste först installeras och konfigureras. Word to Markdown körs direkt i din webbläsare utan att något behöver installeras — släpp bara in en .docx. För skriptade eller batchvisa jobb finns också en kommandoradsversion."
+    },
+    {
+      "q": "Kan jag använda detta för att förbereda dokument för ChatGPT, Claude eller andra AI-verktyg?",
+      "a": "Ja. Markdown är ett rent, tokeneffektivt format för stora språkmodeller och RAG-pipelines. Att först konvertera ett Word-dokument till Markdown ger AI-verktyg välstrukturerad text — rubriker, listor och tabeller — utan bruset från binär .docx-formatering."
+    }
+  ],
+  "footer": {
+    "feedback": "Feedback",
+    "source": "Källkod",
+    "donate": "Donera",
+    "terms": "Villkor",
+    "privacy": "Integritet"
+  },
+  "footerTagline": "Konverterat i din webbläsare · inget laddas upp",
+  "homeAria": "Word to Markdown — startsida",
+  "metaTitle": "Word to Markdown — Gratis .docx till .md-konverterare",
+  "metaDescription": "Gratis konverterare med öppen källkod som förvandlar Word (.docx) och Google Docs till ren Markdown i GitHub-stil — helt i din webbläsare. Inget laddas upp.",
+  "schemaDescription": "Gratis verktyg med öppen källkod som konverterar Word (.docx) och Google Docs till ren Markdown i GitHub-stil helt i din webbläsare.",
+  "schemaFeatureList": [
+    "Konvertera Word (.docx) till Markdown",
+    "Konvertera Google Docs till Markdown",
+    "Markdown-utdata i GitHub-stil",
+    "100 % på klientsidan — inget laddas upp",
+    "Extrahera bilder till filer"
+  ],
+  "errorGeneric": "Ett oväntat fel uppstod när dokumentet konverterades. Försök igen.",
+  "docFileError": "Det här verktyget läser moderna .docx-filer, inte äldre .doc-filer. Öppna dokumentet i Word och välj File → Save As → Word Document (.docx), och släpp sedan .docx-filen här.",
+  "fileTooLargeError": "Den här filen är för stor för att konverteras i din webbläsare. Försök med en .docx som är mindre än 20 MB.",
+  "conversionAnnouncement": "Konverteringen är klar. Din Markdown är redo.",
+  "convertingStatus": "Konverterar…",
+  "dismiss": "Stäng",
+  "promo": {
+    "label": "Från skaparen",
+    "body": "Jag byggde det här gratisverktyget — och jag skrev boken om att arbeta öppet. <strong>Open &amp; Async</strong> är den GitHub-testade handboken för distans- och distribuerade team.",
+    "cta": "Köp nu",
+    "coverAlt": "Bokomslag för Open & Async",
+    "resultsLead": "Snyggt — ännu ett dokument ut ur Word och in i det öppna. Jag skrev handboken för att arbeta på det här sättet:",
+    "resultsCta": "Se Open & Async"
+  }
+}

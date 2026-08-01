@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"eyebrow\": \"無料 · オープンソース · 100%ブラウザ内で動作\",\n  \"tagline\": \"Word (.docx) ファイルをクリーンなMarkdownに変換 — すべてブラウザ内で完結します。ファイルがアップロードされることはありません。\",\n  \"trustBadge\": \"2014年から信頼されています\",\n  \"flowFromAlt\": \"Word文書\",\n  \"flowToAlt\": \"Markdownファイル\",\n  \"dropzoneTitle\": \".docx をここにドロップ\",\n  \"dropzoneBrowsePrefix\": \"または \",\n  \"dropzoneBrowseLink\": \"クリックしてファイルを選択\",\n  \"googleDocHint\": \"Google Docですか？ File → Download → Microsoft Word (.docx)\",\n  \"convertSectionAria\": \"文書を変換\",\n  \"convertedLabel\": \"変換済み\",\n  \"copyButton\": \"Markdownをコピー\",\n  \"copiedButton\": \"コピーしました！\",\n  \"downloadButton\": \".md をダウンロード\",\n  \"downloadedButton\": \"ダウンロード済み\",\n  \"downloadZipButton\": \".zip をダウンロード\",\n  \"downloadedZipButton\": \"ダウンロード済み\",\n  \"convertAnother\": \"別のファイルを変換\",\n  \"panelMarkdown\": \"Markdown\",\n  \"panelPreview\": \"プレビュー\",\n  \"steps.0.t\": \"アップロード\",\n  \"steps.0.d\": \".docx ファイルをドラッグ＆ドロップするか、クリックして選択します。\",\n  \"steps.1.t\": \"変換\",\n  \"steps.1.d\": \"ブラウザ内で変換されます — サーバー不要、待ち時間なし。\",\n  \"steps.2.t\": \"コピーまたは保存\",\n  \"steps.2.d\": \"Markdownをコピーするか、.md ファイルをダウンロードするか、画像入りの .zip を取得できます。\",\n  \"conversionHeading\": \"変換される内容\",\n  \"conversionColElement\": \"Wordの要素\",\n  \"conversionColOutput\": \"Markdown出力\",\n  \"conversionRows.0\": \"見出し\",\n  \"conversionRows.1\": \"太字と斜体\",\n  \"conversionRows.2\": \"番号付きリストとネストしたリスト\",\n  \"conversionRows.3\": \"表\",\n  \"conversionRows.4\": \"リンク\",\n  \"conversionRows.5\": \"コード\",\n  \"conversionRows.6\": \"画像\",\n  \"conversionRows.7\": \"取り消し線\",\n  \"conversionRows.8\": \"上付き文字と下付き文字\",\n  \"cliHeading\": \"コマンドラインを使いますか？\",\n  \"cliBody\": \"Word to Markdown は無料のオープンソースです。スクリプト実行や一括変換向けにコマンドラインツールとして使えます — 同じコンバーターを、ブラウザなしで利用できます。\",\n  \"cliCta\": \"CLIを入手\",\n  \"faqHeading\": \"よくある質問\",\n  \"faqs.0.q\": \"Word文書をMarkdownに変換するには？\",\n  \"faqs.0.a\": \".docx ファイルをページにドラッグ＆ドロップするか（またはクリックして参照）、Word to Markdown に読み込ませてください。ブラウザ内で変換され、すぐにMarkdownが表示されます — コピーするか .md ファイルとしてダウンロードできます。\",\n  \"faqs.1.q\": \"Word to Markdown は無料ですか？\",\n  \"faqs.1.a\": \"はい。完全無料のオープンソースです — 登録不要、ファイル数の制限なし、広告もありません。\",\n  \"faqs.2.q\": \"文書はサーバーにアップロードされますか？\",\n  \"faqs.2.a\": \"いいえ。変換は JavaScript を使って完全にブラウザ内で行われます。ファイルがデバイスの外に出ることはなく、アップロード、保存、記録もされません。\",\n  \"faqs.3.q\": \"Google Doc をMarkdownに変換するには？\",\n  \"faqs.3.a\": \"Google Docs で File → Download → Microsoft Word (.docx) を選び、その .docx を Word to Markdown にドロップしてください。\",\n  \"faqs.4.q\": \".doc ファイルをMarkdownに変換できますか？\",\n  \"faqs.4.a\": \"Word to Markdown が読み込めるのは新しい .docx ファイルです。古い .doc ファイルの場合は、Word で開いて .docx として保存し（File → Save As → Word Document .docx）、その .docx をドロップしてください。\",\n  \"faqs.5.q\": \"どの書式が保持されますか？\",\n  \"faqs.5.a\": \"見出し、太字、斜体、取り消し線、上付き文字と下付き文字、番号付きリストとネストしたリスト、表、リンク、コード、画像が、クリーンな GitHub-flavored Markdown に変換されます。\",\n  \"faqs.6.q\": \"Pandoc との違いは何ですか？\",\n  \"faqs.6.a\": \"Pandoc は強力なコマンドライン変換ツールですが、最初にインストールと設定が必要です。Word to Markdown はインストール不要で、ブラウザですぐに使えます — .docx をドロップするだけです。スクリプト実行や一括処理向けには、コマンドライン版も利用できます。\",\n  \"faqs.7.q\": \"ChatGPT、Claude、そのほかのAIツール向けの文書準備に使えますか？\",\n  \"faqs.7.a\": \"はい。Markdown は大規模言語モデルや RAG パイプラインに適した、クリーンでトークン効率のよい形式です。Word文書を先にMarkdownへ変換することで、AIツールはバイナリの .docx 書式ノイズなしに、見出し・リスト・表などの構造化されたテキストを扱えます。\",\n  \"footer.feedback\": \"フィードバック\",\n  \"footer.source\": \"ソース\",\n  \"footer.donate\": \"寄付\",\n  \"footer.terms\": \"利用規約\",\n  \"footer.privacy\": \"プライバシー\",\n  \"footerTagline\": \"ブラウザ内で変換 · アップロードはされません\",\n  \"homeAria\": \"Word to Markdown — ホーム\",\n  \"metaTitle\": \"Word to Markdown — 無料の .docx から .md への変換ツール\",\n  \"metaDescription\": \"Word (.docx) と Google Docs をクリーンな GitHub-flavored Markdown に変換する、無料のオープンソース変換ツールです — すべてブラウザ内で完結します。アップロードはされません。\",\n  \"schemaDescription\": \"Word (.docx) と Google Docs をクリーンな GitHub-flavored Markdown に変換する、無料のオープンソースツールです。すべてブラウザ内で完結します。\",\n  \"schemaFeatureList.0\": \"Word (.docx) をMarkdownに変換\",\n  \"schemaFeatureList.1\": \"Google Docs をMarkdownに変換\",\n  \"schemaFeatureList.2\": \"GitHub-flavored Markdown 出力\",\n  \"schemaFeatureList.3\": \"100%クライアントサイド — アップロードなし\",\n  \"schemaFeatureList.4\": \"画像をファイルとして抽出\",\n  \"errorGeneric\": \"文書の変換中に予期しないエラーが発生しました。もう一度お試しください。\",\n  \"docFileError\": \"このツールが読み込めるのは新しい .docx ファイルで、古い .doc ファイルには対応していません。Word で文書を開き、File → Save As → Word Document (.docx) を選んで .docx として保存してから、ここにドロップしてください。\",\n  \"fileTooLargeError\": \"このファイルは大きすぎるため、ブラウザ内では変換できません。20 MB 未満の .docx をお試しください。\",\n  \"conversionAnnouncement\": \"変換が完了しました。Markdownの準備ができました。\",\n  \"convertingStatus\": \"変換中…\",\n  \"dismiss\": \"閉じる\",\n  \"promo.label\": \"開発者より\",\n  \"promo.body\": \"この無料ツールを作った私が、オープンに働く方法についての本も書きました。<strong>Open &amp; Async</strong> は、リモートチームや分散チームのための GitHub で実証された実践ガイドです。\",\n  \"promo.cta\": \"今すぐ購入\",\n  \"promo.coverAlt\": \"Open and Async の書影\",\n  \"promo.resultsLead\": \"いいですね — また1つ、Wordからオープンへ。私はこの働き方の実践ガイドを書きました:\",\n  \"promo.resultsCta\": \"Open & Asyncを見る\"\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555323,
+  "id": "chatcmpl-E7unLYRN7az1GJJPD64fmZflrTkmN",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 2074,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 12,
+      "engine_ttft_ms": 241,
+      "engine_ttlt_ms": 25391,
+      "pre_inference_ms": 95,
+      "service_tbt_ms": 12,
+      "service_ttft_ms": 426,
+      "service_ttlt_ms": 25569,
+      "total_duration_ms": 25483,
+      "user_visible_ttft_ms": 331
+    },
+    "prompt_tokens": 1809,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 3883
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"corrections\":{\"eyebrow\":\"Бесплатно · с открытым исходным кодом · 100% в вашем браузере\",\"googleDocHint\":\"Google Docs? File → Download → Microsoft Word (.docx)\",\"cliBody\":\"Word to Markdown — бесплатный инструмент с открытым исходным кодом. Запускайте его как инструмент командной строки для автоматизированной или пакетной конвертации — тот же конвертер, без браузера.\",\"faqs.1.a\":\"Да. Это полностью бесплатный инструмент с открытым исходным кодом — без регистрации, ограничений на файлы и рекламы.\",\"metaDescription\":\"Бесплатный конвертер с открытым исходным кодом, который превращает Word (.docx) и Google Docs в чистый Markdown в стиле GitHub — полностью в вашем браузере. Ничего не загружается.\",\"schemaDescription\":\"Бесплатный инструмент с открытым исходным кодом, который конвертирует Word (.docx) и Google Docs в чистый Markdown в стиле GitHub полностью в вашем браузере.\",\"promo.coverAlt\":\"Обложка книги Open & Async\"}}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555379,
+  "id": "chatcmpl-E7uoFkUQwn9W8EWZlBSjIrh1vIJLe",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 239,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 157,
+      "engine_ttlt_ms": 1817,
+      "pre_inference_ms": 89,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 283,
+      "service_ttlt_ms": 1937,
+      "total_duration_ms": 1858,
+      "user_visible_ttft_ms": 195
+    },
+    "prompt_tokens": 4339,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 4578
+  }
+}

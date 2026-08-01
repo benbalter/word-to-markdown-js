@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"eyebrow\": \"ฟรี · โอเพนซอร์ส · 100% ในเบราว์เซอร์ของคุณ\",\n  \"tagline\": \"แปลงไฟล์ Word (.docx) เป็น Markdown ที่สะอาดตา — ทั้งหมดในเบราว์เซอร์ของคุณ ไฟล์ของคุณจะไม่ถูกอัปโหลด\",\n  \"trustBadge\": \"ได้รับความไว้วางใจมาตั้งแต่ปี 2014\",\n  \"flowFromAlt\": \"เอกสาร Word\",\n  \"flowToAlt\": \"ไฟล์ Markdown\",\n  \"dropzoneTitle\": \"วางไฟล์ .docx ของคุณที่นี่\",\n  \"dropzoneBrowsePrefix\": \"หรือ \",\n  \"dropzoneBrowseLink\": \"คลิกเพื่อเลือกไฟล์\",\n  \"googleDocHint\": \"Google Doc? File → Download → Microsoft Word (.docx)\",\n  \"convertSectionAria\": \"แปลงเอกสาร\",\n  \"convertedLabel\": \"แปลงแล้ว\",\n  \"copyButton\": \"คัดลอก Markdown\",\n  \"copiedButton\": \"คัดลอกแล้ว!\",\n  \"downloadButton\": \"ดาวน์โหลด .md\",\n  \"downloadedButton\": \"ดาวน์โหลดแล้ว\",\n  \"downloadZipButton\": \"ดาวน์โหลด .zip\",\n  \"downloadedZipButton\": \"ดาวน์โหลดแล้ว\",\n  \"convertAnother\": \"แปลงไฟล์อื่น\",\n  \"panelMarkdown\": \"Markdown\",\n  \"panelPreview\": \"ตัวอย่าง\",\n  \"steps.0.t\": \"อัปโหลด\",\n  \"steps.0.d\": \"ลากไฟล์ .docx เข้ามา หรือคลิกเพื่อเลือกไฟล์\",\n  \"steps.1.t\": \"แปลง\",\n  \"steps.1.d\": \"แปลงในเบราว์เซอร์ของคุณ — ไม่มีเซิร์ฟเวอร์ ไม่ต้องรอ\",\n  \"steps.2.t\": \"คัดลอกหรือบันทึก\",\n  \"steps.2.d\": \"คัดลอก Markdown, ดาวน์โหลดไฟล์ .md หรือรับ .zip ที่มีรูปภาพของคุณ\",\n  \"conversionHeading\": \"สิ่งที่จะถูกแปลง\",\n  \"conversionColElement\": \"องค์ประกอบใน Word\",\n  \"conversionColOutput\": \"ผลลัพธ์ Markdown\",\n  \"conversionRows.0\": \"หัวเรื่อง\",\n  \"conversionRows.1\": \"ตัวหนา & ตัวเอียง\",\n  \"conversionRows.2\": \"รายการลำดับเลข & รายการซ้อน\",\n  \"conversionRows.3\": \"ตาราง\",\n  \"conversionRows.4\": \"ลิงก์\",\n  \"conversionRows.5\": \"โค้ด\",\n  \"conversionRows.6\": \"รูปภาพ\",\n  \"conversionRows.7\": \"ขีดฆ่า\",\n  \"conversionRows.8\": \"ตัวยก & ตัวห้อย\",\n  \"cliHeading\": \"ชอบใช้บรรทัดคำสั่งมากกว่าไหม?\",\n  \"cliBody\": \"Word to Markdown ฟรีและเป็นโอเพนซอร์ส ใช้งานเป็นเครื่องมือบรรทัดคำสั่งได้สำหรับการแปลงแบบสคริปต์หรือเป็นชุด — ตัวแปลงเดียวกัน โดยไม่ต้องใช้เบราว์เซอร์\",\n  \"cliCta\": \"รับ CLI\",\n  \"faqHeading\": \"คำถามที่พบบ่อย\",\n  \"faqs.0.q\": \"ฉันจะแปลงเอกสาร Word เป็น Markdown ได้อย่างไร?\",\n  \"faqs.0.a\": \"ลากไฟล์ .docx มาวางบนหน้าเว็บ (หรือคลิกเพื่อเลือกไฟล์) Word to Markdown จะแปลงในเบราว์เซอร์ของคุณและแสดง Markdown ทันที — คัดลอกหรือดาวน์โหลดเป็นไฟล์ .md ได้เลย\",\n  \"faqs.1.q\": \"Word to Markdown ใช้ฟรีไหม?\",\n  \"faqs.1.a\": \"ใช่ ฟรีทั้งหมดและเป็นโอเพนซอร์ส — ไม่ต้องสมัคร ไม่มีการจำกัดจำนวนไฟล์ และไม่มีโฆษณา\",\n  \"faqs.2.q\": \"เอกสารของฉันถูกอัปโหลดไปยังเซิร์ฟเวอร์หรือไม่?\",\n  \"faqs.2.a\": \"ไม่ การแปลงเกิดขึ้นทั้งหมดในเบราว์เซอร์ของคุณโดยใช้ JavaScript ไฟล์ของคุณจะไม่ออกจากอุปกรณ์ และจะไม่ถูกอัปโหลด จัดเก็บ หรือบันทึก\",\n  \"faqs.3.q\": \"ฉันจะแปลง Google Doc เป็น Markdown ได้อย่างไร?\",\n  \"faqs.3.a\": \"ใน Google Docs ให้เลือก File → Download → Microsoft Word (.docx) แล้วนำไฟล์ .docx นั้นมาวางใน Word to Markdown\",\n  \"faqs.4.q\": \"ฉันสามารถแปลงไฟล์ .doc เป็น Markdown ได้ไหม?\",\n  \"faqs.4.a\": \"Word to Markdown รองรับไฟล์ .docx แบบใหม่ หากคุณมีไฟล์ .doc รุ่นเก่า ให้เปิดใน Word แล้วบันทึกเป็น .docx (File → Save As → Word Document .docx) จากนั้นนำไฟล์ .docx นั้นมาวางได้เลย\",\n  \"faqs.5.q\": \"การจัดรูปแบบอะไรบ้างที่ยังคงอยู่?\",\n  \"faqs.5.a\": \"หัวเรื่อง ตัวหนา ตัวเอียง และข้อความขีดฆ่า ตัวยกและตัวห้อย รายการลำดับเลขและรายการซ้อน ตาราง ลิงก์ โค้ด และรูปภาพ จะถูกแปลงเป็น Markdown แบบ GitHub ที่สะอาดตา\",\n  \"faqs.6.q\": \"สิ่งนี้ต่างจาก Pandoc อย่างไร?\",\n  \"faqs.6.a\": \"Pandoc เป็นตัวแปลงแบบบรรทัดคำสั่งที่ทรงพลัง แต่ต้องติดตั้งและตั้งค่าก่อน Word to Markdown ทำงานได้ทันทีในเบราว์เซอร์ของคุณโดยไม่ต้องติดตั้งอะไรเลย — แค่วางไฟล์ .docx สำหรับงานแบบสคริปต์หรือเป็นชุด ก็มีเวอร์ชันบรรทัดคำสั่งให้ใช้เช่นกัน\",\n  \"faqs.7.q\": \"ฉันใช้สิ่งนี้เพื่อเตรียมเอกสารสำหรับ ChatGPT, Claude หรือเครื่องมือ AI อื่นๆ ได้ไหม?\",\n  \"faqs.7.a\": \"ได้ Markdown เป็นรูปแบบที่สะอาดและใช้โทเค็นอย่างมีประสิทธิภาพสำหรับโมเดลภาษาขนาดใหญ่และไปป์ไลน์ RAG การแปลงเอกสาร Word เป็น Markdown ก่อนจะช่วยให้เครื่องมือ AI ได้ข้อความที่มีโครงสร้างชัดเจน — เช่น หัวเรื่อง รายการ และตาราง — โดยไม่มีความรกจากการจัดรูปแบบไบนารีของ .docx\",\n  \"footer.feedback\": \"ข้อเสนอแนะ\",\n  \"footer.source\": \"ซอร์สโค้ด\",\n  \"footer.donate\": \"บริจาค\",\n  \"footer.terms\": \"ข้อกำหนด\",\n  \"footer.privacy\": \"ความเป็นส่วนตัว\",\n  \"footerTagline\": \"แปลงในเบราว์เซอร์ของคุณ · ไม่มีการอัปโหลดใดๆ\",\n  \"homeAria\": \"Word to Markdown — หน้าแรก\",\n  \"metaTitle\": \"Word to Markdown — ตัวแปลง .docx เป็น .md ฟรี\",\n  \"metaDescription\": \"ตัวแปลงฟรีและโอเพนซอร์สที่เปลี่ยน Word (.docx) และ Google Docs เป็น Markdown แบบ GitHub ที่สะอาดตา — ทั้งหมดในเบราว์เซอร์ของคุณ ไม่มีการอัปโหลดใดๆ\",\n  \"schemaDescription\": \"เครื่องมือฟรีและโอเพนซอร์สที่แปลง Word (.docx) และ Google Docs เป็น Markdown แบบ GitHub ที่สะอาดตาได้ทั้งหมดในเบราว์เซอร์ของคุณ\",\n  \"schemaFeatureList.0\": \"แปลง Word (.docx) เป็น Markdown\",\n  \"schemaFeatureList.1\": \"แปลง Google Docs เป็น Markdown\",\n  \"schemaFeatureList.2\": \"ผลลัพธ์เป็น Markdown แบบ GitHub\",\n  \"schemaFeatureList.3\": \"100% ฝั่งไคลเอนต์ — ไม่มีการอัปโหลดใดๆ\",\n  \"schemaFeatureList.4\": \"แยกรูปภาพเป็นไฟล์\",\n  \"errorGeneric\": \"เกิดข้อผิดพลาดที่ไม่คาดคิดขณะแปลงเอกสาร โปรดลองอีกครั้ง\",\n  \"docFileError\": \"เครื่องมือนี้รองรับไฟล์ .docx แบบใหม่ ไม่ใช่ไฟล์ .doc รุ่นเก่า ใน Word ให้เปิดเอกสารของคุณแล้วเลือก File → Save As → Word Document (.docx) จากนั้นนำไฟล์ .docx มาวางที่นี่\",\n  \"fileTooLargeError\": \"ไฟล์นี้ใหญ่เกินกว่าจะแปลงในเบราว์เซอร์ของคุณได้ โปรดลองใช้ไฟล์ .docx ที่มีขนาดเล็กกว่า 20 MB\",\n  \"conversionAnnouncement\": \"แปลงเสร็จแล้ว Markdown ของคุณพร้อมใช้งาน\",\n  \"convertingStatus\": \"กำลังแปลง…\",\n  \"dismiss\": \"ปิด\",\n  \"promo.label\": \"จากผู้สร้าง\",\n  \"promo.body\": \"ผมสร้างเครื่องมือฟรีนี้ขึ้นมา — และผมก็เขียนหนังสือเกี่ยวกับการทำงานแบบเปิดด้วย <strong>Open &amp; Async</strong> คือคู่มือที่ผ่านการพิสูจน์จาก GitHub สำหรับทีมรีโมตและทีมที่กระจายตัว\",\n  \"promo.cta\": \"ซื้อเลย\",\n  \"promo.coverAlt\": \"ปกหนังสือ Open and Async\",\n  \"promo.resultsLead\": \"เยี่ยมเลย — อีกหนึ่งเอกสารถูกพาออกจาก Word และเข้าสู่โลกแบบเปิด ผมเขียนคู่มือสำหรับการทำงานแบบนี้ไว้:\",\n  \"promo.resultsCta\": \"ดู Open & Async\"\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555473,
+  "id": "chatcmpl-E7uplQDKhJtg6N2tSEIcYarATWlfs",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 2158,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 79,
+      "engine_ttlt_ms": 14240,
+      "pre_inference_ms": 103,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 434,
+      "service_ttlt_ms": 14566,
+      "total_duration_ms": 14470,
+      "user_visible_ttft_ms": 331
+    },
+    "prompt_tokens": 1809,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 3967
+  }
+}

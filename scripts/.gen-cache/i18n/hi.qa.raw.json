@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"corrections\":{\"dropzoneTitle\":\"अपनी .docx फ़ाइल यहाँ छोड़ें\",\"googleDocHint\":\"Google Docs? File → Download → Microsoft Word (.docx)\",\"convertSectionAria\":\"दस्तावेज़ कन्वर्ट करें\",\"convertedLabel\":\"कन्वर्ट किया गया\",\"convertAnother\":\"एक और फ़ाइल कन्वर्ट करें\",\"steps.1.t\":\"कन्वर्ट करें\",\"steps.1.d\":\"यह आपके ब्राउज़र में कन्वर्ट होता है — न सर्वर, न इंतज़ार।\",\"steps.2.d\":\"Markdown कॉपी करें, .md फ़ाइल डाउनलोड करें, या अपनी इमेजों के साथ .zip डाउनलोड करें।\",\"conversionHeading\":\"क्या-क्या कन्वर्ट होता है\",\"conversionRows.6\":\"छवियाँ\",\"cliCta\":\"CLI प्राप्त करें\",\"footerTagline\":\"आपके ब्राउज़र में कन्वर्ट किया गया · कुछ भी अपलोड नहीं होता\",\"errorGeneric\":\"दस्तावेज़ कन्वर्ट करते समय एक अनपेक्षित त्रुटि हुई। कृपया फिर से कोशिश करें।\",\"fileTooLargeError\":\"यह फ़ाइल आपके ब्राउज़र में कन्वर्ट करने के लिए बहुत बड़ी है। कृपया 20 MB से छोटी .docx फ़ाइल आज़माएँ।\",\"convertingStatus\":\"कन्वर्ट किया जा रहा है…\",\"promo.coverAlt\":\"Open & Async पुस्तक का कवर\"}}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555470,
+  "id": "chatcmpl-E7upifdUwbL0SDdFPvOeL1ilehwBD",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 302,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 6,
+      "engine_ttft_ms": 123,
+      "engine_ttlt_ms": 2050,
+      "pre_inference_ms": 158,
+      "service_tbt_ms": 6,
+      "service_ttft_ms": 346,
+      "service_ttlt_ms": 2267,
+      "total_duration_ms": 2121,
+      "user_visible_ttft_ms": 189
+    },
+    "prompt_tokens": 4564,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 4866
+  }
+}

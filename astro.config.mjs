@@ -26,7 +26,11 @@ export default defineConfig({
   // a prefix (/id/, …). New locales get added to `locales` as translations land.
   i18n: {
     defaultLocale: 'en',
-    locales: ['en', 'id', 'vi', 'pt', 'es', 'de', 'fr'],
+    // prettier-ignore
+    locales: [
+      'en', 'id', 'vi', 'pt', 'es', 'de', 'fr',
+      'zh', 'ja', 'ko', 'ru', 'it', 'nl', 'pl', 'tr', 'hi', 'th', 'uk', 'sv',
+    ],
     routing: { prefixDefaultLocale: false },
   },
   // Inline all stylesheets into the HTML to remove the render-blocking CSS
@@ -50,6 +54,18 @@ export default defineConfig({
           es: 'es-ES',
           de: 'de-DE',
           fr: 'fr-FR',
+          zh: 'zh-CN',
+          ja: 'ja-JP',
+          ko: 'ko-KR',
+          ru: 'ru-RU',
+          it: 'it-IT',
+          nl: 'nl-NL',
+          pl: 'pl-PL',
+          tr: 'tr-TR',
+          hi: 'hi-IN',
+          th: 'th-TH',
+          uk: 'uk-UA',
+          sv: 'sv-SE',
         },
       },
       // Stamp every URL with the build time so Google has a <lastmod> signal to

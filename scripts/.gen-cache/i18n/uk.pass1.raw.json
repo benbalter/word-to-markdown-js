@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"eyebrow\": \"Безкоштовно · Open source · 100% у вашому браузері\",\n  \"tagline\": \"Конвертуйте файли Word (.docx) у чистий Markdown — повністю у вашому браузері. Ваші файли ніколи не завантажуються.\",\n  \"trustBadge\": \"Нам довіряють з 2014\",\n  \"flowFromAlt\": \"Документ Word\",\n  \"flowToAlt\": \"Файл Markdown\",\n  \"dropzoneTitle\": \"Перетягніть сюди свій .docx\",\n  \"dropzoneBrowsePrefix\": \"або \",\n  \"dropzoneBrowseLink\": \"натисніть, щоб вибрати файл\",\n  \"googleDocHint\": \"Google Doc? File → Download → Microsoft Word (.docx)\",\n  \"convertSectionAria\": \"Конвертувати документ\",\n  \"convertedLabel\": \"Конвертовано\",\n  \"copyButton\": \"Скопіювати Markdown\",\n  \"copiedButton\": \"Скопійовано!\",\n  \"downloadButton\": \"Завантажити .md\",\n  \"downloadedButton\": \"Завантажено\",\n  \"downloadZipButton\": \"Завантажити .zip\",\n  \"downloadedZipButton\": \"Завантажено\",\n  \"convertAnother\": \"Конвертувати інший файл\",\n  \"panelMarkdown\": \"Markdown\",\n  \"panelPreview\": \"Перегляд\",\n  \"steps.0.t\": \"Завантаження\",\n  \"steps.0.d\": \"Перетягніть файл .docx або натисніть, щоб вибрати його.\",\n  \"steps.1.t\": \"Конвертація\",\n  \"steps.1.d\": \"Конвертація відбувається у вашому браузері — без сервера, без очікування.\",\n  \"steps.2.t\": \"Скопіюйте або збережіть\",\n  \"steps.2.d\": \"Скопіюйте Markdown, завантажте файл .md або отримайте .zip із вашими зображеннями.\",\n  \"conversionHeading\": \"Що конвертується\",\n  \"conversionColElement\": \"Елемент Word\",\n  \"conversionColOutput\": \"Результат у Markdown\",\n  \"conversionRows.0\": \"Заголовки\",\n  \"conversionRows.1\": \"Жирний & курсив\",\n  \"conversionRows.2\": \"Нумеровані & вкладені списки\",\n  \"conversionRows.3\": \"Таблиці\",\n  \"conversionRows.4\": \"Посилання\",\n  \"conversionRows.5\": \"Код\",\n  \"conversionRows.6\": \"Зображення\",\n  \"conversionRows.7\": \"Закреслення\",\n  \"conversionRows.8\": \"Верхній & нижній індекс\",\n  \"cliHeading\": \"Надаєте перевагу командному рядку?\",\n  \"cliBody\": \"Word to Markdown — безкоштовний інструмент з відкритим кодом. Запускайте його як інструмент командного рядка для сценарних або пакетних конвертацій — той самий конвертер, без потреби в браузері.\",\n  \"cliCta\": \"Отримати CLI\",\n  \"faqHeading\": \"Поширені запитання\",\n  \"faqs.0.q\": \"Як конвертувати документ Word у Markdown?\",\n  \"faqs.0.a\": \"Перетягніть файл .docx на сторінку (або натисніть, щоб вибрати). Word to Markdown конвертує його у вашому браузері й одразу покаже Markdown — скопіюйте його або завантажте файл .md.\",\n  \"faqs.1.q\": \"Word to Markdown безкоштовний?\",\n  \"faqs.1.a\": \"Так. Він повністю безкоштовний і з відкритим кодом — без реєстрації, без обмежень на файли та без реклами.\",\n  \"faqs.2.q\": \"Мої документи завантажуються на сервер?\",\n  \"faqs.2.a\": \"Ні. Конвертація повністю відбувається у вашому браузері за допомогою JavaScript. Ваші файли ніколи не залишають ваш пристрій і не завантажуються, не зберігаються та не журналюються.\",\n  \"faqs.3.q\": \"Як конвертувати Google Doc у Markdown?\",\n  \"faqs.3.a\": \"У Google Docs виберіть File → Download → Microsoft Word (.docx), а потім перетягніть цей .docx у Word to Markdown.\",\n  \"faqs.4.q\": \"Чи можна конвертувати файл .doc у Markdown?\",\n  \"faqs.4.a\": \"Word to Markdown працює з сучасними файлами .docx. Якщо у вас старіший файл .doc, відкрийте його у Word і збережіть як .docx (File → Save As → Word Document .docx), а потім перетягніть цей .docx сюди.\",\n  \"faqs.5.q\": \"Яке форматування зберігається?\",\n  \"faqs.5.a\": \"Заголовки, жирний, курсивний і закреслений текст, верхній і нижній індекс, нумеровані та вкладені списки, таблиці, посилання, код і зображення конвертуються в чистий Markdown у стилі GitHub.\",\n  \"faqs.6.q\": \"Чим це відрізняється від Pandoc?\",\n  \"faqs.6.a\": \"Pandoc — це потужний конвертер командного рядка, але його спочатку потрібно встановити й налаштувати. Word to Markdown запускається миттєво у вашому браузері без жодного встановлення — просто перетягніть .docx. Для сценарних або пакетних завдань також доступна версія для командного рядка.\",\n  \"faqs.7.q\": \"Чи можна використовувати це для підготовки документів для ChatGPT, Claude або інших AI-інструментів?\",\n  \"faqs.7.a\": \"Так. Markdown — це чистий, ефективний щодо токенів формат для великих мовних моделей і RAG-конвеєрів. Якщо спочатку конвертувати документ Word у Markdown, AI-інструменти отримають добре структурований текст — заголовки, списки й таблиці — без шуму бінарного форматування .docx.\",\n  \"footer.feedback\": \"Відгук\",\n  \"footer.source\": \"Код\",\n  \"footer.donate\": \"Підтримати\",\n  \"footer.terms\": \"Умови\",\n  \"footer.privacy\": \"Конфіденційність\",\n  \"footerTagline\": \"Конвертовано у вашому браузері · нічого не завантажується\",\n  \"homeAria\": \"Word to Markdown — головна\",\n  \"metaTitle\": \"Word to Markdown — безкоштовний конвертер .docx у .md\",\n  \"metaDescription\": \"Безкоштовний конвертер з відкритим кодом, який перетворює Word (.docx) і Google Docs у чистий Markdown у стилі GitHub — повністю у вашому браузері. Нічого не завантажується.\",\n  \"schemaDescription\": \"Безкоштовний інструмент з відкритим кодом, який конвертує Word (.docx) і Google Docs у чистий Markdown у стилі GitHub повністю у вашому браузері.\",\n  \"schemaFeatureList.0\": \"Конвертація Word (.docx) у Markdown\",\n  \"schemaFeatureList.1\": \"Конвертація Google Docs у Markdown\",\n  \"schemaFeatureList.2\": \"Результат у Markdown у стилі GitHub\",\n  \"schemaFeatureList.3\": \"100% на стороні клієнта — нічого не завантажується\",\n  \"schemaFeatureList.4\": \"Витягування зображень у файли\",\n  \"errorGeneric\": \"Під час конвертації документа сталася неочікувана помилка. Спробуйте ще раз.\",\n  \"docFileError\": \"Цей інструмент працює із сучасними файлами .docx, а не зі старішими .doc. У Word відкрийте документ і виберіть File → Save As → Word Document (.docx), а потім перетягніть .docx сюди.\",\n  \"fileTooLargeError\": \"Цей файл завеликий для конвертації у вашому браузері. Спробуйте .docx розміром менше 20 MB.\",\n  \"conversionAnnouncement\": \"Конвертацію завершено. Ваш Markdown готовий.\",\n  \"convertingStatus\": \"Конвертація…\",\n  \"dismiss\": \"Закрити\",\n  \"promo.label\": \"Від автора\",\n  \"promo.body\": \"Я створив цей безкоштовний інструмент — і написав книгу про відкриту роботу. <strong>Open &amp; Async</strong> — це перевірений на GitHub посібник для віддалених і розподілених команд.\",\n  \"promo.cta\": \"Купити зараз\",\n  \"promo.coverAlt\": \"Обкладинка книги Open and Async\",\n  \"promo.resultsLead\": \"Чудово — ще один doc поза Word і у відкритий формат. Я написав посібник про те, як працювати саме так:\",\n  \"promo.resultsCta\": \"Переглянути Open & Async\"\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555489,
+  "id": "chatcmpl-E7uq1eDLD2VzUgGDQhC2lz0dhXcsM",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 2113,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 6,
+      "engine_ttft_ms": 81,
+      "engine_ttlt_ms": 12338,
+      "pre_inference_ms": 87,
+      "service_tbt_ms": 6,
+      "service_ttft_ms": 217,
+      "service_ttlt_ms": 12509,
+      "total_duration_ms": 12447,
+      "user_visible_ttft_ms": 130
+    },
+    "prompt_tokens": 1809,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 3922
+  }
+}

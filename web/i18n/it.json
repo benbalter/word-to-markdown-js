@@ -1,0 +1,121 @@
+{
+  "eyebrow": "Gratis · Open source · 100% nel tuo browser",
+  "tagline": "Converti file Word (.docx) in Markdown pulito — interamente nel tuo browser. I tuoi file non vengono mai caricati.",
+  "trustBadge": "Scelto dal 2014",
+  "flowFromAlt": "Documento Word",
+  "flowToAlt": "File Markdown",
+  "dropzoneTitle": "Trascina qui il tuo .docx",
+  "dropzoneBrowsePrefix": "oppure ",
+  "dropzoneBrowseLink": "clicca per scegliere un file",
+  "googleDocHint": "Google Doc? File → Download → Microsoft Word (.docx)",
+  "convertSectionAria": "Converti un documento",
+  "convertedLabel": "Convertito",
+  "copyButton": "Copia Markdown",
+  "copiedButton": "Copiato!",
+  "downloadButton": "Scarica .md",
+  "downloadedButton": "Scaricato",
+  "downloadZipButton": "Scarica .zip",
+  "downloadedZipButton": "Scaricato",
+  "convertAnother": "Converti un altro file",
+  "panelMarkdown": "Markdown",
+  "panelPreview": "Anteprima",
+  "steps": [
+    {
+      "t": "Carica",
+      "d": "Trascina un file .docx oppure clicca per sceglierne uno."
+    },
+    {
+      "t": "Converti",
+      "d": "La conversione avviene nel tuo browser — nessun server, nessuna attesa."
+    },
+    {
+      "t": "Copia o salva",
+      "d": "Copia il Markdown, scarica un file .md oppure prendi un file .zip con le tue immagini."
+    }
+  ],
+  "conversionHeading": "Cosa viene convertito",
+  "conversionColElement": "Elemento Word",
+  "conversionColOutput": "Output Markdown",
+  "conversionRows": [
+    "Titoli",
+    "Grassetto e corsivo",
+    "Elenchi ordinati e nidificati",
+    "Tabelle",
+    "Link",
+    "Codice",
+    "Immagini",
+    "Barrato",
+    "Apice e pedice"
+  ],
+  "cliHeading": "Preferisci la riga di comando?",
+  "cliBody": "Word to Markdown è gratuito e open source. Eseguilo come strumento da riga di comando per conversioni tramite script o in batch — lo stesso convertitore, senza bisogno del browser.",
+  "cliCta": "Ottieni la CLI",
+  "faqHeading": "Domande frequenti",
+  "faqs": [
+    {
+      "q": "Come faccio a convertire un documento Word in Markdown?",
+      "a": "Trascina un file .docx sulla pagina (oppure clicca per sfogliare). Word to Markdown lo converte nel tuo browser e mostra subito il Markdown — copialo oppure scarica un file .md."
+    },
+    {
+      "q": "Word to Markdown è gratuito?",
+      "a": "Sì. È completamente gratuito e open source — nessuna registrazione, nessun limite ai file e nessuna pubblicità."
+    },
+    {
+      "q": "I miei documenti vengono caricati su un server?",
+      "a": "No. La conversione avviene interamente nel tuo browser usando JavaScript. I tuoi file non lasciano mai il tuo dispositivo e non vengono mai caricati, archiviati o registrati."
+    },
+    {
+      "q": "Come faccio a convertire un Google Doc in Markdown?",
+      "a": "In Google Docs, scegli File → Download → Microsoft Word (.docx), poi trascina quel .docx in Word to Markdown."
+    },
+    {
+      "q": "Posso convertire un file .doc in Markdown?",
+      "a": "Word to Markdown legge i moderni file .docx. Se hai un vecchio file .doc, aprilo in Word e salvalo come .docx (File → Save As → Word Document .docx), poi trascina quel .docx qui."
+    },
+    {
+      "q": "Quale formattazione viene mantenuta?",
+      "a": "Titoli, testo in grassetto, corsivo e barrato, apice e pedice, elenchi ordinati e nidificati, tabelle, link, codice e immagini vengono convertiti in Markdown pulito in stile GitHub."
+    },
+    {
+      "q": "In cosa è diverso da Pandoc?",
+      "a": "Pandoc è un potente convertitore da riga di comando, ma prima deve essere installato e configurato. Word to Markdown funziona subito nel tuo browser senza installare nulla — basta trascinare un .docx. È disponibile anche una versione da riga di comando per lavori tramite script o in batch."
+    },
+    {
+      "q": "Posso usarlo per preparare documenti per ChatGPT, Claude o altri strumenti di AI?",
+      "a": "Sì. Markdown è un formato pulito ed efficiente in termini di token per i modelli linguistici di grandi dimensioni e le pipeline RAG. Convertire prima un documento Word in Markdown offre agli strumenti di AI un testo ben strutturato — titoli, elenchi e tabelle — senza il rumore della formattazione binaria .docx."
+    }
+  ],
+  "footer": {
+    "feedback": "Feedback",
+    "source": "Codice sorgente",
+    "donate": "Dona",
+    "terms": "Termini",
+    "privacy": "Privacy"
+  },
+  "footerTagline": "Convertito nel tuo browser · non viene caricato nulla",
+  "homeAria": "Word to Markdown — pagina iniziale",
+  "metaTitle": "Word to Markdown — Convertitore gratuito da .docx a .md",
+  "metaDescription": "Convertitore gratuito e open-source da Word (.docx) e Google Docs a Markdown pulito in stile GitHub, tutto nel browser. Nulla viene caricato.",
+  "schemaDescription": "Strumento gratuito e open-source che converte Word (.docx) e Google Docs in Markdown pulito in stile GitHub interamente nel tuo browser.",
+  "schemaFeatureList": [
+    "Converti Word (.docx) in Markdown",
+    "Converti Google Docs in Markdown",
+    "Output Markdown in stile GitHub",
+    "100% lato client — non viene caricato nulla",
+    "Estrai le immagini in file"
+  ],
+  "errorGeneric": "Si è verificato un errore imprevisto durante la conversione del documento. Riprova.",
+  "docFileError": "Questo strumento legge i moderni file .docx, non i vecchi file .doc. In Word, apri il documento e scegli File → Save As → Word Document (.docx), poi trascina qui il .docx.",
+  "fileTooLargeError": "Questo file è troppo grande per essere convertito nel tuo browser. Prova con un .docx più piccolo di 20 MB.",
+  "conversionAnnouncement": "Conversione completata. Il tuo Markdown è pronto.",
+  "convertingStatus": "Conversione in corso…",
+  "dismiss": "Chiudi",
+  "promo": {
+    "label": "Dal creatore",
+    "body": "Ho creato questo strumento gratuito — e ho scritto il libro sul lavoro in modo aperto. <strong>Open &amp; Async</strong> è il playbook testato su GitHub per team remoti e distribuiti.",
+    "cta": "Acquista ora",
+    "coverAlt": "Copertina del libro Open & Async",
+    "resultsLead": "Bene — un documento in meno in Word e uno in più in formato aperto. Ho scritto il playbook per lavorare in questo modo:",
+    "resultsCta": "Scopri Open & Async"
+  }
+}

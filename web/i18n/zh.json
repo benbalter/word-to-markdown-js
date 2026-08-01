@@ -1,0 +1,121 @@
+{
+  "eyebrow": "免费 · 开源 · 100% 在浏览器中运行",
+  "tagline": "将 Word (.docx) 文件转换为干净的 Markdown——全程在浏览器中完成。您的文件绝不会被上传。",
+  "trustBadge": "自 2014 年起值得信赖",
+  "flowFromAlt": "Word 文档",
+  "flowToAlt": "Markdown 文件",
+  "dropzoneTitle": "将 .docx 拖到这里",
+  "dropzoneBrowsePrefix": "或",
+  "dropzoneBrowseLink": "点击选择文件",
+  "googleDocHint": "Google Docs？文件 → 下载 → Microsoft Word (.docx)",
+  "convertSectionAria": "转换文档",
+  "convertedLabel": "已转换",
+  "copyButton": "复制 Markdown",
+  "copiedButton": "已复制！",
+  "downloadButton": "下载 .md",
+  "downloadedButton": "已下载",
+  "downloadZipButton": "下载 .zip",
+  "downloadedZipButton": "已下载",
+  "convertAnother": "转换另一个文件",
+  "panelMarkdown": "Markdown",
+  "panelPreview": "预览",
+  "steps": [
+    {
+      "t": "上传",
+      "d": "拖入一个 .docx 文件，或点击选择文件。"
+    },
+    {
+      "t": "转换",
+      "d": "直接在浏览器中转换——无需服务器，无需等待。"
+    },
+    {
+      "t": "复制或保存",
+      "d": "复制 Markdown、下载 .md 文件，或获取包含图片的 .zip。"
+    }
+  ],
+  "conversionHeading": "会转换哪些内容",
+  "conversionColElement": "Word 元素",
+  "conversionColOutput": "Markdown 输出",
+  "conversionRows": [
+    "标题",
+    "粗体和斜体",
+    "有序列表和嵌套列表",
+    "表格",
+    "链接",
+    "代码",
+    "图片",
+    "删除线",
+    "上标和下标"
+  ],
+  "cliHeading": "更喜欢命令行？",
+  "cliBody": "Word to Markdown 免费且开源。您可以将它作为命令行工具运行，用于脚本化或批量转换——同一个转换器，无需浏览器。",
+  "cliCta": "获取 CLI",
+  "faqHeading": "常见问题",
+  "faqs": [
+    {
+      "q": "如何将 Word 文档转换为 Markdown？",
+      "a": "将 .docx 文件拖到页面上（或点击浏览）。Word to Markdown 会在您的浏览器中完成转换，并立即显示 Markdown——您可以复制它或下载 .md 文件。"
+    },
+    {
+      "q": "Word to Markdown 是免费的吗？",
+      "a": "是的。它完全免费且开源——无需注册、没有文件数量限制，也没有广告。"
+    },
+    {
+      "q": "我的文档会被上传到服务器吗？",
+      "a": "不会。转换完全通过浏览器中的 JavaScript 完成。您的文件绝不会离开设备，也不会被上传、存储或记录。"
+    },
+    {
+      "q": "如何将 Google Doc 转换为 Markdown？",
+      "a": "在 Google Docs 中，选择 文件 → 下载 → Microsoft Word (.docx)，然后将该 .docx 拖入 Word to Markdown。"
+    },
+    {
+      "q": "我可以将 .doc 文件转换为 Markdown 吗？",
+      "a": "Word to Markdown 读取现代 .docx 文件。如果您有较旧的 .doc 文件，请在 Word 中打开它并将其另存为 .docx（文件 → 另存为 → Word 文档 .docx），然后将该 .docx 拖入即可。"
+    },
+    {
+      "q": "哪些格式会被保留？",
+      "a": "标题、粗体、斜体和删除线文本、上标和下标、有序列表和嵌套列表、表格、链接、代码和图片都会被转换为干净的 GitHub 风格 Markdown。"
+    },
+    {
+      "q": "这和 Pandoc 有什么不同？",
+      "a": "Pandoc 是一个强大的命令行转换器，但需要先安装和配置。Word to Markdown 可直接在浏览器中立即运行，无需安装任何东西——只要拖入一个 .docx 即可。对于脚本化或批量任务，也提供命令行版本。"
+    },
+    {
+      "q": "我可以用它为 ChatGPT、Claude 或其他 AI 工具准备文档吗？",
+      "a": "可以。Markdown 是一种干净、节省 token 的格式，适合大型语言模型和 RAG 流程。先将 Word 文档转换为 Markdown，可以为 AI 工具提供结构清晰的文本——标题、列表和表格——而不会带有二进制 .docx 格式的噪音。"
+    }
+  ],
+  "footer": {
+    "feedback": "反馈",
+    "source": "源码",
+    "donate": "捐赠",
+    "terms": "条款",
+    "privacy": "隐私"
+  },
+  "footerTagline": "在浏览器中完成转换 · 不会上传任何内容",
+  "homeAria": "Word to Markdown——首页",
+  "metaTitle": "Word to Markdown——免费 .docx 转 .md 转换器",
+  "metaDescription": "免费、开源的转换器，可将 Word (.docx) 和 Google Docs 转换为干净的 GitHub 风格 Markdown——全程在浏览器中完成。不会上传任何内容。",
+  "schemaDescription": "免费、开源的工具，可在浏览器中将 Word (.docx) 和 Google Docs 转换为干净的 GitHub 风格 Markdown。",
+  "schemaFeatureList": [
+    "将 Word (.docx) 转换为 Markdown",
+    "将 Google Docs 转换为 Markdown",
+    "GitHub 风格 Markdown 输出",
+    "100% 客户端运行——不会上传任何内容",
+    "将图片提取为文件"
+  ],
+  "errorGeneric": "转换文档时发生意外错误。请重试。",
+  "docFileError": "此工具读取现代 .docx 文件，不支持较旧的 .doc 文件。请在 Word 中打开您的文档并选择 文件 → 另存为 → Word 文档 (.docx)，然后将该 .docx 拖到这里。",
+  "fileTooLargeError": "此文件过大，无法在浏览器中转换。请尝试小于 20 MB 的 .docx 文件。",
+  "conversionAnnouncement": "转换完成。您的 Markdown 已准备就绪。",
+  "convertingStatus": "正在转换…",
+  "dismiss": "关闭",
+  "promo": {
+    "label": "来自作者",
+    "body": "我构建了这个免费工具——也写了关于开放协作工作的那本书。<strong>Open &amp; Async</strong> 是经过 GitHub 验证、适用于远程和分布式团队的实战指南。",
+    "cta": "立即购买",
+    "coverAlt": "Open & Async 书籍封面",
+    "resultsLead": "太好了——又有一份文档脱离 Word，走向开放。我写过一本关于这种工作方式的指南：",
+    "resultsCta": "查看 Open & Async"
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\n  \"eyebrow\": \"Ücretsiz · Açık kaynak · %100 tarayıcınızda\",\n  \"tagline\": \"Word (.docx) dosyalarını temiz Markdown biçimine dönüştürün — tamamen tarayıcınızda. Dosyalarınız asla yüklenmez.\",\n  \"trustBadge\": \"2014'ten beri güveniliyor\",\n  \"flowFromAlt\": \"Word belgesi\",\n  \"flowToAlt\": \"Markdown dosyası\",\n  \"dropzoneTitle\": \".docx dosyanızı buraya bırakın\",\n  \"dropzoneBrowsePrefix\": \"veya \",\n  \"dropzoneBrowseLink\": \"dosya seçmek için tıklayın\",\n  \"googleDocHint\": \"Google Doc mu? File → Download → Microsoft Word (.docx)\",\n  \"convertSectionAria\": \"Belge dönüştür\",\n  \"convertedLabel\": \"Dönüştürüldü\",\n  \"copyButton\": \"Markdown kopyala\",\n  \"copiedButton\": \"Kopyalandı!\",\n  \"downloadButton\": \".md indir\",\n  \"downloadedButton\": \"İndirildi\",\n  \"downloadZipButton\": \".zip indir\",\n  \"downloadedZipButton\": \"İndirildi\",\n  \"convertAnother\": \"Başka bir dosya dönüştür\",\n  \"panelMarkdown\": \"Markdown\",\n  \"panelPreview\": \"Önizleme\",\n  \"steps.0.t\": \"Yükle\",\n  \"steps.0.d\": \".docx dosyasını sürükleyip bırakın veya seçmek için tıklayın.\",\n  \"steps.1.t\": \"Dönüştür\",\n  \"steps.1.d\": \"Tarayıcınızda dönüştürülür — sunucu yok, bekleme yok.\",\n  \"steps.2.t\": \"Kopyala veya kaydet\",\n  \"steps.2.d\": \"Markdown'ı kopyalayın, bir .md dosyası indirin veya görsellerinizle birlikte bir .zip alın.\",\n  \"conversionHeading\": \"Neler dönüştürülür\",\n  \"conversionColElement\": \"Word öğesi\",\n  \"conversionColOutput\": \"Markdown çıktısı\",\n  \"conversionRows.0\": \"Başlıklar\",\n  \"conversionRows.1\": \"Kalın & italik\",\n  \"conversionRows.2\": \"Sıralı & iç içe listeler\",\n  \"conversionRows.3\": \"Tablolar\",\n  \"conversionRows.4\": \"Bağlantılar\",\n  \"conversionRows.5\": \"Kod\",\n  \"conversionRows.6\": \"Görseller\",\n  \"conversionRows.7\": \"Üstü çizili\",\n  \"conversionRows.8\": \"Üst simge & alt simge\",\n  \"cliHeading\": \"Komut satırını mı tercih ediyorsunuz?\",\n  \"cliBody\": \"Word to Markdown ücretsiz ve açık kaynaklıdır. Betikli veya toplu dönüştürmeler için bunu bir komut satırı aracı olarak çalıştırın — aynı dönüştürücü, tarayıcı gerekmez.\",\n  \"cliCta\": \"CLI'ı edinin\",\n  \"faqHeading\": \"Sık sorulan sorular\",\n  \"faqs.0.q\": \"Bir Word belgesini Markdown'a nasıl dönüştürürüm?\",\n  \"faqs.0.a\": \"Bir .docx dosyasını sayfaya sürükleyip bırakın (veya göz atmak için tıklayın). Word to Markdown bunu tarayıcınızda dönüştürür ve Markdown'ı anında gösterir — kopyalayabilir veya bir .md dosyası indirebilirsiniz.\",\n  \"faqs.1.q\": \"Word to Markdown ücretsiz mi?\",\n  \"faqs.1.a\": \"Evet. Tamamen ücretsiz ve açık kaynaklıdır — kayıt yok, dosya sınırı yok, reklam yok.\",\n  \"faqs.2.q\": \"Belgelerim bir sunucuya yükleniyor mu?\",\n  \"faqs.2.a\": \"Hayır. Dönüştürme tamamen tarayıcınızda JavaScript kullanılarak gerçekleşir. Dosyalarınız cihazınızdan asla çıkmaz ve hiçbir zaman yüklenmez, saklanmaz veya kaydedilmez.\",\n  \"faqs.3.q\": \"Bir Google Doc'u Markdown'a nasıl dönüştürürüm?\",\n  \"faqs.3.a\": \"Google Docs içinde File → Download → Microsoft Word (.docx) seçeneğini seçin, ardından bu .docx dosyasını Word to Markdown içine bırakın.\",\n  \"faqs.4.q\": \"Bir .doc dosyasını Markdown'a dönüştürebilir miyim?\",\n  \"faqs.4.a\": \"Word to Markdown modern .docx dosyalarını okur. Elinizde eski bir .doc dosyası varsa, bunu Word içinde açın ve .docx olarak kaydedin (File → Save As → Word Document .docx), ardından bu .docx dosyasını bırakın.\",\n  \"faqs.5.q\": \"Hangi biçimlendirmeler korunur?\",\n  \"faqs.5.a\": \"Başlıklar, kalın, italik ve üstü çizili metinler, üst simge ve alt simge, sıralı ve iç içe listeler, tablolar, bağlantılar, kod ve görseller temiz, GitHub-flavored Markdown biçimine dönüştürülür.\",\n  \"faqs.6.q\": \"Bu, Pandoc'tan nasıl farklı?\",\n  \"faqs.6.a\": \"Pandoc güçlü bir komut satırı dönüştürücüsüdür, ancak önce kurulup yapılandırılması gerekir. Word to Markdown ise hiçbir kurulum gerektirmeden tarayıcınızda anında çalışır — sadece bir .docx bırakın. Betikli veya toplu işler için komut satırı sürümü de mevcuttur.\",\n  \"faqs.7.q\": \"Bunu ChatGPT, Claude veya diğer AI araçları için belge hazırlamakta kullanabilir miyim?\",\n  \"faqs.7.a\": \"Evet. Markdown, büyük dil modelleri ve RAG işlem hatları için temiz ve token açısından verimli bir biçimdir. Bir Word belgesini önce Markdown'a dönüştürmek, AI araçlarına iyi yapılandırılmış metin sağlar — başlıklar, listeler ve tablolar — ikili .docx biçimlendirmesinin gürültüsü olmadan.\",\n  \"footer.feedback\": \"Geri bildirim\",\n  \"footer.source\": \"Kaynak\",\n  \"footer.donate\": \"Bağış yap\",\n  \"footer.terms\": \"Koşullar\",\n  \"footer.privacy\": \"Gizlilik\",\n  \"footerTagline\": \"Tarayıcınızda dönüştürülür · hiçbir şey yüklenmez\",\n  \"homeAria\": \"Word to Markdown — ana sayfa\",\n  \"metaTitle\": \"Word to Markdown — Ücretsiz .docx'ten .md'ye Dönüştürücü\",\n  \"metaDescription\": \"Word (.docx) ve Google Docs dosyalarını temiz, GitHub-flavored Markdown biçimine dönüştüren ücretsiz, açık kaynaklı dönüştürücü — tamamen tarayıcınızda. Hiçbir şey yüklenmez.\",\n  \"schemaDescription\": \"Word (.docx) ve Google Docs dosyalarını tamamen tarayıcınızda temiz, GitHub-flavored Markdown biçimine dönüştüren ücretsiz, açık kaynaklı araç.\",\n  \"schemaFeatureList.0\": \"Word (.docx) dosyalarını Markdown'a dönüştürün\",\n  \"schemaFeatureList.1\": \"Google Docs dosyalarını Markdown'a dönüştürün\",\n  \"schemaFeatureList.2\": \"GitHub-flavored Markdown çıktısı\",\n  \"schemaFeatureList.3\": \"%100 istemci tarafında — hiçbir şey yüklenmez\",\n  \"schemaFeatureList.4\": \"Görselleri dosyalara çıkarın\",\n  \"errorGeneric\": \"Belge dönüştürülürken beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.\",\n  \"docFileError\": \"Bu araç eski .doc dosyalarını değil, modern .docx dosyalarını okur. Word içinde belgenizi açın ve File → Save As → Word Document (.docx) seçeneğini seçin, ardından .docx dosyasını buraya bırakın.\",\n  \"fileTooLargeError\": \"Bu dosya tarayıcınızda dönüştürmek için çok büyük. Lütfen 20 MB'tan küçük bir .docx deneyin.\",\n  \"conversionAnnouncement\": \"Dönüştürme tamamlandı. Markdown'ınız hazır.\",\n  \"convertingStatus\": \"Dönüştürülüyor…\",\n  \"dismiss\": \"Kapat\",\n  \"promo.label\": \"Üreticisinden\",\n  \"promo.body\": \"Bu ücretsiz aracı ben yaptım — ve açık çalışmak üzerine kitabı da ben yazdım. <strong>Open &amp; Async</strong>, uzak ve dağıtık ekipler için GitHub'da test edilmiş çalışma rehberidir.\",\n  \"promo.cta\": \"Şimdi satın al\",\n  \"promo.coverAlt\": \"Open and Async kitap kapağı\",\n  \"promo.resultsLead\": \"Harika — Word'den çıkıp açıklığa geçen bir belge daha. Bu şekilde çalışmanın rehberini ben yazdım:\",\n  \"promo.resultsCta\": \"Open & Async'i inceleyin\"\n}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785555438,
+  "id": "chatcmpl-E7upCvki7gbXUC3oVFLiAeNS8qJZf",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 2008,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 7,
+      "engine_ttft_ms": 103,
+      "engine_ttlt_ms": 14878,
+      "pre_inference_ms": 105,
+      "service_tbt_ms": 7,
+      "service_ttft_ms": 321,
+      "service_ttlt_ms": 15056,
+      "total_duration_ms": 14960,
+      "user_visible_ttft_ms": 217
+    },
+    "prompt_tokens": 1809,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 3817
+  }
+}
