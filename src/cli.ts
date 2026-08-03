@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
+import { createRequire } from 'module';
 import { mkdir, writeFile } from 'fs/promises';
 import {
   convertWithWarnings,
@@ -11,12 +12,25 @@ import {
   ConversionError,
 } from './main.js';
 
+// Read our own version from package.json. createRequire resolves relative to
+// this module, so `../package.json` points at the package root both from the
+// TypeScript source (src/) and the compiled CLI (build/) after publish. This
+// avoids JSON import attributes, which node16 module resolution would require.
+const require = createRequire(import.meta.url);
+const { version } = require('../package.json') as { version: string };
+
 const program = new Command();
 program.name('w2m');
 program.description('Convert Word documents to beautiful Markdown');
+program.version(version);
 program
   .command('convert', { isDefault: true })
   .argument('<file>', 'The Word document to convert')
+  .option(
+    '-o, --output <file>',
+    'Write the Markdown to <file> instead of stdout. Warnings still print to ' +
+      'stderr.',
+  )
   .option(
     '--strip-images',
     'Remove images instead of embedding them as base64 data URIs',
@@ -69,8 +83,13 @@ program
         console.error(''); // Empty line for separation
       }
 
-      // Output markdown to stdout
-      console.log(result.markdown);
+      // Write the Markdown to the requested file, or stdout by default.
+      if (options.output) {
+        await writeFile(options.output, result.markdown);
+        console.error(`Wrote Markdown to ${options.output}`);
+      } else {
+        console.log(result.markdown);
+      }
     } catch (error) {
       // Handle our custom errors with user-friendly messages
       if (

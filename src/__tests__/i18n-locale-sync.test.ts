@@ -55,6 +55,17 @@ const workerLocales = quotedTokens(
 ).sort();
 
 describe('i18n locale list sync', () => {
+  // Guard against a regex that matches but captures nothing (e.g. after the
+  // arrays are reformatted): an all-empty parse would make every toEqual below
+  // compare [] to [] and pass silently. Require each parsed list to be populated
+  // so a broken parse fails loudly instead.
+  it('parses a non-empty locale list from every source', () => {
+    expect(astroTopLevel.length).toBeGreaterThan(0);
+    expect(astroSitemap.length).toBeGreaterThan(0);
+    expect(indexLocales.length).toBeGreaterThan(0);
+    expect(workerLocales.length).toBeGreaterThan(0);
+  });
+
   it('astro.config.mjs top-level i18n matches web/i18n/index.ts', () => {
     expect(astroTopLevel).toEqual(indexLocales);
   });

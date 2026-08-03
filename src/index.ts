@@ -1,4 +1,3 @@
-import ClipboardJS from 'clipboard';
 import type { ExtractedImage } from './main.js';
 
 // Upper bound on the file we'll attempt to read into memory and convert
@@ -251,6 +250,45 @@ function prefetchConverter(): void {
   import('remark-rehype').catch(ignore);
   import('rehype-sanitize').catch(ignore);
   import('rehype-stringify').catch(ignore);
+  // ClipboardJS powers the post-conversion copy button. Load it lazily here
+  // (never in the initial bundle) and bind it now — prefetchConverter always
+  // runs on idle within a few seconds of load, well before any conversion
+  // result gives the user something to copy.
+  setupClipboard();
+}
+
+// Bind the copy button to ClipboardJS, importing the library on demand. Runs at
+// most once; safe to call before the copy button is visible (it exists in the
+// static markup from load).
+let clipboardBound = false;
+function setupClipboard(): void {
+  if (clipboardBound) return;
+  const copyButton = document.getElementById('copy-button');
+  if (copyButton === null) return;
+  clipboardBound = true;
+  const copyLabel = document.getElementById('copy-label');
+  const copyLabelDefault = copyLabel?.textContent ?? '';
+  let copyResetTimer: number | undefined;
+  void import('clipboard')
+    .then(({ default: ClipboardJS }) => {
+      const clipboard = new ClipboardJS('#copy-button');
+      clipboard.on('success', (event) => {
+        event.clearSelection();
+        if (!copyLabel) return;
+        // Flip the label to a transient confirmation, then restore it. Guard the
+        // captured default against rapid re-clicks by resetting the timer.
+        copyLabel.textContent = uiString('copied', 'Copied!');
+        window.clearTimeout(copyResetTimer);
+        copyResetTimer = window.setTimeout(() => {
+          copyLabel.textContent = copyLabelDefault;
+        }, 2000);
+      });
+    })
+    .catch(() => {
+      // If the clipboard chunk fails to load, the button simply does nothing
+      // extra; the Markdown is still selectable manually.
+      clipboardBound = false;
+    });
 }
 
 // Record an anonymous "a conversion happened" signal so the hosted site can
@@ -478,7 +516,7 @@ function showWarnings(warnings: string[]): void {
 
   const closeButton = document.createElement('button');
   closeButton.type = 'button';
-  closeButton.setAttribute('aria-label', 'Dismiss');
+  closeButton.setAttribute('aria-label', uiString('dismiss', 'Dismiss'));
   closeButton.className =
     'shrink-0 leading-none text-amber-600/70 transition-colors hover:text-amber-800 dark:hover:text-amber-100';
   closeButton.innerHTML =
@@ -673,24 +711,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  const copyButton = document.getElementById('copy-button');
-  if (copyButton !== null) {
-    const clipboard = new ClipboardJS('#copy-button');
-    const copyLabel = document.getElementById('copy-label');
-    const copyLabelDefault = copyLabel?.textContent ?? '';
-    let copyResetTimer: number | undefined;
-    clipboard.on('success', (event) => {
-      event.clearSelection();
-      if (!copyLabel) return;
-      // Flip the label to a transient confirmation, then restore it. Guard the
-      // captured default against rapid re-clicks by resetting the timer.
-      copyLabel.textContent = uiString('copied', 'Copied!');
-      window.clearTimeout(copyResetTimer);
-      copyResetTimer = window.setTimeout(() => {
-        copyLabel.textContent = copyLabelDefault;
-      }, 2000);
-    });
-  }
+  // Note: the copy button is bound by setupClipboard(), invoked from
+  // prefetchConverter() on idle/intent — never here at DOMContentLoaded, so the
+  // clipboard chunk stays off the initial-paint critical path. prefetchConverter
+  // always runs within a few seconds (unconditional idle/timeout fallback below)
+  // and on the first dropzone interaction, so the binding is in place well before
+  // any conversion produces something to copy.
 
   const downloadButton = document.getElementById('download-button');
   if (downloadButton !== null) {
