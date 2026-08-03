@@ -3,7 +3,7 @@ import * as turndownPluginGfm from '@joplin/turndown-plugin-gfm';
 import * as mammoth from 'mammoth';
 import * as markdownlint from 'markdownlint/sync';
 import { applyFixes } from 'markdownlint';
-import { parse } from 'node-html-parser';
+import { parse, type HTMLElement } from 'node-html-parser';
 import * as prettier from 'prettier';
 import * as prettierMarkdown from 'prettier/plugins/markdown';
 import JSZip from 'jszip';
@@ -304,11 +304,11 @@ function processHtml(
   // Remove images (Mammoth inlines them as base64 data URIs by default, which
   // can bloat the output for image-heavy documents).
   if (opts.stripImages) {
-    root.querySelectorAll('img').forEach((img) => img.remove());
+    root.querySelectorAll('img').forEach((img: HTMLElement) => img.remove());
   }
 
   // Process tables - convert first row to table headers
-  root.querySelectorAll('table').forEach((table) => {
+  root.querySelectorAll('table').forEach((table: HTMLElement) => {
     const firstRow = table.querySelector('tr');
     if (!firstRow) return;
 
@@ -318,27 +318,28 @@ function processHtml(
     // Check if first row is empty or has only empty cells
     const cells = firstRow.querySelectorAll('td');
     const isEmpty =
-      cells.length === 0 || cells.every((cell) => !cell.textContent?.trim());
+      cells.length === 0 ||
+      cells.every((cell: HTMLElement) => !cell.textContent?.trim());
 
     if (isEmpty) {
       // Remove empty first row and find the first non-empty row to convert
       firstRow.remove();
       const nextRow = table.querySelector('tr');
       if (nextRow) {
-        nextRow.querySelectorAll('td').forEach((cell) => {
+        nextRow.querySelectorAll('td').forEach((cell: HTMLElement) => {
           cell.tagName = 'th';
         });
       }
     } else {
       // Convert first row TD elements to TH
-      cells.forEach((cell) => {
+      cells.forEach((cell: HTMLElement) => {
         cell.tagName = 'th';
       });
     }
   });
 
   // Process lists - remove unicode bullets from unnumbered list items
-  root.querySelectorAll('ul li').forEach((listItem) => {
+  root.querySelectorAll('ul li').forEach((listItem: HTMLElement) => {
     // Get the text content and remove unicode bullets from the beginning
     const textContent = listItem.innerHTML;
     const cleanedContent = textContent.replace(bulletRegex, '');
