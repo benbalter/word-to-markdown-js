@@ -34,7 +34,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "@types/jest": "~30.0",
     "@types/node": "~26",
-    "astro": "^7.1.6",
+    "astro": "^7.2.1",
     "clipboard": "^2.0.11",
     "docx": "^9.7.1",
     "eslint": "^10.8.0",
