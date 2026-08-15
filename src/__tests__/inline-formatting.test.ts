@@ -59,3 +59,12 @@ describe('numbered lists (end to end)', () => {
     expect(md).toMatch(/^\s+1\. Sub one/m);
   });
 });
+
+describe('dashes (end to end)', () => {
+  // Regression test for issue #194: em/en dashes are meaningful punctuation and
+  // must not be flattened to ASCII hyphens by the normalization pass.
+  it('preserves em and en dashes', async () => {
+    const md = await convert('src/__fixtures__/dashes.docx');
+    expect(md).toContain('An em dash — and an en dash – in a sentence.');
+  });
+});
