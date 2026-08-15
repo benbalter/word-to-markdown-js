@@ -172,6 +172,22 @@ const underline = await docx({
 });
 fs.writeFileSync('src/__fixtures__/underline.docx', underline);
 
+// --- dashes.docx ------------------------------------------------------------
+// Em dash (—, U+2014) and en dash (–, U+2013) as literal characters. These are
+// meaningful punctuation and must survive the pipeline unchanged (they must NOT
+// be flattened to ASCII hyphens). See issue #194.
+const dashesDoc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="${W}"><w:body>
+  <w:p><w:r><w:t xml:space="preserve">An em dash — and an en dash – in a sentence.</w:t></w:r></w:p>
+</w:body></w:document>`;
+
+const dashes = await docx({
+  '[Content_Types].xml': contentTypes(),
+  '_rels/.rels': rels,
+  'word/document.xml': dashesDoc,
+});
+fs.writeFileSync('src/__fixtures__/dashes.docx', dashes);
+
 console.log(
-  'wrote strikethrough.docx, footnote.docx, image.docx, dropped-content.docx, superscript.docx, subscript.docx, underline.docx',
+  'wrote strikethrough.docx, footnote.docx, image.docx, dropped-content.docx, superscript.docx, subscript.docx, underline.docx, dashes.docx',
 );

@@ -11,8 +11,7 @@ describe('smart quotes conversion', () => {
   const convertSmartQuotes = (text: string): string => {
     return text
       .replace(/[\u201C\u201D]/g, '"') // Replace left and right double quotation marks
-      .replace(/[\u2018\u2019]/g, "'") // Replace left and right single quotation marks
-      .replace(/[\u2013\u2014]/g, '-'); // Replace en dash and em dash with hyphen
+      .replace(/[\u2018\u2019]/g, "'"); // Replace left and right single quotation marks
   };
 
   it('should convert smart double quotes to ASCII quotes', () => {
@@ -32,23 +31,23 @@ describe('smart quotes conversion', () => {
     expect(result).not.toMatch(/[\u2018\u2019]/);
   });
 
-  it('should convert em and en dashes to hyphens', () => {
+  it('should preserve em and en dashes', () => {
     const textWithDashes = 'This has \u2014 em dash and \u2013 en dash.';
     const result = convertSmartQuotes(textWithDashes);
 
-    expect(result).toBe('This has - em dash and - en dash.');
-    expect(result).not.toMatch(/[\u2013\u2014]/);
+    expect(result).toBe('This has \u2014 em dash and \u2013 en dash.');
+    expect(result).toMatch(/[\u2013\u2014]/);
   });
 
-  it('should convert all smart quote types together', () => {
+  it('should convert quote types together while preserving dashes', () => {
     const textWithAllTypes =
       'This has \u201Cdouble quotes\u201D, \u2018single quotes\u2019, \u2014 em dash and \u2013 en dash.';
     const result = convertSmartQuotes(textWithAllTypes);
 
     expect(result).toBe(
-      'This has "double quotes", \'single quotes\', - em dash and - en dash.',
+      'This has "double quotes", \'single quotes\', \u2014 em dash and \u2013 en dash.',
     );
-    expect(result).not.toMatch(/[\u201C\u201D\u2018\u2019\u2013\u2014]/);
+    expect(result).not.toMatch(/[\u201C\u201D\u2018\u2019]/);
   });
 
   it('should handle HTML to Markdown conversion with smart quotes', () => {

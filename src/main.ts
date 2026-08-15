@@ -398,7 +398,7 @@ export function htmlToMd(
 // Pre-compiled regex patterns for better performance
 const numberedListRegex = /^(\s*)(\d+)\.\s/gm;
 const nonBreakingSpacesRegex = /[\u00A0\u2007\u202F\u2060\uFEFF]/g;
-const smartQuotesRegex = /[\u201C\u201D\u2018\u2019\u2013\u2014]/g;
+const smartQuotesRegex = /[\u201C\u201D\u2018\u2019]/g;
 
 // Map for non-breaking space replacements
 const nonBreakingSpaceMap: { [key: string]: string } = {
@@ -415,8 +415,6 @@ const smartQuoteMap: { [key: string]: string } = {
   '\u201D': '"', // Right double quotation mark
   '\u2018': "'", // Left single quotation mark
   '\u2019': "'", // Right single quotation mark
-  '\u2013': '-', // En dash
-  '\u2014': '-', // Em dash
 };
 
 // Convert numbered lists to bullet lists
