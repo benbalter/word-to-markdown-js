@@ -45,7 +45,8 @@
     "Kod",
     "Görseller",
     "Üstü çizili",
-    "Üst simge & alt simge"
+    "Üst simge & alt simge",
+    "Dipnotlar"
   ],
   "cliHeading": "Komut satırını mı tercih ediyorsunuz?",
   "cliBody": "Word to Markdown ücretsiz ve açık kaynaklıdır. Betikli veya toplu dönüştürmeler için bunu bir komut satırı aracı olarak çalıştırın — aynı dönüştürücü, tarayıcı gerekmez.",

@@ -45,7 +45,8 @@
     "Kod",
     "Bilder",
     "Genomstrykning",
-    "Upphöjd & nedsänkt text"
+    "Upphöjd & nedsänkt text",
+    "Fotnoter"
   ],
   "cliHeading": "Föredrar du kommandoraden?",
   "cliBody": "Word to Markdown är gratis och har öppen källkod. Kör det som ett kommandoradsverktyg för skriptade eller batchvisa konverteringar — samma konverterare, ingen webbläsare behövs.",

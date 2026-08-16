@@ -42,6 +42,14 @@ interface convertOptions {
    * `<sup>`/`<sub>` and need no option.
    */
   underline?: 'ignore' | 'preserve';
+  /**
+   * How to render Word's footnotes and endnotes. `'gfm'` (default) rewrites
+   * Mammoth's superscript reference links plus trailing note list into standard
+   * GitHub-flavored/Pandoc footnote syntax (`[^1]` references and `[^1]:`
+   * definitions). `'preserve'` keeps Mammoth's raw `<sup>` links and numbered
+   * note list (useful for CommonMark targets that don't support `[^1]`).
+   */
+  footnotes?: 'gfm' | 'preserve';
 }
 
 // Mammoth's options object, narrowed to the field we merge into. Mammoth appends
@@ -400,6 +408,25 @@ const numberedListRegex = /^(\s*)(\d+)\.\s/gm;
 const nonBreakingSpacesRegex = /[\u00A0\u2007\u202F\u2060\uFEFF]/g;
 const smartQuotesRegex = /[\u201C\u201D\u2018\u2019]/g;
 
+// Mammoth renders footnotes/endnotes as a superscript reference link plus a
+// trailing ordered list of note bodies with `\u2191` backlinks \u2014 not real Markdown
+// footnotes. These two regexes rewrite that into GFM/Pandoc footnote syntax.
+// Both anchor on Mammoth's stable anchor ids (`#footnote-N` / `#footnote-ref-N`,
+// or the `endnote` variants), never the escaped display label, which prettier
+// and markdownlint may re-escape.
+//
+// Reference in the body, e.g. `<sup>[\[1\]](#footnote-1)</sup>` \u2192 `[^1]`. The
+// non-greedy link text backtracks past the escaped `\]` inside the label.
+const footnoteRefRegex = /<sup>\[[\s\S]*?\]\(#(?:foot|end)note-(\d+)\)<\/sup>/g;
+// Definition list item, e.g. `1. Body text. [\u2191](#footnote-ref-1)` \u2192
+// `[^1]: Body text.`. The list marker is unreliable (prettier renumbers), so the
+// footnote number comes from the backlink. Only single-line note bodies match:
+// a multi-paragraph body (a rare Word construct) puts the backlink on an indented
+// continuation line the (newline-free) body group can't reach, so it's left as-is
+// \u2014 see convertFootnotes for how the matching reference is then also left raw.
+const footnoteDefRegex =
+  /^[ \t]*\d+\.[ \t]+(.*?)[ \t]*\[\u2191\]\(#(?:foot|end)note-ref-(\d+)\)[ \t]*$/gm;
+
 // Map for non-breaking space replacements
 const nonBreakingSpaceMap: { [key: string]: string } = {
   '\u00A0': ' ', // Non-breaking space
@@ -429,6 +456,28 @@ function normalizeText(md: string): string {
   return md
     .replace(nonBreakingSpacesRegex, (char) => nonBreakingSpaceMap[char])
     .replace(smartQuotesRegex, (char) => smartQuoteMap[char]);
+}
+
+// Rewrite Mammoth's footnote/endnote markup into GFM/Pandoc footnote syntax.
+// See footnoteRefRegex / footnoteDefRegex for the shapes matched. Runs after
+// lint() and before prettify() so prettier normalizes the resulting footnote
+// block (prettier's markdown parser preserves `[^1]` / `[^1]:`).
+function convertFootnotes(md: string): string {
+  // Rewrite the note definitions first, recording which footnote numbers were
+  // actually converted. A number won't convert if its body spans multiple
+  // paragraphs (footnoteDefRegex only matches single-line bodies).
+  const converted = new Set<string>();
+  const withDefs = md.replace(footnoteDefRegex, (_match, body, num) => {
+    converted.add(num);
+    return `[^${num}]: ${body}`;
+  });
+  // Only convert references whose definition converted. Rewriting a reference
+  // whose definition was left as a raw list item would produce a dangling `[^N]`
+  // with no target; gating on `converted` keeps that (rare) note as intact raw
+  // `<sup>` + list markup instead.
+  return withDefs.replace(footnoteRefRegex, (match, num) =>
+    converted.has(num) ? `[^${num}]` : match,
+  );
 }
 
 // Lint the Markdown and correct any issues
@@ -717,7 +766,10 @@ async function runConversionPipeline(
       : md;
   const normalizedMd = normalizeText(listMd);
   const cleanedMd = lint(normalizedMd);
-  const formattedMd = await prettify(cleanedMd);
+  // Footnotes stay as GFM `[^1]` by default; skip the rewrite on request.
+  const footnotedMd =
+    options.footnotes === 'preserve' ? cleanedMd : convertFootnotes(cleanedMd);
+  const formattedMd = await prettify(footnotedMd);
   return {
     markdown: formattedMd,
     messages: mammothResult.messages,

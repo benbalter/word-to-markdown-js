@@ -71,6 +71,36 @@ const footnote = await docx({
 });
 fs.writeFileSync('src/__fixtures__/footnote.docx', footnote);
 
+// --- footnote-multiparagraph.docx -------------------------------------------
+// A footnote whose body spans two paragraphs. Mammoth renders the second
+// paragraph on an indented continuation line, so the converter can't fold it
+// into a single-line `[^1]:` definition. The pipeline intentionally leaves such
+// a note in Mammoth's raw `<sup>` + list form (reference and body stay linked)
+// rather than emitting a dangling `[^1]`.
+const footnoteMultiDoc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="${W}"><w:body>
+  <w:p><w:r><w:t xml:space="preserve">Text with a multi-paragraph footnote</w:t></w:r><w:r><w:rPr><w:rStyle w:val="FootnoteReference"/></w:rPr><w:footnoteReference w:id="1"/></w:r><w:r><w:t>.</w:t></w:r></w:p>
+</w:body></w:document>`;
+
+const footnotesMultiXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:footnotes xmlns:w="${W}">
+  <w:footnote w:type="separator" w:id="-1"><w:p><w:r><w:separator/></w:r></w:p></w:footnote>
+  <w:footnote w:type="continuationSeparator" w:id="0"><w:p><w:r><w:continuationSeparator/></w:r></w:p></w:footnote>
+  <w:footnote w:id="1"><w:p><w:r><w:t>First paragraph of the note.</w:t></w:r></w:p><w:p><w:r><w:t>Second paragraph of the note.</w:t></w:r></w:p></w:footnote>
+</w:footnotes>`;
+
+const footnoteMulti = await docx({
+  '[Content_Types].xml': contentTypes({ footnotes: true }),
+  '_rels/.rels': rels,
+  'word/document.xml': footnoteMultiDoc,
+  'word/footnotes.xml': footnotesMultiXml,
+  'word/_rels/document.xml.rels': docRels,
+});
+fs.writeFileSync(
+  'src/__fixtures__/footnote-multiparagraph.docx',
+  footnoteMulti,
+);
+
 // --- image.docx -------------------------------------------------------------
 // An inline DrawingML picture. Mammoth emits <img src="data:image/png;base64,…">
 // which the pipeline keeps by default and drops with `{ images: 'strip' }`.
@@ -189,5 +219,5 @@ const dashes = await docx({
 fs.writeFileSync('src/__fixtures__/dashes.docx', dashes);
 
 console.log(
-  'wrote strikethrough.docx, footnote.docx, image.docx, dropped-content.docx, superscript.docx, subscript.docx, underline.docx, dashes.docx',
+  'wrote strikethrough.docx, footnote.docx, footnote-multiparagraph.docx, image.docx, dropped-content.docx, superscript.docx, subscript.docx, underline.docx, dashes.docx',
 );

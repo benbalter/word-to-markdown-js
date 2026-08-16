@@ -10,15 +10,39 @@ describe('docx markup features (end to end)', () => {
     expect(md).toContain('~~struck text~~');
   });
 
-  it('preserves footnote reference and body text', async () => {
+  it('converts footnotes to GFM [^1] reference and definition', async () => {
     const md = await convert('src/__fixtures__/footnote.docx');
-    // NOTE: mammoth renders footnotes as a superscript reference link plus a
-    // list of note bodies at the end — NOT GFM `[^1]` syntax. We assert the
-    // actual behavior so the content is regression-guarded and the limitation
-    // is documented; this is why footnotes are not listed in the "what gets
-    // converted" table as clean Markdown footnotes.
-    expect(md).toContain('Text with a footnote');
-    expect(md).toContain('The footnote body text.');
+    // Mammoth renders footnotes as a superscript reference link plus a trailing
+    // numbered note list; convertFootnotes() rewrites that into GFM/Pandoc
+    // footnote syntax. Assert the reference and definition, and that none of
+    // Mammoth's raw scaffolding (<sup>, the `↑` backlink, the anchor ids) leaks.
+    expect(md).toContain('Text with a footnote[^1].');
+    expect(md).toContain('[^1]: The footnote body text.');
+    expect(md).not.toContain('<sup>');
+    expect(md).not.toContain('↑');
+    expect(md).not.toContain('#footnote');
+  });
+
+  it('leaves a multi-paragraph footnote in raw form rather than dangling', async () => {
+    const md = await convert('src/__fixtures__/footnote-multiparagraph.docx');
+    // Mammoth puts the second paragraph on an indented continuation line, so the
+    // single-line definition regex can't fold it into a `[^1]:` block. The
+    // reference must then stay raw too — converting it alone would leave a
+    // dangling `[^1]` with no definition. Both paragraphs and the link survive.
+    expect(md).toContain('<sup>');
     expect(md).toContain('#footnote-1');
+    expect(md).toContain('First paragraph of the note.');
+    expect(md).toContain('Second paragraph of the note.');
+    expect(md).not.toContain('[^1]');
+  });
+
+  it('preserves raw footnote markup when footnotes: "preserve"', async () => {
+    const md = await convert('src/__fixtures__/footnote.docx', {
+      footnotes: 'preserve',
+    });
+    // Opt-out keeps Mammoth's superscript reference link and numbered note list.
+    expect(md).toContain('<sup>');
+    expect(md).toContain('#footnote-1');
+    expect(md).not.toContain('[^1]');
   });
 });

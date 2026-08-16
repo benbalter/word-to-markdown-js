@@ -45,7 +45,8 @@
     "Kod",
     "Obrazy",
     "Przekreślenie",
-    "Indeks górny i dolny"
+    "Indeks górny i dolny",
+    "Przypisy"
   ],
   "cliHeading": "Wolisz wiersz poleceń?",
   "cliBody": "Word to Markdown jest darmowe i open source. Uruchom je jako narzędzie wiersza poleceń do konwersji skryptowych lub wsadowych — ten sam konwerter, bez potrzeby używania przeglądarki.",

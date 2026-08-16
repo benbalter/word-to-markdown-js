@@ -45,7 +45,8 @@
     "Code",
     "Afbeeldingen",
     "Doorhalen",
-    "Superscript & subscript"
+    "Superscript & subscript",
+    "Voetnoten"
   ],
   "cliHeading": "Liever de command line?",
   "cliBody": "Word to Markdown is gratis en open source. Gebruik het als command-line-tool voor gescripte of batchconversies — dezelfde converter, zonder browser.",
