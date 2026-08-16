@@ -23,7 +23,7 @@ npx word-to-markdown input.docx > output.md
 - Nested lists
 - Tables
 - Links
-- Footnotes and endnotes
+- Footnotes and endnotes — converted to GFM/Pandoc `[^1]` footnotes
 - Images — embedded inline as base64 data URIs, or extracted to files
 
 ### Notes and limitations
@@ -41,6 +41,14 @@ npx word-to-markdown input.docx > output.md
 - **Underline** is dropped by default (Mammoth's default, since underlines are
   easily confused with links). Pass `{ underline: 'preserve' }` (library) or
   `--underline` (CLI) to keep it as an inline `<u>` tag.
+- **Footnotes and endnotes** become standard GFM/Pandoc footnotes — a `[^1]`
+  reference in the body and a `[^1]: …` definition at the end — which render on
+  GitHub and in the web preview. Pass `{ footnotes: 'preserve' }` (library) or
+  `--preserve-footnotes` (CLI) to instead keep Mammoth's raw `<sup>` links and
+  numbered note list (useful for CommonMark targets that lack footnote support).
+  A note whose body spans multiple paragraphs (a rare Word construct) is left in
+  Mammoth's raw form rather than converted, so its reference and body stay
+  linked.
 - **Comments, text boxes, and equations are not converted** — Mammoth drops
   them during the `.docx` → HTML step. When content is dropped this way,
   `convertWithWarnings` surfaces a warning.

@@ -45,7 +45,8 @@
     "Code",
     "Images",
     "Barré",
-    "Exposant et indice"
+    "Exposant et indice",
+    "Notes de bas de page"
   ],
   "cliHeading": "Vous préférez la ligne de commande ?",
   "cliBody": "Word to Markdown est gratuit et open source. Utilisez-le en ligne de commande pour des conversions scriptées ou par lots : le même convertisseur, sans navigateur.",

@@ -30,7 +30,7 @@ async function renderMarkdown(markdown: string): Promise<string> {
     { default: remarkParse },
     { default: remarkGfm },
     { default: remarkRehype },
-    { default: rehypeSanitize },
+    { default: rehypeSanitize, defaultSchema },
     { default: rehypeStringify },
   ] = await Promise.all([
     import('unified'),
@@ -41,11 +41,16 @@ async function renderMarkdown(markdown: string): Promise<string> {
     import('rehype-stringify'),
   ]);
 
+  // remark-rehype already namespaces footnote ids/hrefs with `user-content-`
+  // consistently. rehype-sanitize's default clobberPrefix re-prefixes *ids* (but
+  // not href fragments), double-prefixing footnote targets and breaking the
+  // in-page jump/backlinks. Disable its clobbering; the ids remain namespaced
+  // (and thus clobber-safe) by remark-rehype.
   const result = await unified()
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkRehype)
-    .use(rehypeSanitize)
+    .use(rehypeSanitize, { ...defaultSchema, clobberPrefix: '' })
     .use(rehypeStringify)
     .process(markdown);
 

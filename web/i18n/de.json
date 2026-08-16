@@ -45,7 +45,8 @@
     "Code",
     "Bilder",
     "Durchgestrichen",
-    "Hoch- & Tiefstellung"
+    "Hoch- & Tiefstellung",
+    "Fußnoten"
   ],
   "cliHeading": "Lieber die Kommandozeile?",
   "cliBody": "Word to Markdown ist kostenlos und quelloffen. Nutze es als Kommandozeilen-Tool für skriptgesteuerte oder Stapel-Konvertierungen – derselbe Konverter, ganz ohne Browser.",

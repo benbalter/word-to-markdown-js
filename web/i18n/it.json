@@ -45,7 +45,8 @@
     "Codice",
     "Immagini",
     "Barrato",
-    "Apice e pedice"
+    "Apice e pedice",
+    "Note a piè di pagina"
   ],
   "cliHeading": "Preferisci la riga di comando?",
   "cliBody": "Word to Markdown è gratuito e open source. Eseguilo come strumento da riga di comando per conversioni tramite script o in batch — lo stesso convertitore, senza bisogno del browser.",

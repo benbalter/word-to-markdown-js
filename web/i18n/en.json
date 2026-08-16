@@ -45,7 +45,8 @@
     "Code",
     "Images",
     "Strikethrough",
-    "Superscript & subscript"
+    "Superscript & subscript",
+    "Footnotes"
   ],
   "cliHeading": "Prefer the command line?",
   "cliBody": "Word to Markdown is free and open source. Run it as a command-line tool for scripted or batch conversions — the same converter, no browser needed.",

@@ -48,6 +48,11 @@ program
     '--underline',
     'Preserve underlined text as inline <u> tags (dropped by default)',
   )
+  .option(
+    '--preserve-footnotes',
+    'Keep Word footnotes as raw <sup> links and a numbered note list instead ' +
+      'of converting them to GFM [^1] footnotes',
+  )
   .action(async (file, options) => {
     try {
       // --image-dir (extract) takes precedence over --strip-images.
@@ -61,6 +66,7 @@ program
         imageDir: options.imageDir,
         numberedLists: options.bulletLists ? 'bullets' : 'ordered',
         underline: options.underline ? 'preserve' : 'ignore',
+        footnotes: options.preserveFootnotes ? 'preserve' : 'gfm',
       });
 
       // Write extracted images to disk before emitting the Markdown that links
