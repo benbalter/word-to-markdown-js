@@ -28,7 +28,7 @@
     "@astrojs/check": "^0.9.10",
     "@astrojs/sitemap": "^3.7.3",
     "@eslint/js": "^10.0.1",
-    "@nuasite/checks": "^0.53.0",
+    "@nuasite/checks": "^0.56.0",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.3",
