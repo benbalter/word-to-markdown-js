@@ -30,6 +30,10 @@ jobs:
       # Trusted publishing requires npm CLI >= 11.5.1; Node 22.x bundles npm 10.
       - run: npm install -g npm@latest
       - run: npm ci
+      # Verify the registry signatures/attestations of installed dependencies
+      # before shipping — closes the loop on the provenance we ourselves emit.
+      - name: Verify dependency signatures
+        run: npm audit signatures
       - name: Verify tag matches package.json version
         run: |
           pkg="v$(node -p "require('./package.json').version")"

@@ -1,0 +1,44 @@
+name: Scorecard
+
+# OpenSSF Scorecard: supply-chain security posture for a published package.
+# Results go to the Security tab (SARIF) and, via publish_results, to the public
+# OpenSSF registry that backs the score badge. Report-only — never gates.
+
+on:
+  branch_protection_rule:
+  schedule:
+    # Weekly, matching the other security scans.
+    - cron: "30 1 * * 0"
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  analysis:
+    name: Scorecard analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write # upload SARIF to the Security tab
+      id-token: write # publish results to the OpenSSF registry (badge)
+      contents: read
+      actions: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Run Scorecard
+        uses: ossf/scorecard-action@v2.4.4
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: results.sarif
+          category: scorecard

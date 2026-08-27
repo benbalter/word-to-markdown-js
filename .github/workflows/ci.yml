@@ -26,10 +26,12 @@ jobs:
           node-version: '22.x'
           cache: 'npm'
       - run: npm ci
-      # Surface known high/critical advisories without gating merges: Dependabot
-      # handles remediation, and transitive, unfixable advisories shouldn't block
-      # unrelated PRs. Fails the step (visible red) but not the job.
-      - name: Audit dependencies
+      # Critical advisories gate the build — those warrant blocking. High and
+      # below stay advisory: Dependabot handles remediation, and transitive,
+      # unfixable advisories shouldn't block unrelated PRs (visible red, no gate).
+      - name: Audit dependencies (critical, blocking)
+        run: npm audit --audit-level=critical
+      - name: Audit dependencies (high, advisory)
         run: npm audit --audit-level=high
         continue-on-error: true
       - run: npm run check-builds

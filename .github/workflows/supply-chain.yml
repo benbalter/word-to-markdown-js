@@ -1,0 +1,126 @@
+name: Supply Chain
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Weekly, so dependency rot is caught without commits.
+    - cron: "30 1 * * 0"
+
+# Minimal by default; each job elevates only what it needs.
+permissions:
+  contents: read
+
+jobs:
+  # Scan git history (push/schedule) or the PR diff (pull_request) for committed secrets.
+  secrets:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Full history so a secret buried in an old commit is still caught.
+          fetch-depth: 0
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  # Dependency (CVE) scanning of the shipped lockfile — findings reach every
+  # consumer of the published package, so this matters more than for a site.
+  # Report-only for now (populates the Security tab); flip fail-on-vuln to true
+  # once the existing advisory backlog is triaged.
+  deps:
+    name: Dependency Vulnerabilities
+    if: github.event_name != 'pull_request'
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.5.1
+    with:
+      scan-args: |-
+        --lockfile=package-lock.json
+      fail-on-vuln: false
+
+  # On PRs, only report vulnerabilities the PR newly introduces.
+  deps-pr:
+    name: Dependency Vulnerabilities (PR)
+    if: github.event_name == 'pull_request'
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.5.1
+    with:
+      scan-args: |-
+        --lockfile=package-lock.json
+      fail-on-vuln: false
+
+  # Lint the workflows themselves: actionlint (blocking, precise) + zizmor
+  # (advisory, SARIF). zizmor has a real target here: release.yml holds
+  # id-token: write for OIDC publishing — exactly the privileged workflow it audits.
+  workflow-security:
+    name: Workflow Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: actionlint
+        uses: docker://rhysd/actionlint:latest
+        with:
+          args: -color
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install zizmor
+        run: pip install zizmor
+
+      # Advisory for now — surfaces findings in the Security tab without gating.
+      # zizmor writes SARIF to stdout; `|| true` because it exits non-zero on findings.
+      - name: zizmor
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: zizmor --format sarif .github/workflows/ > zizmor.sarif || true
+
+      - name: Upload zizmor SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: zizmor.sarif
+          category: zizmor
+
+  # Optional second-opinion SAST on top of CodeQL. Non-blocking: findings go to
+  # the Security tab. Drop this job if it proves noisy.
+  sast:
+    name: Semgrep
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      security-events: write
+      contents: read
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Semgrep scan
+        continue-on-error: true
+        run: semgrep scan --config p/typescript --config p/security-audit --sarif --output semgrep.sarif
+
+      - name: Upload Semgrep SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep
