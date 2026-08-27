@@ -8,7 +8,7 @@ on:
   branch_protection_rule:
   schedule:
     # Weekly, matching the other security scans.
-    - cron: "30 1 * * 0"
+    - cron: '30 1 * * 0'
   push:
     branches: [main]
 
