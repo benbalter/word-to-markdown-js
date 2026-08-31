@@ -52,7 +52,7 @@
     "tailwindcss": "^4.3.3",
     "ts-api-utils": "~2.5",
     "ts-jest": "~29.4",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "typescript-eslint": "^8.67.0",
     "unified": "^11.0.5"
   },
