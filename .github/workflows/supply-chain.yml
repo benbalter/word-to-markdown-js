@@ -24,7 +24,7 @@ jobs:
           # Full history so a secret buried in an old commit is still caught.
           fetch-depth: 0
       - name: Gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
