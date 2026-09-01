@@ -36,8 +36,8 @@ This split is deliberate so the two tool-chains don't fight over the same files.
 
 The core converter is environment-agnostic (accepts a file path string in Node, or an `ArrayBuffer` in the browser). The pipeline:
 
-1. **mammoth** — `.docx` → HTML
-2. `processHtml` — single-pass DOM fixups: promote a table's first row to `<th>` (Turndown needs a header row), strip Unicode bullets from `<li>`
+1. **mammoth** — `.docx` → HTML. A `transformDocument` tags wholly-monospace paragraphs (Word's usual code-block encoding) with a synthetic style, which a style map — alongside the real `Preformatted Text`/`HTML Preformatted` styles — maps to `<pre><code>` so code fences verbatim (no Markdown escaping of `[] {} <> * -`)
+2. `processHtml` — single-pass DOM fixups: unwrap single-cell `<pre>` code tables (Word wraps code blocks in a shaded 1×1 table), promote a table's first row to `<th>` (Turndown needs a header row), strip Unicode bullets from `<li>`
 3. **Turndown** (`@joplin/turndown` + gfm plugin) — HTML → Markdown
 4. `convertNumberedListsToBullets` → `normalizeText` (strip non-breaking spaces, smart quotes → ASCII)
 5. **markdownlint** `applyFixes` → **prettier** (markdown parser)

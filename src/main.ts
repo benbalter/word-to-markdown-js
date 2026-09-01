@@ -315,6 +315,26 @@ function processHtml(
     root.querySelectorAll('img').forEach((img: HTMLElement) => img.remove());
   }
 
+  // Unwrap single-cell tables whose only content is a <pre> code block. Word and
+  // LibreOffice commonly wrap a code block in a bordered 1×1 table (a shaded box);
+  // left alone, Turndown would render the code as a one-cell Markdown table. This
+  // must run before the header-promotion pass below, which would otherwise turn
+  // the code cell's <td> into a <th> and mangle the block.
+  root.querySelectorAll('table').forEach((table: HTMLElement) => {
+    const rows = table.querySelectorAll('tr');
+    if (rows.length !== 1) return;
+    const cells = rows[0].querySelectorAll('td');
+    if (cells.length !== 1) return;
+    const cell = cells[0];
+    const pres = cell.querySelectorAll('pre');
+    // Only unwrap when the cell holds exactly one <pre> and nothing else of
+    // substance (its text is entirely the code) — never strip a table that also
+    // contains prose or other elements alongside the code.
+    if (pres.length !== 1) return;
+    if (cell.textContent.trim() !== pres[0].textContent.trim()) return;
+    table.replaceWith(pres[0]);
+  });
+
   // Process tables - convert first row to table headers
   root.querySelectorAll('table').forEach((table: HTMLElement) => {
     const firstRow = table.querySelector('tr');
@@ -647,15 +667,123 @@ function toArrayBuffer(buffer: ArrayBufferLike): ArrayBuffer {
   return newArrayBuffer;
 }
 
-// Append the underline style-mapping to any caller-supplied Mammoth options.
-// Mammoth ignores underlines unless the style map maps them; `u => u` emits a
-// `<u>` element. The entry is appended (not replaced) so Mammoth's default
-// mappings — including superscript/subscript — are preserved.
-function withUnderlineStyleMap(
+// Synthetic paragraph-style name applied to code paragraphs detected by font
+// (see tagCodeParagraphs). It's mapped to a fenced code block alongside the real
+// Word/LibreOffice preformatted styles below.
+const DETECTED_CODE_STYLE_NAME = 'W2M Code Block';
+
+// Word and LibreOffice mark code blocks in two ways, both of which we route to a
+// single `<pre><code>`:
+//   - a dedicated paragraph style — "Preformatted Text" (LibreOffice) or "HTML
+//     Preformatted" (Word) — one paragraph per line; and
+//   - direct monospace-font runs on otherwise-Normal paragraphs (often inside a
+//     shaded 1×1 table), which tagCodeParagraphs re-labels with the synthetic
+//     style name above.
+// Mapping each style to `pre > code:separator('\n')` tells Mammoth to merge the
+// consecutive lines into one `<pre><code>` joined by newlines, which Turndown
+// emits as a single fenced block with verbatim content — no per-line paragraphs
+// and, crucially, no Markdown escaping of code punctuation (`[ ] { } * - /`). The
+// `\n` in `separator` is a literal backslash-n in the source string; Mammoth's
+// style-map parser interprets it as a newline.
+const CODE_BLOCK_STYLE_MAP = [
+  `p[style-name='${DETECTED_CODE_STYLE_NAME}'] => pre > code:separator('\\n')`,
+  "p[style-name='Preformatted Text'] => pre > code:separator('\\n')",
+  "p[style-name='HTML Preformatted'] => pre > code:separator('\\n')",
+];
+
+// Append our style-map additions to any caller-supplied Mammoth options: the
+// code-block mappings always, plus `u => u` when underlines are being preserved
+// (Mammoth ignores underlines unless the style map maps them to a `<u>`).
+// Additions are appended, never replaced, so Mammoth's default mappings —
+// including superscript/subscript — stay intact.
+function withStyleMap(
   mammothOptions: MammothOptions | undefined,
+  { preserveUnderline }: { preserveUnderline: boolean },
 ): MammothOptions {
   const existing = mammothOptions?.styleMap ?? [];
-  return { ...mammothOptions, styleMap: [...existing, 'u => u'] };
+  const additions = [...CODE_BLOCK_STYLE_MAP];
+  if (preserveUnderline) additions.push('u => u');
+  return { ...mammothOptions, styleMap: [...existing, ...additions] };
+}
+
+// Minimal shape of the nodes in Mammoth's document model that we walk. Mammoth
+// ships no types for this, so we narrow to just the fields we read: a node's
+// `type`, a text node's `value`, a run's `font` (the `w:rFonts` ascii name), and
+// child nodes.
+interface MammothDocNode {
+  type: string;
+  value?: string;
+  font?: string | null;
+  children?: MammothDocNode[];
+  [key: string]: unknown;
+}
+
+// Font names (lower-cased) treated as monospace/code fonts. The word-boundaried
+// `mono` matches families like "Liberation Mono"/"DejaVu Sans Mono" without
+// catching proportional fonts that merely start with those letters (e.g.
+// "Monotype Corsiva"); the rest are common fixed-width families.
+const MONOSPACE_FONT_RE =
+  /(^|\s)mono(\s|$)|monospace|consolas|courier|menlo|monaco|inconsolata/;
+
+function isMonospaceFont(font: string | null | undefined): boolean {
+  return !!font && MONOSPACE_FONT_RE.test(font.toLowerCase());
+}
+
+// Concatenate all text under a node (runs, hyperlinks, etc.).
+function docNodeText(node: MammothDocNode): string {
+  if (node.type === 'text') return node.value ?? '';
+  return (node.children ?? []).map(docNodeText).join('');
+}
+
+// Collect every run descendant of a node (runs can be nested inside hyperlinks).
+function collectRuns(
+  node: MammothDocNode,
+  out: MammothDocNode[] = [],
+): MammothDocNode[] {
+  if (node.type === 'run') out.push(node);
+  (node.children ?? []).forEach((child) => collectRuns(child, out));
+  return out;
+}
+
+// A paragraph reads as a code block when it has visible text and *every*
+// text-bearing run uses a monospace font. Requiring all runs (not just one) to
+// be monospace keeps ordinary prose that merely mentions a monospaced identifier
+// out of code blocks — only wholly-monospace paragraphs qualify.
+function isMonospaceParagraph(paragraph: MammothDocNode): boolean {
+  const runs = collectRuns(paragraph).filter(
+    (run) => docNodeText(run).trim().length > 0,
+  );
+  return runs.length > 0 && runs.every((run) => isMonospaceFont(run.font));
+}
+
+// A Mammoth `transformDocument` that recursively re-labels wholly-monospace
+// paragraphs with DETECTED_CODE_STYLE_NAME so the style map turns them into
+// fenced code blocks. Word often encodes code as monospace runs on Normal
+// paragraphs (no code paragraph style), and Mammoth discards font information
+// once it emits HTML — the document model is the only place the signal survives.
+function tagCodeParagraphs(node: MammothDocNode): MammothDocNode {
+  const transformed: MammothDocNode = node.children
+    ? { ...node, children: node.children.map(tagCodeParagraphs) }
+    : node;
+  if (transformed.type === 'paragraph' && isMonospaceParagraph(transformed)) {
+    return {
+      ...transformed,
+      styleId: 'W2MCodeBlock',
+      styleName: DETECTED_CODE_STYLE_NAME,
+    };
+  }
+  return transformed;
+}
+
+// Add the code-detection transform to any caller-supplied Mammoth options,
+// composing with (running after) an existing `transformDocument` if present.
+function withCodeTransform(mammothOptions: MammothOptions): MammothOptions {
+  const existing = mammothOptions.transformDocument as
+    ((doc: MammothDocNode) => MammothDocNode) | undefined;
+  const transformDocument = existing
+    ? (doc: MammothDocNode) => tagCodeParagraphs(existing(doc))
+    : tagCodeParagraphs;
+  return { ...mammothOptions, transformDocument };
 }
 
 // Common image content types → file extension. Word most often embeds PNG and
@@ -731,9 +859,11 @@ async function runConversionPipeline(
   // Mammoth must be told to emit `<u>` (it drops underlines by default), and
   // Turndown must be told to keep that tag rather than flatten it to text.
   const preserveUnderline = options.underline === 'preserve';
-  let mammothOptions: MammothOptions | undefined = preserveUnderline
-    ? withUnderlineStyleMap(options.mammoth as MammothOptions | undefined)
-    : (options.mammoth as MammothOptions | undefined);
+  let mammothOptions: MammothOptions | undefined = withCodeTransform(
+    withStyleMap(options.mammoth as MammothOptions | undefined, {
+      preserveUnderline,
+    }),
+  );
 
   // Extract mode swaps Mammoth's default base64 inliner for a collector that
   // returns each image's bytes and rewrites the src to a relative path.
