@@ -218,6 +218,38 @@ const dashes = await docx({
 });
 fs.writeFileSync('src/__fixtures__/dashes.docx', dashes);
 
+// --- code-block.docx --------------------------------------------------------
+// A code block the way Word/LibreOffice most often encode one: a shaded, single
+// -cell table whose Normal paragraphs each carry a monospace run font (no code
+// paragraph style at all). One paragraph per line. The converter detects the
+// monospace runs, merges the lines into one fenced ``` block, and — because it
+// becomes <pre><code> — emits the code verbatim with none of Markdown's usual
+// backslash-escaping of `[] {} <> & -> * //`. The trailing paragraph mixes a
+// monospace run into prose and must stay prose (only wholly-monospace paragraphs
+// become code). See issue #207.
+const MONO =
+  '<w:rPr><w:rFonts w:ascii="Liberation Mono" w:hAnsi="Liberation Mono"/></w:rPr>';
+const codeLine = (text) =>
+  `<w:p><w:pPr><w:pStyle w:val="Normal"/></w:pPr><w:r>${MONO}<w:t xml:space="preserve">${text}</w:t></w:r></w:p>`;
+const codeBlockDoc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="${W}"><w:body>
+  <w:tbl><w:tr><w:tc>
+    ${codeLine('// build the greeting -- see docs/README')}
+    ${codeLine('func greet(names: [String]) -&gt; Bool {')}
+    ${codeLine('    let ptr: UnsafeMutablePointer&lt;Int&gt; = &amp;flag  // *ptr')}
+    ${codeLine('    return names.count &gt; 0')}
+    ${codeLine('}')}
+  </w:tc></w:tr></w:tbl>
+  <w:p><w:r><w:t xml:space="preserve">Call </w:t></w:r><w:r>${MONO}<w:t>greet(names)</w:t></w:r><w:r><w:t xml:space="preserve"> to say hello.</w:t></w:r></w:p>
+</w:body></w:document>`;
+
+const codeBlock = await docx({
+  '[Content_Types].xml': contentTypes(),
+  '_rels/.rels': rels,
+  'word/document.xml': codeBlockDoc,
+});
+fs.writeFileSync('src/__fixtures__/code-block.docx', codeBlock);
+
 console.log(
-  'wrote strikethrough.docx, footnote.docx, footnote-multiparagraph.docx, image.docx, dropped-content.docx, superscript.docx, subscript.docx, underline.docx, dashes.docx',
+  'wrote strikethrough.docx, footnote.docx, footnote-multiparagraph.docx, image.docx, dropped-content.docx, superscript.docx, subscript.docx, underline.docx, dashes.docx, code-block.docx',
 );

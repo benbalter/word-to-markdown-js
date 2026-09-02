@@ -45,4 +45,28 @@ describe('docx markup features (end to end)', () => {
     expect(md).toContain('#footnote-1');
     expect(md).not.toContain('[^1]');
   });
+
+  it('detects a monospace code block and fences it verbatim (issue #207)', async () => {
+    const md = await convert('src/__fixtures__/code-block.docx');
+    // The fixture is a shaded single-cell table of Normal paragraphs carrying a
+    // monospace run font — Word's usual code-block encoding. The converter must
+    // merge the lines into one fenced block and, because it becomes <pre><code>,
+    // emit the code verbatim with none of Markdown's backslash-escaping.
+    expect(md).toContain('```\n// build the greeting -- see docs/README');
+    expect(md).toContain('func greet(names: [String]) -> Bool {');
+    expect(md).toContain('let ptr: UnsafeMutablePointer<Int> = &flag  // *ptr');
+    expect(md).toContain('return names.count > 0');
+    expect(md).not.toContain('\\'); // no escaped [] {} <> * - / anywhere
+    // The single-cell code table is unwrapped, not rendered as a Markdown table.
+    expect(md).not.toContain('| ---');
+  });
+
+  it('keeps a paragraph that only partly uses a monospace font as prose', async () => {
+    const md = await convert('src/__fixtures__/code-block.docx');
+    // The closing paragraph mixes an inline monospace run into normal prose;
+    // requiring *every* run to be monospace keeps it out of a code block.
+    expect(md).toContain('Call greet(names) to say hello.');
+    const fenceCount = (md.match(/```/g) ?? []).length;
+    expect(fenceCount).toBe(2); // exactly one fenced block, not two
+  });
 });
