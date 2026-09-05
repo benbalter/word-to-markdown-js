@@ -1,4 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>benbalter/renovate-config:instant"]
+  "extends": ["github>benbalter/renovate-config:instant"],
+  "packageRules": [
+    {
+      "description": "Hold TypeScript at v6: TS 7 (the native/Go compiler) is not yet supported by @astrojs/check (peer caps at ^6), ts-jest (<7), or typescript-eslint (<6.1). `astro check` crashes under TS 7 via @volar/kit. Re-enable once the toolchain adds TS 7 peer support.",
+      "matchPackageNames": ["typescript"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
+  ]
 }
