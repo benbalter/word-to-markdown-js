@@ -91,7 +91,7 @@
     "tslib": "~2.8"
   },
   "volta": {
-    "node": "22.13.0"
+    "node": "22.23.2"
   },
   "bin": {
     "w2m": "build/cli.js",
