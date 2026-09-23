@@ -41,7 +41,9 @@ test.describe('Content-Security-Policy', () => {
     const csp = await page
       .locator('meta[http-equiv="content-security-policy"]')
       .getAttribute('content');
-    expect(csp).toContain("connect-src 'self'");
+    // Same origin plus Cloudflare Web Analytics (disclosed on /privacy/)
+    // and nothing else.
+    expect(csp).toContain("connect-src 'self' https://cloudflareinsights.com;");
     expect(csp).toContain("object-src 'none'");
   });
 

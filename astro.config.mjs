@@ -39,10 +39,13 @@ export default defineConfig({
   build: { inlineStylesheets: 'always' },
   // Content-Security-Policy, emitted per page as a <meta http-equiv> tag with
   // hashes for Astro's inline scripts and styles. "Nothing is uploaded" is a
-  // promise: `connect-src 'self'` enforces it (the only request the page makes
-  // is the same-origin /api/event counter). `'self'` in script-src covers the
-  // code-split /_astro/ chunks, the module Web Worker, and Cloudflare's
-  // same-origin edge-injected /.webmcp/bridge.js. Style *attributes* are
+  // promise: connect-src is limited to the same origin (the /api/event
+  // counter) plus Cloudflare Web Analytics, which the privacy policy discloses
+  // and which Cloudflare injects at the edge (beacon script from
+  // static.cloudflareinsights.com, reporting to cloudflareinsights.com) — so
+  // it never appears in dist/ and local tests can't see it. `'self'` in
+  // script-src covers the code-split /_astro/ chunks, the module Web Worker,
+  // and Cloudflare's same-origin edge-injected /.webmcp/bridge.js. Style *attributes* are
   // blocked once hashes are present, so markup must not use style="…".
   // frame-ancestors can't be set from a <meta> tag; it's in public/_headers.
   // Shiki highlights with inline style attributes, which the CSP blocks, and
@@ -54,13 +57,15 @@ export default defineConfig({
         "default-src 'self'",
         "img-src 'self' data: blob:",
         "font-src 'self'",
-        "connect-src 'self'",
+        "connect-src 'self' https://cloudflareinsights.com",
         "worker-src 'self'",
         "object-src 'none'",
         "base-uri 'self'",
         "form-action 'self'",
       ],
-      scriptDirective: { resources: ["'self'"] },
+      scriptDirective: {
+        resources: ["'self'", 'https://static.cloudflareinsights.com'],
+      },
       styleDirective: { resources: ["'self'"] },
     },
   },
