@@ -6,6 +6,7 @@ import {
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import checks from '@nuasite/checks';
+import { defaultLocale, localeMeta, locales } from './web/i18n/locales.ts';
 
 // The site is deployed to Cloudflare Workers (Static Assets), migrated from
 // GitHub Pages, at the custom domain word2md.com, which serves from the root, so
@@ -23,57 +24,60 @@ export default defineConfig({
   output: 'static',
   // i18n: English stays at the root (prefixDefaultLocale: false) so existing,
   // indexed URLs (/, /privacy/, /terms/) are unchanged; other locales live under
-  // a prefix (/id/, …). New locales get added to `locales` as translations land.
+  // a prefix (/id/, …). The locale list comes from web/i18n/locales.ts.
   i18n: {
-    defaultLocale: 'en',
-    // prettier-ignore
-    locales: [
-      'en', 'id', 'vi', 'pt', 'es', 'de', 'fr',
-      'zh', 'ja', 'ko', 'ru', 'it', 'nl', 'pl', 'tr', 'hi', 'th', 'uk', 'sv',
-    ],
+    defaultLocale,
+    locales,
     routing: { prefixDefaultLocale: false },
   },
+  // Every route is a directory index (/de/, /privacy/), so pin trailing slashes
+  // to keep canonical, hreflang, and sitemap URLs in one consistent form.
+  trailingSlash: 'always',
   // Inline all stylesheets into the HTML to remove the render-blocking CSS
   // request — the landing page paints sooner (especially now that the converter
   // JS is code-split and no longer the gate).
   build: { inlineStylesheets: 'always' },
+  // Content-Security-Policy, emitted per page as a <meta http-equiv> tag with
+  // hashes for Astro's inline scripts and styles. "Nothing is uploaded" is a
+  // promise: `connect-src 'self'` enforces it (the only request the page makes
+  // is the same-origin /api/event counter). `'self'` in script-src covers the
+  // code-split /_astro/ chunks, the module Web Worker, and Cloudflare's
+  // same-origin edge-injected /.webmcp/bridge.js. Style *attributes* are
+  // blocked once hashes are present, so markup must not use style="…".
+  // frame-ancestors can't be set from a <meta> tag; it's in public/_headers.
+  // Shiki highlights with inline style attributes, which the CSP blocks, and
+  // the only Markdown (the legal pages) has no code blocks.
+  markdown: { syntaxHighlight: false },
+  security: {
+    csp: {
+      directives: [
+        "default-src 'self'",
+        "img-src 'self' data: blob:",
+        "font-src 'self'",
+        "connect-src 'self'",
+        "worker-src 'self'",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+      ],
+      scriptDirective: { resources: ["'self'"] },
+      styleDirective: { resources: ["'self'"] },
+    },
+  },
   integrations: [
     // Generate sitemap-index.xml / sitemap-0.xml for the pages (uses `site`).
     // The `i18n` block makes the sitemap emit <xhtml:link rel="alternate">
     // hreflang entries per localized page — Astro's top-level i18n config does
-    // NOT propagate here, so it must be declared again. Keep `locales` in sync
-    // with the top-level i18n config as new languages land.
+    // NOT propagate here, so it is derived from the same locale module.
+    //
+    // No <lastmod>: it was the build timestamp, identical on every URL and
+    // changing on every build, which search engines learn to ignore.
     sitemap({
       i18n: {
-        defaultLocale: 'en',
-        locales: {
-          en: 'en-US',
-          id: 'id-ID',
-          vi: 'vi-VN',
-          pt: 'pt-BR',
-          es: 'es-ES',
-          de: 'de-DE',
-          fr: 'fr-FR',
-          zh: 'zh-CN',
-          ja: 'ja-JP',
-          ko: 'ko-KR',
-          ru: 'ru-RU',
-          it: 'it-IT',
-          nl: 'nl-NL',
-          pl: 'pl-PL',
-          tr: 'tr-TR',
-          hi: 'hi-IN',
-          th: 'th-TH',
-          uk: 'uk-UA',
-          sv: 'sv-SE',
-        },
-      },
-      // Stamp every URL with the build time so Google has a <lastmod> signal to
-      // prioritize recrawls. A single build timestamp (not per-page git dates)
-      // is sufficient for this small, frequently-rebuilt static site.
-      serialize(item) {
-        item.lastmod = new Date().toISOString();
-        return item;
+        defaultLocale,
+        locales: Object.fromEntries(
+          locales.map((l) => [l, localeMeta[l].sitemapLocale]),
+        ),
       },
     }),
     // Build-time SEO / accessibility / performance / GEO validation. Output is

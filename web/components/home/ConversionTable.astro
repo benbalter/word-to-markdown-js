@@ -2,14 +2,9 @@
 // "What gets converted" reference table. The Markdown-output column is universal
 // syntax, so it stays literal here and pairs with t.conversionRows by index —
 // the two arrays must stay the same length.
-import { asLocale, useTranslations } from '../../i18n';
+import { useTranslations } from '../../i18n';
 
-interface Props {
-  /** Locale for this page; pages set it statically from their route. */
-  lang: string;
-}
-
-const t = useTranslations(asLocale(Astro.props.lang));
+const t = useTranslations(Astro.currentLocale);
 
 const conversionOutputs = [
   '# Heading',

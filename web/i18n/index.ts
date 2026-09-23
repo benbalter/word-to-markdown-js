@@ -25,64 +25,15 @@ import th from './th.json';
 import uk from './uk.json';
 import sv from './sv.json';
 
+import { defaultLocale, locales, type Locale } from './locales';
+
 export type { UIStrings, FaqEntry, Step } from './types';
 
-// Locales that have a full translation. Keep in sync with astro.config.mjs
-// (both the top-level `i18n` block and the sitemap `i18n` block).
-export const locales = [
-  'en',
-  'id',
-  'vi',
-  'pt',
-  'es',
-  'de',
-  'fr',
-  'zh',
-  'ja',
-  'ko',
-  'ru',
-  'it',
-  'nl',
-  'pl',
-  'tr',
-  'hi',
-  'th',
-  'uk',
-  'sv',
-] as const;
-export type Locale = (typeof locales)[number];
+export { localeMeta, locales, defaultLocale, prefixedLocales } from './locales';
+export type { Locale, LocaleMeta } from './locales';
 
-export const defaultLocale: Locale = 'en';
-
-// Per-locale metadata used in <head>. `name` is the endonym (the language's
-// own name) — used for the language switcher; never use flags for languages.
-// `htmlLang` doubles as the hreflang value; the locale key is the URL segment
-// (e.g. key `pt` → /pt/ with htmlLang/hreflang `pt-BR`).
-export const localeMeta: Record<
-  Locale,
-  { htmlLang: string; ogLocale: string; name: string }
-> = {
-  en: { htmlLang: 'en', ogLocale: 'en_US', name: 'English' },
-  id: { htmlLang: 'id', ogLocale: 'id_ID', name: 'Bahasa Indonesia' },
-  vi: { htmlLang: 'vi', ogLocale: 'vi_VN', name: 'Tiếng Việt' },
-  pt: { htmlLang: 'pt-BR', ogLocale: 'pt_BR', name: 'Português' },
-  es: { htmlLang: 'es', ogLocale: 'es_ES', name: 'Español' },
-  de: { htmlLang: 'de', ogLocale: 'de_DE', name: 'Deutsch' },
-  fr: { htmlLang: 'fr', ogLocale: 'fr_FR', name: 'Français' },
-  zh: { htmlLang: 'zh-Hans', ogLocale: 'zh_CN', name: '简体中文' },
-  ja: { htmlLang: 'ja', ogLocale: 'ja_JP', name: '日本語' },
-  ko: { htmlLang: 'ko', ogLocale: 'ko_KR', name: '한국어' },
-  ru: { htmlLang: 'ru', ogLocale: 'ru_RU', name: 'Русский' },
-  it: { htmlLang: 'it', ogLocale: 'it_IT', name: 'Italiano' },
-  nl: { htmlLang: 'nl', ogLocale: 'nl_NL', name: 'Nederlands' },
-  pl: { htmlLang: 'pl', ogLocale: 'pl_PL', name: 'Polski' },
-  tr: { htmlLang: 'tr', ogLocale: 'tr_TR', name: 'Türkçe' },
-  hi: { htmlLang: 'hi', ogLocale: 'hi_IN', name: 'हिन्दी' },
-  th: { htmlLang: 'th', ogLocale: 'th_TH', name: 'ไทย' },
-  uk: { htmlLang: 'uk', ogLocale: 'uk_UA', name: 'Українська' },
-  sv: { htmlLang: 'sv', ogLocale: 'sv_SE', name: 'Svenska' },
-};
-
+// Record<Locale, …> makes a locale without a dictionary a type error, so a new
+// entry in ./locales.ts can't ship half-wired.
 const dictionaries: Record<Locale, UIStrings> = {
   en,
   id,

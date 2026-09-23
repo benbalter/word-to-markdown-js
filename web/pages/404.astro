@@ -1,0 +1,35 @@
+---
+// Not-found page. Served for unknown paths by Cloudflare (`not_found_handling`
+// in wrangler.jsonc) and `astro preview`. English-only, like the legal
+// pages; the footer's language switcher gets non-English visitors home. Marked
+// noindex, and the sitemap integration skips 404 routes on its own.
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Page not found — Word to Markdown"
+  description="The page you were looking for doesn't exist. Head back to the Word to Markdown converter."
+  noindex
+>
+  <section class="mx-auto max-w-2xl py-20 text-center sm:py-28">
+    <p
+      class="font-mono text-[0.72rem] font-medium tracking-[0.22em] text-chartreuse-deep uppercase dark:text-chartreuse"
+    >
+      404
+    </p>
+    <h1
+      class="mt-4 font-display text-4xl font-semibold tracking-tight text-navy sm:text-5xl dark:text-[#f1f2f7]"
+    >
+      Page not found
+    </h1>
+    <p class="mt-5 text-lg text-navy-soft dark:text-mist">
+      The page you were looking for doesn't exist or has moved.
+    </p>
+    <a
+      href="/"
+      class="mt-8 inline-flex items-center gap-2 rounded-lg bg-navy px-4 py-2.5 text-sm font-medium text-white no-underline transition-colors hover:bg-navy/90 dark:bg-chartreuse dark:text-navy dark:hover:bg-chartreuse/90"
+    >
+      Convert a Word document
+    </a>
+  </section>
+</Layout>

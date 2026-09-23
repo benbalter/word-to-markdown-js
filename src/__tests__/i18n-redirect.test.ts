@@ -41,10 +41,14 @@ describe('pickLocale', () => {
 
   it('only lists non-default locales (English stays at the root)', () => {
     expect(SUPPORTED_LOCALES).not.toContain('en');
-    // prettier-ignore
-    expect(SUPPORTED_LOCALES).toEqual([
-      'id', 'vi', 'pt', 'es', 'de', 'fr',
-      'zh', 'ja', 'ko', 'ru', 'it', 'nl', 'pl', 'tr', 'hi', 'th', 'uk', 'sv',
-    ]);
+    expect(SUPPORTED_LOCALES.length).toBeGreaterThan(0);
+  });
+
+  it('keeps the "unsupported" fixtures above genuinely unsupported', () => {
+    // If one of these languages is ever added, pick different codes for the
+    // "skips unsupported languages" case.
+    for (const code of ['ar', 'he', 'el']) {
+      expect(SUPPORTED_LOCALES).not.toContain(code);
+    }
   });
 });

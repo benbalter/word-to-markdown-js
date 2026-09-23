@@ -2,19 +2,13 @@
 // Converter: the dropzone (input) and the post-conversion results panels.
 // The element ids and data-* attributes here are the contract with the browser
 // logic in src/index.ts — keep them in sync with that module.
-import { asLocale, useTranslations } from '../../i18n';
+import { useTranslations } from '../../i18n';
 
-interface Props {
-  /** Locale for this page; pages set it statically from their route. */
-  lang: string;
-}
-
-const t = useTranslations(asLocale(Astro.props.lang));
+const t = useTranslations(Astro.currentLocale);
 ---
 
 <section
-  class="reveal mx-auto mt-10 max-w-2xl"
-  style="animation-delay:.24s"
+  class="reveal mx-auto mt-10 max-w-2xl [--reveal-delay:.24s]"
   aria-label={t.convertSectionAria}
 >
   <!-- Polite live region: a successful conversion announces here for screen
@@ -140,8 +134,7 @@ const t = useTranslations(asLocale(Astro.props.lang));
         <button
           id="download-zip-button"
           type="button"
-          style="display:none"
-          class="inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 disabled:opacity-60 dark:border-white/15 dark:bg-ink-card dark:text-[#eef0f6] dark:hover:border-chartreuse"
+          class="hidden items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 disabled:opacity-60 dark:border-white/15 dark:bg-ink-card dark:text-[#eef0f6] dark:hover:border-chartreuse"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

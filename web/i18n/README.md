@@ -12,9 +12,12 @@ wire up crowdsourced translation without further restructuring.
 
 - `types.ts` — the `UIStrings` interface every locale must satisfy.
 - `*.json` — the translated strings.
-- `index.ts` — imports the JSON files into a `Record<Locale, UIStrings>` (which
-  documents the expected shape) and exports `localeMeta` (endonyms + `html lang`/
-  `og:locale` codes), `useTranslations(locale)`, and `asLocale()`.
+- `locales.ts` — the single source of truth for locale codes and metadata
+  (endonyms, `html lang`, `og:locale`, sitemap tags). The Astro config, the
+  Cloudflare Worker, and the tests all derive their lists from it.
+- `index.ts` — imports the JSON files into a `Record<Locale, UIStrings>` (so a
+  locale without a dictionary is a type error), re-exports `locales.ts`, and
+  exports `useTranslations(locale)` and `asLocale()`.
 - `src/__tests__/i18n-completeness.test.ts` — fails `npm test` if any locale is
   missing/extra keys, has mismatched array lengths, or contains blank strings.
   (`astro check` only validates `.astro` files, so this test is the real guard.)
@@ -23,10 +26,10 @@ wire up crowdsourced translation without further restructuring.
 
 1. Edit the relevant `*.json`. When adding a **new key**, add it to `en.json`
    first, then to every other locale (the completeness test enforces parity).
-2. Adding a **new locale**: create `<locale>.json`, then register the locale in
-   `index.ts` (`locales`, `localeMeta`, `dictionaries`), `astro.config.mjs`
-   (the `i18n` block **and** the sitemap `i18n` block), and add a thin page at
-   `web/pages/<locale>/index.astro`.
+2. Adding a **new locale**: create `<locale>.json`, add an entry to
+   `locales.ts`, and import the JSON into `dictionaries` in `index.ts`. Routing,
+   the sitemap, the language switcher, and the edge redirect pick it up from
+   there. Then generate its social card: `npm run build:site && npm run gen:og`.
 3. Run `npm test` (completeness) and `npm run build` (type-check + validate).
 
 ## Review status

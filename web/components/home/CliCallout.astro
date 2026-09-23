@@ -2,14 +2,9 @@
 // Command-line callout: surfaces the open-source CLI for the developer segment.
 // The link targets the README's #command-line anchor — deliberately distinct
 // from the footer's repo-root href so the e2e strict locator stays single-match.
-import { asLocale, useTranslations } from '../../i18n';
+import { useTranslations } from '../../i18n';
 
-interface Props {
-  /** Locale for this page; pages set it statically from their route. */
-  lang: string;
-}
-
-const t = useTranslations(asLocale(Astro.props.lang));
+const t = useTranslations(Astro.currentLocale);
 ---
 
 <section class="mx-auto mt-16 max-w-2xl">
