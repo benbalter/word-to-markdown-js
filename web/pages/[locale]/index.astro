@@ -1,0 +1,13 @@
+---
+// Localized home pages (/de/, /ja/, …), one per non-default locale in
+// web/i18n/locales.ts. English lives at the root (../index.astro). All markup
+// is in the shared Home component, which reads the locale from the route.
+import type { GetStaticPaths } from 'astro';
+import Home from '../../components/Home.astro';
+import { prefixedLocales } from '../../i18n';
+
+export const getStaticPaths = (() =>
+  prefixedLocales.map((locale) => ({ params: { locale } }))) satisfies GetStaticPaths;
+---
+
+<Home />

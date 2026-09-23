@@ -117,4 +117,42 @@ test.describe('Internationalization', () => {
     await expect(page).toHaveURL('http://localhost:8080/vi/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'vi');
   });
+
+  test('localized pages advertise their own URL and social card', async ({
+    page,
+  }) => {
+    await page.goto('http://localhost:8080/de/');
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      'content',
+      'https://word2md.com/og/de.png',
+    );
+    const jsonLd = JSON.parse(
+      (await page
+        .locator('script[type="application/ld+json"]')
+        .textContent()) ?? '{}',
+    );
+    const app = jsonLd['@graph'].find(
+      (n: { '@type': string }) => n['@type'] === 'WebApplication',
+    );
+    expect(app.url).toBe('https://word2md.com/de/');
+    expect(app.image).toBe('https://word2md.com/og/de.png');
+    expect(app.inLanguage).toBe('de');
+  });
+
+  test('only localized pages record a language choice in the cookie', async ({
+    page,
+    context,
+  }) => {
+    // English-only pages (legal, 404) must not pin a first-time visitor to
+    // English, or the edge redirect to their language never happens.
+    await page.goto('http://localhost:8080/privacy/');
+    expect(
+      (await context.cookies()).find((c) => c.name === 'lang'),
+    ).toBeUndefined();
+
+    await page.goto('http://localhost:8080/de/');
+    expect(
+      (await context.cookies()).find((c) => c.name === 'lang')?.value,
+    ).toBe('de');
+  });
 });

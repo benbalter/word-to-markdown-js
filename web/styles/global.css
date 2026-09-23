@@ -225,11 +225,14 @@
 }
 
 @layer utilities {
-  /* Staggered page-load reveal. Disabled for reduced-motion users. */
+  /* Staggered page-load reveal. Disabled for reduced-motion users. Each element
+     sets its stagger with a `[--reveal-delay:…]` class — not an inline style
+     attribute, which the Content-Security-Policy blocks. */
   @media (prefers-reduced-motion: no-preference) {
     .reveal {
       opacity: 0;
       animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: var(--reveal-delay, 0s);
     }
     /* Rise-only variant for the LCP-critical hero <h1>: same upward motion, but
        it never drops to opacity:0. Chrome discounts an opacity:0 element as an
@@ -241,6 +244,7 @@
     .reveal-rise {
       transform: translateY(14px);
       animation: rise-solid 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: var(--reveal-delay, 0s);
     }
   }
   @keyframes rise {

@@ -29,17 +29,18 @@ interface Props {
    * advertise localized URLs that 404. Omit → no hreflang emitted.
    */
   i18nPath?: string;
+  /** Keep the page out of search results (e.g. the 404 page). */
+  noindex?: boolean;
 }
 
-// `.astro` pages pass props directly; Markdown pages using `layout:` pass
-// them nested under `frontmatter`. Support both shapes.
 const {
   title,
   description = 'Convert Word or Google documents to Markdown online',
   image = '/og.png',
   structuredData,
   i18nPath,
-} = Astro.props.frontmatter ?? Astro.props;
+  noindex = false,
+} = Astro.props;
 
 // Current locale drives the <html lang>, og:locale, and localized chrome.
 const locale = asLocale(Astro.currentLocale);
@@ -88,7 +89,7 @@ const languageLinks = locales.map((l) => ({
 // root for every locale; external links are locale-independent.
 const footerLinks = [
   {
-    href: 'https://github.com/benbalter/word-to-markdown-js/blob/master/CONTRIBUTING.md',
+    href: 'https://github.com/benbalter/word-to-markdown-js/blob/main/CONTRIBUTING.md',
     label: t.footer.feedback,
   },
   { href: 'https://github.com/benbalter/word-to-markdown-js', label: t.footer.source },
@@ -100,7 +101,7 @@ const footerLinks = [
 ---
 
 <!doctype html>
-<html lang={meta.htmlLang}>
+<html lang={meta.htmlLang} data-localized={i18nPath === undefined ? undefined : ''}>
   <head>
     <meta charset="utf-8" />
     <meta
@@ -114,7 +115,8 @@ const footerLinks = [
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    {!noindex && <link rel="canonical" href={canonical} />}
     {
       hreflangs.map((alt) => (
         <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />
@@ -237,17 +239,19 @@ const footerLinks = [
         {t.footerTagline}
       </p>
     </footer>
-    <script is:inline>
+    <script>
       // Record the current language so the edge redirect (Cloudflare Worker,
       // worker/index.js) won't auto-redirect on future visits — the language
-      // switcher stays in control. Harmless on GitHub Pages: it sets a cookie
-      // that nothing reads there.
+      // switcher stays in control. Only localized pages (data-localized) count
+      // as a language choice: the English-only legal and 404 pages would
+      // otherwise pin every first-time visitor to English. A processed (not
+      // is:inline) script, because Astro's CSP only hashes scripts it bundles.
       try {
-        document.cookie =
-          'lang=' +
-          document.documentElement.lang +
-          '; path=/; max-age=31536000; samesite=lax';
-      } catch (e) {
+        const root = document.documentElement;
+        if (root.hasAttribute('data-localized')) {
+          document.cookie = `lang=${root.lang}; path=/; max-age=31536000; samesite=lax`;
+        }
+      } catch {
         /* cookies unavailable — fine, redirect simply re-evaluates next visit */
       }
     </script>

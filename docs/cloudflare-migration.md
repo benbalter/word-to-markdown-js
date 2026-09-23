@@ -88,5 +88,5 @@ build:site` alone also produces `dist` if you prefer a leaner build.
   choice), set `run_worker_first` to `[]` in `wrangler.jsonc` (or remove
   `worker/index.js` and the `main`/`run_worker_first` keys) and drop the inline
   cookie script in `web/layouts/Layout.astro`.
-- **Tuning the redirect:** supported locales live in `SUPPORTED_LOCALES` in
-  `worker/index.js`; keep it in sync with `web/i18n/index.ts`.
+- **Tuning the redirect:** the Worker's `SUPPORTED_LOCALES` is derived from
+  `web/i18n/locales.ts`, the single source of truth for locales.

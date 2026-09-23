@@ -1,14 +1,9 @@
 ---
 // FAQ accordion. The same t.faqs array also feeds the FAQPage JSON-LD emitted
 // from Home.astro, so visible questions and structured data stay in lockstep.
-import { asLocale, useTranslations } from '../../i18n';
+import { useTranslations } from '../../i18n';
 
-interface Props {
-  /** Locale for this page; pages set it statically from their route. */
-  lang: string;
-}
-
-const t = useTranslations(asLocale(Astro.props.lang));
+const t = useTranslations(Astro.currentLocale);
 ---
 
 <section class="mx-auto mt-20 max-w-3xl">

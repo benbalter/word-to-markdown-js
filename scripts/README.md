@@ -43,8 +43,20 @@ values only, with a back-translation QA pass). Guarantees the parity enforced by
 
 ```bash
 npm run gen:i18n              # B1 (credits): writes web/i18n/<locale>.json
-# then wire up each locale (see CLAUDE.md → i18n): web/i18n/index.ts,
-# astro.config.mjs (both blocks), worker/index.js, web/pages/<locale>/index.astro
+# then wire up each locale (see web/i18n/README.md): an entry in
+# web/i18n/locales.ts and a dictionaries import in web/i18n/index.ts
+```
+
+## Social cards
+
+`gen-og.mjs` renders `public/og/<locale>.png` (2400×1260) for every locale in
+real Chrome against the built site, using the self-hosted brand fonts and each
+locale's `eyebrow`/`tagline`. No credits needed. Outputs are committed: non-Latin
+scripts fall back to system fonts, so renders differ by machine. Eyeball the
+results after regenerating.
+
+```bash
+npm run build:site && npm run gen:og
 ```
 
 ## Other

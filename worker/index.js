@@ -17,18 +17,15 @@
 // — disables the auto-redirect after the first visit so the language switcher
 // stays in control and there is never a redirect loop.
 
+import { locales, prefixedLocales } from '../web/i18n/locales.ts';
+
 // Non-default locales we can redirect to. English is the default and lives at
 // the root, so it is intentionally absent (a match for English means "stay").
-// Keep in sync with `locales` in web/i18n/index.ts.
-// prettier-ignore
-export const SUPPORTED_LOCALES = [
-  'id', 'vi', 'pt', 'es', 'de', 'fr',
-  'zh', 'ja', 'ko', 'ru', 'it', 'nl', 'pl', 'tr', 'hi', 'th', 'uk', 'sv',
-];
+export const SUPPORTED_LOCALES = prefixedLocales;
 
 // All site locales including the default, used to bound the analytics `locale`
 // dimension (a superset of SUPPORTED_LOCALES, which excludes the default).
-export const LOCALES = ['en', ...SUPPORTED_LOCALES];
+export const LOCALES = locales;
 
 // Pick the highest-priority supported locale from an Accept-Language header.
 // Returns a locale string, or null to stay on the English default (either

@@ -1,91 +1,39 @@
-import { existsSync, readFileSync } from 'fs';
+import { existsSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import {
+  defaultLocale,
+  locales,
+  prefixedLocales,
+} from '../../web/i18n/locales.ts';
+import { LOCALES, SUPPORTED_LOCALES } from '../../worker/index.js';
 
-// The locale list is duplicated across four sources that MUST stay in sync when
-// a language is added (see CLAUDE.md). i18n-completeness.test.ts checks that the
-// JSON dictionaries have matching keys, but nothing checks that these four
-// declarations agree. This test parses each source and fails if they diverge.
+// Every consumer derives its locale list from web/i18n/locales.ts, so the lists
+// can't drift. What's left to guard is the per-locale files that the module
+// can't create for you: the dictionary and the social-card image.
 
 const repoRoot = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   '../..',
 );
 
-function read(relative: string): string {
-  return readFileSync(path.join(repoRoot, relative), 'utf8');
-}
-
-// Extract the single-quoted tokens from the first regex capture group.
-function quotedTokens(source: string, pattern: RegExp): string[] {
-  const match = source.match(pattern);
-  if (!match) {
-    throw new Error(`Could not locate locale list with ${pattern}`);
-  }
-  return (match[1].match(/'([^']+)'/g) ?? []).map((t) => t.replace(/'/g, ''));
-}
-
-const astroConfig = read('astro.config.mjs');
-const i18nIndex = read('web/i18n/index.ts');
-const worker = read('worker/index.js');
-
-// astro.config.mjs top-level i18n block: `locales: ['en', 'id', ...]`
-const astroTopLevel = quotedTokens(
-  astroConfig,
-  /locales:\s*\[([^\]]+)\]/,
-).sort();
-
-// astro.config.mjs sitemap block: `locales: { en: 'en-US', id: 'id-ID', ... }`
-const sitemapBlock = astroConfig.match(/locales:\s*\{([^}]+)\}/);
-if (!sitemapBlock) throw new Error('Could not locate sitemap locales object');
-const astroSitemap = (sitemapBlock[1].match(/(\w+):/g) ?? [])
-  .map((k) => k.replace(':', ''))
-  .sort();
-
-// web/i18n/index.ts: `export const locales = ['en', 'id', ...]`
-const indexLocales = quotedTokens(
-  i18nIndex,
-  /export const locales = \[([^\]]+)\]/,
-).sort();
-
-// worker/index.js: `export const SUPPORTED_LOCALES = ['id', 'vi', ...]` (no 'en')
-const workerLocales = quotedTokens(
-  worker,
-  /export const SUPPORTED_LOCALES = \[([^\]]+)\]/,
-).sort();
-
-describe('i18n locale list sync', () => {
-  // Guard against a regex that matches but captures nothing (e.g. after the
-  // arrays are reformatted): an all-empty parse would make every toEqual below
-  // compare [] to [] and pass silently. Require each parsed list to be populated
-  // so a broken parse fails loudly instead.
-  it('parses a non-empty locale list from every source', () => {
-    expect(astroTopLevel.length).toBeGreaterThan(0);
-    expect(astroSitemap.length).toBeGreaterThan(0);
-    expect(indexLocales.length).toBeGreaterThan(0);
-    expect(workerLocales.length).toBeGreaterThan(0);
+describe('i18n locale wiring', () => {
+  it('has English as the default and first locale', () => {
+    expect(defaultLocale).toBe('en');
+    expect(locales[0]).toBe('en');
+    expect(prefixedLocales).not.toContain('en');
   });
 
-  it('astro.config.mjs top-level i18n matches web/i18n/index.ts', () => {
-    expect(astroTopLevel).toEqual(indexLocales);
+  it('the worker uses the shared locale list', () => {
+    expect(LOCALES).toEqual(locales);
+    expect(SUPPORTED_LOCALES).toEqual(prefixedLocales);
   });
 
-  it('astro.config.mjs sitemap block matches web/i18n/index.ts', () => {
-    expect(astroSitemap).toEqual(indexLocales);
-  });
-
-  it('worker SUPPORTED_LOCALES matches web/i18n/index.ts minus the default', () => {
-    const nonDefault = indexLocales.filter((l) => l !== 'en');
-    expect(workerLocales).toEqual(nonDefault);
-  });
-
-  it.each(indexLocales)('locale "%s" has a page and a dictionary', (locale) => {
-    const pagePath =
-      locale === 'en'
-        ? 'web/pages/index.astro'
-        : `web/pages/${locale}/index.astro`;
-    expect(existsSync(path.join(repoRoot, pagePath))).toBe(true);
+  it.each(locales)('locale "%s" has a dictionary and an OG image', (locale) => {
     expect(existsSync(path.join(repoRoot, `web/i18n/${locale}.json`))).toBe(
+      true,
+    );
+    expect(existsSync(path.join(repoRoot, `public/og/${locale}.png`))).toBe(
       true,
     );
   });

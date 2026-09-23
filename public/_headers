@@ -1,0 +1,15 @@
+# Response headers for Cloudflare Workers Static Assets (ignored elsewhere).
+# The Content-Security-Policy itself ships as a <meta> tag on every page (see
+# `security.csp` in astro.config.mjs); frame-ancestors can't be set that way,
+# so it lives here. A second CSP header only adds restrictions, never loosens.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Content-Security-Policy: frame-ancestors 'none'
+  X-Frame-Options: DENY
+
+# Astro emits content-hashed filenames under /_astro/, so they never change.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

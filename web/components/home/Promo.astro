@@ -4,14 +4,9 @@
 // (the book title "Open & Async" stays literal); utm_campaign=card distinguishes
 // this placement from the contextual results-pane pitch (utm_campaign=results).
 import '../../../src/promo.css';
-import { asLocale, useTranslations } from '../../i18n';
+import { useTranslations } from '../../i18n';
 
-interface Props {
-  /** Locale for this page; pages set it statically from their route. */
-  lang: string;
-}
-
-const t = useTranslations(asLocale(Astro.props.lang));
+const t = useTranslations(Astro.currentLocale);
 ---
 
 <a

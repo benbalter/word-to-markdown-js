@@ -1,16 +1,26 @@
 ---
-// Layout for the Markdown legal pages. Wraps the shared base Layout and renders
-// the rendered Markdown inside a Tailwind Typography `prose` container so the
-// raw <h1>/<h2>/<p>/<ul> get styled (and themed for dark mode).
+// Layout for the Markdown legal pages (the `legal` content collection). Wraps
+// the shared base Layout and renders an entry inside a Tailwind Typography
+// `prose` container so the raw <h1>/<h2>/<p>/<ul> get styled (and themed for
+// dark mode).
+import { getEntry, render } from 'astro:content';
 import Layout from './Layout.astro';
 
-const { title, description } = Astro.props.frontmatter ?? Astro.props;
+interface Props {
+  /** Entry id in the `legal` collection (its filename without .md). */
+  id: string;
+}
+
+const entry = await getEntry('legal', Astro.props.id);
+if (!entry) throw new Error(`No legal page "${Astro.props.id}"`);
+const { Content } = await render(entry);
+const { title, description } = entry.data;
 ---
 
 <Layout title={title} description={description}>
   <article
     class="prose dark:prose-invert mx-auto max-w-2xl px-1 py-12 sm:py-16"
   >
-    <slot />
+    <Content />
   </article>
 </Layout>

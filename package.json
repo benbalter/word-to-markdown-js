@@ -74,6 +74,7 @@
     "gen:fixtures": "npm run build:js && node scripts/build-fixtures.mjs",
     "gen:judge": "node scripts/judge-fixtures.mjs",
     "gen:i18n": "node scripts/translate-i18n.mjs",
+    "gen:og": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/gen-og.mjs",
     "prepack": "rm -rf build && npm run build:js"
   },
   "author": "Ben Balter <ben@balter.com>",

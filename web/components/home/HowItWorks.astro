@@ -1,14 +1,9 @@
 ---
 // "How it works": the three-step grid. Step icons are presentational and
 // locale-independent, so they live here and pair with t.steps by index.
-import { asLocale, useTranslations } from '../../i18n';
+import { useTranslations } from '../../i18n';
 
-interface Props {
-  /** Locale for this page; pages set it statically from their route. */
-  lang: string;
-}
-
-const t = useTranslations(asLocale(Astro.props.lang));
+const t = useTranslations(Astro.currentLocale);
 
 const stepIcons = [
   // Upload
