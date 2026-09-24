@@ -25,7 +25,7 @@
   --color-navy-soft: #54607a; /* muted text on paper */
   --color-mist: #9aa6bf; /* muted text on ink */
   --color-chartreuse: #d0d820; /* signature accent */
-  --color-chartreuse-deep: #7e8500; /* accent that passes contrast on paper */
+  --color-chartreuse-deep: #646a00; /* accent that passes contrast on paper */
   --color-rule-light: #e5e3d8; /* hairline borders on paper */
   --color-rule-dark: #243049; /* hairline borders on ink */
 }
