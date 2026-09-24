@@ -1,0 +1,21 @@
+# Crowdin configuration.
+#
+# Source strings live in web/i18n/en.json. Crowdin writes each translation back
+# as web/i18n/<code>.json, matching our locale filenames (id, vi, pt, es, de,
+# fr). English is the source language and is never overwritten.
+#
+# Credentials come from environment variables (GitHub Actions secrets) — never
+# commit a token here. See .github/workflows/crowdin.yml and web/i18n/README.md.
+project_id_env: CROWDIN_PROJECT_ID
+api_token_env: CROWDIN_PERSONAL_TOKEN
+
+preserve_hierarchy: true
+
+files:
+  - source: /web/i18n/en.json
+    translation: /web/i18n/%two_letters_code%.json
+    # Brazilian Portuguese (Crowdin id "pt-BR") writes to pt.json to match our
+    # locale key. The other languages already use their two-letter code.
+    languages_mapping:
+      two_letters_code:
+        pt-BR: pt
