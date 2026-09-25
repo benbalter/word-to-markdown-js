@@ -25,9 +25,7 @@ async function main() {
   }
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
-  const specFiles = fs
-    .readdirSync(SPEC_DIR)
-    .filter((f) => f.endsWith('.json'));
+  const specFiles = fs.readdirSync(SPEC_DIR).filter((f) => f.endsWith('.json'));
 
   const manifest = [];
   const dropped = [];
