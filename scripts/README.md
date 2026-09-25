@@ -16,8 +16,10 @@ AZURE_OPENAI_API_VERSION   # optional, defaults to 2024-08-01-preview
 ```
 
 Every raw model response is written under `scripts/.gen-cache/` **before**
-parsing, so the outputs can be re-processed offline (they're committed for
-provenance and are excluded from Prettier via `.prettierignore`).
+parsing, so the outputs can be re-processed offline. The raw `*.raw.json`
+responses are gitignored and stay local; the parsed specs and judgments beside
+them are committed (`gen:fixtures` reads the specs) and are excluded from
+Prettier via `.prettierignore`.
 
 ## Eval corpus (golden regression suite + quality report)
 
