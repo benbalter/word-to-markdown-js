@@ -63,6 +63,6 @@ const t = useTranslations(Astro.currentLocale);
   <span class="promo-text">
     <span class="promo-label">{t.promo.label}</span>
     <span class="promo-body" set:html={t.promo.body} />
-    <span class="promo-cta">{t.promo.cta} &rarr;</span>
+    <span class="promo-cta">{t.promo.cta} <span aria-hidden="true" class="inline-block rtl:-scale-x-100">&rarr;</span></span>
   </span>
 </a>

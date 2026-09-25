@@ -21,7 +21,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const I18N_DIR = path.join(__dirname, '..', 'web', 'i18n');
 const CACHE_DIR = path.join(__dirname, '.gen-cache', 'i18n');
 
-// Target locales (top-reach LTR languages). `name` is the endonym used in the
+// Target locales. `notes` adds locale-specific rules to both passes. `name` is the endonym used in the
 // language switcher; the wiring step (web/i18n/index.ts, astro.config.mjs,
 // worker/index.js) reuses htmlLang/ogLocale/name from here.
 export const TARGETS = [
@@ -103,6 +103,24 @@ export const TARGETS = [
     ogLocale: 'sv_SE',
     name: 'Svenska',
   },
+  {
+    code: 'zh-hant',
+    lang: 'Traditional Chinese (Taiwan)',
+    htmlLang: 'zh-Hant',
+    ogLocale: 'zh_TW',
+    name: '繁體中文',
+    notes:
+      'Use Traditional characters AND Taiwan-standard software vocabulary (e.g. 檔案 for file, 程式碼 for code, 軟體, 網路, 下載, 上傳, 瀏覽器, 伺服器, 預覽), not Mainland terms (文件/代码/软件/网络). Do not merely convert Simplified characters.',
+  },
+  {
+    code: 'ar',
+    lang: 'Modern Standard Arabic',
+    htmlLang: 'ar',
+    ogLocale: 'ar_AR',
+    name: 'العربية',
+    notes:
+      'Arabic reads right-to-left, so write menu paths with ← instead of → (e.g. "ملف ← تنزيل ← Microsoft Word (.docx)"). Use the standard Arabic menu names Microsoft and Google ship. Address the reader in the masculine-neutral imperative common in Arabic UIs.',
+  },
 ];
 
 const DO_NOT_TRANSLATE = [
@@ -154,11 +172,12 @@ function setPath(root, dottedPath, value) {
 async function translateBatch(target, entries) {
   // entries: [ [path, english], ... ]
   const src = Object.fromEntries(entries);
+  const notes = target.notes ? `\n- ${target.notes}` : '';
   const { parsed, raw } = await chatJson({
     messages: [
       {
         role: 'system',
-        content: `You are a professional software localizer translating a web app's UI strings into ${target.lang}.\n${RULES}\nReturn ONLY a JSON object with the SAME keys mapping to translated values.`,
+        content: `You are a professional software localizer translating a web app's UI strings into ${target.lang}.\n${RULES}${notes}\nReturn ONLY a JSON object with the SAME keys mapping to translated values.`,
       },
       { role: 'user', content: JSON.stringify(src, null, 2) },
     ],
@@ -175,7 +194,7 @@ async function qaPass(target, pairs) {
       {
         role: 'system',
         content: `You are a bilingual QA reviewer for ${target.lang} UI translations.
-For each item you are given the English source and the current translation. Back-translate mentally and flag ONLY items that are inaccurate, unnatural, empty, or that wrongly translated a do-not-translate term.
+For each item you are given the English source and the current translation. Back-translate mentally and flag ONLY items that are inaccurate, unnatural, empty, or that wrongly translated a do-not-translate term.${target.notes ? ` Also enforce: ${target.notes}` : ''}
 Do-not-translate terms: ${DO_NOT_TRANSLATE.map((t) => `"${t}"`).join(', ')}.
 Return ONLY JSON: { "corrections": { "<path>": "<improved ${target.lang} translation>", ... } }. Include a path ONLY if it needs fixing; return {} in "corrections" if all are fine.`,
       },

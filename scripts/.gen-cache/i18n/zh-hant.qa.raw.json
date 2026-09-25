@@ -1,0 +1,102 @@
+{
+  "choices": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "protected_material_code": {
+          "detected": false,
+          "filtered": false
+        },
+        "protected_material_text": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "annotations": [],
+        "content": "{\"corrections\":{\"flowFromAlt\":\"Word 檔案\",\"convertSectionAria\":\"轉換檔案\",\"conversionColElement\":\"Word 項目\",\"faqs.0.q\":\"如何將 Word 檔案轉換為 Markdown？\",\"faqs.2.q\":\"我的檔案會被上傳到伺服器嗎？\",\"faqs.7.q\":\"我可以用這個工具來準備給 ChatGPT、Claude 或其他 AI 工具使用的檔案嗎？\",\"faqs.7.a\":\"可以。Markdown 是適合大型語言模型與 RAG 流程的乾淨且節省 token 的格式。先將 Word 檔案轉換為 Markdown，能讓 AI 工具取得結構清楚的文字——標題、清單與表格——而不會受到二進位 .docx 格式雜訊的干擾。\",\"errorGeneric\":\"轉換檔案時發生未預期的錯誤。請再試一次。\",\"docFileError\":\"此工具可讀取較新的 .docx 檔案，不支援較舊的 .doc 檔案。請在 Word 中開啟你的檔案，然後選擇 檔案 → 另存新檔 → Word Document (.docx)，再將該 .docx 拖曳到這裡。\"}}",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790347670,
+  "id": "chatcmpl-ES1VG2CLtdfha6seeYIAU49VVsiwN",
+  "model": "gpt-5.4-2026-03-05",
+  "object": "chat.completion",
+  "prompt_filter_results": [
+    {
+      "prompt_index": 0,
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "jailbreak": {
+          "detected": false,
+          "filtered": false
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      }
+    }
+  ],
+  "routing": {
+    "serving_pipereplica": "d20260919112717-33a5bcea-default-r2-dp0-default"
+  },
+  "service_tier": "default",
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 312,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 8,
+      "engine_ttft_ms": 185,
+      "engine_ttlt_ms": 2599,
+      "pre_inference_ms": 253,
+      "service_tbt_ms": 8,
+      "service_ttft_ms": 670,
+      "service_ttlt_ms": 3076,
+      "user_visible_ttft_ms": 417
+    },
+    "prompt_tokens": 4668,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "total_tokens": 4980
+  }
+}

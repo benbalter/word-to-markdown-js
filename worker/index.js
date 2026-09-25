@@ -38,19 +38,29 @@ export function pickLocale(acceptLanguage) {
       const [tag, ...params] = part.trim().split(';');
       const qParam = params.find((p) => p.trim().startsWith('q='));
       const q = qParam ? parseFloat(qParam.split('=')[1]) : 1;
-      return {
-        base: tag.trim().toLowerCase().split('-')[0],
-        q: Number.isNaN(q) ? 0 : q,
-      };
+      return { tag: tag.trim().toLowerCase(), q: Number.isNaN(q) ? 0 : q };
     })
-    .filter((entry) => entry.base && entry.base !== '*')
+    .filter((entry) => entry.tag && entry.tag !== '*')
     .sort((a, b) => b.q - a.q);
 
-  for (const { base } of ranked) {
-    if (base === 'en') return null; // English preferred → stay on the root.
-    if (SUPPORTED_LOCALES.includes(base)) return base;
+  for (const { tag } of ranked) {
+    const locale = localeForTag(tag);
+    if (locale === 'en') return null; // English preferred → stay on the root.
+    if (SUPPORTED_LOCALES.includes(locale)) return locale;
   }
   return null;
+}
+
+// Traditional Chinese is the one locale a base-language match can't find:
+// zh-TW, zh-HK, zh-MO and any zh-Hant tag go to zh-hant; every other zh tag
+// (zh, zh-CN, zh-SG, zh-Hans) goes to Simplified.
+const TRADITIONAL_CHINESE = /^zh-(?:hant|tw|hk|mo)(?:-|$)/;
+
+// Map a lowercased language tag to a site locale key (which may be
+// unsupported; callers check).
+function localeForTag(tag) {
+  if (TRADITIONAL_CHINESE.test(tag)) return 'zh-hant';
+  return tag.split('-')[0];
 }
 
 export default {

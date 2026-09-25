@@ -13,6 +13,8 @@ import es from './es.json';
 import de from './de.json';
 import fr from './fr.json';
 import zh from './zh.json';
+import zhHant from './zh-hant.json';
+import ar from './ar.json';
 import ja from './ja.json';
 import ko from './ko.json';
 import ru from './ru.json';
@@ -40,9 +42,11 @@ const dictionaries: Record<Locale, UIStrings> = {
   vi,
   pt,
   es,
+  ar,
   de,
   fr,
   zh,
+  'zh-hant': zhHant,
   ja,
   ko,
   ru,

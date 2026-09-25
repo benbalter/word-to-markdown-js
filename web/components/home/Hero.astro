@@ -8,7 +8,7 @@ const t = useTranslations(Astro.currentLocale);
 
 <section class="mx-auto max-w-3xl pt-14 pb-2 text-center sm:pt-20">
   <p
-    class="reveal font-mono text-[0.72rem] font-medium tracking-[0.22em] text-chartreuse-deep uppercase dark:text-chartreuse [--reveal-delay:.02s]"
+    class="reveal font-mono text-[0.72rem] font-medium tracking-[0.22em] rtl:font-sans rtl:tracking-normal text-chartreuse-deep uppercase dark:text-chartreuse [--reveal-delay:.02s]"
   >
     {t.eyebrow}
   </p>
@@ -57,7 +57,7 @@ const t = useTranslations(Astro.currentLocale);
         <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z" />
         <path d="M14 2v5h5" />
       </svg>
-      <span class="font-mono text-xs font-medium tracking-tight">.docx</span>
+      <span class="font-mono text-xs font-medium tracking-tight" dir="ltr">.docx</span>
     </span>
 
     <svg
@@ -70,7 +70,7 @@ const t = useTranslations(Astro.currentLocale);
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
-      class="text-chartreuse-deep dark:text-chartreuse"
+      class="text-chartreuse-deep rtl:-scale-x-100 dark:text-chartreuse"
       aria-hidden="true"
     >
       <path d="M5 12h14" />
@@ -98,7 +98,7 @@ const t = useTranslations(Astro.currentLocale);
         <path d="M8 13h2v4" />
         <path d="M14 13v4l2-2 2 2v-4" />
       </svg>
-      <span class="font-mono text-xs font-medium tracking-tight">.md</span>
+      <span class="font-mono text-xs font-medium tracking-tight" dir="ltr">.md</span>
     </span>
   </div>
 
@@ -106,7 +106,7 @@ const t = useTranslations(Astro.currentLocale);
        word-to-markdown / word2md.herokuapp.com), predating the word2md.com
        domain (2019). -->
   <p
-    class="reveal mt-6 inline-flex items-center gap-1.5 font-mono text-[0.7rem] font-medium tracking-wide text-navy-soft dark:text-mist [--reveal-delay:.28s]"
+    class="reveal mt-6 inline-flex items-center gap-1.5 font-mono text-[0.7rem] font-medium tracking-wide rtl:font-sans rtl:tracking-normal text-navy-soft dark:text-mist [--reveal-delay:.28s]"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
