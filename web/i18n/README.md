@@ -32,6 +32,19 @@ wire up crowdsourced translation without further restructuring.
    there. Then generate its social card: `npm run build:site && npm run gen:og`.
 3. Run `npm test` (completeness) and `npm run build` (type-check + validate).
 
+## Right-to-left locales (`ar`)
+
+- Set `dir: 'rtl'` on the entry in `locales.ts`; the layout renders it on
+  `<html>`.
+- In the JSON, wrap left-to-right tokens (`.docx`, `Word (.docx)`) in the
+  isolate characters `⁦…⁩`, or the browser draws `.docx` as `docx.`.
+- In markup, use logical utilities (`text-start`, `me-*`) and `rtl:` variants.
+  Code stays `dir="ltr"`. Monospace labels with translated text also need
+  `rtl:font-sans rtl:tracking-normal`: letter-spacing and the system
+  monospace fallback both break Arabic's joined letters.
+- Traditional Chinese (`zh-hant`) is the one locale a base-language match
+  can't reach; `worker/index.js` maps `zh-TW`/`zh-HK`/`zh-MO`/`zh-Hant` to it.
+
 ## Review status
 
 Non-English locales are a **machine-translated first pass and need native

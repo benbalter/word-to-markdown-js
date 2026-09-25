@@ -11,7 +11,10 @@ import { fileURLToPath } from 'url';
 import { chatJson, dumpRaw } from './lib/azure.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const SPEC_DIR = path.join(__dirname, '.gen-cache', 'specs');
+// Parsed specs are committed (build-fixtures reads them); raw responses stay
+// in the gitignored local cache.
+const SPEC_DIR = path.join(__dirname, 'eval-specs');
+const RAW_DIR = path.join(__dirname, '.gen-cache', 'specs');
 
 // Each challenge stresses a distinct part of the Word → Markdown pipeline.
 const CHALLENGES = [
@@ -75,7 +78,7 @@ Variant ${v + 1} of ${variants} — make it materially different from other vari
         seen.add(unique);
         parsed.name = unique;
         // Raw response for provenance; parsed spec for the builder.
-        dumpRaw(path.join(SPEC_DIR, `${unique}.raw.json`), raw);
+        dumpRaw(path.join(RAW_DIR, `${unique}.raw.json`), raw);
         dumpRaw(path.join(SPEC_DIR, `${unique}.json`), parsed);
         ok++;
         console.log(`✓ ${unique} — ${challenge}`);

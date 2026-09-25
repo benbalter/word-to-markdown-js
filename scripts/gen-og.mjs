@@ -1,6 +1,6 @@
 // Generate the per-locale social cards (public/og/<locale>.png, 2400×1260).
 //
-//   npm run build:site && npm run gen:og
+//   npm run build:site && npm run gen:og   (OG_PORT=… if 4329 is taken)
 //
 // Renders each card in real Chrome against the built site so it uses the
 // self-hosted brand fonts and theme, then screenshots it. The eyebrow and
@@ -23,7 +23,7 @@ import { locales } from '../web/i18n/locales.ts';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = path.join(root, 'public/og');
-const port = 4329;
+const port = Number(process.env.OG_PORT) || 4329;
 const base = `http://localhost:${port}`;
 
 function escapeHtml(s) {
@@ -33,9 +33,12 @@ function escapeHtml(s) {
   );
 }
 
-// Scripts where tracking breaks shaping (Thai, Devanagari) or reads wrong
-// (CJK): the eyebrow drops its wide letter-spacing for these.
-const untracked = new Set(['zh', 'ja', 'ko', 'hi', 'th']);
+// Scripts where tracking breaks shaping (Thai, Devanagari, Arabic) or reads wrong
+// (CJK): the eyebrow drops its wide letter-spacing for these. Right-to-left
+// pages (the card inherits the page's <html dir>) drop it entirely and use
+// the sans face: tracking, or a monospace fallback's fixed-width glyphs, pulls
+// Arabic's joined letters apart.
+const untracked = new Set(['zh', 'zh-hant', 'ja', 'ko', 'hi', 'th', 'ar']);
 
 function card({ eyebrow, tagline }, locale) {
   const lead = escapeHtml(tagline).replace('.docx', '<code>.docx</code>');
@@ -55,6 +58,7 @@ function card({ eyebrow, tagline }, locale) {
   .badge { border: 1.5px solid rgba(208,216,32,.5); background: rgba(208,216,32,.1); color: #d0d820; border-radius: 7px; padding: 3px 9px; font-weight: 700; }
   .eyebrow { margin: 22px 0 0; font-family: var(--font-mono); font-size: 20px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; color: #d0d820; }
   .untracked .eyebrow { letter-spacing: .04em; }
+  [dir="rtl"] .eyebrow { font-family: var(--font-sans); letter-spacing: 0; }
   h1 { margin: 0; font-size: 116px; line-height: .98; font-weight: 600; letter-spacing: -.02em; }
   h1 .w { font-family: var(--font-display); font-style: italic; }
   h1 .to { font-family: var(--font-sans); font-weight: 300; color: #9aa6bf; }

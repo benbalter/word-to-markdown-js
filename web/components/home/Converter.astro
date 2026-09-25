@@ -67,7 +67,7 @@ const t = useTranslations(Astro.currentLocale);
     </label>
 
     <p
-      class="mt-4 text-center font-mono text-[0.72rem] tracking-wide text-navy-soft dark:text-mist"
+      class="mt-4 text-center font-mono text-[0.72rem] tracking-wide rtl:font-sans rtl:tracking-normal text-navy-soft dark:text-mist"
     >
       {t.googleDocHint}
     </p>
@@ -193,12 +193,12 @@ const t = useTranslations(Astro.currentLocale);
         >
           <span class="h-2.5 w-2.5 rounded-full bg-chartreuse"></span>
           <span
-            class="font-mono text-xs font-medium tracking-wide text-navy-soft uppercase dark:text-mist"
+            class="font-mono text-xs font-medium tracking-wide rtl:font-sans rtl:tracking-normal text-navy-soft uppercase dark:text-mist"
             >{t.panelMarkdown}</span
           >
         </div>
         <pre
-          class="max-h-[28rem] overflow-auto px-4 py-3 text-left"><code id="output" class="font-mono text-[0.82rem] leading-relaxed text-navy dark:text-[#e3e6ef]"></code></pre>
+          class="max-h-[28rem] overflow-auto px-4 py-3 text-start" dir="ltr"><code id="output" class="font-mono text-[0.82rem] leading-relaxed text-navy dark:text-[#e3e6ef]"></code></pre>
       </div>
 
       <div
@@ -209,13 +209,14 @@ const t = useTranslations(Astro.currentLocale);
         >
           <span class="h-2.5 w-2.5 rounded-full bg-navy-soft dark:bg-mist"></span>
           <span
-            class="font-mono text-xs font-medium tracking-wide text-navy-soft uppercase dark:text-mist"
+            class="font-mono text-xs font-medium tracking-wide rtl:font-sans rtl:tracking-normal text-navy-soft uppercase dark:text-mist"
             >{t.panelPreview}</span
           >
         </div>
         <div
           id="rendered"
-          class="prose prose-sm dark:prose-invert max-h-[28rem] max-w-none overflow-auto px-4 py-3 text-left"
+          dir="auto"
+          class="prose prose-sm dark:prose-invert max-h-[28rem] max-w-none overflow-auto px-4 py-3 text-start"
         >
         </div>
       </div>
@@ -227,7 +228,7 @@ const t = useTranslations(Astro.currentLocale);
          real weight: book cover + a filled button rather than a bare text link.
          utm_campaign=results lets this placement be told apart from the card. -->
     <aside
-      class="mt-4 flex items-center gap-4 rounded-xl border border-chartreuse/40 bg-chartreuse/10 px-4 py-3.5 text-left dark:bg-chartreuse/5"
+      class="mt-4 flex items-center gap-4 rounded-xl border border-chartreuse/40 bg-chartreuse/10 px-4 py-3.5 text-start dark:bg-chartreuse/5"
     >
       <img
         src="/open-and-async-cover.png"
@@ -249,7 +250,7 @@ const t = useTranslations(Astro.currentLocale);
           class="inline-flex shrink-0 items-center gap-1.5 self-start rounded-lg bg-chartreuse px-4 py-2 text-sm font-semibold whitespace-nowrap text-navy shadow-sm transition-colors hover:bg-chartreuse-deep hover:text-white sm:self-auto"
         >
           {t.promo.resultsCta}
-          <span aria-hidden="true">&rarr;</span>
+          <span aria-hidden="true" class="rtl:-scale-x-100">&rarr;</span>
         </a>
       </div>
     </aside>

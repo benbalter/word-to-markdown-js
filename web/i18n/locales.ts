@@ -15,20 +15,31 @@ export interface LocaleMeta {
   sitemapLocale: string;
   /** Endonym (the language's own name) for the switcher — never a flag. */
   name: string;
+  /** Writing direction, when right-to-left. Omitted means LTR. */
+  dir?: 'rtl';
+  /**
+   * ISO 3166-1 country codes (Cloudflare's `request.cf.country`) whose
+   * English-browsing visitors are shown a dismissible "also available in …"
+   * suggestion on the English root. Never a redirect: location only ever
+   * suggests (see pickSuggestion in worker/index.js).
+   */
+  countries?: readonly string[];
 }
 
-// The key is the URL segment (e.g. `pt` → /pt/). Insertion order is the
+// The key is the URL segment (e.g. `pt` → /pt/, `zh-hant` → /zh-hant/). Insertion order is the
 // switcher order. English is the default and lives at the root.
 // prettier-ignore
 export const localeMeta = {
   en: { htmlLang: 'en', ogLocale: 'en_US', sitemapLocale: 'en-US', name: 'English' },
-  id: { htmlLang: 'id', ogLocale: 'id_ID', sitemapLocale: 'id-ID', name: 'Bahasa Indonesia' },
-  vi: { htmlLang: 'vi', ogLocale: 'vi_VN', sitemapLocale: 'vi-VN', name: 'Tiếng Việt' },
+  id: { htmlLang: 'id', ogLocale: 'id_ID', sitemapLocale: 'id-ID', name: 'Bahasa Indonesia', countries: ['ID'] },
+  vi: { htmlLang: 'vi', ogLocale: 'vi_VN', sitemapLocale: 'vi-VN', name: 'Tiếng Việt', countries: ['VN'] },
   pt: { htmlLang: 'pt-BR', ogLocale: 'pt_BR', sitemapLocale: 'pt-BR', name: 'Português' },
   es: { htmlLang: 'es', ogLocale: 'es_ES', sitemapLocale: 'es', name: 'Español' },
+  ar: { htmlLang: 'ar', ogLocale: 'ar_AR', sitemapLocale: 'ar', name: 'العربية', dir: 'rtl' },
   de: { htmlLang: 'de', ogLocale: 'de_DE', sitemapLocale: 'de-DE', name: 'Deutsch' },
   fr: { htmlLang: 'fr', ogLocale: 'fr_FR', sitemapLocale: 'fr-FR', name: 'Français' },
   zh: { htmlLang: 'zh-Hans', ogLocale: 'zh_CN', sitemapLocale: 'zh-CN', name: '简体中文' },
+  'zh-hant': { htmlLang: 'zh-Hant', ogLocale: 'zh_TW', sitemapLocale: 'zh-Hant', name: '繁體中文' },
   ja: { htmlLang: 'ja', ogLocale: 'ja_JP', sitemapLocale: 'ja-JP', name: '日本語' },
   ko: { htmlLang: 'ko', ogLocale: 'ko_KR', sitemapLocale: 'ko-KR', name: '한국어' },
   ru: { htmlLang: 'ru', ogLocale: 'ru_RU', sitemapLocale: 'ru-RU', name: 'Русский' },

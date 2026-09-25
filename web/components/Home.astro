@@ -5,7 +5,7 @@
 // translations from the route's locale (Astro.currentLocale).
 import { getAbsoluteLocaleUrl } from 'astro:i18n';
 import Layout from '../layouts/Layout.astro';
-import { asLocale, localeMeta, useTranslations } from '../i18n';
+import { asLocale, defaultLocale, localeMeta, useTranslations } from '../i18n';
 import Hero from './home/Hero.astro';
 import Converter from './home/Converter.astro';
 import Promo from './home/Promo.astro';
@@ -13,6 +13,7 @@ import HowItWorks from './home/HowItWorks.astro';
 import ConversionTable from './home/ConversionTable.astro';
 import CliCallout from './home/CliCallout.astro';
 import Faq from './home/Faq.astro';
+import LanguageSuggestion from './home/LanguageSuggestion.astro';
 
 const locale = asLocale(Astro.currentLocale);
 const meta = localeMeta[locale];
@@ -71,6 +72,7 @@ const structuredData = {
   <ConversionTable />
   <CliCallout />
   <Faq />
+  {locale === defaultLocale && <LanguageSuggestion />}
 </Layout>
 
 <script>

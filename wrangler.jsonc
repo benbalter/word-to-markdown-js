@@ -2,7 +2,8 @@
   // Cloudflare Workers (Static Assets) config. `wrangler deploy` builds a Worker
   // that serves the static Astro output in ./dist through the ASSETS binding.
   // `run_worker_first` runs worker/index.js (instead of serving an asset) for the
-  // listed routes: "/" applies the Accept-Language redirect, and "/api/event" is
+  // listed routes: "/" applies the Accept-Language redirect (or tags the page
+  // with a language suggestion), and "/api/event" is
   // the anonymous conversion counter. Every other path is served directly from
   // assets. `name` matches the Cloudflare project created from the repo.
   "name": "word-to-markdown-js",

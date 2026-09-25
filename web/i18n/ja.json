@@ -111,6 +111,7 @@
   "conversionAnnouncement": "変換が完了しました。Markdownの準備ができました。",
   "convertingStatus": "変換中…",
   "dismiss": "閉じる",
+  "suggestLanguage": "日本語版もあります",
   "promo": {
     "label": "開発者より",
     "body": "この無料ツールを作った私が、オープンに働く方法についての本も書きました。<strong>Open &amp; Async</strong> は、リモートチームや分散チームのための GitHub で実証された実践ガイドです。",

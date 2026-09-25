@@ -16,8 +16,9 @@ AZURE_OPENAI_API_VERSION   # optional, defaults to 2024-08-01-preview
 ```
 
 Every raw model response is written under `scripts/.gen-cache/` **before**
-parsing, so the outputs can be re-processed offline (they're committed for
-provenance and are excluded from Prettier via `.prettierignore`).
+parsing, so the outputs can be re-processed offline. That folder is gitignored
+and stays local. The one generated input that is committed is
+`scripts/eval-specs/`, the parsed document specs `gen:fixtures` builds from.
 
 ## Eval corpus (golden regression suite + quality report)
 
@@ -27,7 +28,7 @@ can read them (round-trip guard).
 
 ```bash
 node scripts/spike.mjs        # sanity: build+convert one hand-written fixture
-npm run gen:specs             # A1 (credits): LLM → .gen-cache/specs/*.json
+npm run gen:specs             # A1 (credits): LLM → scripts/eval-specs/*.json
 npm run gen:fixtures          # A2: specs → src/__fixtures__/eval/*.{docx,md}
 npm run gen:judge             # A3/A4 (credits): score fidelity → docs/converter-quality-report.md
 ```

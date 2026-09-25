@@ -65,12 +65,17 @@
   color: #d0d820; /* chartreuse */
 }
 
+/* Tracking pulls Arabic's joined letters apart. */
+[dir='rtl'] .promo-label {
+  letter-spacing: 0;
+}
+
 .promo-label::before {
   content: ''; /* CSS-drawn dot — decorative, silent to screen readers */
   display: inline-block;
   width: 0.5em;
   height: 0.5em;
-  margin-right: 0.45em;
+  margin-inline-end: 0.45em;
   border-radius: 50%;
   background: #d0d820; /* chartreuse */
   vertical-align: middle;

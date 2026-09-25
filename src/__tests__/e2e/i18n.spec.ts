@@ -90,6 +90,26 @@ test.describe('Internationalization', () => {
     await expect(page.getByText('Câu hỏi thường gặp')).toBeVisible();
   });
 
+  test('Arabic home renders right-to-left at /ar/', async ({ page }) => {
+    await page.goto('http://localhost:8080/ar/');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+    await expect(page.getByText('الأسئلة الشائعة')).toBeVisible();
+
+    // Code stays left-to-right inside the RTL page.
+    await expect(page.locator('pre:has(#output)')).toHaveAttribute(
+      'dir',
+      'ltr',
+    );
+  });
+
+  test('Traditional Chinese home renders at /zh-hant/', async ({ page }) => {
+    await page.goto('http://localhost:8080/zh-hant/');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hant');
+    await expect(page.locator('html')).not.toHaveAttribute('dir', /.*/);
+    await expect(page.getByText('常見問題')).toBeVisible();
+  });
+
   test('language switcher lists every locale by endonym and marks the current one', async ({
     page,
   }) => {

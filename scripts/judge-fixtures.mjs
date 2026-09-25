@@ -1,8 +1,9 @@
 // A3/A4 (credit-funded judging + free aggregation): for every built eval fixture,
 // send Azure Foundry the intended document spec and the converter's ACTUAL
 // Markdown, and ask it to (a) produce an "ideal" GFM rendering, (b) score
-// fidelity 0-1, and (c) list concrete issues. Raw judgments are dumped to
-// .gen-cache/judgments/ before aggregation; the digest is written to
+// fidelity 0-1, and (c) list concrete issues. Judgments are dumped to the
+// local, gitignored .gen-cache/judgments/ before aggregation; the digest (the
+// committed record) is written to
 // docs/converter-quality-report.md as a prioritized improvement roadmap.
 //
 // Run (after build-fixtures.mjs): node scripts/judge-fixtures.mjs
@@ -12,7 +13,7 @@ import { fileURLToPath } from 'url';
 import { chatJson, dumpRaw } from './lib/azure.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const SPEC_DIR = path.join(__dirname, '.gen-cache', 'specs');
+const SPEC_DIR = path.join(__dirname, 'eval-specs');
 const JUDGE_DIR = path.join(__dirname, '.gen-cache', 'judgments');
 const EVAL_DIR = path.join(__dirname, '..', 'src', '__fixtures__', 'eval');
 const REPORT = path.join(

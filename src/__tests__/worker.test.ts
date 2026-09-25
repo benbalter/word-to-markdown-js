@@ -143,4 +143,113 @@ describe('worker fetch handler', () => {
       expect(env.ASSETS.fetch).toHaveBeenCalledWith(req);
     });
   });
+
+  describe('root language suggestion', () => {
+    // HTMLRewriter is a Workers runtime global; stand in a minimal version that
+    // applies the `html` element handler's setAttribute to the serialized body.
+    beforeAll(() => {
+      (globalThis as Record<string, unknown>).HTMLRewriter = class {
+        private attrs: [string, string][] = [];
+        on(
+          _selector: string,
+          handler: {
+            element(el: { setAttribute(k: string, v: string): void }): void;
+          },
+        ) {
+          handler.element({ setAttribute: (k, v) => this.attrs.push([k, v]) });
+          return this;
+        }
+        transform(res: Response) {
+          const attrs = this.attrs;
+          const body = res
+            .text()
+            .then((html) =>
+              html.replace(
+                '<html',
+                `<html ${attrs.map(([k, v]) => `${k}="${v}"`).join(' ')}`,
+              ),
+            );
+          return {
+            headers: res.headers,
+            status: res.status,
+            body: new ReadableStream({
+              async start(c) {
+                c.enqueue(new TextEncoder().encode(await body));
+                c.close();
+              },
+            }),
+          };
+        }
+      };
+    });
+    afterAll(() => {
+      delete (globalThis as Record<string, unknown>).HTMLRewriter;
+    });
+
+    function htmlEnv() {
+      return makeEnv({
+        ASSETS: {
+          fetch: jest.fn(
+            async () =>
+              new Response('<html lang="en"><body></body></html>', {
+                status: 200,
+                headers: {
+                  ETag: '"abc"',
+                  'Cache-Control': 'public, max-age=0',
+                },
+              }),
+          ),
+        },
+      });
+    }
+
+    function rootRequest(headers: Record<string, string>, country?: string) {
+      const req = new Request('https://word2md.com/', { headers });
+      if (country) Object.defineProperty(req, 'cf', { value: { country } });
+      return req;
+    }
+
+    it('tags <html> for an English browser in a mapped country', async () => {
+      const env = htmlEnv();
+      const res = await worker.fetch(
+        rootRequest(
+          {
+            'Accept-Language': 'en-US,en;q=0.9',
+            Cookie: 'lang=en',
+            'If-None-Match': '"abc"',
+          },
+          'ID',
+        ),
+        env,
+      );
+
+      expect(await res.text()).toContain('data-suggest-locale="id"');
+      // Per-visitor response: never cached, no validators.
+      expect(res.headers.get('Cache-Control')).toBe('private, no-store');
+      expect(res.headers.get('ETag')).toBeNull();
+      // Fetched unconditionally, so a stale untagged copy can't be reused.
+      const [assetReq] = env.ASSETS.fetch.mock.calls[0] as [Request];
+      expect(assetReq.headers.get('If-None-Match')).toBeNull();
+    });
+
+    it('serves the plain asset once the suggestion is turned off', async () => {
+      const env = htmlEnv();
+      const req = rootRequest(
+        { 'Accept-Language': 'en-US', Cookie: 'lang=en; hint=off' },
+        'ID',
+      );
+      const res = await worker.fetch(req, env);
+
+      expect(env.ASSETS.fetch).toHaveBeenCalledWith(req);
+      expect(await res.text()).not.toContain('data-suggest-locale');
+    });
+
+    it('serves the plain asset when there is nothing to suggest', async () => {
+      const env = htmlEnv();
+      const req = rootRequest({ 'Accept-Language': 'en-US' }, 'US');
+      await worker.fetch(req, env);
+
+      expect(env.ASSETS.fetch).toHaveBeenCalledWith(req);
+    });
+  });
 });

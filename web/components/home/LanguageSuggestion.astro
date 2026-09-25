@@ -1,0 +1,151 @@
+---
+// "Also available in …" banner for the English root. The page is static, so
+// the choice happens at the edge: worker/index.js tags <html
+// data-suggest-locale="id"> for visitors who list a supported language after
+// English or browse from a country mapped in locales.ts, and the script below
+// fills in that locale's copy (in that language) and reveals the banner. A
+// suggestion, never a redirect; dismissing or following it sets `hint=off`,
+// which the Worker and this script both honor.
+//
+// The markup lives in a <template> so the page ships no empty, unlabeled
+// controls; the copy for every locale ships as a JSON data block (not
+// executed, so the CSP doesn't apply).
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import {
+  localeMeta,
+  prefixedLocales,
+  useTranslations,
+  type LocaleMeta,
+} from '../../i18n';
+
+const suggestions = Object.fromEntries(
+  prefixedLocales.map((l) => {
+    const t = useTranslations(l);
+    const meta: LocaleMeta = localeMeta[l];
+    return [
+      l,
+      {
+        text: t.suggestLanguage,
+        dismiss: t.dismiss,
+        href: getRelativeLocaleUrl(l, '/'),
+        lang: meta.htmlLang,
+        dir: meta.dir ?? 'ltr',
+      },
+    ];
+  }),
+);
+---
+
+<template id="lang-suggest">
+  <aside
+    aria-labelledby="lang-suggest-link"
+    class="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-md items-center gap-3 rounded-xl border border-rule-light bg-paper-card px-4 py-3 text-sm text-navy shadow-lg dark:border-rule-dark dark:bg-ink-card dark:text-[#eef0f6]"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="shrink-0 text-chartreuse-deep dark:text-chartreuse"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10"></circle>
+      <path d="M2 12h20"></path>
+      <path
+        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+      ></path>
+    </svg>
+    <a
+      id="lang-suggest-link"
+      href="/"
+      class="flex-1 font-medium underline decoration-chartreuse decoration-2 underline-offset-4 hover:text-chartreuse-deep dark:hover:text-chartreuse"
+      ><span data-text>…</span>
+      <span aria-hidden="true" class="ms-1 inline-block rtl:-scale-x-100">&rarr;</span></a
+    >
+    <button
+      type="button"
+      aria-label="Dismiss"
+      class="shrink-0 rounded p-1 text-navy-soft hover:text-navy dark:text-mist dark:hover:text-white"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M18 6 6 18"></path>
+        <path d="m6 6 12 12"></path>
+      </svg>
+    </button>
+  </aside>
+</template>
+<script
+  type="application/json"
+  id="lang-suggest-data"
+  set:html={JSON.stringify(suggestions)}
+/>
+
+<script>
+  interface Suggestion {
+    text: string;
+    dismiss: string;
+    href: string;
+    lang: string;
+    dir: string;
+  }
+
+  const HINT_OFF = /(?:^|;\s*)hint=off/;
+
+  try {
+    const locale = document.documentElement.dataset.suggestLocale;
+    const tpl = document.getElementById('lang-suggest');
+    const data = document.getElementById('lang-suggest-data');
+    if (
+      locale &&
+      tpl instanceof HTMLTemplateElement &&
+      data &&
+      !HINT_OFF.test(document.cookie)
+    ) {
+      const all: Record<string, Suggestion> = JSON.parse(
+        data.textContent || '{}',
+      );
+      const s = all[locale];
+      if (s) {
+        const fragment = tpl.content.cloneNode(true) as DocumentFragment;
+        const box = fragment.querySelector('aside')!;
+        const link = box.querySelector('a')!;
+        const button = box.querySelector('button')!;
+        box.lang = s.lang;
+        box.dir = s.dir;
+        link.href = s.href;
+        link.hreflang = s.lang;
+        link.querySelector('[data-text]')!.textContent = s.text;
+        button.setAttribute('aria-label', s.dismiss);
+
+        // Dismissing or following the suggestion ends it for good.
+        const turnOff = () => {
+          document.cookie = 'hint=off; path=/; max-age=31536000; samesite=lax';
+        };
+        link.addEventListener('click', turnOff);
+        button.addEventListener('click', () => {
+          turnOff();
+          box.remove();
+        });
+        document.body.append(box);
+      }
+    }
+  } catch {
+    /* no suggestion — the page works the same without it */
+  }
+</script>

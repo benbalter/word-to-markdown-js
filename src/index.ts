@@ -307,8 +307,8 @@ function setupClipboard(): void {
 function recordConversion(outcome: 'success' | 'error'): void {
   try {
     if (window.location.hostname !== 'word2md.com') return;
-    // Base language tag (e.g. "pt-BR" → "pt") to match the Worker's locale keys.
-    const locale = (document.documentElement.lang || 'en').split('-')[0];
+    // The site's locale key (e.g. "pt", "zh-hant"), which the Worker validates.
+    const locale = document.documentElement.dataset.locale || 'en';
     const url = `/api/event?o=${outcome}&l=${encodeURIComponent(locale)}`;
     if (typeof navigator.sendBeacon === 'function') {
       navigator.sendBeacon(url);

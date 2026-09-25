@@ -15,6 +15,7 @@ import {
   localeMeta,
   useTranslations,
   locales,
+  type LocaleMeta,
 } from '../i18n';
 
 interface Props {
@@ -44,7 +45,7 @@ const {
 
 // Current locale drives the <html lang>, og:locale, and localized chrome.
 const locale = asLocale(Astro.currentLocale);
-const meta = localeMeta[locale];
+const meta: LocaleMeta = localeMeta[locale];
 const t = useTranslations(locale);
 
 // Canonical / OG / social-image URLs derived from `site` + the current path.
@@ -81,6 +82,7 @@ const homeHref = getRelativeLocaleUrl(locale, '/');
 // translated page today); these crawlable links also aid locale discovery.
 const languageLinks = locales.map((l) => ({
   name: localeMeta[l].name,
+  lang: localeMeta[l].htmlLang,
   href: getRelativeLocaleUrl(l, '/'),
   current: l === locale,
 }));
@@ -101,7 +103,12 @@ const footerLinks = [
 ---
 
 <!doctype html>
-<html lang={meta.htmlLang} data-localized={i18nPath === undefined ? undefined : ''}>
+<html
+  lang={meta.htmlLang}
+  dir={meta.dir}
+  data-locale={locale}
+  data-localized={i18nPath === undefined ? undefined : ''}
+>
   <head>
     <meta charset="utf-8" />
     <meta
@@ -192,7 +199,7 @@ const footerLinks = [
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
-          class="mr-1.5 text-navy-soft dark:text-mist"
+          class="me-1.5 text-navy-soft dark:text-mist"
           aria-hidden="true"
         >
           <circle cx="12" cy="12" r="10" />
@@ -204,6 +211,8 @@ const footerLinks = [
             lang.current ? (
               <span
                 aria-current="page"
+                lang={lang.lang}
+                dir="auto"
                 class="rounded px-2 py-0.5 font-medium text-chartreuse-deep dark:text-chartreuse"
               >
                 {lang.name}
@@ -211,6 +220,9 @@ const footerLinks = [
             ) : (
               <a
                 href={lang.href}
+                lang={lang.lang}
+                hreflang={lang.lang}
+                dir="auto"
                 class="rounded px-2 py-0.5 text-navy-soft underline decoration-transparent decoration-2 underline-offset-4 transition-colors hover:text-navy hover:decoration-chartreuse dark:text-mist dark:hover:text-white"
               >
                 {lang.name}
@@ -226,6 +238,7 @@ const footerLinks = [
           footerLinks.map((link) => (
             <a
               href={link.href}
+              dir="auto"
               class="font-medium text-navy-soft underline decoration-transparent decoration-2 underline-offset-4 transition-colors hover:text-navy hover:decoration-chartreuse dark:text-mist dark:hover:text-white"
             >
               {link.label}
@@ -234,7 +247,7 @@ const footerLinks = [
         }
       </nav>
       <p
-        class="mt-5 text-center font-mono text-[0.7rem] tracking-wide text-navy-soft dark:text-mist"
+        class="mt-5 text-center font-mono text-[0.7rem] tracking-wide rtl:font-sans rtl:tracking-normal text-navy-soft dark:text-mist"
       >
         {t.footerTagline}
       </p>
