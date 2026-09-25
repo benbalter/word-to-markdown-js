@@ -111,6 +111,7 @@
   "conversionAnnouncement": "변환 완료. Markdown이 준비되었습니다.",
   "convertingStatus": "변환 중…",
   "dismiss": "닫기",
+  "suggestLanguage": "한국어로도 이용할 수 있습니다",
   "promo": {
     "label": "제작자 소개",
     "body": "이 무료 도구는 제가 만들었고, 오픈하게 일하는 방식에 관한 책도 썼습니다. <strong>Open &amp; Async</strong>는 원격 및 분산 팀을 위한 GitHub 검증 플레이북입니다.",

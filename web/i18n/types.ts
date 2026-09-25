@@ -99,6 +99,11 @@ export interface UIStrings {
   /** Announced to assistive tech while a conversion is in progress. */
   convertingStatus: string;
   dismiss: string;
+  /**
+   * "Also available in <this language>", shown IN this language on the English
+   * root when the Worker suggests this locale (see LanguageSuggestion.astro).
+   */
+  suggestLanguage: string;
 
   // Open & Async promo. `card.*` is the standalone sponsor card (Promo.astro);
   // `resultsLead`/`resultsCta` are the lighter, contextual pitch shown in the

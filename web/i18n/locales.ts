@@ -17,6 +17,13 @@ export interface LocaleMeta {
   name: string;
   /** Writing direction, when right-to-left. Omitted means LTR. */
   dir?: 'rtl';
+  /**
+   * ISO 3166-1 country codes (Cloudflare's `request.cf.country`) whose
+   * English-browsing visitors are shown a dismissible "also available in …"
+   * suggestion on the English root. Never a redirect: location only ever
+   * suggests (see pickSuggestion in worker/index.js).
+   */
+  countries?: readonly string[];
 }
 
 // The key is the URL segment (e.g. `pt` → /pt/, `zh-hant` → /zh-hant/). Insertion order is the
@@ -24,8 +31,8 @@ export interface LocaleMeta {
 // prettier-ignore
 export const localeMeta = {
   en: { htmlLang: 'en', ogLocale: 'en_US', sitemapLocale: 'en-US', name: 'English' },
-  id: { htmlLang: 'id', ogLocale: 'id_ID', sitemapLocale: 'id-ID', name: 'Bahasa Indonesia' },
-  vi: { htmlLang: 'vi', ogLocale: 'vi_VN', sitemapLocale: 'vi-VN', name: 'Tiếng Việt' },
+  id: { htmlLang: 'id', ogLocale: 'id_ID', sitemapLocale: 'id-ID', name: 'Bahasa Indonesia', countries: ['ID'] },
+  vi: { htmlLang: 'vi', ogLocale: 'vi_VN', sitemapLocale: 'vi-VN', name: 'Tiếng Việt', countries: ['VN'] },
   pt: { htmlLang: 'pt-BR', ogLocale: 'pt_BR', sitemapLocale: 'pt-BR', name: 'Português' },
   es: { htmlLang: 'es', ogLocale: 'es_ES', sitemapLocale: 'es', name: 'Español' },
   ar: { htmlLang: 'ar', ogLocale: 'ar_AR', sitemapLocale: 'ar', name: 'العربية', dir: 'rtl' },

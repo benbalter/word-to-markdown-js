@@ -16,8 +16,14 @@
 // `lang` cookie — set on every page by a tiny inline script (see Layout.astro)
 // — disables the auto-redirect after the first visit so the language switcher
 // stays in control and there is never a redirect loop.
+//
+// Visitors who stay on the English root may instead get a *suggestion*: the
+// Worker tags <html data-suggest-locale> when they list a supported language
+// after English, or browse from a country mapped in locales.ts (`countries`),
+// and the page shows a dismissible "also available in …" banner. Location
+// only ever suggests; it never redirects.
 
-import { locales, prefixedLocales } from '../web/i18n/locales.ts';
+import { localeMeta, locales, prefixedLocales } from '../web/i18n/locales.ts';
 
 // Non-default locales we can redirect to. English is the default and lives at
 // the root, so it is intentionally absent (a match for English means "stay").
@@ -27,12 +33,10 @@ export const SUPPORTED_LOCALES = prefixedLocales;
 // dimension (a superset of SUPPORTED_LOCALES, which excludes the default).
 export const LOCALES = locales;
 
-// Pick the highest-priority supported locale from an Accept-Language header.
-// Returns a locale string, or null to stay on the English default (either
-// because English ranks highest or nothing matched).
-export function pickLocale(acceptLanguage) {
-  if (!acceptLanguage) return null;
-  const ranked = acceptLanguage
+// Parse an Accept-Language header into lowercased tags, highest q first.
+function rankTags(acceptLanguage) {
+  if (!acceptLanguage) return [];
+  return acceptLanguage
     .split(',')
     .map((part) => {
       const [tag, ...params] = part.trim().split(';');
@@ -41,14 +45,39 @@ export function pickLocale(acceptLanguage) {
       return { tag: tag.trim().toLowerCase(), q: Number.isNaN(q) ? 0 : q };
     })
     .filter((entry) => entry.tag && entry.tag !== '*')
-    .sort((a, b) => b.q - a.q);
+    .sort((a, b) => b.q - a.q)
+    .map((entry) => entry.tag);
+}
 
-  for (const { tag } of ranked) {
+// Pick the highest-priority supported locale from an Accept-Language header.
+// Returns a locale string, or null to stay on the English default (either
+// because English ranks highest or nothing matched).
+export function pickLocale(acceptLanguage) {
+  for (const tag of rankTags(acceptLanguage)) {
     const locale = localeForTag(tag);
     if (locale === 'en') return null; // English preferred → stay on the root.
     if (SUPPORTED_LOCALES.includes(locale)) return locale;
   }
   return null;
+}
+
+// For a visitor who stays on the English root, pick a locale to *suggest*
+// (a dismissible banner, never a redirect): a supported language they list
+// after English, else the site language for their country. Returns null when
+// there's nothing to suggest, including when their browser *prefers* a
+// supported language: they'd have been redirected, so being on the English
+// root means they chose it.
+export function pickSuggestion(acceptLanguage, country) {
+  if (pickLocale(acceptLanguage)) return null;
+  for (const tag of rankTags(acceptLanguage)) {
+    const locale = localeForTag(tag);
+    if (SUPPORTED_LOCALES.includes(locale)) return locale;
+  }
+  if (!country) return null;
+  return (
+    SUPPORTED_LOCALES.find((l) => localeMeta[l].countries?.includes(country)) ??
+    null
+  );
 }
 
 // Traditional Chinese is the one locale a base-language match can't find:
@@ -121,7 +150,49 @@ export default {
       }
     }
 
-    // Serve the matching static asset (index.html for "/", etc.).
-    return env.ASSETS.fetch(request);
+    // On the English root, pick a language to suggest. The static page renders
+    // the banner hidden and its script reveals it when <html> carries
+    // data-suggest-locale. A `hint=off` cookie (set on dismiss or click-through)
+    // turns it off for good.
+    const suggestion =
+      url.pathname === '/' &&
+      !/(?:^|;\s*)hint=off/.test(request.headers.get('Cookie') || '')
+        ? pickSuggestion(
+            request.headers.get('Accept-Language'),
+            request.cf?.country,
+          )
+        : null;
+    if (!suggestion) {
+      // Serve the matching static asset (index.html for "/", etc.).
+      return env.ASSETS.fetch(request);
+    }
+
+    // Fetch unconditionally: a 304 would let the browser reuse an untagged copy
+    // cached before the suggestion applied.
+    const headers = new Headers(request.headers);
+    headers.delete('If-None-Match');
+    headers.delete('If-Modified-Since');
+    const response = await env.ASSETS.fetch(new Request(request, { headers }));
+    return response.ok ? withSuggestion(response, suggestion) : response;
   },
 };
+
+// Stream the asset through HTMLRewriter to tag <html> with the suggestion. The
+// response now varies per visitor, so it must not be cached as the shared
+// asset (drop the asset's validators too, or a 304 would resurrect a stale
+// copy).
+function withSuggestion(response, locale) {
+  const tagged = new HTMLRewriter()
+    .on('html', {
+      element(el) {
+        el.setAttribute('data-suggest-locale', locale);
+      },
+    })
+    .transform(response);
+  const headers = new Headers(tagged.headers);
+  headers.set('Cache-Control', 'private, no-store');
+  headers.delete('ETag');
+  headers.delete('Last-Modified');
+  headers.append('Vary', 'Accept-Language, Cookie');
+  return new Response(tagged.body, { status: tagged.status, headers });
+}

@@ -111,6 +111,7 @@
   "conversionAnnouncement": "Dönüştürme tamamlandı. Markdown'ınız hazır.",
   "convertingStatus": "Dönüştürülüyor…",
   "dismiss": "Kapat",
+  "suggestLanguage": "Türkçe olarak da kullanılabilir",
   "promo": {
     "label": "Üreticisinden",
     "body": "Bu ücretsiz aracı ben yaptım — ve açık çalışmak üzerine kitabı da ben yazdım. <strong>Open &amp; Async</strong>, uzak ve dağıtık ekipler için GitHub'da test edilmiş çalışma rehberidir.",

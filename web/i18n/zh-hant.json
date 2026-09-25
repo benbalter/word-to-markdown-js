@@ -111,6 +111,7 @@
   "conversionAnnouncement": "轉換完成。你的 Markdown 已準備就緒。",
   "convertingStatus": "轉換中…",
   "dismiss": "關閉",
+  "suggestLanguage": "也提供繁體中文版",
   "promo": {
     "label": "來自創作者",
     "body": "我打造了這個免費工具——也寫了這本關於公開協作的書。<strong>Open &amp; Async</strong> 是經 GitHub 驗證、適用於遠端與分散式團隊的實戰指南。",
