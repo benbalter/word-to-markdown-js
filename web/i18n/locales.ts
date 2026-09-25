@@ -25,7 +25,7 @@ export const localeMeta = {
   id: { htmlLang: 'id', ogLocale: 'id_ID', sitemapLocale: 'id-ID', name: 'Bahasa Indonesia' },
   vi: { htmlLang: 'vi', ogLocale: 'vi_VN', sitemapLocale: 'vi-VN', name: 'Tiếng Việt' },
   pt: { htmlLang: 'pt-BR', ogLocale: 'pt_BR', sitemapLocale: 'pt-BR', name: 'Português' },
-  es: { htmlLang: 'es', ogLocale: 'es_ES', sitemapLocale: 'es-ES', name: 'Español' },
+  es: { htmlLang: 'es', ogLocale: 'es_ES', sitemapLocale: 'es', name: 'Español' },
   de: { htmlLang: 'de', ogLocale: 'de_DE', sitemapLocale: 'de-DE', name: 'Deutsch' },
   fr: { htmlLang: 'fr', ogLocale: 'fr_FR', sitemapLocale: 'fr-FR', name: 'Français' },
   zh: { htmlLang: 'zh-Hans', ogLocale: 'zh_CN', sitemapLocale: 'zh-CN', name: '简体中文' },
