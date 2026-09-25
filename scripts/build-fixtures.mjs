@@ -1,6 +1,6 @@
 // A2 (no credits): turn generated specs into committed .docx fixtures.
 //
-// For each spec in .gen-cache/specs/*.json: build a .docx, round-trip it through
+// For each spec in scripts/eval-specs/*.json: build a .docx, round-trip it through
 // the real converter, and keep it ONLY if conversion succeeds. Surviving
 // fixtures are written to src/__fixtures__/eval/<name>.docx alongside a golden
 // snapshot <name>.md (the converter's current output) and a manifest carrying
@@ -14,7 +14,7 @@ import { fileURLToPath } from 'url';
 import { specToMarkdown } from './lib/roundtrip.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const SPEC_DIR = path.join(__dirname, '.gen-cache', 'specs');
+const SPEC_DIR = path.join(__dirname, 'eval-specs');
 const OUT_DIR = path.join(__dirname, '..', 'src', '__fixtures__', 'eval');
 
 async function main() {
@@ -27,7 +27,7 @@ async function main() {
 
   const specFiles = fs
     .readdirSync(SPEC_DIR)
-    .filter((f) => f.endsWith('.json') && !f.endsWith('.raw.json'));
+    .filter((f) => f.endsWith('.json'));
 
   const manifest = [];
   const dropped = [];

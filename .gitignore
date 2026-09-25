@@ -41,6 +41,7 @@ playwright-report/
 # Cloudflare Wrangler / Pages local dev artifacts
 .wrangler/
 
-# Raw model responses from the gen:* scripts. Kept locally for re-processing,
-# not committed; the parsed outputs next to them (specs, judgments) are.
-scripts/.gen-cache/**/*.raw.json
+# Local output of the gen:* scripts (raw model responses, judgments). Kept for
+# offline re-processing, never committed; the eval specs live in
+# scripts/eval-specs/.
+scripts/.gen-cache/

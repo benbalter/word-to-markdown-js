@@ -5,3 +5,4 @@ src/__fixtures__/eval/*.md
 
 # Raw Azure Foundry responses kept for provenance — not source to format.
 scripts/.gen-cache/
+scripts/eval-specs/
