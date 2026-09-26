@@ -89,16 +89,23 @@ The converted Markdown is written to **stdout** and any document warnings (encry
 
 Options:
 
+- `-o, --output <file>` — write the Markdown to `<file>` instead of stdout
+  (warnings still go to stderr).
 - `--bullet-lists` — convert numbered lists to bullets instead of keeping `1./2./3.`.
 - `--underline` — preserve underlined text as inline `<u>` tags (dropped by default).
 - `--strip-images` — remove images instead of embedding them as base64 data URIs.
 - `--image-dir <dir>` — extract images to `<dir>` and link them relatively, instead
   of embedding base64. Links resolve relative to where you save the Markdown, e.g.
-  `w2m --image-dir images report.docx > report.md`.
+  `w2m --image-dir images report.docx > report.md`, or with `-o`,
+  `w2m -o out/report.md --image-dir images report.docx` (images land in
+  `out/images/`).
+- `--preserve-footnotes` — keep Word footnotes as raw `<sup>` links and a
+  numbered note list instead of GFM `[^1]` footnotes.
+- `-V, --version` — print the version.
 
 ## Use as a library
 
-Published to npm as [`word-to-markdown`](https://www.npmjs.com/package/word-to-markdown). It ships as an ES module and requires Node 22.13 or later.
+Published to npm as [`word-to-markdown`](https://www.npmjs.com/package/word-to-markdown). It ships as an ES module with TypeScript declarations and requires Node 22.13 or later.
 
 ```console
 npm install word-to-markdown
@@ -116,7 +123,7 @@ const { markdown, warnings } = await convertWithWarnings(
 );
 ```
 
-Both functions accept either a file-path string (in Node) or an `ArrayBuffer` (in the browser), so the same code runs in either environment:
+Both functions accept either a file-path string (Node) or an `ArrayBuffer` (Node or the browser):
 
 ```js
 const { markdown } = await convertWithWarnings(arrayBuffer);
@@ -127,12 +134,13 @@ const { markdown } = await convertWithWarnings(arrayBuffer);
 - **`convert(input, options?): Promise<string>`** — resolves to the Markdown.
 - **`convertWithWarnings(input, options?): Promise<{ markdown: string; warnings: string[]; images? }>`** — also returns human-readable warnings for encrypted, protected, or sensitivity-labeled documents, and (in `extract` mode) the extracted images.
 
-`input` is a file-path `string` (Node) or an `ArrayBuffer` (browser). `options` is optional:
+`input` is a file-path `string` (Node) or an `ArrayBuffer`. `options` (type `ConvertOptions`) is optional:
 
 - **`images`** — `'inline'` (default) embeds images as base64 data URIs; `'strip'` removes them; `'extract'` replaces each with a relative `![](imageDir/imageN.ext)` link and returns the bytes on `ConvertResult.images` (use `convertWithWarnings` to retrieve them).
 - **`imageDir`** — link/path prefix for extracted images (default `'images'`); only applies with `images: 'extract'`.
 - **`numberedLists`** — `'ordered'` (default) keeps `1./2./3.`; `'bullets'` converts numbered lists to bullets.
 - **`underline`** — `'ignore'` (default) drops underlines; `'preserve'` keeps them as inline `<u>` tags.
+- **`footnotes`** — `'gfm'` (default) converts footnotes and endnotes to `[^1]` references and definitions; `'preserve'` keeps Mammoth's raw `<sup>` links and numbered note list.
 - **`mammoth`** / **`turndown`** — escape hatches forwarded to [Mammoth](https://github.com/mwilliamson/mammoth.js/) and [Turndown](https://github.com/mixmark-io/turndown) respectively.
 
 ```js
@@ -145,7 +153,7 @@ const { markdown, images } = await convertWithWarnings('file.docx', {
 
 ### Error handling
 
-Conversion throws typed errors so you can respond to each failure precisely:
+Conversion throws typed errors so you can respond to each failure precisely. All of them extend `WordToMarkdownError`, so `error instanceof WordToMarkdownError` catches any of them.
 
 ```js
 import convert, {
@@ -160,13 +168,13 @@ try {
   const markdown = await convert('path/to/your/file.docx');
 } catch (error) {
   if (error instanceof UnsupportedFileError) {
-    // e.g. a .doc file — only .docx is supported
+    // a .doc or password-protected file — only unprotected .docx is supported
   } else if (error instanceof FileNotFoundError) {
-    // the path doesn't exist
+    // the path doesn't exist (or runs through something that isn't a directory)
   } else if (error instanceof InvalidFileError) {
-    // not a valid or parseable .docx
+    // not a valid or parseable .docx (or the path is a directory)
   } else if (error instanceof FilePermissionError) {
-    // the file couldn't be read
+    // the file couldn't be read, or is in a blocked system directory
   } else if (error instanceof ConversionError) {
     // something failed mid-conversion — see error.cause
   }
