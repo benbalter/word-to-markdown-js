@@ -338,7 +338,8 @@ export function htmlToMd(
 }
 
 // Pre-compiled regex patterns for better performance
-const numberedListRegex = /^(\s*)(\d+)\.\s/gm;
+const numberedListRegex = /^(\s*)(\d+)\.\s/;
+const fenceRegex = /^\s*(`{3,}|~{3,})/;
 const nonBreakingSpacesRegex = /[\u00A0\u2007\u202F\u2060\uFEFF]/g;
 const smartQuotesRegex = /[\u201C\u201D\u2018\u2019]/g;
 
@@ -350,8 +351,9 @@ const smartQuotesRegex = /[\u201C\u201D\u2018\u2019]/g;
 // and markdownlint may re-escape.
 //
 // Reference in the body, e.g. `<sup>[\[1\]](#footnote-1)</sup>` \u2192 `[^1]`. The
-// non-greedy link text backtracks past the escaped `\]` inside the label.
-const footnoteRefRegex = /<sup>\[[\s\S]*?\]\(#(?:foot|end)note-(\d+)\)<\/sup>/g;
+// non-greedy link text backtracks past the escaped `\]` inside the label, but
+// can't cross a `<`, so an earlier, unrelated `<sup>` link isn't swallowed.
+const footnoteRefRegex = /<sup>\[[^<]*?\]\(#(?:foot|end)note-(\d+)\)<\/sup>/g;
 // Definition list item, e.g. `1. Body text. [\u2191](#footnote-ref-1)` \u2192
 // `[^1]: Body text.`. The list marker is unreliable (prettier renumbers), so the
 // footnote number comes from the backlink. Only single-line note bodies match:
@@ -378,11 +380,23 @@ const smartQuoteMap: { [key: string]: string } = {
   '\u2019': "'", // Right single quotation mark
 };
 
-// Convert numbered lists to bullet lists
+// Convert numbered lists to bullet lists, leaving fenced code blocks untouched
 function convertNumberedListsToBullets(md: string): string {
-  // Replace numbered list items with bullet list items
-  // This regex matches lines that start with optional whitespace, a number, a dot, and a space
-  return md.replace(numberedListRegex, '$1- ');
+  let fence: string | null = null;
+  return md
+    .split('\n')
+    .map((line) => {
+      const marker = line.match(fenceRegex)?.[1];
+      if (marker) {
+        // A fence closes only with the same character, at least as long
+        if (fence === null) fence = marker;
+        else if (marker[0] === fence[0] && marker.length >= fence.length)
+          fence = null;
+        return line;
+      }
+      return fence === null ? line.replace(numberedListRegex, '$1- ') : line;
+    })
+    .join('\n');
 }
 
 // Remove unicode non-breaking spaces and convert smart quotes to ASCII in a single pass
@@ -803,17 +817,19 @@ async function runConversionPipeline(
     options.turndown,
     preserveUnderline ? ['u'] : [],
   );
-  // Numbered lists stay numbered by default; flatten to bullets on request.
-  const listMd =
-    options.numberedLists === 'bullets'
-      ? convertNumberedListsToBullets(md)
-      : md;
-  const normalizedMd = normalizeText(listMd);
+  const normalizedMd = normalizeText(md);
   const cleanedMd = lint(normalizedMd);
   // Footnotes stay as GFM `[^1]` by default; skip the rewrite on request.
   const footnotedMd =
     options.footnotes === 'preserve' ? cleanedMd : convertFootnotes(cleanedMd);
-  const formattedMd = await prettify(footnotedMd);
+  // Numbered lists stay numbered by default; flatten to bullets on request.
+  // This must run after convertFootnotes, whose definition regex matches the
+  // numbered `1. body [\u2191](#footnote-ref-1)` list items.
+  const listMd =
+    options.numberedLists === 'bullets'
+      ? convertNumberedListsToBullets(footnotedMd)
+      : footnotedMd;
+  const formattedMd = await prettify(listMd);
   return {
     markdown: formattedMd,
     messages: mammothResult.messages,
