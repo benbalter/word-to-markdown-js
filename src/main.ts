@@ -214,10 +214,18 @@ const bulletRegex = new RegExp(
   `^\\s*[${unicodeBullets.map((b) => b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('')}]\\s*`,
 );
 
+// A row's own cells, excluding cells of any table nested inside it
+function rowCells(row: HTMLElement): HTMLElement[] {
+  // Text nodes have no tagName, hence the optional chain
+  return (row.childNodes as HTMLElement[]).filter(
+    (node: HTMLElement) => node.tagName?.toLowerCase() === 'td',
+  );
+}
+
 // Process HTML in a single pass: optionally strip images, convert table
 // headers, and remove unicode bullets. This is more efficient than parsing the
 // HTML twice.
-function processHtml(
+export function processHtml(
   html: string,
   opts: { stripImages?: boolean } = {},
 ): string {
@@ -257,18 +265,22 @@ function processHtml(
     // If first row already has TH elements, leave it alone
     if (firstRow.querySelector('th')) return;
 
-    // Check if first row is empty or has only empty cells
-    const cells = firstRow.querySelectorAll('td');
+    // Check if first row is empty or has only empty cells. An image-only cell
+    // isn't empty: dropping the row would drop the image.
+    const cells = rowCells(firstRow);
     const isEmpty =
       cells.length === 0 ||
-      cells.every((cell: HTMLElement) => !cell.textContent?.trim());
+      cells.every(
+        (cell: HTMLElement) =>
+          !cell.textContent?.trim() && !cell.querySelector('img'),
+      );
 
     if (isEmpty) {
       // Remove empty first row and find the first non-empty row to convert
       firstRow.remove();
       const nextRow = table.querySelector('tr');
       if (nextRow) {
-        nextRow.querySelectorAll('td').forEach((cell: HTMLElement) => {
+        rowCells(nextRow).forEach((cell: HTMLElement) => {
           cell.tagName = 'th';
         });
       }
@@ -535,7 +547,11 @@ export async function extractDocumentProperties(
     // If we can't extract properties, just continue without them
     // This might happen with encrypted, corrupted, or non-standard .docx files
     // We log the error in development mode but don't fail the conversion
-    if (process.env.NODE_ENV === 'development') {
+    // `process` doesn't exist in the browser worker unless a bundler shims it
+    if (
+      typeof process !== 'undefined' &&
+      process.env?.NODE_ENV === 'development'
+    ) {
       console.warn('Failed to extract document properties:', error);
     }
   }

@@ -260,4 +260,23 @@ describe('edge cases and advanced features', () => {
     expect(typeof result).toBe('string');
     expect(result.length).toBeGreaterThan(0);
   });
+
+  it('promotes only the outer row when a header cell holds a nested table', async () => {
+    const { processHtml } = await import('../main.js');
+    const html = processHtml(
+      '<table><tr><td>A<table><tr><td>x</td></tr><tr><td>y</td></tr></table></td><td>B</td></tr><tr><td>1</td><td>2</td></tr></table>',
+    );
+    // The nested table's second row must stay a data row.
+    expect(html).toContain('<tr><td>y</td></tr>');
+    expect(html).toContain('<th>B</th>');
+  });
+
+  it('keeps an image-only first table row as the header', async () => {
+    const { processHtml } = await import('../main.js');
+    const html = processHtml(
+      '<table><tr><td><img src="data:image/png;base64,AA" alt="logo"></td></tr><tr><td>row</td></tr></table>',
+    );
+    expect(html).toContain('<th><img');
+    expect(html).toContain('<td>row</td>');
+  });
 });
