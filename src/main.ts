@@ -851,7 +851,9 @@ async function runConversionPipeline(
   let extractor:
     { images: ExtractedImage[]; convertImage: unknown } | undefined;
   if (options.images === 'extract') {
-    extractor = createImageExtractor(options.imageDir ?? 'images');
+    // Drop trailing slashes so `img/` doesn't produce `img//image1.png` links
+    const imageDir = (options.imageDir ?? 'images').replace(/(?<=.)\/+$/, '');
+    extractor = createImageExtractor(imageDir);
     mammothOptions = {
       ...mammothOptions,
       convertImage: extractor.convertImage,
