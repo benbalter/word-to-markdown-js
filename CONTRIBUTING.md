@@ -78,7 +78,7 @@ At a high level, [the process for proposing changes](https://guides.github.com/i
 
 ## Bootstrapping your local development environment
 
-`npm install` (Node 22.13.0 is pinned via `.nvmrc` / `.tool-versions` / Volta)
+`npm install` (Node 24.21.0 is pinned via `.nvmrc` / `.tool-versions` / Volta)
 
 ## Running tests
 

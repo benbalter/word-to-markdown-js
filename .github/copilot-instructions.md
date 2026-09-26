@@ -42,7 +42,7 @@ mammoth). Preserve the typed error classes (`UnsupportedFileError`,
 - `npm run lint` / `npm run fix` — eslint + prettier
 - `npm run all` — fix + test + build + check-builds (run before pushing)
 
-Node 22.13.0 is pinned (`.nvmrc`, `.tool-versions`, Volta).
+Node 24.21.0 is pinned (`.nvmrc`, `.tool-versions`, Volta).
 
 ## Testing
 
