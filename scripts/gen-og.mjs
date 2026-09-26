@@ -131,6 +131,8 @@ try {
     // variables are in place, then swap its body for the card.
     await page.goto(`${base}${locale === 'en' ? '/' : `/${locale}/`}`);
     await page.evaluate(
+      // Runs in the page, not Node
+      /* global document, getComputedStyle */
       (html) => {
         document.body.className = '';
         document.body.innerHTML = html;

@@ -20,25 +20,33 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: '24.x' # >= 22.14 required by trusted publishing
-          cache: 'npm'
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          # The pinned Node 24 bundles npm 11.x, which meets trusted
+          # publishing's npm >= 11.5.1 requirement without a global upgrade.
+          node-version-file: .nvmrc
+          # No dependency cache in the publishing job: a poisoned cache entry
+          # from another workflow must never reach what we ship.
+          package-manager-cache: false
           registry-url: 'https://registry.npmjs.org'
-      # Trusted publishing requires npm CLI >= 11.5.1; Node 22.x bundles npm 10.
-      - run: npm install -g npm@latest
       - run: npm ci
       # Verify the registry signatures/attestations of installed dependencies
       # before shipping — closes the loop on the provenance we ourselves emit.
       - name: Verify dependency signatures
         run: npm audit signatures
       - name: Verify tag matches package.json version
+        # Pass the tag via env, never ${{ }} inside the script (template injection).
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
           pkg="v$(node -p "require('./package.json').version")"
-          if [ "$pkg" != "${{ github.ref_name }}" ]; then
-            echo "Release tag ${{ github.ref_name }} does not match package.json version $pkg" >&2
+          if [ "$pkg" != "$RELEASE_TAG" ]; then
+            echo "Release tag $RELEASE_TAG does not match package.json version $pkg" >&2
             exit 1
           fi
       - run: npm run build:js

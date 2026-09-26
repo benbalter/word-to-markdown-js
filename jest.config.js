@@ -2,7 +2,7 @@ export default {
   testEnvironment: 'node',
   preset: 'ts-jest/presets/default-esm',
   transform: {
-    '^.+\\.m?[tj]s?$': ['ts-jest', { useESM: true }],
+    '^.+\\.m?[tj]s$': ['ts-jest', { useESM: true }],
   },
   moduleNameMapper: {
     // Strip only `.js` from relative ESM specifiers. Do NOT also strip `.mjs`:
