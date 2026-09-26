@@ -54,7 +54,7 @@
     "remark-rehype": "^11.1.2",
     "tailwindcss": "^4.3.3",
     "ts-jest": "~29.4",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.0",
     "typescript-eslint": "^8.67.0",
     "unified": "^11.0.5"
   },
