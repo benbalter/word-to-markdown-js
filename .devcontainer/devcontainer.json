@@ -1,6 +1,6 @@
 {
   "name": "Word to Markdown Development",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:24",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -30,15 +30,15 @@
       }
     }
   },
-  "forwardPorts": [3000, 8080],
+  "forwardPorts": [4321, 8080],
   "portsAttributes": {
-    "3000": {
-      "label": "API Server",
-      "onAutoForward": "notify"
+    "4321": {
+      "label": "Astro Dev Server",
+      "onAutoForward": "openBrowser"
     },
     "8080": {
-      "label": "Web Dev Server",
-      "onAutoForward": "openBrowser"
+      "label": "Preview / E2E Server",
+      "onAutoForward": "notify"
     }
   },
   "postCreateCommand": "npm install && npm run build",

@@ -4,9 +4,9 @@ This directory contains the configuration for using this project with GitHub Cod
 
 ## What's Included
 
-- **Node.js 22**: The development environment uses Node.js 22, matching the project requirements
+- **Node.js 24**: The development environment uses Node.js 24, matching the version pinned in `.nvmrc`
 - **Pre-configured Extensions**: Essential VS Code extensions for TypeScript, ESLint, Prettier, and debugging
-- **Port Forwarding**: Automatic forwarding of ports 3000 (API server) and 8080 (web dev server)
+- **Port Forwarding**: Automatic forwarding of ports 4321 (Astro dev server) and 8080 (preview server used by the E2E tests)
 - **Auto-setup**: Dependencies are automatically installed when the container starts
 
 ## Usage
@@ -29,8 +29,8 @@ This directory contains the configuration for using this project with GitHub Cod
 Once the container is running:
 
 - **Run tests**: `npm test`
-- **Start API server**: `npm run server` (accessible on port 3000)
-- **Start web dev server**: `npm run server:web` (accessible on port 8080)
+- **Start the site**: `npm run dev` (accessible on port 4321)
+- **Run E2E tests**: `npm run test:e2e` (serves the built site on port 8080)
 - **Build project**: `npm run build`
 - **Lint code**: `npm run lint`
 
