@@ -30,7 +30,8 @@ describe('edge cases and advanced features', () => {
 
     // Verify entities are handled appropriately (some may be preserved for security)
     expect(result).toContain("alert('XSS')"); // The script tags may be escaped
-    expect(result).toContain('© ™ ®');
+    // Double-encoded entities decode once, keeping the text the author typed.
+    expect(result).toContain('&nbsp; &copy; &trade; &reg;');
     expect(result).toContain('Smart quotes'); // Contains the text regardless of quote style
     expect(result).toContain('– en dash and — em dash');
   });

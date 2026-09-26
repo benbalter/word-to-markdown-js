@@ -53,18 +53,30 @@ describe('main', () => {
     expect(result).toEqual(expectedMarkdown);
   });
 
-  it('should decode double-encoded HTML entities', async () => {
+  it('should decode double-encoded entities only once', async () => {
     const { htmlToMd } = await import('../main.js');
+    // Text a user literally typed as `&amp;` in Word must survive as `&amp;`:
+    // mammoth escapes once and Turndown's DOM decodes once.
     const htmlWithDoubleEntities =
       '<p>&amp;amp; &amp;lt; &amp;gt; &amp;quot;</p>';
-    // &amp;amp; -> & (decoded by our function)
-    // &amp;lt; -> &lt; (partially decoded, Turndown keeps it as entity to avoid HTML confusion)
-    // &amp;gt; -> &gt; (partially decoded, Turndown keeps it as entity to avoid HTML confusion)
-    // &amp;quot; -> " (decoded by our function)
-    const expectedMarkdown = '& &lt; &gt; "';
+    const expectedMarkdown = '&amp; &lt; &gt; &quot;';
 
     const result = htmlToMd(htmlWithDoubleEntities);
     expect(result).toEqual(expectedMarkdown);
+  });
+
+  it('should not turn literal entity text into markup', async () => {
+    const { htmlToMd } = await import('../main.js');
+    // Pre-decoding used to turn this into a real <b> tag, bolding what followed.
+    const result = htmlToMd('<p>literal &amp;#60;b&amp;#62;x</p>');
+    expect(result).toEqual('literal &#60;b&#62;x');
+  });
+
+  it('should preserve encoded quotes inside link hrefs', async () => {
+    const { htmlToMd } = await import('../main.js');
+    // Pre-decoding `&quot;` used to close the href attribute early.
+    const result = htmlToMd('<p><a href="http://x/?q=&quot;a&quot;">l</a></p>');
+    expect(result).toEqual('[l](http://x/?q="a")');
   });
 
   it('should decode numeric HTML entities', async () => {
@@ -104,14 +116,9 @@ describe('main', () => {
     expect(result).toEqual(expectedMarkdown);
   });
 
-  it('should fully decode isolated double-encoded entities', async () => {
+  it('should decode isolated double-encoded entities once', async () => {
     const { htmlToMd } = await import('../main.js');
-    // When entities are isolated, Turndown can safely decode them fully
-    const isolatedDoubleEncoded = '<p>&amp;lt;</p>';
-    const expectedMarkdown = '<';
-
-    const result = htmlToMd(isolatedDoubleEncoded);
-    expect(result).toEqual(expectedMarkdown);
+    expect(htmlToMd('<p>&amp;lt;</p>')).toEqual('&lt;');
   });
 
   it('should handle empty tables without crashing', async () => {

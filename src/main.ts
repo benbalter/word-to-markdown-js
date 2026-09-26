@@ -204,92 +204,6 @@ function validateFilePath(filePath: string): string {
   return resolvedPath;
 }
 
-// Map of common HTML entities to decode
-const decodeMap: { [key: string]: string } = {
-  '&amp;': '&',
-  // Don't decode &lt; and &gt; in our custom decoder
-  // Let Turndown handle them appropriately based on context
-  '&quot;': '"',
-  '&#39;': "'",
-  '&#x27;': "'",
-  '&apos;': "'",
-  '&nbsp;': ' ',
-  '&copy;': '©',
-  '&reg;': '®',
-  '&trade;': '™',
-  '&hellip;': '…',
-  '&mdash;': '—',
-  '&ndash;': '–',
-  '&lsquo;': '\u2018',
-  '&rsquo;': '\u2019',
-  '&ldquo;': '\u201C',
-  '&rdquo;': '\u201D',
-};
-
-// Maximum iterations for decoding nested HTML entities to prevent infinite loops
-const MAX_DECODE_ITERATIONS = 10;
-
-// Convert a numeric code point to a string, returning the original entity text
-// for out-of-range values (fromCodePoint throws a RangeError on those, unlike
-// the legacy fromCharCode which silently wrapped).
-function codePointToString(codePoint: number, original: string): string {
-  try {
-    return String.fromCodePoint(codePoint);
-  } catch {
-    return original;
-  }
-}
-
-// Decode HTML entities in text content
-function decodeHtmlEntities(html: string): string {
-  function decodeOnce(text: string): string {
-    // Use a more specific regex pattern to avoid catastrophic backtracking
-    // Match: & followed by either:
-    //   - a-zA-Z letters (for named entities like &amp;, &nbsp;, etc.)
-    //   - # followed by digits (for numeric entities like &#169;)
-    //   - #[xX] followed by hex digits (for hex entities like &#x27; or &#X27;)
-    // All terminated with a semicolon
-    return text.replace(/&(?:[a-zA-Z]+|#\d+|#[xX][0-9a-fA-F]+);/g, (entity) => {
-      // Handle named entities
-      if (decodeMap[entity]) {
-        return decodeMap[entity];
-      }
-
-      // Handle numeric entities &#123; (fromCodePoint handles astral-plane
-      // code points > U+FFFF, e.g. emoji, which fromCharCode would truncate)
-      const numericMatch = entity.match(/^&#(\d+);$/);
-      if (numericMatch) {
-        return codePointToString(parseInt(numericMatch[1], 10), entity);
-      }
-
-      // Handle hex entities &#x1A;
-      const hexMatch = entity.match(/^&#x([0-9a-fA-F]+);$/i);
-      if (hexMatch) {
-        return codePointToString(parseInt(hexMatch[1], 16), entity);
-      }
-
-      // Return original if not recognized
-      return entity;
-    });
-  }
-
-  // Keep decoding until no more entities are found (handles double/triple encoding)
-  let decoded = html;
-  let prevDecoded;
-  let iterations = 0;
-  do {
-    prevDecoded = decoded;
-    decoded = decodeOnce(decoded);
-    iterations++;
-  } while (
-    decoded !== prevDecoded &&
-    decoded.includes('&') &&
-    iterations < MAX_DECODE_ITERATIONS
-  );
-
-  return decoded;
-}
-
 // Turndown will add an empty header if the first row
 // of the table isn't `<th>` elements. This function
 // converts the first row of a table to `<th>` elements
@@ -416,11 +330,11 @@ export function htmlToMd(
   options: object = {},
   keepTags: string[] = [],
 ): string {
-  // Decode HTML entities before conversion
-  const decodedHtml = decodeHtmlEntities(html);
-
+  // Turndown's DOM parser decodes entities exactly once. Don't pre-decode:
+  // that would turn literal text like `&#60;b&#62;` into markup and truncate
+  // attribute values containing `&quot;`.
   const turndownService = getTurndownService(options, keepTags);
-  return turndownService.turndown(decodedHtml).trim();
+  return turndownService.turndown(html).trim();
 }
 
 // Pre-compiled regex patterns for better performance
