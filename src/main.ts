@@ -10,7 +10,7 @@ import JSZip from 'jszip';
 import fs from 'fs/promises';
 import path from 'path';
 
-interface convertOptions {
+export interface ConvertOptions {
   mammoth?: object;
   turndown?: object;
   /**
@@ -76,7 +76,7 @@ export interface ConvertResult {
   images?: ExtractedImage[];
 }
 
-interface DocumentProperties {
+export interface DocumentProperties {
   sensitivity?: string;
   confidentiality?: string;
   encryption?: boolean;
@@ -214,6 +214,7 @@ function rowCells(row: HTMLElement): HTMLElement[] {
 // Process HTML in a single pass: optionally strip images, convert table
 // headers, and remove unicode bullets. This is more efficient than parsing the
 // HTML twice.
+/** @internal Exported for tests only. */
 export function processHtml(
   html: string,
   opts: { stripImages?: boolean } = {},
@@ -829,7 +830,7 @@ function createImageExtractor(imageDir: string): {
 // (in extract mode) the extracted image assets.
 async function runConversionPipeline(
   mammothInput: MammothInput,
-  options: convertOptions,
+  options: ConvertOptions,
 ): Promise<{
   markdown: string;
   messages: MammothMessage[];
@@ -850,7 +851,9 @@ async function runConversionPipeline(
   let extractor:
     { images: ExtractedImage[]; convertImage: unknown } | undefined;
   if (options.images === 'extract') {
-    extractor = createImageExtractor(options.imageDir ?? 'images');
+    // Drop trailing slashes so `img/` doesn't produce `img//image1.png` links
+    const imageDir = (options.imageDir ?? 'images').replace(/(?<=.)\/+$/, '');
+    extractor = createImageExtractor(imageDir);
     mammothOptions = {
       ...mammothOptions,
       convertImage: extractor.convertImage,
@@ -1006,7 +1009,7 @@ export function extractMammothWarnings(
 // Converts a Word document to crisp, clean Markdown with warnings
 export async function convertWithWarnings(
   input: string | ArrayBuffer,
-  options: convertOptions = {},
+  options: ConvertOptions = {},
 ): Promise<ConvertResult> {
   const filePath = typeof input === 'string' ? input : undefined;
 
@@ -1034,7 +1037,7 @@ export async function convertWithWarnings(
 // extra ZIP parse) so callers that only need the Markdown pay no overhead.
 export default async function convert(
   input: string | ArrayBuffer,
-  options: convertOptions = {},
+  options: ConvertOptions = {},
 ): Promise<string> {
   const filePath = typeof input === 'string' ? input : undefined;
 

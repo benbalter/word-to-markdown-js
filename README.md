@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/word-to-markdown.svg)](https://www.npmjs.com/package/word-to-markdown)
 [![npm downloads](https://img.shields.io/npm/dm/word-to-markdown.svg)](https://www.npmjs.com/package/word-to-markdown)
 [![CI](https://github.com/benbalter/word-to-markdown-js/actions/workflows/ci.yml/badge.svg)](https://github.com/benbalter/word-to-markdown-js/actions/workflows/ci.yml)
-[![License: ISC](https://img.shields.io/npm/l/word-to-markdown.svg)](https://github.com/benbalter/word-to-markdown-js/blob/main/LICENSE)
+[![License: Apache-2.0](https://img.shields.io/npm/l/word-to-markdown.svg)](https://github.com/benbalter/word-to-markdown-js/blob/main/LICENSE)
 
 Convert Word documents to beautiful Markdown. Via command line, as a Node library, or in your browser. An even better version of the original [`word-to-markdown`](https://github.com/benbalter/word-to-markdown).
 

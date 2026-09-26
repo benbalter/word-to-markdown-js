@@ -1,5 +1,5 @@
 import { execFileSync } from 'child_process';
-import { existsSync, mkdtempSync, rmSync, statSync } from 'fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'fs';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -21,9 +21,15 @@ const fixture = (name: string): string =>
 
 // build/ is gitignored. CI runs `check-builds` (a full build) before the tests,
 // and local dev usually has build/ already, but build it here if it's missing
-// so the suite is self-contained on a fresh clone.
+// or older than the sources, so the suite never exercises a stale CLI.
+const isStale = (): boolean =>
+  !existsSync(cliPath) ||
+  ['src/cli.ts', 'src/main.ts'].some(
+    (src) => statSync(path.join(root, src)).mtimeMs > statSync(cliPath).mtimeMs,
+  );
+
 beforeAll(() => {
-  if (!existsSync(cliPath)) {
+  if (isStale()) {
     execFileSync(process.execPath, [tscPath], { cwd: root, stdio: 'inherit' });
   }
 }, 60000);
@@ -108,6 +114,41 @@ describe('w2m CLI', () => {
       // The file exists on disk with real bytes.
       expect(existsSync(path.join(dir, 'image1.png'))).toBe(true);
       expect(statSync(path.join(dir, 'image1.png')).size).toBeGreaterThan(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('-o writes Markdown to a file, creating its directory', () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'w2m-cli-'));
+    try {
+      const out = path.join(dir, 'nested', 'doc.md');
+      const { stdout, status } = runCli([fixture('h1.docx'), '-o', out]);
+      expect(status).toBe(0);
+      expect(stdout).toBe('');
+      expect(readFileSync(out, 'utf8')).toContain('# Heading 1');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('-o with --image-dir writes images next to the Markdown file', () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'w2m-cli-'));
+    try {
+      const out = path.join(dir, 'out', 'doc.md');
+      const { status } = runCli([
+        fixture('image.docx'),
+        '-o',
+        out,
+        '--image-dir',
+        'img/',
+        '--strip-images',
+      ]);
+      expect(status).toBe(0);
+      // The link is relative to doc.md, so the file must live beside it.
+      expect(readFileSync(out, 'utf8')).toContain('](img/image1.png)');
+      expect(existsSync(path.join(dir, 'out', 'img', 'image1.png'))).toBe(true);
+      expect(existsSync(path.join(root, 'img'))).toBe(false);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

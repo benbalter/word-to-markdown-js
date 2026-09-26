@@ -1,23 +1,27 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    // Node >= 22.13 (package.json engines) runs ES2022 natively.
+    "target": "ES2022",
     "module": "node16",
-    "lib": ["ES2022", "DOM"],
+    "lib": ["ES2022"],
     "moduleResolution": "node16",
     "rootDir": "./src",
     "outDir": "build",
     "allowSyntheticDefaultImports": true,
     "importHelpers": true,
-    "alwaysStrict": true,
+    "strict": true,
+    // Ship typings with the package. `@internal` exports (test hooks) are
+    // left out of them.
+    "declaration": true,
+    "stripInternal": true,
+    // src/ isn't published, so embed the sources in the maps.
     "sourceMap": true,
+    "inlineSources": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
