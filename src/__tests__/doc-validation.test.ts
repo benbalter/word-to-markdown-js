@@ -1,3 +1,4 @@
+import fs from 'fs';
 import convert, {
   UnsupportedFileError,
   validateFileExtension,
@@ -99,22 +100,23 @@ describe('DOC file validation', () => {
       );
     });
 
-    it('should allow ArrayBuffer inputs (browser uploads)', async () => {
-      // ArrayBuffer inputs should not be validated for file extension
-      // since we cannot determine the original filename
-      const buffer = new ArrayBuffer(8);
-      // This should not throw UnsupportedFileError because we don't validate ArrayBuffer inputs
-      // Note: This will likely fail with a mammoth error, but that's expected
-      let thrownError: Error | null = null;
-      try {
-        await convert(buffer);
-      } catch (error) {
-        thrownError = error as Error;
-      }
+    it('should convert a real .docx passed as an ArrayBuffer', async () => {
+      // Mammoth's Node build rejects { arrayBuffer }; the converter must hand
+      // it a Buffer instead.
+      const file = fs.readFileSync('src/__fixtures__/h1.docx');
+      const buffer = file.buffer.slice(
+        file.byteOffset,
+        file.byteOffset + file.byteLength,
+      );
+      await expect(convert(buffer)).resolves.toContain('# Heading 1');
+    });
 
-      // We expect some error (probably from mammoth), but not our UnsupportedFileError
-      expect(thrownError).not.toBeNull();
-      expect(thrownError).not.toBeInstanceOf(UnsupportedFileError);
+    it('should reject password-protected or legacy .doc (OLE) files', async () => {
+      const ole = new Uint8Array(512);
+      ole.set([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]);
+      await expect(convert(ole.buffer)).rejects.toBeInstanceOf(
+        UnsupportedFileError,
+      );
     });
   });
 

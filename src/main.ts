@@ -575,8 +575,55 @@ export function generateWarnings(properties: DocumentProperties): string[] {
 }
 
 // The input shapes mammoth accepts across environments
-type MammothInput =
-  { path: string } | { buffer: Buffer } | { arrayBuffer: ArrayBuffer };
+type MammothInput = { buffer: Buffer } | { arrayBuffer: ArrayBuffer };
+
+// Encrypted (password-protected) .docx files and legacy .doc files are OLE
+// Compound File Binary containers, not ZIPs. They start with this signature.
+const CFB_SIGNATURE = [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1];
+
+function isCompoundFile(bytes: ArrayBuffer): boolean {
+  const head = new Uint8Array(bytes, 0, Math.min(bytes.byteLength, 8));
+  return (
+    head.length === CFB_SIGNATURE.length &&
+    CFB_SIGNATURE.every((byte, i) => head[i] === byte)
+  );
+}
+
+interface LoadedInput {
+  bytes: ArrayBuffer;
+  mammothInput: MammothInput;
+}
+
+// Read the input once and shape it for mammoth. In Node.js, mammoth's unzip
+// only accepts { path | buffer | file }; the browser build takes { arrayBuffer }.
+async function loadInput(input: string | ArrayBuffer): Promise<LoadedInput> {
+  let bytes: ArrayBuffer;
+  if (typeof input === 'string') {
+    validateFileExtension(input);
+    // Validate the file path to prevent path traversal attacks
+    const fileBuffer = await fs.readFile(validateFilePath(input));
+    bytes = toArrayBuffer(
+      fileBuffer.buffer.slice(
+        fileBuffer.byteOffset,
+        fileBuffer.byteOffset + fileBuffer.byteLength,
+      ),
+    );
+  } else {
+    bytes = input;
+  }
+
+  if (isCompoundFile(bytes)) {
+    throw new UnsupportedFileError(
+      'This file is password-protected or is a legacy .doc file. Please remove the password or save it as a .docx file and try again.',
+    );
+  }
+
+  const mammothInput: MammothInput =
+    typeof Buffer !== 'undefined'
+      ? { buffer: Buffer.from(bytes) }
+      : { arrayBuffer: bytes };
+  return { bytes, mammothInput };
+}
 
 // A conversion message emitted by mammoth (e.g. dropped/unsupported content)
 interface MammothMessage {
@@ -951,48 +998,17 @@ export async function convertWithWarnings(
   input: string | ArrayBuffer,
   options: convertOptions = {},
 ): Promise<ConvertResult> {
-  let filePath: string | undefined;
+  const filePath = typeof input === 'string' ? input : undefined;
 
   try {
-    // Normalize input so that the underlying .docx content is read at most once
-    let mammothInput: MammothInput;
-    let propertiesInput: string | ArrayBuffer;
-
-    if (typeof input === 'string') {
-      filePath = input;
-      // Validate file extension for file path inputs
-      validateFileExtension(input);
-
-      // Validate the file path to prevent path traversal attacks
-      const safePath = validateFilePath(input);
-
-      // Read the file once and share the buffer between property extraction
-      // and Mammoth conversion to avoid redundant disk reads for large documents
-      const fileBuffer = await fs.readFile(safePath);
-      propertiesInput = toArrayBuffer(
-        fileBuffer.buffer.slice(
-          fileBuffer.byteOffset,
-          fileBuffer.byteOffset + fileBuffer.byteLength,
-        ),
-      );
-      mammothInput = { buffer: fileBuffer };
-    } else {
-      propertiesInput = input;
-      // In Node.js, mammoth expects { buffer }, in browser it expects { arrayBuffer }
-      // Check for Buffer availability to determine the environment
-      if (typeof Buffer !== 'undefined') {
-        mammothInput = { buffer: Buffer.from(input) };
-      } else {
-        mammothInput = { arrayBuffer: input };
-      }
-    }
+    const loaded = await loadInput(input);
 
     // Extract document properties to check for confidentiality flags
-    const properties = await extractDocumentProperties(propertiesInput);
+    const properties = await extractDocumentProperties(loaded.bytes);
     const warnings = generateWarnings(properties);
 
     const { markdown, messages, images } = await runConversionPipeline(
-      mammothInput,
+      loaded.mammothInput,
       options,
     );
     warnings.push(...extractMammothWarnings(messages));
@@ -1010,23 +1026,15 @@ export default async function convert(
   input: string | ArrayBuffer,
   options: convertOptions = {},
 ): Promise<string> {
-  let filePath: string | undefined;
+  const filePath = typeof input === 'string' ? input : undefined;
 
   try {
-    let mammothInput: MammothInput;
+    const loaded = await loadInput(input);
 
-    if (typeof input === 'string') {
-      filePath = input;
-      // Validate file extension for file path inputs
-      validateFileExtension(input);
-      // Validate the file path to prevent path traversal attacks
-      const safePath = validateFilePath(input);
-      mammothInput = { path: safePath };
-    } else {
-      mammothInput = { arrayBuffer: input };
-    }
-
-    const { markdown } = await runConversionPipeline(mammothInput, options);
+    const { markdown } = await runConversionPipeline(
+      loaded.mammothInput,
+      options,
+    );
     return markdown;
   } catch (error) {
     classifyConversionError(error, filePath);
