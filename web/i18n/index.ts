@@ -29,7 +29,7 @@ import sv from './sv.json';
 
 import { defaultLocale, locales, type Locale } from './locales';
 
-export type { UIStrings, FaqEntry, Step } from './types';
+export type { UIStrings } from './types';
 
 export { localeMeta, locales, defaultLocale, prefixedLocales } from './locales';
 export type { Locale, LocaleMeta } from './locales';

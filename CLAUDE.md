@@ -13,6 +13,7 @@ npm run preview      # Preview the production site build
 npm test             # Jest unit/integration tests with coverage
 npm run test:e2e     # Playwright end-to-end tests (builds + serves the site)
 npm run lint         # eslint + prettier --check
+npm run knip         # unused files, exports, and dependencies
 npm run fix          # eslint --fix + prettier --write
 npm run all          # fix + test + build + check-builds (run before pushing)
 npm run check-builds # Fail if committed build/ output is stale (see below)

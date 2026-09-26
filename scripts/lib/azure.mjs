@@ -17,7 +17,7 @@ import path from 'path';
 
 const DEFAULT_API_VERSION = '2024-08-01-preview';
 
-export function azureConfig() {
+function azureConfig() {
   const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
   const apiKey = process.env.AZURE_OPENAI_API_KEY;
   const deployment = process.env.AZURE_OPENAI_DEPLOYMENT;
@@ -119,7 +119,7 @@ function adaptFrom400(text) {
  * @param {number}  [opts.maxTokens]
  * @param {number}  [opts.retries]
  */
-export async function chat({
+async function chat({
   messages,
   json = false,
   temperature = 0.4,
