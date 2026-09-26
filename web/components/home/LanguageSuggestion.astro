@@ -105,7 +105,7 @@ const suggestions = Object.fromEntries(
     dir: string;
   }
 
-  const HINT_OFF = /(?:^|;\s*)hint=off/;
+  const HINT_OFF = /(?:^|;\s*)hint=off(?:;|$)/;
 
   try {
     const locale = document.documentElement.dataset.suggestLocale;
@@ -135,7 +135,7 @@ const suggestions = Object.fromEntries(
 
         // Dismissing or following the suggestion ends it for good.
         const turnOff = () => {
-          document.cookie = 'hint=off; path=/; max-age=31536000; samesite=lax';
+          document.cookie = 'hint=off; path=/; max-age=31536000; samesite=lax; secure';
         };
         link.addEventListener('click', turnOff);
         button.addEventListener('click', () => {

@@ -8,12 +8,10 @@
 // the anonymous conversion counter. Every other path (localized pages, assets,
 // legal pages) is served directly from assets and never reaches here.
 //
-// Inert on GitHub Pages, which serves only ./dist and never runs this Worker.
-//
 // SEO: the redirect is a 302 (temporary), every locale is independently
 // crawlable and listed in the sitemap with self-referential hreflang, and the
 // decision is based solely on Accept-Language (no user-agent cloaking). A
-// `lang` cookie — set on every page by a tiny inline script (see Layout.astro)
+// `lang` cookie — set on localized pages by a small script (see Layout.astro)
 // — disables the auto-redirect after the first visit so the language switcher
 // stays in control and there is never a redirect loop.
 //
@@ -36,17 +34,20 @@ export const LOCALES = locales;
 // Parse an Accept-Language header into lowercased tags, highest q first.
 function rankTags(acceptLanguage) {
   if (!acceptLanguage) return [];
-  return acceptLanguage
-    .split(',')
-    .map((part) => {
-      const [tag, ...params] = part.trim().split(';');
-      const qParam = params.find((p) => p.trim().startsWith('q='));
-      const q = qParam ? parseFloat(qParam.split('=')[1]) : 1;
-      return { tag: tag.trim().toLowerCase(), q: Number.isNaN(q) ? 0 : q };
-    })
-    .filter((entry) => entry.tag && entry.tag !== '*')
-    .sort((a, b) => b.q - a.q)
-    .map((entry) => entry.tag);
+  return (
+    acceptLanguage
+      .split(',')
+      .map((part) => {
+        const [tag, ...params] = part.trim().split(';');
+        const qParam = params.find((p) => p.trim().startsWith('q='));
+        const q = qParam ? parseFloat(qParam.split('=')[1]) : 1;
+        return { tag: tag.trim().toLowerCase(), q: Number.isNaN(q) ? 0 : q };
+      })
+      // q=0 means "not acceptable" (RFC 9110), not "least preferred"
+      .filter((entry) => entry.tag && entry.tag !== '*' && entry.q > 0)
+      .sort((a, b) => b.q - a.q)
+      .map((entry) => entry.tag)
+  );
 }
 
 // Pick the highest-priority supported locale from an Accept-Language header.
@@ -106,7 +107,20 @@ export default {
     //   by locale:  SELECT blob3, SUM(double1) ... GROUP BY blob3
     if (url.pathname === '/api/event') {
       if (request.method !== 'POST') {
-        return new Response('Method Not Allowed', { status: 405 });
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: { Allow: 'POST' },
+        });
+      }
+      // Only count beacons from our own pages. Browsers always send Origin on
+      // a POST, so this drops cross-site forgeries and naive scripted posts
+      // without touching the visitor's IP.
+      const site = request.headers.get('Sec-Fetch-Site');
+      if (
+        request.headers.get('Origin') !== url.origin ||
+        (site && site !== 'same-origin')
+      ) {
+        return new Response('Forbidden', { status: 403 });
       }
       // The endpoint is public, so never write caller-supplied strings verbatim:
       // bound `outcome` to success/error and `locale` to a known site locale
@@ -117,9 +131,9 @@ export default {
       const locale = LOCALES.includes(requestedLocale)
         ? requestedLocale
         : 'other';
-      // The binding is absent on deploys without Analytics Engine (and the
-      // endpoint is unreachable on GitHub Pages, which never runs this Worker),
-      // so guard with `?.` to degrade to a no-op rather than throwing.
+      // The binding is absent on deploys without Analytics Engine (and in
+      // `astro preview`, which never runs this Worker), so guard with `?.` to
+      // degrade to a no-op rather than throwing.
       env.EVENTS?.writeDataPoint({
         blobs: ['convert', outcome, locale],
         doubles: [1],
@@ -141,7 +155,7 @@ export default {
               // Preserve any query string (e.g. ?utm_source=…) on the redirect.
               Location: `${url.origin}/${locale}/${url.search}`,
               // Set the cookie now so the redirect happens at most once.
-              'Set-Cookie': `lang=${locale}; Path=/; Max-Age=31536000; SameSite=Lax`,
+              'Set-Cookie': `lang=${locale}; Path=/; Max-Age=31536000; SameSite=Lax; Secure`,
               'Cache-Control': 'no-store',
               Vary: 'Accept-Language, Cookie',
             },
@@ -156,7 +170,7 @@ export default {
     // turns it off for good.
     const suggestion =
       url.pathname === '/' &&
-      !/(?:^|;\s*)hint=off/.test(request.headers.get('Cookie') || '')
+      !/(?:^|;\s*)hint=off(?:;|$)/.test(request.headers.get('Cookie') || '')
         ? pickSuggestion(
             request.headers.get('Accept-Language'),
             request.cf?.country,
