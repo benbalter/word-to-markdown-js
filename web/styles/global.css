@@ -93,10 +93,17 @@
     color: #0a1120;
   }
 
+  /* Bright chartreuse is ~1.4:1 on paper, under WCAG's 3:1 for focus
+     indicators, so light mode uses the deep shade. */
   :focus-visible {
-    outline: 2px solid var(--color-chartreuse);
+    outline: 2px solid var(--color-chartreuse-deep);
     outline-offset: 2px;
     border-radius: 2px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :focus-visible {
+      outline-color: var(--color-chartreuse);
+    }
   }
 }
 
@@ -118,8 +125,13 @@
   .dropzone:focus-within {
     border-color: var(--color-chartreuse);
     border-style: solid;
-    outline: 2px solid var(--color-chartreuse);
+    outline: 2px solid var(--color-chartreuse-deep);
     outline-offset: 2px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .dropzone:focus-within {
+      outline-color: var(--color-chartreuse);
+    }
   }
   .dropzone.is-dragover {
     border-color: var(--color-chartreuse);

@@ -330,6 +330,57 @@ test.describe('Word to Markdown Web Interface', () => {
     await expect(page.locator('#error-alert')).toBeVisible();
   });
 
+  test('clears the file input so the same file can be picked again after an error', async ({
+    page,
+  }) => {
+    // Not a ZIP, so conversion fails as an invalid file.
+    await page.locator('#file').setInputFiles({
+      name: 'broken.docx',
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      buffer: Buffer.from('not a real docx'),
+    });
+    await expect(page.locator('#error-message')).toBeVisible();
+    // An emptied input fires "change" again when the same file is re-picked.
+    await expect(page.locator('#file')).toHaveValue('');
+  });
+
+  test('opens links in the preview in a new tab', async ({ page }) => {
+    const fixturePath = path.join(
+      __dirname,
+      '../../__fixtures__/list-with-links.docx',
+    );
+    await page.locator('#file').setInputFiles(fixturePath);
+    const link = page.locator('#rendered a[href^="http"]').first();
+    await expect(link).toHaveAttribute('target', '_blank');
+    await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  test('waits for a slow-loading worker instead of converting on the main thread', async ({
+    page,
+  }) => {
+    // Simulate a slow connection: the worker chunk takes 6s, longer than the
+    // old 5s readiness timeout that used to latch the main-thread fallback.
+    await page.route('**/_astro/converter.worker-*.js', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 6000));
+      await route.continue();
+    });
+    const mainThreadChunks: string[] = [];
+    page.on('request', (request) => {
+      if (/\/_astro\/main\.[^/]+\.js$/.test(request.url())) {
+        mainThreadChunks.push(request.url());
+      }
+    });
+    await page.goto('/');
+
+    const fixturePath = path.join(__dirname, '../../__fixtures__/h1.docx');
+    await page.locator('#file').setInputFiles(fixturePath);
+    await expect(page.locator('#output')).toContainText('# Heading 1', {
+      timeout: 20000,
+    });
+    expect(mainThreadChunks).toEqual([]);
+  });
+
   test('should have working navigation links', async ({ page }) => {
     // Check that navigation links are present and have correct hrefs
     await expect(page.locator('a[href*="CONTRIBUTING.md"]')).toBeVisible();
