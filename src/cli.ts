@@ -3,6 +3,7 @@
 import { Command } from 'commander';
 import { createRequire } from 'module';
 import { mkdir, writeFile } from 'fs/promises';
+import path from 'path';
 import { convertWithWarnings } from './main.js';
 
 // Read our own version from package.json. createRequire resolves relative to
@@ -49,6 +50,9 @@ program
   .action(async (file, options) => {
     try {
       // --image-dir (extract) takes precedence over --strip-images.
+      if (options.imageDir && options.stripImages) {
+        console.error('Ignoring --strip-images because --image-dir is set.');
+      }
       const images = options.imageDir
         ? 'extract'
         : options.stripImages
@@ -63,14 +67,19 @@ program
       });
 
       // Write extracted images to disk before emitting the Markdown that links
-      // them. Paths are already prefixed with the requested directory.
+      // them. The links are relative to the Markdown file, so resolve them
+      // against its directory (the working directory when writing to stdout).
       if (result.images && result.images.length > 0) {
-        await mkdir(options.imageDir, { recursive: true });
+        const markdownDir = options.output ? path.dirname(options.output) : '.';
+        const imageDir = path.resolve(markdownDir, options.imageDir);
+        await mkdir(imageDir, { recursive: true });
         await Promise.all(
-          result.images.map((image) => writeFile(image.path, image.bytes)),
+          result.images.map((image) =>
+            writeFile(path.resolve(markdownDir, image.path), image.bytes),
+          ),
         );
         console.error(
-          `Wrote ${result.images.length} image(s) to ${options.imageDir}/`,
+          `Wrote ${result.images.length} image(s) to ${path.relative('.', imageDir) || '.'}/`,
         );
       }
 
@@ -84,6 +93,7 @@ program
 
       // Write the Markdown to the requested file, or stdout by default.
       if (options.output) {
+        await mkdir(path.dirname(options.output), { recursive: true });
         await writeFile(options.output, result.markdown);
         console.error(`Wrote Markdown to ${options.output}`);
       } else {
@@ -99,4 +109,4 @@ program
     }
   });
 
-program.parse();
+await program.parseAsync();
