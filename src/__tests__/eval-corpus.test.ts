@@ -17,16 +17,14 @@ const fixtures = fs.existsSync(EVAL_DIR)
       .map((f) => f.replace(/\.docx$/, ''))
   : [];
 
-// The corpus is a credit-generated asset (scripts/build-fixtures.mjs). When it
-// hasn't been generated yet (fresh clone before `npm run gen:fixtures`) there's
-// nothing to guard, so skip rather than fail. Once fixtures are committed these
-// become exact-match regression checks.
+// The corpus is a credit-generated asset (scripts/build-fixtures.mjs) that is
+// committed, so an empty directory means it went missing: fail rather than let
+// the suite pass with nothing checked.
 describe('eval corpus', () => {
-  if (fixtures.length === 0) {
-    // eslint-disable-next-line jest/no-disabled-tests, jest/expect-expect
-    it.skip('no generated fixtures yet — run `npm run gen:fixtures`', () => {});
-    return;
-  }
+  it('has committed fixtures', () => {
+    expect(fixtures.length).toBeGreaterThan(0);
+  });
+
   for (const name of fixtures) {
     it(`converts "${name}" to its golden Markdown`, async () => {
       const expected = fs.readFileSync(`${EVAL_DIR}/${name}.md`, 'utf8');

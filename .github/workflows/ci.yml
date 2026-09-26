@@ -18,16 +18,17 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: '24.x'
+          node-version-file: .nvmrc
           cache: 'npm'
       - run: npm ci
       # Critical advisories gate the build — those warrant blocking. High and
-      # below stay advisory: Dependabot handles remediation, and transitive,
+      # below stay advisory: Renovate handles remediation, and transitive,
       # unfixable advisories shouldn't block unrelated PRs (visible red, no gate).
       - name: Audit dependencies (critical, blocking)
         run: npm audit --audit-level=critical
@@ -37,19 +38,48 @@ jobs:
       - run: npm run check-builds
       - run: npm run test
       - run: npm run lint
+      # Bundle the Worker the way Cloudflare's deploy does, so a bundling error
+      # fails here instead of on deploy.
+      - name: Check Worker bundle
+        run: npx --yes wrangler@4 deploy --dry-run --outdir "$RUNNER_TEMP/worker"
+      # Hand the built site to the e2e job so it doesn't rebuild it.
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+
+  # The package supports Node >= 22.13 (package.json engines); the build job
+  # covers the pinned Node 24.
+  test-node22:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.13'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run test
 
   e2e:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: build
 
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: '24.x'
+          node-version-file: .nvmrc
           cache: 'npm'
       - run: npm ci
-      - run: npm run build
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
       - run: npm run test:e2e
       # Preserve the Playwright HTML report and traces so failed e2e runs are
       # debuggable from the Actions run instead of only reproducible locally.

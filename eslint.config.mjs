@@ -10,18 +10,20 @@ import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 
 export default tseslint.config(
-  // Never lint compiled output, generated types, coverage, or plain JS/config
+  // Never lint compiled output, generated types, coverage, or root config
   // files. Flat config only auto-ignores node_modules/.git, so dot-dirs like
-  // .astro (Astro's generated types) must be listed explicitly.
+  // .astro (Astro's generated types) must be listed explicitly. Hand-written
+  // JS in worker/ and scripts/ is linted (see below).
   {
     ignores: [
       'dist/**',
       'build/**',
       'coverage/**',
       '.astro/**',
-      '**/*.js',
+      'src/__fixtures__/**',
+      '*.js',
+      '*.mjs',
       '**/*.cjs',
-      '**/*.mjs',
     ],
   },
 
@@ -37,6 +39,23 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/prefer-ts-expect-error': 'warn',
       '@typescript-eslint/ban-ts-comment': 'warn',
+    },
+  },
+
+  // Node build/fixture scripts.
+  {
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      globals: { ...globals.node },
+    },
+  },
+
+  // The Cloudflare Worker runs on the Workers runtime (Web APIs plus
+  // HTMLRewriter), not Node.
+  {
+    files: ['worker/**/*.js'],
+    languageOptions: {
+      globals: { ...globals.serviceworker, HTMLRewriter: 'readonly' },
     },
   },
 
