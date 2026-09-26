@@ -3,14 +3,7 @@
 import { Command } from 'commander';
 import { createRequire } from 'module';
 import { mkdir, writeFile } from 'fs/promises';
-import {
-  convertWithWarnings,
-  UnsupportedFileError,
-  FileNotFoundError,
-  InvalidFileError,
-  FilePermissionError,
-  ConversionError,
-} from './main.js';
+import { convertWithWarnings } from './main.js';
 
 // Read our own version from package.json. createRequire resolves relative to
 // this module, so `../package.json` points at the package root both from the
@@ -97,18 +90,7 @@ program
         console.log(result.markdown);
       }
     } catch (error) {
-      // Handle our custom errors with user-friendly messages
-      if (
-        error instanceof UnsupportedFileError ||
-        error instanceof FileNotFoundError ||
-        error instanceof InvalidFileError ||
-        error instanceof FilePermissionError ||
-        error instanceof ConversionError
-      ) {
-        console.error(`Error: ${error.message}`);
-        process.exit(1);
-      }
-      // Handle unexpected errors (including non-Error objects)
+      // Converter errors carry user-friendly messages; print anything else as-is
       console.error(
         'Error:',
         error instanceof Error ? error.message : String(error),

@@ -83,8 +83,12 @@ interface DocumentProperties {
   protection?: boolean;
 }
 
+// Base class for every user-facing error the converter throws, so callers can
+// catch them all with one instanceof check
+export class WordToMarkdownError extends Error {}
+
 // Custom error class for unsupported file formats
-export class UnsupportedFileError extends Error {
+export class UnsupportedFileError extends WordToMarkdownError {
   constructor(message: string) {
     super(message);
     this.name = 'UnsupportedFileError';
@@ -92,7 +96,7 @@ export class UnsupportedFileError extends Error {
 }
 
 // Custom error class for file not found
-export class FileNotFoundError extends Error {
+export class FileNotFoundError extends WordToMarkdownError {
   constructor(filePath?: string) {
     const location = filePath ? `: "${filePath}"` : '';
     super(
@@ -103,7 +107,7 @@ export class FileNotFoundError extends Error {
 }
 
 // Custom error class for invalid/corrupted files
-export class InvalidFileError extends Error {
+export class InvalidFileError extends WordToMarkdownError {
   constructor(filePath?: string) {
     const location = filePath ? `: "${filePath}"` : '';
     super(
@@ -114,7 +118,7 @@ export class InvalidFileError extends Error {
 }
 
 // Custom error class for permission errors
-export class FilePermissionError extends Error {
+export class FilePermissionError extends WordToMarkdownError {
   constructor(filePath?: string) {
     const location = filePath ? `: "${filePath}"` : '';
     super(
@@ -125,22 +129,11 @@ export class FilePermissionError extends Error {
 }
 
 // Custom error class for general conversion errors
-export class ConversionError extends Error {
-  public cause?: Error;
-
+export class ConversionError extends WordToMarkdownError {
   constructor(message: string, originalError?: Error) {
-    super(message);
+    // Standard error chaining for better debugging tool support
+    super(message, originalError ? { cause: originalError } : undefined);
     this.name = 'ConversionError';
-    // Capture stack trace if available (Node.js/V8 specific)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ErrorWithCapture = Error as any;
-    if (typeof ErrorWithCapture.captureStackTrace === 'function') {
-      ErrorWithCapture.captureStackTrace(this, this.constructor);
-    }
-    if (originalError) {
-      // Use standard error chaining for better debugging tool support
-      this.cause = originalError;
-    }
   }
 }
 
@@ -185,9 +178,7 @@ function validateFilePath(filePath: string): string {
   const dangerousPaths = ['/etc/', '/sys/', '/proc/', '/root/', '/boot/'];
   for (const dangerousPath of dangerousPaths) {
     if (resolvedPath.startsWith(dangerousPath)) {
-      throw new Error(
-        'Invalid file path: access to system directories not allowed',
-      );
+      throw new FilePermissionError(filePath);
     }
   }
 
@@ -195,99 +186,11 @@ function validateFilePath(filePath: string): string {
   const windowsDangerousPaths = ['C:\\Windows\\', 'C:\\Program Files\\'];
   for (const dangerousPath of windowsDangerousPaths) {
     if (resolvedPath.toUpperCase().startsWith(dangerousPath.toUpperCase())) {
-      throw new Error(
-        'Invalid file path: access to system directories not allowed',
-      );
+      throw new FilePermissionError(filePath);
     }
   }
 
   return resolvedPath;
-}
-
-// Map of common HTML entities to decode
-const decodeMap: { [key: string]: string } = {
-  '&amp;': '&',
-  // Don't decode &lt; and &gt; in our custom decoder
-  // Let Turndown handle them appropriately based on context
-  '&quot;': '"',
-  '&#39;': "'",
-  '&#x27;': "'",
-  '&apos;': "'",
-  '&nbsp;': ' ',
-  '&copy;': '©',
-  '&reg;': '®',
-  '&trade;': '™',
-  '&hellip;': '…',
-  '&mdash;': '—',
-  '&ndash;': '–',
-  '&lsquo;': '\u2018',
-  '&rsquo;': '\u2019',
-  '&ldquo;': '\u201C',
-  '&rdquo;': '\u201D',
-};
-
-// Maximum iterations for decoding nested HTML entities to prevent infinite loops
-const MAX_DECODE_ITERATIONS = 10;
-
-// Convert a numeric code point to a string, returning the original entity text
-// for out-of-range values (fromCodePoint throws a RangeError on those, unlike
-// the legacy fromCharCode which silently wrapped).
-function codePointToString(codePoint: number, original: string): string {
-  try {
-    return String.fromCodePoint(codePoint);
-  } catch {
-    return original;
-  }
-}
-
-// Decode HTML entities in text content
-function decodeHtmlEntities(html: string): string {
-  function decodeOnce(text: string): string {
-    // Use a more specific regex pattern to avoid catastrophic backtracking
-    // Match: & followed by either:
-    //   - a-zA-Z letters (for named entities like &amp;, &nbsp;, etc.)
-    //   - # followed by digits (for numeric entities like &#169;)
-    //   - #[xX] followed by hex digits (for hex entities like &#x27; or &#X27;)
-    // All terminated with a semicolon
-    return text.replace(/&(?:[a-zA-Z]+|#\d+|#[xX][0-9a-fA-F]+);/g, (entity) => {
-      // Handle named entities
-      if (decodeMap[entity]) {
-        return decodeMap[entity];
-      }
-
-      // Handle numeric entities &#123; (fromCodePoint handles astral-plane
-      // code points > U+FFFF, e.g. emoji, which fromCharCode would truncate)
-      const numericMatch = entity.match(/^&#(\d+);$/);
-      if (numericMatch) {
-        return codePointToString(parseInt(numericMatch[1], 10), entity);
-      }
-
-      // Handle hex entities &#x1A;
-      const hexMatch = entity.match(/^&#x([0-9a-fA-F]+);$/i);
-      if (hexMatch) {
-        return codePointToString(parseInt(hexMatch[1], 16), entity);
-      }
-
-      // Return original if not recognized
-      return entity;
-    });
-  }
-
-  // Keep decoding until no more entities are found (handles double/triple encoding)
-  let decoded = html;
-  let prevDecoded;
-  let iterations = 0;
-  do {
-    prevDecoded = decoded;
-    decoded = decodeOnce(decoded);
-    iterations++;
-  } while (
-    decoded !== prevDecoded &&
-    decoded.includes('&') &&
-    iterations < MAX_DECODE_ITERATIONS
-  );
-
-  return decoded;
 }
 
 // Turndown will add an empty header if the first row
@@ -300,10 +203,18 @@ const bulletRegex = new RegExp(
   `^\\s*[${unicodeBullets.map((b) => b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('')}]\\s*`,
 );
 
+// A row's own cells, excluding cells of any table nested inside it
+function rowCells(row: HTMLElement): HTMLElement[] {
+  // Text nodes have no tagName, hence the optional chain
+  return (row.childNodes as HTMLElement[]).filter(
+    (node: HTMLElement) => node.tagName?.toLowerCase() === 'td',
+  );
+}
+
 // Process HTML in a single pass: optionally strip images, convert table
 // headers, and remove unicode bullets. This is more efficient than parsing the
 // HTML twice.
-function processHtml(
+export function processHtml(
   html: string,
   opts: { stripImages?: boolean } = {},
 ): string {
@@ -343,18 +254,22 @@ function processHtml(
     // If first row already has TH elements, leave it alone
     if (firstRow.querySelector('th')) return;
 
-    // Check if first row is empty or has only empty cells
-    const cells = firstRow.querySelectorAll('td');
+    // Check if first row is empty or has only empty cells. An image-only cell
+    // isn't empty: dropping the row would drop the image.
+    const cells = rowCells(firstRow);
     const isEmpty =
       cells.length === 0 ||
-      cells.every((cell: HTMLElement) => !cell.textContent?.trim());
+      cells.every(
+        (cell: HTMLElement) =>
+          !cell.textContent?.trim() && !cell.querySelector('img'),
+      );
 
     if (isEmpty) {
       // Remove empty first row and find the first non-empty row to convert
       firstRow.remove();
       const nextRow = table.querySelector('tr');
       if (nextRow) {
-        nextRow.querySelectorAll('td').forEach((cell: HTMLElement) => {
+        rowCells(nextRow).forEach((cell: HTMLElement) => {
           cell.tagName = 'th';
         });
       }
@@ -416,15 +331,16 @@ export function htmlToMd(
   options: object = {},
   keepTags: string[] = [],
 ): string {
-  // Decode HTML entities before conversion
-  const decodedHtml = decodeHtmlEntities(html);
-
+  // Turndown's DOM parser decodes entities exactly once. Don't pre-decode:
+  // that would turn literal text like `&#60;b&#62;` into markup and truncate
+  // attribute values containing `&quot;`.
   const turndownService = getTurndownService(options, keepTags);
-  return turndownService.turndown(decodedHtml).trim();
+  return turndownService.turndown(html).trim();
 }
 
 // Pre-compiled regex patterns for better performance
-const numberedListRegex = /^(\s*)(\d+)\.\s/gm;
+const numberedListRegex = /^(\s*)(\d+)\.\s/;
+const fenceRegex = /^\s*(`{3,}|~{3,})/;
 const nonBreakingSpacesRegex = /[\u00A0\u2007\u202F\u2060\uFEFF]/g;
 const smartQuotesRegex = /[\u201C\u201D\u2018\u2019]/g;
 
@@ -436,8 +352,9 @@ const smartQuotesRegex = /[\u201C\u201D\u2018\u2019]/g;
 // and markdownlint may re-escape.
 //
 // Reference in the body, e.g. `<sup>[\[1\]](#footnote-1)</sup>` \u2192 `[^1]`. The
-// non-greedy link text backtracks past the escaped `\]` inside the label.
-const footnoteRefRegex = /<sup>\[[\s\S]*?\]\(#(?:foot|end)note-(\d+)\)<\/sup>/g;
+// non-greedy link text backtracks past the escaped `\]` inside the label, but
+// can't cross a `<`, so an earlier, unrelated `<sup>` link isn't swallowed.
+const footnoteRefRegex = /<sup>\[[^<]*?\]\(#(?:foot|end)note-(\d+)\)<\/sup>/g;
 // Definition list item, e.g. `1. Body text. [\u2191](#footnote-ref-1)` \u2192
 // `[^1]: Body text.`. The list marker is unreliable (prettier renumbers), so the
 // footnote number comes from the backlink. Only single-line note bodies match:
@@ -464,11 +381,23 @@ const smartQuoteMap: { [key: string]: string } = {
   '\u2019': "'", // Right single quotation mark
 };
 
-// Convert numbered lists to bullet lists
+// Convert numbered lists to bullet lists, leaving fenced code blocks untouched
 function convertNumberedListsToBullets(md: string): string {
-  // Replace numbered list items with bullet list items
-  // This regex matches lines that start with optional whitespace, a number, a dot, and a space
-  return md.replace(numberedListRegex, '$1- ');
+  let fence: string | null = null;
+  return md
+    .split('\n')
+    .map((line) => {
+      const marker = line.match(fenceRegex)?.[1];
+      if (marker) {
+        // A fence closes only with the same character, at least as long
+        if (fence === null) fence = marker;
+        else if (marker[0] === fence[0] && marker.length >= fence.length)
+          fence = null;
+        return line;
+      }
+      return fence === null ? line.replace(numberedListRegex, '$1- ') : line;
+    })
+    .join('\n');
 }
 
 // Remove unicode non-breaking spaces and convert smart quotes to ASCII in a single pass
@@ -607,7 +536,11 @@ export async function extractDocumentProperties(
     // If we can't extract properties, just continue without them
     // This might happen with encrypted, corrupted, or non-standard .docx files
     // We log the error in development mode but don't fail the conversion
-    if (process.env.NODE_ENV === 'development') {
+    // `process` doesn't exist in the browser worker unless a bundler shims it
+    if (
+      typeof process !== 'undefined' &&
+      process.env?.NODE_ENV === 'development'
+    ) {
       console.warn('Failed to extract document properties:', error);
     }
   }
@@ -647,8 +580,55 @@ export function generateWarnings(properties: DocumentProperties): string[] {
 }
 
 // The input shapes mammoth accepts across environments
-type MammothInput =
-  { path: string } | { buffer: Buffer } | { arrayBuffer: ArrayBuffer };
+type MammothInput = { buffer: Buffer } | { arrayBuffer: ArrayBuffer };
+
+// Encrypted (password-protected) .docx files and legacy .doc files are OLE
+// Compound File Binary containers, not ZIPs. They start with this signature.
+const CFB_SIGNATURE = [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1];
+
+function isCompoundFile(bytes: ArrayBuffer): boolean {
+  const head = new Uint8Array(bytes, 0, Math.min(bytes.byteLength, 8));
+  return (
+    head.length === CFB_SIGNATURE.length &&
+    CFB_SIGNATURE.every((byte, i) => head[i] === byte)
+  );
+}
+
+interface LoadedInput {
+  bytes: ArrayBuffer;
+  mammothInput: MammothInput;
+}
+
+// Read the input once and shape it for mammoth. In Node.js, mammoth's unzip
+// only accepts { path | buffer | file }; the browser build takes { arrayBuffer }.
+async function loadInput(input: string | ArrayBuffer): Promise<LoadedInput> {
+  let bytes: ArrayBuffer;
+  if (typeof input === 'string') {
+    validateFileExtension(input);
+    // Validate the file path to prevent path traversal attacks
+    const fileBuffer = await fs.readFile(validateFilePath(input));
+    bytes = toArrayBuffer(
+      fileBuffer.buffer.slice(
+        fileBuffer.byteOffset,
+        fileBuffer.byteOffset + fileBuffer.byteLength,
+      ),
+    );
+  } else {
+    bytes = input;
+  }
+
+  if (isCompoundFile(bytes)) {
+    throw new UnsupportedFileError(
+      'This file is password-protected or is a legacy .doc file. Please remove the password or save it as a .docx file and try again.',
+    );
+  }
+
+  const mammothInput: MammothInput =
+    typeof Buffer !== 'undefined'
+      ? { buffer: Buffer.from(bytes) }
+      : { arrayBuffer: bytes };
+  return { bytes, mammothInput };
+}
 
 // A conversion message emitted by mammoth (e.g. dropped/unsupported content)
 interface MammothMessage {
@@ -889,17 +869,19 @@ async function runConversionPipeline(
     options.turndown,
     preserveUnderline ? ['u'] : [],
   );
-  // Numbered lists stay numbered by default; flatten to bullets on request.
-  const listMd =
-    options.numberedLists === 'bullets'
-      ? convertNumberedListsToBullets(md)
-      : md;
-  const normalizedMd = normalizeText(listMd);
+  const normalizedMd = normalizeText(md);
   const cleanedMd = lint(normalizedMd);
   // Footnotes stay as GFM `[^1]` by default; skip the rewrite on request.
   const footnotedMd =
     options.footnotes === 'preserve' ? cleanedMd : convertFootnotes(cleanedMd);
-  const formattedMd = await prettify(footnotedMd);
+  // Numbered lists stay numbered by default; flatten to bullets on request.
+  // This must run after convertFootnotes, whose definition regex matches the
+  // numbered `1. body [\u2191](#footnote-ref-1)` list items.
+  const listMd =
+    options.numberedLists === 'bullets'
+      ? convertNumberedListsToBullets(footnotedMd)
+      : footnotedMd;
+  const formattedMd = await prettify(listMd);
   return {
     markdown: formattedMd,
     messages: mammothResult.messages,
@@ -927,13 +909,7 @@ function isInvalidDocxError(message: string): boolean {
 // error classes. Always throws (never returns normally).
 function classifyConversionError(error: unknown, filePath?: string): never {
   // Re-throw our custom errors as-is
-  if (
-    error instanceof UnsupportedFileError ||
-    error instanceof FileNotFoundError ||
-    error instanceof InvalidFileError ||
-    error instanceof FilePermissionError ||
-    error instanceof ConversionError
-  ) {
+  if (error instanceof WordToMarkdownError) {
     throw error;
   }
 
@@ -945,8 +921,19 @@ function classifyConversionError(error: unknown, filePath?: string): never {
       : undefined;
 
   // File not found errors (only occur with file path inputs)
-  if (errorCode === 'ENOENT') {
+  // ENOTDIR/ELOOP mean a path component isn't a usable directory, so the
+  // file can't be reached either.
+  if (
+    errorCode === 'ENOENT' ||
+    errorCode === 'ENOTDIR' ||
+    errorCode === 'ELOOP'
+  ) {
     throw new FileNotFoundError(filePath);
+  }
+
+  // A directory was passed where a .docx file was expected
+  if (errorCode === 'EISDIR') {
+    throw new InvalidFileError(filePath);
   }
 
   // Permission errors (only occur with file path inputs)
@@ -1021,48 +1008,17 @@ export async function convertWithWarnings(
   input: string | ArrayBuffer,
   options: convertOptions = {},
 ): Promise<ConvertResult> {
-  let filePath: string | undefined;
+  const filePath = typeof input === 'string' ? input : undefined;
 
   try {
-    // Normalize input so that the underlying .docx content is read at most once
-    let mammothInput: MammothInput;
-    let propertiesInput: string | ArrayBuffer;
-
-    if (typeof input === 'string') {
-      filePath = input;
-      // Validate file extension for file path inputs
-      validateFileExtension(input);
-
-      // Validate the file path to prevent path traversal attacks
-      const safePath = validateFilePath(input);
-
-      // Read the file once and share the buffer between property extraction
-      // and Mammoth conversion to avoid redundant disk reads for large documents
-      const fileBuffer = await fs.readFile(safePath);
-      propertiesInput = toArrayBuffer(
-        fileBuffer.buffer.slice(
-          fileBuffer.byteOffset,
-          fileBuffer.byteOffset + fileBuffer.byteLength,
-        ),
-      );
-      mammothInput = { buffer: fileBuffer };
-    } else {
-      propertiesInput = input;
-      // In Node.js, mammoth expects { buffer }, in browser it expects { arrayBuffer }
-      // Check for Buffer availability to determine the environment
-      if (typeof Buffer !== 'undefined') {
-        mammothInput = { buffer: Buffer.from(input) };
-      } else {
-        mammothInput = { arrayBuffer: input };
-      }
-    }
+    const loaded = await loadInput(input);
 
     // Extract document properties to check for confidentiality flags
-    const properties = await extractDocumentProperties(propertiesInput);
+    const properties = await extractDocumentProperties(loaded.bytes);
     const warnings = generateWarnings(properties);
 
     const { markdown, messages, images } = await runConversionPipeline(
-      mammothInput,
+      loaded.mammothInput,
       options,
     );
     warnings.push(...extractMammothWarnings(messages));
@@ -1080,23 +1036,15 @@ export default async function convert(
   input: string | ArrayBuffer,
   options: convertOptions = {},
 ): Promise<string> {
-  let filePath: string | undefined;
+  const filePath = typeof input === 'string' ? input : undefined;
 
   try {
-    let mammothInput: MammothInput;
+    const loaded = await loadInput(input);
 
-    if (typeof input === 'string') {
-      filePath = input;
-      // Validate file extension for file path inputs
-      validateFileExtension(input);
-      // Validate the file path to prevent path traversal attacks
-      const safePath = validateFilePath(input);
-      mammothInput = { path: safePath };
-    } else {
-      mammothInput = { arrayBuffer: input };
-    }
-
-    const { markdown } = await runConversionPipeline(mammothInput, options);
+    const { markdown } = await runConversionPipeline(
+      loaded.mammothInput,
+      options,
+    );
     return markdown;
   } catch (error) {
     classifyConversionError(error, filePath);

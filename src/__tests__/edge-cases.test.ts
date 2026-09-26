@@ -30,7 +30,8 @@ describe('edge cases and advanced features', () => {
 
     // Verify entities are handled appropriately (some may be preserved for security)
     expect(result).toContain("alert('XSS')"); // The script tags may be escaped
-    expect(result).toContain('© ™ ®');
+    // Double-encoded entities decode once, keeping the text the author typed.
+    expect(result).toContain('&nbsp; &copy; &trade; &reg;');
     expect(result).toContain('Smart quotes'); // Contains the text regardless of quote style
     expect(result).toContain('– en dash and — em dash');
   });
@@ -258,5 +259,24 @@ describe('edge cases and advanced features', () => {
     expect(result).toBeDefined();
     expect(typeof result).toBe('string');
     expect(result.length).toBeGreaterThan(0);
+  });
+
+  it('promotes only the outer row when a header cell holds a nested table', async () => {
+    const { processHtml } = await import('../main.js');
+    const html = processHtml(
+      '<table><tr><td>A<table><tr><td>x</td></tr><tr><td>y</td></tr></table></td><td>B</td></tr><tr><td>1</td><td>2</td></tr></table>',
+    );
+    // The nested table's second row must stay a data row.
+    expect(html).toContain('<tr><td>y</td></tr>');
+    expect(html).toContain('<th>B</th>');
+  });
+
+  it('keeps an image-only first table row as the header', async () => {
+    const { processHtml } = await import('../main.js');
+    const html = processHtml(
+      '<table><tr><td><img src="data:image/png;base64,AA" alt="logo"></td></tr><tr><td>row</td></tr></table>',
+    );
+    expect(html).toContain('<th><img');
+    expect(html).toContain('<td>row</td>');
   });
 });

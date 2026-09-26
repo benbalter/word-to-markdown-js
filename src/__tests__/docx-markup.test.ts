@@ -36,6 +36,24 @@ describe('docx markup features (end to end)', () => {
     expect(md).not.toContain('[^1]');
   });
 
+  it('converts footnotes when numberedLists: "bullets"', async () => {
+    const md = await convert('src/__fixtures__/footnote.docx', {
+      numberedLists: 'bullets',
+    });
+    // Flattening lists used to run first and turn the numbered note list into
+    // bullets, so the footnote definitions no longer matched.
+    expect(md).toContain('Text with a footnote[^1].');
+    expect(md).toContain('[^1]: The footnote body text.');
+    expect(md).not.toContain('<sup>');
+  });
+
+  it('leaves numbered lines inside code blocks alone with numberedLists: "bullets"', async () => {
+    const md = await convert('src/__fixtures__/code-numbered.docx', {
+      numberedLists: 'bullets',
+    });
+    expect(md).toContain('```\n1. install\n2. run\n```');
+  });
+
   it('preserves raw footnote markup when footnotes: "preserve"', async () => {
     const md = await convert('src/__fixtures__/footnote.docx', {
       footnotes: 'preserve',

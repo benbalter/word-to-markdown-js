@@ -250,6 +250,24 @@ const codeBlock = await docx({
 });
 fs.writeFileSync('src/__fixtures__/code-block.docx', codeBlock);
 
+// --- code-numbered.docx -----------------------------------------------------
+// A code block whose lines look like a numbered list. `numberedLists:
+// 'bullets'` must leave the fenced code verbatim rather than rewriting `1. `.
+const codeNumberedDoc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="${W}"><w:body>
+  <w:tbl><w:tr><w:tc>
+    ${codeLine('1. install')}
+    ${codeLine('2. run')}
+  </w:tc></w:tr></w:tbl>
+</w:body></w:document>`;
+
+const codeNumbered = await docx({
+  '[Content_Types].xml': contentTypes(),
+  '_rels/.rels': rels,
+  'word/document.xml': codeNumberedDoc,
+});
+fs.writeFileSync('src/__fixtures__/code-numbered.docx', codeNumbered);
+
 console.log(
-  'wrote strikethrough.docx, footnote.docx, footnote-multiparagraph.docx, image.docx, dropped-content.docx, superscript.docx, subscript.docx, underline.docx, dashes.docx, code-block.docx',
+  'wrote strikethrough.docx, footnote.docx, footnote-multiparagraph.docx, image.docx, dropped-content.docx, superscript.docx, subscript.docx, underline.docx, dashes.docx, code-block.docx, code-numbered.docx',
 );
