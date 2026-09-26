@@ -262,7 +262,7 @@ const footerLinks = [
       try {
         const root = document.documentElement;
         if (root.hasAttribute('data-localized')) {
-          document.cookie = `lang=${root.lang}; path=/; max-age=31536000; samesite=lax`;
+          document.cookie = `lang=${root.lang}; path=/; max-age=31536000; samesite=lax; secure`;
         }
       } catch {
         /* cookies unavailable — fine, redirect simply re-evaluates next visit */

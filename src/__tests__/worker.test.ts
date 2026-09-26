@@ -22,14 +22,21 @@ function makeEnv(overrides: Partial<MockEnv> = {}): MockEnv {
   };
 }
 
+// A beacon as the browser sends it from one of our pages
+const SAME_ORIGIN_POST = {
+  method: 'POST',
+  headers: { Origin: 'https://word2md.com', 'Sec-Fetch-Site': 'same-origin' },
+};
+
 describe('worker fetch handler', () => {
   describe('POST /api/event (conversion counter)', () => {
     it('records one data point with outcome + locale and returns 204', async () => {
       const env = makeEnv();
       const res = await worker.fetch(
-        new Request('https://word2md.com/api/event?o=success&l=de', {
-          method: 'POST',
-        }),
+        new Request(
+          'https://word2md.com/api/event?o=success&l=de',
+          SAME_ORIGIN_POST,
+        ),
         env,
       );
 
@@ -47,9 +54,10 @@ describe('worker fetch handler', () => {
     it('records the error outcome when o=error', async () => {
       const env = makeEnv();
       await worker.fetch(
-        new Request('https://word2md.com/api/event?o=error&l=en', {
-          method: 'POST',
-        }),
+        new Request(
+          'https://word2md.com/api/event?o=error&l=en',
+          SAME_ORIGIN_POST,
+        ),
         env,
       );
       expect(env.EVENTS!.writeDataPoint).toHaveBeenCalledWith({
@@ -61,9 +69,10 @@ describe('worker fetch handler', () => {
     it('bounds caller-supplied dimensions: bad outcome → success, unknown locale → other', async () => {
       const env = makeEnv();
       await worker.fetch(
-        new Request('https://word2md.com/api/event?o=garbage&l=zz', {
-          method: 'POST',
-        }),
+        new Request(
+          'https://word2md.com/api/event?o=garbage&l=zz',
+          SAME_ORIGIN_POST,
+        ),
         env,
       );
       expect(env.EVENTS!.writeDataPoint).toHaveBeenCalledWith({
@@ -75,7 +84,7 @@ describe('worker fetch handler', () => {
     it('defaults missing params to success/other', async () => {
       const env = makeEnv();
       await worker.fetch(
-        new Request('https://word2md.com/api/event', { method: 'POST' }),
+        new Request('https://word2md.com/api/event', SAME_ORIGIN_POST),
         env,
       );
       expect(env.EVENTS!.writeDataPoint).toHaveBeenCalledWith({
@@ -92,15 +101,36 @@ describe('worker fetch handler', () => {
       );
 
       expect(res.status).toBe(405);
+      expect(res.headers.get('Allow')).toBe('POST');
       expect(env.EVENTS!.writeDataPoint).not.toHaveBeenCalled();
       expect(env.ASSETS.fetch).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['no Origin', {}],
+      ['a foreign Origin', { Origin: 'https://evil.example' }],
+      [
+        'a cross-site fetch',
+        { Origin: 'https://word2md.com', 'Sec-Fetch-Site': 'cross-site' },
+      ],
+    ])('rejects a beacon with %s without recording it', async (_, headers) => {
+      const env = makeEnv();
+      const res = await worker.fetch(
+        new Request('https://word2md.com/api/event', {
+          method: 'POST',
+          headers,
+        }),
+        env,
+      );
+      expect(res.status).toBe(403);
+      expect(env.EVENTS!.writeDataPoint).not.toHaveBeenCalled();
     });
 
     it('still returns 204 when the Analytics Engine binding is absent', async () => {
       // e.g. a deploy without the binding; the endpoint degrades to a no-op.
       const env = makeEnv({ EVENTS: undefined });
       const res = await worker.fetch(
-        new Request('https://word2md.com/api/event', { method: 'POST' }),
+        new Request('https://word2md.com/api/event', SAME_ORIGIN_POST),
         env,
       );
       expect(res.status).toBe(204);
@@ -129,8 +159,25 @@ describe('worker fetch handler', () => {
 
       expect(res.status).toBe(302);
       expect(res.headers.get('Location')).toBe('https://word2md.com/de/');
+      expect(res.headers.get('Set-Cookie')).toBe(
+        'lang=de; Path=/; Max-Age=31536000; SameSite=Lax; Secure',
+      );
+      expect(res.headers.get('Vary')).toBe('Accept-Language, Cookie');
+      expect(res.headers.get('Cache-Control')).toBe('no-store');
       expect(env.ASSETS.fetch).not.toHaveBeenCalled();
       expect(env.EVENTS!.writeDataPoint).not.toHaveBeenCalled();
+    });
+
+    it('keeps the query string on the redirect', async () => {
+      const res = await worker.fetch(
+        new Request('https://word2md.com/?utm_source=x', {
+          headers: { 'Accept-Language': 'fr' },
+        }),
+        makeEnv(),
+      );
+      expect(res.headers.get('Location')).toBe(
+        'https://word2md.com/fr/?utm_source=x',
+      );
     });
 
     it('serves the root from assets when a lang cookie is already set', async () => {
@@ -250,6 +297,31 @@ describe('worker fetch handler', () => {
       await worker.fetch(req, env);
 
       expect(env.ASSETS.fetch).toHaveBeenCalledWith(req);
+    });
+
+    it('only honors an exact hint=off cookie', async () => {
+      const res = await worker.fetch(
+        rootRequest(
+          { 'Accept-Language': 'en-US', Cookie: 'lang=en; hint=offer' },
+          'ID',
+        ),
+        htmlEnv(),
+      );
+      expect(await res.text()).toContain('data-suggest-locale="id"');
+    });
+
+    it('passes a non-OK asset response through untagged', async () => {
+      const env = makeEnv({
+        ASSETS: {
+          fetch: jest.fn(async () => new Response('gone', { status: 503 })),
+        },
+      });
+      const res = await worker.fetch(
+        rootRequest({ 'Accept-Language': 'en-US', Cookie: 'lang=en' }, 'ID'),
+        env,
+      );
+      expect(res.status).toBe(503);
+      expect(await res.text()).toBe('gone');
     });
   });
 });

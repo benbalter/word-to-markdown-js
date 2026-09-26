@@ -46,6 +46,11 @@ describe('pickLocale', () => {
     expect(pickLocale('de;q=0.3,en;q=0.9')).toBeNull();
   });
 
+  it('treats q=0 as "not acceptable", not as a low preference', () => {
+    expect(pickLocale('fr;q=0')).toBeNull();
+    expect(pickLocale('fr;q=0, de;q=0.5')).toBe('de');
+  });
+
   it('skips unsupported languages', () => {
     expect(pickLocale('fa,he;q=0.9')).toBeNull();
     expect(pickLocale('el-GR,el;q=0.9')).toBeNull();
@@ -94,6 +99,10 @@ describe('pickSuggestion', () => {
     expect(pickSuggestion('en-US,en;q=0.9', undefined)).toBeNull();
     expect(pickSuggestion('en,fa;q=0.8', 'IR')).toBeNull();
     expect(pickSuggestion(null, null)).toBeNull();
+  });
+
+  it('never suggests a language the browser marks q=0', () => {
+    expect(pickSuggestion('en, fr;q=0')).toBeNull();
   });
 
   it('respects a visitor who chose English over a preferred language', () => {

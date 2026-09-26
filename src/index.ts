@@ -66,13 +66,26 @@ async function renderMarkdown(markdown: string): Promise<string> {
 async function renderPreview(
   target: HTMLElement | null,
   markdown: string,
+  token: number,
 ): Promise<void> {
   if (!target) return;
   try {
     await new Promise<void>((resolve) => {
       requestAnimationFrame(() => resolve());
     });
-    target.innerHTML = await renderMarkdown(markdown);
+    const html = await renderMarkdown(markdown);
+    // A newer document replaced this one while it rendered.
+    if (token !== activeConversion) return;
+    target.innerHTML = html;
+    // Open the document's own links in a new tab so following one doesn't
+    // navigate away from (and discard) the conversion. In-page footnote links
+    // (#user-content-fn-…) stay as they are.
+    target
+      .querySelectorAll<HTMLAnchorElement>('a[href^="http"]')
+      .forEach((link) => {
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+      });
   } catch (error) {
     console.error(error);
   }
@@ -87,10 +100,14 @@ interface ConversionResult {
   images?: ExtractedImage[];
 }
 
-// How long to wait for the worker to signal it has loaded before giving up and
-// converting on the main thread instead. Only guards a broken/hung worker load,
-// not the conversion itself (which is unbounded — it runs off-thread).
-const WORKER_READY_TIMEOUT = 5000;
+// How long a conversion waits for the worker to signal it has loaded before
+// giving up and converting on the main thread instead. Only guards a
+// broken/hung worker load, not the conversion itself (which is unbounded — it
+// runs off-thread). The clock starts when a conversion is requested, not when
+// the worker is prefetched, and is generous because the worker downloads the
+// same heavy deps the fallback would: on a slow link, falling back only adds a
+// second download.
+const WORKER_READY_TIMEOUT = 15000;
 
 let converterWorker: Worker | null = null;
 let workerReady: Promise<void> | null = null;
@@ -107,13 +124,14 @@ const pendingConversions = new Map<
 // thread) from a genuine conversion error (→ surface it to the user).
 class WorkerInfraError extends Error {}
 
-// Reject and clear all in-flight conversions, then drop the worker so the next
-// attempt uses the main-thread fallback.
+// Reject and clear all in-flight conversions, then stop and drop the worker so
+// the next attempt uses the main-thread fallback.
 function failWorker(reason: string): void {
   for (const [id, pending] of pendingConversions) {
     pendingConversions.delete(id);
     pending.reject(new WorkerInfraError(reason));
   }
+  converterWorker?.terminate();
   converterWorker = null;
   workerReady = null;
   workerUnavailable = true;
@@ -124,15 +142,11 @@ function getConverterWorker(): Worker {
   const worker = new Worker(new URL('./converter.worker.ts', import.meta.url), {
     type: 'module',
   });
+  // Settles when the worker loads or fails; convertBuffer bounds the wait.
   workerReady = new Promise<void>((resolve, reject) => {
-    const timer = window.setTimeout(() => {
-      reject(new WorkerInfraError('worker did not become ready'));
-      failWorker('worker did not become ready');
-    }, WORKER_READY_TIMEOUT);
     worker.onmessage = (event: MessageEvent): void => {
       const data = event.data;
       if (data?.type === 'ready') {
-        window.clearTimeout(timer);
         resolve();
         return;
       }
@@ -144,7 +158,6 @@ function getConverterWorker(): Worker {
       else pending.reject(error);
     };
     worker.onerror = (): void => {
-      window.clearTimeout(timer);
       reject(new WorkerInfraError('conversion worker failed'));
       failWorker('conversion worker failed');
     };
@@ -154,6 +167,22 @@ function getConverterWorker(): Worker {
   workerReady.catch(() => {});
   converterWorker = worker;
   return worker;
+}
+
+// Wait for the worker to load, but no longer than WORKER_READY_TIMEOUT from now.
+function waitForWorker(): Promise<void> {
+  const ready = workerReady;
+  if (!ready) return Promise.reject(new WorkerInfraError('no worker'));
+  let timer: number | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = window.setTimeout(() => {
+      failWorker('worker did not become ready');
+      reject(new WorkerInfraError('worker did not become ready'));
+    }, WORKER_READY_TIMEOUT);
+  });
+  return Promise.race([ready, timeout]).finally(() =>
+    window.clearTimeout(timer),
+  );
 }
 
 function convertViaWorker(
@@ -181,7 +210,7 @@ async function convertBuffer(
   if (typeof Worker !== 'undefined' && !workerUnavailable) {
     try {
       getConverterWorker();
-      await workerReady; // rejects (WorkerInfraError) on load timeout/failure
+      await waitForWorker(); // rejects (WorkerInfraError) on timeout/failure
       return await convertViaWorker(buffer, extract);
     } catch (error) {
       if (!(error instanceof WorkerInfraError)) throw error;
@@ -203,12 +232,12 @@ function isLegacyDocFile(name: string): boolean {
 }
 
 // Conversion errors thrown in the worker arrive as { name, message } (class
-// identity doesn't survive the boundary). Map known names back to their
-// already-localized messages; anything else is an unexpected failure.
+// identity doesn't survive the boundary). These carry a specific, actionable
+// message; anything else (including ConversionError, whose message is a
+// generic English "try again") gets the localized generic message.
 const CONVERSION_ERROR_NAMES = new Set([
   'UnsupportedFileError',
   'InvalidFileError',
-  'ConversionError',
 ]);
 
 function showConversionError(error: unknown): void {
@@ -283,6 +312,7 @@ function setupClipboard(): void {
         // Flip the label to a transient confirmation, then restore it. Guard the
         // captured default against rapid re-clicks by resetting the timer.
         copyLabel.textContent = uiString('copied', 'Copied!');
+        announce(copyLabel.textContent);
         window.clearTimeout(copyResetTimer);
         copyResetTimer = window.setTimeout(() => {
           copyLabel.textContent = copyLabelDefault;
@@ -351,90 +381,111 @@ async function processFile(file: File | undefined): Promise<void> {
     return;
   }
 
-  const reader = new FileReader();
-  reader.readAsArrayBuffer(file);
-  reader.onload = async (): Promise<void> => {
-    // Enter a busy state: mark the input region busy, spin the dropzone icon,
-    // and announce progress, so a slow conversion (large/complex doc) isn't a
-    // silent, frozen-looking wait. The dropzone stays visible until the results
-    // reveal, so the spinner is the immediate visual feedback for the drop.
-    const inputRegion = document.getElementById('input');
-    const dropzone = document.getElementById('dropzone');
-    const srStatus = document.getElementById('sr-status');
-    inputRegion?.setAttribute('aria-busy', 'true');
-    dropzone?.classList.add('is-converting');
-    if (srStatus) {
-      srStatus.textContent = uiString('converting', 'Converting…');
+  // Only the most recent file wins: a result (or error) from a conversion that
+  // was superseded by a newer drop is discarded.
+  const token = ++activeConversion;
+
+  // Enter a busy state before reading (a large file takes a moment to read):
+  // mark the input region busy, spin the dropzone icon, and announce progress,
+  // so a slow conversion isn't a silent, frozen-looking wait. The dropzone stays
+  // visible until the results reveal, so the spinner is the immediate visual
+  // feedback for the drop.
+  const inputRegion = document.getElementById('input');
+  const dropzone = document.getElementById('dropzone');
+  const srStatus = document.getElementById('sr-status');
+  document.getElementById('error-alert')?.remove();
+  inputRegion?.setAttribute('aria-busy', 'true');
+  dropzone?.classList.add('is-converting');
+  if (srStatus) {
+    srStatus.textContent = uiString('converting', 'Converting…');
+  }
+  try {
+    const buffer = await file.arrayBuffer();
+    const result = await convertBuffer(buffer);
+    if (token !== activeConversion) return;
+    inputRegion?.removeAttribute('aria-busy');
+    dropzone?.classList.remove('is-converting');
+
+    // Display warnings if any (and drop a previous document's)
+    document.getElementById('warning-alert')?.remove();
+    if (result.warnings.length > 0) {
+      showWarnings(result.warnings);
     }
-    try {
-      const result = await convertBuffer(reader.result as ArrayBuffer);
-      inputRegion?.removeAttribute('aria-busy');
-      dropzone?.classList.remove('is-converting');
 
-      // Display warnings if any
-      if (result.warnings.length > 0) {
-        showWarnings(result.warnings);
-      }
+    // Reveal the results with the raw Markdown (the primary output, and the
+    // copy/download source) straight away; the HTML preview is rendered
+    // afterwards via renderPreview(), off the critical path, so its render
+    // doesn't sit between the drop and the user seeing their result. Clear the
+    // previous document's preview first so it can't linger if this render fails.
+    const outputElement = document.getElementById('output');
+    outputElement.innerText = result.markdown;
+    const renderedElement = document.getElementById('rendered');
+    if (renderedElement) renderedElement.innerHTML = '';
 
-      // Reveal the results with the raw Markdown (the primary output, and the
-      // copy/download source) straight away; the HTML preview is rendered
-      // afterwards via renderPreview(), off the critical path, so its render
-      // doesn't sit between the drop and the user seeing their result.
-      const outputElement = document.getElementById('output');
-      outputElement.innerText = result.markdown;
+    const filenameElement = document.getElementById('filename');
+    filenameElement.innerText = file.name;
 
-      const filenameElement = document.getElementById('filename');
-      filenameElement.innerText = file.name;
-
-      // Retain the source bytes and offer "Download .zip" only when the document
-      // actually has images (inline mode embeds them as base64 data URIs).
-      lastConvertedBuffer = reader.result as ArrayBuffer;
-      const zipButton = document.getElementById('download-zip-button');
-      if (zipButton) {
-        zipButton.style.display = result.markdown.includes('data:image')
-          ? 'inline-flex'
-          : 'none';
-      }
-
-      const inputElement = document.getElementById('input');
-      inputElement.classList.add('hidden');
-
-      const resultsElement = document.getElementById('results');
-      resultsElement.classList.remove('hidden');
-
-      // The results pane carries its own contextual Open & Async pitch, so hide
-      // the standalone promo card to avoid stacking two asks. The card stays for
-      // visitors who never convert (it lives in the page flow below the input).
-      // Set display inline rather than toggling `.hidden`: the card's scoped CSS
-      // sets `display: flex` at equal specificity, so a class wouldn't reliably win.
-      const promoCard = document.getElementById('promo-card');
-      if (promoCard) promoCard.style.display = 'none';
-
-      // Announce success to assistive tech (the results reveal is otherwise
-      // silent) and move focus to the first result action so keyboard users
-      // aren't stranded on the now-hidden file input.
-      const status = document.getElementById('sr-status');
-      if (status) {
-        status.textContent = uiString(
-          'conversionAnnouncement',
-          'Conversion complete. Your Markdown is ready.',
-        );
-      }
-      document.getElementById('copy-button')?.focus();
-
-      recordConversion('success');
-
-      // Render the HTML preview last, off the interaction's critical path.
-      void renderPreview(document.getElementById('rendered'), result.markdown);
-    } catch (error) {
-      // Leave the busy state and clear the "Converting…" announcement.
-      inputRegion?.removeAttribute('aria-busy');
-      dropzone?.classList.remove('is-converting');
-      if (srStatus) srStatus.textContent = '';
-      recordConversion('error');
-      showConversionError(error);
+    // Retain the source bytes and offer "Download .zip" only when the document
+    // actually has images (inline mode embeds them as base64 data URIs). Match
+    // Markdown image syntax, not a bare "data:image" that could be document text.
+    lastConvertedBuffer = buffer;
+    const zipButton = document.getElementById('download-zip-button');
+    if (zipButton) {
+      zipButton.style.display = INLINE_IMAGE.test(result.markdown)
+        ? 'inline-flex'
+        : 'none';
     }
-  };
+
+    const inputElement = document.getElementById('input');
+    inputElement.classList.add('hidden');
+
+    const resultsElement = document.getElementById('results');
+    resultsElement.classList.remove('hidden');
+
+    // The results pane carries its own contextual Open & Async pitch, so hide
+    // the standalone promo card to avoid stacking two asks. The card stays for
+    // visitors who never convert (it lives in the page flow below the input).
+    // Set display inline rather than toggling `.hidden`: the card's scoped CSS
+    // sets `display: flex` at equal specificity, so a class wouldn't reliably win.
+    const promoCard = document.getElementById('promo-card');
+    if (promoCard) promoCard.style.display = 'none';
+
+    // Announce success to assistive tech (the results reveal is otherwise
+    // silent) and move focus to the first result action so keyboard users
+    // aren't stranded on the now-hidden file input.
+    announce(
+      uiString(
+        'conversionAnnouncement',
+        'Conversion complete. Your Markdown is ready.',
+      ),
+    );
+    document.getElementById('copy-button')?.focus();
+
+    recordConversion('success');
+
+    // Render the HTML preview last, off the interaction's critical path.
+    void renderPreview(renderedElement, result.markdown, token);
+  } catch (error) {
+    if (token !== activeConversion) return;
+    // Leave the busy state and clear the "Converting…" announcement.
+    inputRegion?.removeAttribute('aria-busy');
+    dropzone?.classList.remove('is-converting');
+    if (srStatus) srStatus.textContent = '';
+    recordConversion('error');
+    showConversionError(error);
+  }
+}
+
+// Match an inline (base64) image in Markdown image syntax.
+const INLINE_IMAGE = /!\[[^\]]*\]\(data:image\//;
+
+// Incremented per processFile call; see the token check there.
+let activeConversion = 0;
+
+// Put a message in the polite live region for screen readers.
+function announce(message: string): void {
+  const status = document.getElementById('sr-status');
+  if (status) status.textContent = message;
 }
 
 // Localized UI strings are rendered into the page as data-* attributes on the
@@ -467,7 +518,7 @@ function showError(message: string): void {
     errorElement.id = 'error-alert';
     errorElement.setAttribute('role', 'alert');
     errorElement.className =
-      'relative mb-4 flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-left text-sm text-red-800 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200';
+      'relative mb-4 flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-start text-sm text-red-800 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200';
 
     const messageSpan = document.createElement('span');
     messageSpan.id = 'error-message';
@@ -484,11 +535,18 @@ function showError(message: string): void {
 
     errorElement.appendChild(messageSpan);
     errorElement.appendChild(closeButton);
+  }
 
-    const inputElement = document.getElementById('input');
-    if (inputElement) {
-      inputElement.insertBefore(errorElement, inputElement.firstChild);
-    }
+  // Show the alert in whichever region is on screen: the input before a
+  // conversion, the results after one (e.g. a failed "Download .zip"). An alert
+  // left inside the hidden region would be invisible and never announced.
+  const results = document.getElementById('results');
+  const container =
+    results && !results.classList.contains('hidden')
+      ? results
+      : document.getElementById('input');
+  if (container && errorElement.parentElement !== container) {
+    container.insertBefore(errorElement, container.firstChild);
   }
 
   const messageElement = document.getElementById('error-message');
@@ -509,10 +567,10 @@ function showWarnings(warnings: string[]): void {
   // aria-live="polite" would conflict, so we rely on the role alone.
   warningElement.setAttribute('role', 'alert');
   warningElement.className =
-    'relative mt-4 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-left text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200';
+    'relative mt-4 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-start text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200';
 
   const warningList = document.createElement('ul');
-  warningList.className = 'flex-1 list-disc space-y-1 pl-4';
+  warningList.className = 'flex-1 list-disc space-y-1 ps-4';
   warnings.forEach((warning) => {
     const listItem = document.createElement('li');
     listItem.textContent = warning;
@@ -574,6 +632,11 @@ function resetConverter(): void {
   const fileInput = document.getElementById('file') as HTMLInputElement | null;
   if (fileInput) fileInput.value = '';
 
+  // Discard any in-flight conversion or preview render, and the old preview.
+  activeConversion++;
+  const rendered = document.getElementById('rendered');
+  if (rendered) rendered.innerHTML = '';
+
   // Drop the retained bytes and re-hide the zip button for the next document.
   lastConvertedBuffer = null;
   const zipButton = document.getElementById('download-zip-button');
@@ -612,12 +675,14 @@ function downloadMarkdown(): void {
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
-  URL.revokeObjectURL(url);
+  // Revoking synchronously can cancel the download in some browsers.
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 
   // Briefly confirm the download on the button label.
   const label = document.getElementById('download-label');
   if (label) {
     label.textContent = uiString('downloaded', 'Downloaded');
+    announce(label.textContent);
     window.clearTimeout(downloadResetTimer);
     downloadResetTimer = window.setTimeout(() => {
       label.textContent = downloadLabelDefault;
@@ -659,10 +724,11 @@ async function downloadZip(): Promise<void> {
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
-    URL.revokeObjectURL(url);
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 
     if (label) {
       label.textContent = uiString('downloadedZip', 'Downloaded');
+      announce(label.textContent);
       window.clearTimeout(downloadZipResetTimer);
       downloadZipResetTimer = window.setTimeout(() => {
         label.textContent = downloadZipLabelDefault;
@@ -680,7 +746,11 @@ document.addEventListener('DOMContentLoaded', () => {
   inputElement.addEventListener(
     'change',
     function (this: HTMLInputElement): void {
-      void processFile(this.files?.[0]);
+      const file = this.files?.[0];
+      // Clear the input so picking the same file again (e.g. after fixing it
+      // following an error) still fires "change". The File stays readable.
+      this.value = '';
+      void processFile(file);
     },
     false,
   );

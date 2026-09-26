@@ -11,23 +11,24 @@ npm run build:js     # Compile the Node library + CLI to build/ (tsc)
 npm run build:site   # Type-check (.astro) + build the static site to dist/
 npm run preview      # Preview the production site build
 npm test             # Jest unit/integration tests with coverage
-npm run test:e2e     # Playwright end-to-end tests (builds + serves the site)
+npm run test:e2e     # Playwright end-to-end tests (serves dist/; run `npm run build` first)
 npm run lint         # eslint + prettier --check
+npm run knip         # unused files, exports, and dependencies
 npm run fix          # eslint --fix + prettier --write
 npm run all          # fix + test + build + check-builds (run before pushing)
-npm run check-builds # Fail if committed build/ output is stale (see below)
+npm run check-builds # Build smoke test: fails only if the build fails (see below)
 ```
 
 Run a single unit test: `NODE_OPTIONS=--experimental-vm-modules npx jest src/__tests__/smart-quotes.test.ts`
 Run a single e2e spec: `npx playwright test src/__tests__/e2e/i18n.spec.ts`
 
-Node 22.13.0 is pinned (`.nvmrc`, `.tool-versions`, Volta). The `--experimental-vm-modules` flag is required because the project is pure ESM and Jest runs the TS sources via `ts-jest` ESM preset.
+Node 24.21.0 is pinned (`.nvmrc`, `.tool-versions`, Volta). The `--experimental-vm-modules` flag is required because the project is pure ESM and Jest runs the TS sources via `ts-jest` ESM preset.
 
 ## Architecture
 
 One repo produces **three artifacts** from two source directories, and the two directories are owned by two different build tools that must never collide:
 
-- **`src/`** — owned exclusively by `tsc`. Compiles to `build/` (the Node library `build/main.js` and the CLI `build/w2m` → `build/cli.js`). `src/index.ts` is the _browser_ entry and is **excluded from tsc** (see `tsconfig.json`) because Astro/Vite bundles it instead; `astro check` type-checks it.
+- **`src/`** — owned exclusively by `tsc`. Compiles to `build/` (the Node library `build/main.js` and the CLI `build/cli.js`, installed as `w2m` / `word-to-markdown`). `src/index.ts` is the _browser_ entry and is **excluded from tsc** (see `tsconfig.json`) because Astro/Vite bundles it instead; `astro check` type-checks it.
 - **`web/`** — owned exclusively by Astro (`srcDir: ./web`). Builds the static site to `dist/`. Astro's `publicDir` is `./public`.
 
 This split is deliberate so the two tool-chains don't fight over the same files. When adding code, put converter/CLI logic in `src/` and site/UI in `web/`.

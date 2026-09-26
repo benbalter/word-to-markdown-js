@@ -37,6 +37,7 @@ jobs:
       - run: npm run check-builds
       - run: npm run test
       - run: npm run lint
+      - run: npm run knip
 
   e2e:
     runs-on: ubuntu-latest

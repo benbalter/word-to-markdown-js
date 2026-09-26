@@ -2,12 +2,12 @@
 // interface, so adding a key to `en` forces every other locale to supply it —
 // the type checker is the completeness guard for translations.
 
-export interface FaqEntry {
+interface FaqEntry {
   q: string;
   a: string;
 }
 
-export interface Step {
+interface Step {
   /** Short title, e.g. "Upload". */
   t: string;
   /** One-line description. */

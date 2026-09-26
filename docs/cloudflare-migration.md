@@ -5,9 +5,10 @@ model Cloudflare's Git integration now uses for sites (it runs `wrangler
 deploy`, not the older `wrangler pages deploy`).
 
 - `wrangler.jsonc` — serves `dist/` via the `ASSETS` binding and runs the Worker
-  first only on `/`.
+  first only on `/` and `/api/event`.
 - `worker/index.js` — the Worker: locale-redirects `/` based on
-  `Accept-Language`, and falls through to static assets via `env.ASSETS.fetch()`.
+  `Accept-Language`, counts anonymous conversions on `/api/event`, and falls
+  through to static assets via `env.ASSETS.fetch()`.
 - The site stays a static Astro build (`output: 'static'`); no SSR adapter.
 
 Everything below is done in the Cloudflare dashboard and your DNS — there's no
