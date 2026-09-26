@@ -4,6 +4,7 @@ import convert, {
   InvalidFileError,
   FilePermissionError,
   ConversionError,
+  WordToMarkdownError,
 } from '../main.js';
 import fs from 'fs';
 import os from 'os';
@@ -236,6 +237,37 @@ describe('error messages', () => {
           fs.rmdirSync(tempDir);
         }
       }
+    });
+  });
+
+  describe('filesystem edge cases', () => {
+    it('reports a directory path as an invalid file', async () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'w2m-dir-'));
+      const docxDir = path.join(dir, 'folder.docx');
+      fs.mkdirSync(docxDir);
+      try {
+        await expect(convert(docxDir)).rejects.toThrow(InvalidFileError);
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true });
+      }
+    });
+
+    it('reports a path through a regular file as not found', async () => {
+      await expect(convert('package.json/x.docx')).rejects.toThrow(
+        FileNotFoundError,
+      );
+    });
+
+    it('reports blocked system paths as a permission error', async () => {
+      await expect(convert('/proc/x.docx')).rejects.toThrow(
+        FilePermissionError,
+      );
+    });
+
+    it('makes every converter error a WordToMarkdownError', async () => {
+      await expect(convert('/nope/x.docx')).rejects.toBeInstanceOf(
+        WordToMarkdownError,
+      );
     });
   });
 });

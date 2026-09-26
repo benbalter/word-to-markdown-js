@@ -83,8 +83,12 @@ interface DocumentProperties {
   protection?: boolean;
 }
 
+// Base class for every user-facing error the converter throws, so callers can
+// catch them all with one instanceof check
+export class WordToMarkdownError extends Error {}
+
 // Custom error class for unsupported file formats
-export class UnsupportedFileError extends Error {
+export class UnsupportedFileError extends WordToMarkdownError {
   constructor(message: string) {
     super(message);
     this.name = 'UnsupportedFileError';
@@ -92,7 +96,7 @@ export class UnsupportedFileError extends Error {
 }
 
 // Custom error class for file not found
-export class FileNotFoundError extends Error {
+export class FileNotFoundError extends WordToMarkdownError {
   constructor(filePath?: string) {
     const location = filePath ? `: "${filePath}"` : '';
     super(
@@ -103,7 +107,7 @@ export class FileNotFoundError extends Error {
 }
 
 // Custom error class for invalid/corrupted files
-export class InvalidFileError extends Error {
+export class InvalidFileError extends WordToMarkdownError {
   constructor(filePath?: string) {
     const location = filePath ? `: "${filePath}"` : '';
     super(
@@ -114,7 +118,7 @@ export class InvalidFileError extends Error {
 }
 
 // Custom error class for permission errors
-export class FilePermissionError extends Error {
+export class FilePermissionError extends WordToMarkdownError {
   constructor(filePath?: string) {
     const location = filePath ? `: "${filePath}"` : '';
     super(
@@ -125,22 +129,11 @@ export class FilePermissionError extends Error {
 }
 
 // Custom error class for general conversion errors
-export class ConversionError extends Error {
-  public cause?: Error;
-
+export class ConversionError extends WordToMarkdownError {
   constructor(message: string, originalError?: Error) {
-    super(message);
+    // Standard error chaining for better debugging tool support
+    super(message, originalError ? { cause: originalError } : undefined);
     this.name = 'ConversionError';
-    // Capture stack trace if available (Node.js/V8 specific)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ErrorWithCapture = Error as any;
-    if (typeof ErrorWithCapture.captureStackTrace === 'function') {
-      ErrorWithCapture.captureStackTrace(this, this.constructor);
-    }
-    if (originalError) {
-      // Use standard error chaining for better debugging tool support
-      this.cause = originalError;
-    }
   }
 }
 
@@ -185,9 +178,7 @@ function validateFilePath(filePath: string): string {
   const dangerousPaths = ['/etc/', '/sys/', '/proc/', '/root/', '/boot/'];
   for (const dangerousPath of dangerousPaths) {
     if (resolvedPath.startsWith(dangerousPath)) {
-      throw new Error(
-        'Invalid file path: access to system directories not allowed',
-      );
+      throw new FilePermissionError(filePath);
     }
   }
 
@@ -195,9 +186,7 @@ function validateFilePath(filePath: string): string {
   const windowsDangerousPaths = ['C:\\Windows\\', 'C:\\Program Files\\'];
   for (const dangerousPath of windowsDangerousPaths) {
     if (resolvedPath.toUpperCase().startsWith(dangerousPath.toUpperCase())) {
-      throw new Error(
-        'Invalid file path: access to system directories not allowed',
-      );
+      throw new FilePermissionError(filePath);
     }
   }
 
@@ -920,13 +909,7 @@ function isInvalidDocxError(message: string): boolean {
 // error classes. Always throws (never returns normally).
 function classifyConversionError(error: unknown, filePath?: string): never {
   // Re-throw our custom errors as-is
-  if (
-    error instanceof UnsupportedFileError ||
-    error instanceof FileNotFoundError ||
-    error instanceof InvalidFileError ||
-    error instanceof FilePermissionError ||
-    error instanceof ConversionError
-  ) {
+  if (error instanceof WordToMarkdownError) {
     throw error;
   }
 
@@ -938,8 +921,19 @@ function classifyConversionError(error: unknown, filePath?: string): never {
       : undefined;
 
   // File not found errors (only occur with file path inputs)
-  if (errorCode === 'ENOENT') {
+  // ENOTDIR/ELOOP mean a path component isn't a usable directory, so the
+  // file can't be reached either.
+  if (
+    errorCode === 'ENOENT' ||
+    errorCode === 'ENOTDIR' ||
+    errorCode === 'ELOOP'
+  ) {
     throw new FileNotFoundError(filePath);
+  }
+
+  // A directory was passed where a .docx file was expected
+  if (errorCode === 'EISDIR') {
+    throw new InvalidFileError(filePath);
   }
 
   // Permission errors (only occur with file path inputs)
