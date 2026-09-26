@@ -28,6 +28,7 @@
     "@astrojs/check": "^0.9.10",
     "@astrojs/sitemap": "^3.7.3",
     "@eslint/js": "^10.0.1",
+    "@jest/globals": "~30.5.0",
     "@nuasite/checks": "^0.56.0",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/typography": "^0.5.20",
@@ -43,6 +44,7 @@
     "globals": "^17.11.0",
     "jest": "~30.5.0",
     "jest-util": "~30.5.0",
+    "knip": "^6.38.0",
     "playwright": "^1.62.1",
     "rehype-sanitize": "^6.0.0",
     "rehype-stringify": "^10.0.1",
@@ -50,7 +52,6 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
     "tailwindcss": "^4.3.3",
-    "ts-api-utils": "~2.5",
     "ts-jest": "~29.4",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.67.0",
@@ -75,7 +76,8 @@
     "gen:judge": "node scripts/judge-fixtures.mjs",
     "gen:i18n": "node scripts/translate-i18n.mjs",
     "gen:og": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/gen-og.mjs",
-    "prepack": "rm -rf build && npm run build:js"
+    "prepack": "rm -rf build && npm run build:js",
+    "knip": "knip"
   },
   "author": "Ben Balter <ben@balter.com>",
   "license": "ISC",

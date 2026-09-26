@@ -40,6 +40,7 @@ jobs:
       - run: npm run check-builds
       - run: npm run test
       - run: npm run lint
+      - run: npm run knip
       # Bundle the Worker the way Cloudflare's deploy does, so a bundling error
       # fails here instead of on deploy.
       - name: Check Worker bundle
