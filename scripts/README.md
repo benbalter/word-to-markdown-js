@@ -63,4 +63,3 @@ npm run build:site && npm run gen:og
 ## Other
 
 - `make-fixtures.mjs` — regenerates the hand-authored synthetic `.docx` fixtures.
-- `check-builds.sh` — CI guard that the TypeScript build succeeds.

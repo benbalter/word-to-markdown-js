@@ -13,10 +13,10 @@ npm run preview      # Preview the production site build
 npm test             # Jest unit/integration tests with coverage
 npm run test:e2e     # Playwright end-to-end tests (serves dist/; run `npm run build` first)
 npm run lint         # eslint + prettier --check
+npm run typecheck    # tsc over the tests (tsconfig.test.json; ts-jest only transpiles)
 npm run knip         # unused files, exports, and dependencies
 npm run fix          # eslint --fix + prettier --write
-npm run all          # fix + test + build + check-builds (run before pushing)
-npm run check-builds # Build smoke test: fails only if the build fails (see below)
+npm run all          # fix + typecheck + test + build (run before pushing)
 ```
 
 Run a single unit test: `NODE_OPTIONS=--experimental-vm-modules npx jest src/__tests__/smart-quotes.test.ts`
@@ -63,4 +63,4 @@ The site deploys to **Cloudflare Workers (Static Assets)** via `wrangler deploy`
 
 ### Build artifacts (`build/`, `dist/`)
 
-Both `build/` (the tsc library + CLI output) and `dist/` (the site) are **gitignored** — neither is committed. CI rebuilds them: the `build` job runs `npm run check-builds` (a full `npm run build`) before `npm run test`, so `build/cli.js` exists when the tests run, and the e2e job builds `dist/` before Playwright serves it. Because `build/` is ignored, `check-builds` effectively only catches a build _failure_, not staleness (its `git status --porcelain build/` diff is always empty). Tests that need the built CLI (`src/__tests__/cli.test.ts`) build it on demand if it's absent, so a fresh `npm test` works without a prior `npm run build`.
+Both `build/` (the tsc library + CLI output) and `dist/` (the site) are **gitignored** — neither is committed. CI rebuilds them: the `build` job runs `npm run build` before `npm run test`, so `build/cli.js` exists when the tests run, and uploads `dist/` for the e2e job to serve instead of rebuilding. Tests that need the built CLI (`src/__tests__/cli.test.ts`) rebuild it when it's missing or older than the sources, so a fresh `npm test` works without a prior `npm run build`.

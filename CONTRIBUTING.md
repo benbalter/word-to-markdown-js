@@ -83,7 +83,7 @@ At a high level, [the process for proposing changes](https://guides.github.com/i
 ## Running tests
 
 `npm test` runs the Jest unit/integration suite; `npm run test:e2e` runs the
-Playwright end-to-end tests. `npm run all` (fix + test + build + check-builds) is
+Playwright end-to-end tests. `npm run all` (fix + typecheck + test + build) is
 the full gate to run before pushing.
 
 ## Publishing a release

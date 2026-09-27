@@ -19,7 +19,7 @@ const tscPath = path.join(root, 'node_modules/typescript/bin/tsc');
 const fixture = (name: string): string =>
   path.join(root, 'src/__fixtures__', name);
 
-// build/ is gitignored. CI runs `check-builds` (a full build) before the tests,
+// build/ is gitignored. CI runs `npm run build` before the tests,
 // and local dev usually has build/ already, but build it here if it's missing
 // or older than the sources, so the suite never exercises a stale CLI.
 const isStale = (): boolean =>
@@ -126,7 +126,9 @@ describe('w2m CLI', () => {
       const { stdout, status } = runCli([fixture('h1.docx'), '-o', out]);
       expect(status).toBe(0);
       expect(stdout).toBe('');
-      expect(readFileSync(out, 'utf8')).toContain('# Heading 1');
+      const written = readFileSync(out, 'utf8');
+      expect(written).toContain('# Heading 1');
+      expect(written.endsWith('\n')).toBe(true);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

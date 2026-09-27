@@ -48,7 +48,7 @@ beforeAll(async () => {
   // Node's `process`, sending setimmediate down the browser `postMessage` branch
   // (which then calls `global.attachEvent`). Reusing `globalThis` keeps `process`
   // visible so it selects `process.nextTick`, the correct Node path.
-  const g = globalThis as typeof globalThis & {
+  const g = globalThis as unknown as {
     self?: unknown;
     postMessage?: unknown;
     onmessage?: MessageHandler;
