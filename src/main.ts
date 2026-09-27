@@ -310,9 +310,67 @@ export function processHtml(
   return root.toString();
 }
 
+// Mammoth renders footnotes/endnotes as a superscript reference link plus a
+// trailing ordered list of note bodies with `↑` backlinks, not real Markdown
+// footnotes:
+//
+//   <p>Text<sup><a href="#footnote-1" id="footnote-ref-1">[1]</a></sup>.</p>
+//   <ol><li id="footnote-1"><p>Body. <a href="#footnote-ref-1">↑</a></p></li></ol>
+//
+// These Turndown rules emit GFM/Pandoc footnote syntax instead (`[^1]`
+// references and `[^1]:` definitions), keyed on Mammoth's stable anchor ids.
+// Endnotes use the same numbering scheme, so they share it.
+const NOTE_REF_HREF = /^#(?:foot|end)note-(\d+)$/;
+const NOTE_BACKLINK_HREF = /^#(?:foot|end)note-ref-\d+$/;
+
+function addFootnoteRules(service: TurndownService): void {
+  // The reference: a <sup> wrapping only the link to the note.
+  service.addRule('footnoteReference', {
+    filter: (node) => {
+      const link = node.firstElementChild;
+      return (
+        node.nodeName === 'SUP' &&
+        node.childElementCount === 1 &&
+        link?.nodeName === 'A' &&
+        NOTE_REF_HREF.test(link.getAttribute('href') ?? '')
+      );
+    },
+    replacement: (_content, node) => {
+      const href = node.firstElementChild?.getAttribute('href') ?? '';
+      return `[^${NOTE_REF_HREF.exec(href)?.[1]}]`;
+    },
+  });
+  // The `↑` link back to the reference is meaningless in Markdown footnotes.
+  service.addRule('footnoteBacklink', {
+    filter: (node) =>
+      node.nodeName === 'A' &&
+      NOTE_BACKLINK_HREF.test(node.getAttribute('href') ?? ''),
+    replacement: () => '',
+  });
+  // Each note becomes a definition. Later paragraphs of a multi-paragraph note
+  // are indented four spaces, which GFM/Pandoc read as a continuation.
+  service.addRule('footnoteDefinition', {
+    filter: (node) =>
+      node.nodeName === 'LI' &&
+      NOTE_ITEM_ID.test(node.getAttribute('id') ?? ''),
+    replacement: (content, node) => {
+      const num = node.getAttribute('id')?.replace(/^\D+/, '');
+      const body = content
+        .trim()
+        .split('\n')
+        .map((line, i) =>
+          i === 0 || line.trim() === '' ? line : `    ${line}`,
+        )
+        .join('\n');
+      return `[^${num}]: ${body}\n\n`;
+    },
+  });
+}
+
 function createTurndownService(
   options: object,
   keepTags: string[],
+  gfmFootnotes: boolean,
 ): TurndownService {
   const service = new TurndownService({
     ...defaultTurndownOptions,
@@ -320,27 +378,30 @@ function createTurndownService(
   });
   service.use(turndownPluginGfm.gfm);
   if (keepTags.length > 0) service.keep(keepTags);
+  if (gfmFootnotes) addFootnoteRules(service);
   return service;
 }
 
 // Reusable services for the default options, keyed by keep-tags (e.g. '' or
-// 'u' for --underline), so repeat conversions don't rebuild Turndown and its
-// GFM rules. `keep()` mutates a service, hence one per keep-tag set.
+// 'u' for --underline) and footnote mode, so repeat conversions don't rebuild
+// Turndown and its GFM rules. `keep()` and `addRule()` mutate a service, hence
+// one per combination.
 const turndownServices = new Map<string, TurndownService>();
 
 function getTurndownService(
   options: object = {},
   keepTags: string[] = [],
+  gfmFootnotes = false,
 ): TurndownService {
   // Caller-supplied Turndown options may hold functions (custom rules), which
   // can't be keyed reliably; build a fresh service for those.
   if (Object.keys(options).length > 0) {
-    return createTurndownService(options, keepTags);
+    return createTurndownService(options, keepTags, gfmFootnotes);
   }
-  const key = [...keepTags].sort().join(',');
+  const key = `${[...keepTags].sort().join(',')}|${gfmFootnotes}`;
   let service = turndownServices.get(key);
   if (!service) {
-    service = createTurndownService({}, keepTags);
+    service = createTurndownService({}, keepTags, gfmFootnotes);
     turndownServices.set(key, service);
   }
   return service;
@@ -348,42 +409,24 @@ function getTurndownService(
 
 // Convert HTML to GitHub-flavored Markdown. `keepTags` lists HTML tags to
 // preserve verbatim as inline HTML (e.g. `['u']` to keep underlines) rather
-// than let Turndown strip them to plain text.
+// than let Turndown strip them to plain text. `gfmFootnotes` rewrites Mammoth's
+// footnote/endnote markup into `[^1]` footnotes (see addFootnoteRules).
 export function htmlToMd(
   html: string,
   options: object = {},
   keepTags: string[] = [],
+  gfmFootnotes = false,
 ): string {
   // Turndown's DOM parser decodes entities exactly once. Don't pre-decode:
   // that would turn literal text like `&#60;b&#62;` into markup and truncate
   // attribute values containing `&quot;`.
-  const turndownService = getTurndownService(options, keepTags);
+  const turndownService = getTurndownService(options, keepTags, gfmFootnotes);
   return turndownService.turndown(html).trim();
 }
 
 // Pre-compiled regex patterns for better performance
 const nonBreakingSpacesRegex = /[\u00A0\u2007\u202F\u2060\uFEFF]/g;
 const smartQuotesRegex = /[\u201C\u201D\u2018\u2019]/g;
-
-// Mammoth renders footnotes/endnotes as a superscript reference link plus a
-// trailing ordered list of note bodies with `\u2191` backlinks \u2014 not real Markdown
-// footnotes. These two regexes rewrite that into GFM/Pandoc footnote syntax.
-// Both anchor on Mammoth's stable anchor ids (`#footnote-N` / `#footnote-ref-N`,
-// or the `endnote` variants), never the escaped display label, which prettier
-// and markdownlint may re-escape.
-//
-// Reference in the body, e.g. `<sup>[\[1\]](#footnote-1)</sup>` \u2192 `[^1]`. The
-// non-greedy link text backtracks past the escaped `\]` inside the label, but
-// can't cross a `<`, so an earlier, unrelated `<sup>` link isn't swallowed.
-const footnoteRefRegex = /<sup>\[[^<]*?\]\(#(?:foot|end)note-(\d+)\)<\/sup>/g;
-// Definition list item, e.g. `1. Body text. [\u2191](#footnote-ref-1)` \u2192
-// `[^1]: Body text.`. The list marker is unreliable (prettier renumbers), so the
-// footnote number comes from the backlink. Only single-line note bodies match:
-// a multi-paragraph body (a rare Word construct) puts the backlink on an indented
-// continuation line the (newline-free) body group can't reach, so it's left as-is
-// \u2014 see convertFootnotes for how the matching reference is then also left raw.
-const footnoteDefRegex =
-  /^[ \t]*\d+\.[ \t]+(.*?)[ \t]*\[\u2191\]\(#(?:foot|end)note-ref-(\d+)\)[ \t]*$/gm;
 
 // Map for non-breaking space replacements
 const nonBreakingSpaceMap: { [key: string]: string } = {
@@ -407,28 +450,6 @@ function normalizeText(md: string): string {
   return md
     .replace(nonBreakingSpacesRegex, (char) => nonBreakingSpaceMap[char])
     .replace(smartQuotesRegex, (char) => smartQuoteMap[char]);
-}
-
-// Rewrite Mammoth's footnote/endnote markup into GFM/Pandoc footnote syntax.
-// See footnoteRefRegex / footnoteDefRegex for the shapes matched. Runs after
-// lint() and before prettify() so prettier normalizes the resulting footnote
-// block (prettier's markdown parser preserves `[^1]` / `[^1]:`).
-function convertFootnotes(md: string): string {
-  // Rewrite the note definitions first, recording which footnote numbers were
-  // actually converted. A number won't convert if its body spans multiple
-  // paragraphs (footnoteDefRegex only matches single-line bodies).
-  const converted = new Set<string>();
-  const withDefs = md.replace(footnoteDefRegex, (_match, body, num) => {
-    converted.add(num);
-    return `[^${num}]: ${body}`;
-  });
-  // Only convert references whose definition converted. Rewriting a reference
-  // whose definition was left as a raw list item would produce a dangling `[^N]`
-  // with no target; gating on `converted` keeps that (rare) note as intact raw
-  // `<sup>` + list markup instead.
-  return withDefs.replace(footnoteRefRegex, (match, num) =>
-    converted.has(num) ? `[^${num}]` : match,
-  );
 }
 
 // Lint the Markdown and correct any issues
@@ -880,17 +901,16 @@ async function runConversionPipeline(
     stripImages: options.images === 'strip',
     bulletLists: options.numberedLists === 'bullets',
   });
+  // Footnotes become GFM `[^1]` by default; keep Mammoth's markup on request.
   const md = htmlToMd(
     processedHtml,
     options.turndown,
     preserveUnderline ? ['u'] : [],
+    options.footnotes !== 'preserve',
   );
   const normalizedMd = normalizeText(md);
   const cleanedMd = lint(normalizedMd);
-  // Footnotes stay as GFM `[^1]` by default; skip the rewrite on request.
-  const footnotedMd =
-    options.footnotes === 'preserve' ? cleanedMd : convertFootnotes(cleanedMd);
-  const formattedMd = await prettify(footnotedMd);
+  const formattedMd = await prettify(cleanedMd);
   return {
     markdown: formattedMd,
     messages: mammothResult.messages,

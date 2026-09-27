@@ -15,9 +15,20 @@ should be a minor bump (0.5.0).
 - **`numberedLists: 'bullets'` works on the HTML, not the Markdown.** Numbered
   lists are now turned into bullet lists before Turndown runs, instead of by
   rewriting `1.` markers in the output. Document lists convert the same as
-  before. The one difference: a footnote or endnote list that stays raw (with
-  `footnotes: 'preserve'`, or a multi-paragraph note) now keeps its `1.`/`2.`
-  numbering to match the `[1]` reference labels, instead of becoming bullets.
+  before. The one difference: with `footnotes: 'preserve'`, the raw footnote or
+  endnote list now keeps its `1.`/`2.` numbering to match the `[1]` reference
+  labels, instead of becoming bullets.
+- **Multi-paragraph footnotes and endnotes become GFM footnotes too.** Footnote
+  conversion now happens in Turndown rules on the HTML instead of regexes over
+  the Markdown, so a note with several paragraphs becomes one `[^1]:`
+  definition with its later paragraphs indented, instead of being left as a
+  raw `<sup>` link and numbered list. Single-paragraph notes convert as before.
+
+### Added
+
+- `htmlToMd()` takes an optional fourth argument, `gfmFootnotes`, which turns
+  Mammoth's footnote/endnote markup into `[^1]` footnotes. It defaults to
+  `false`, so existing calls behave the same.
 
 ### Fixed
 

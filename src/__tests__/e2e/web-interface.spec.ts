@@ -171,6 +171,48 @@ test.describe('Word to Markdown Web Interface', () => {
     expect(workerErrors).toEqual([]);
   });
 
+  test('converts a multi-paragraph footnote to GFM in the worker', async ({
+    page,
+  }) => {
+    // The footnote Turndown rules run against the worker's DOM shim, not Node's
+    // parser, so check them end to end. Tap the worker's replies (as above) to
+    // prove the worker, not the main-thread fallback, produced the result.
+    await page.addInitScript(() => {
+      const w = window as unknown as { __workerConverted: boolean };
+      w.__workerConverted = false;
+      const OriginalWorker = window.Worker;
+      window.Worker = class extends OriginalWorker {
+        constructor(scriptURL: string | URL, options?: WorkerOptions) {
+          super(scriptURL, options);
+          this.addEventListener('message', (event: MessageEvent) => {
+            if (event.data?.id != null && event.data?.ok === true) {
+              w.__workerConverted = true;
+            }
+          });
+        }
+      } as typeof Worker;
+    });
+    await page.goto('/');
+
+    await page
+      .locator('#file')
+      .setInputFiles(fixture('footnote-multiparagraph.docx'));
+    const output = page.locator('#output');
+    await expect(output).toContainText('footnote[^1].', { timeout: 10000 });
+    const markdown = await output.textContent();
+    expect(markdown).toContain('[^1]: First paragraph of the note.');
+    expect(markdown).toContain('\n    Second paragraph of the note.');
+    expect(markdown).not.toContain('↑');
+    expect(markdown).not.toContain('<sup>');
+    expect(
+      await page.evaluate(
+        () =>
+          (window as unknown as { __workerConverted: boolean })
+            .__workerConverted,
+      ),
+    ).toBe(true);
+  });
+
   test('should convert multiple heading levels document', async ({ page }) => {
     const fixturePath = path.join(
       __dirname,

@@ -39,7 +39,7 @@ The core converter is environment-agnostic (accepts a file path string in Node, 
 
 1. **mammoth** — `.docx` → HTML. A `transformDocument` tags wholly-monospace paragraphs (Word's usual code-block encoding) with a synthetic style, which a style map — alongside the real `Preformatted Text`/`HTML Preformatted` styles — maps to `<pre><code>` so code fences verbatim (no Markdown escaping of `[] {} <> * -`)
 2. `processHtml` — single-pass DOM fixups: unwrap single-cell `<pre>` code tables (Word wraps code blocks in a shaded 1×1 table), promote a table's first row to `<th>` (Turndown needs a header row), strip Unicode bullets from `<li>`, and (with `numberedLists: 'bullets'`) rename `<ol>` to `<ul>`, skipping Mammoth's footnote/endnote list
-3. **Turndown** (`@joplin/turndown` + gfm plugin) — HTML → Markdown
+3. **Turndown** (`@joplin/turndown` + gfm plugin) — HTML → Markdown, with `addFootnoteRules` turning Mammoth's footnote/endnote markup into GFM `[^1]` footnotes (unless `footnotes: 'preserve'`)
 4. `normalizeText` (strip non-breaking spaces, smart quotes → ASCII)
 5. **markdownlint** `applyFixes` → **prettier** (markdown parser)
 
