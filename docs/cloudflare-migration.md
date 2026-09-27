@@ -1,5 +1,9 @@
 # Migrating word2md.com to Cloudflare Workers
 
+> **Status: done.** word2md.com is served by Cloudflare Workers and the GitHub
+> Pages workflow is gone. This runbook is kept for reference and for the
+> rollback steps below.
+
 This repo is preconfigured for **Cloudflare Workers (Static Assets)** — the
 model Cloudflare's Git integration now uses for sites (it runs `wrangler
 deploy`, not the older `wrangler pages deploy`).
