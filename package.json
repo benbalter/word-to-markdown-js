@@ -90,8 +90,7 @@
     "mammoth": "^1.12.1",
     "markdownlint": "^0.41.1",
     "node-html-parser": "^9.0.1",
-    "prettier": "~3.9",
-    "tslib": "~2.8"
+    "prettier": "~3.9"
   },
   "volta": {
     "node": "24.21.0"
@@ -102,6 +101,13 @@
   },
   "main": "build/main.js",
   "types": "build/main.d.ts",
+  "exports": {
+    ".": {
+      "types": "./build/main.d.ts",
+      "default": "./build/main.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "build/cli.js",
     "build/cli.js.map",

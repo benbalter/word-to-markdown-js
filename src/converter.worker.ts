@@ -28,7 +28,14 @@ ctx.onmessage = async (event: MessageEvent<ConvertRequest>): Promise<void> => {
       buffer,
       extract ? { images: 'extract' } : undefined,
     );
-    ctx.postMessage({ id, ok: true, result });
+    // Transfer extracted image bytes rather than copying them to the page. A
+    // buffer may appear in a transfer list only once, hence the Set.
+    const transfer = [
+      ...new Set(
+        (result.images ?? []).map((image) => image.bytes.buffer as ArrayBuffer),
+      ),
+    ];
+    ctx.postMessage({ id, ok: true, result }, transfer);
   } catch (error) {
     // Errors can't cross the worker boundary as class instances, so forward the
     // name + message; src/index.ts maps the name back to user-facing copy.

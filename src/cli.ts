@@ -47,6 +47,10 @@ program
     'Keep Word footnotes as raw <sup> links and a numbered note list instead ' +
       'of converting them to GFM [^1] footnotes',
   )
+  .option(
+    '--verbose',
+    'On failure, also print the underlying error and stack trace',
+  )
   .action(async (file, options) => {
     try {
       // --image-dir (extract) takes precedence over --strip-images.
@@ -106,6 +110,13 @@ program
         'Error:',
         error instanceof Error ? error.message : String(error),
       );
+      // The friendly message hides the root cause (e.g. a ConversionError
+      // wrapping a mammoth failure); --verbose shows it for bug reports.
+      if (options.verbose && error instanceof Error) {
+        console.error('');
+        console.error(error.stack);
+        if (error.cause) console.error('Caused by:', error.cause);
+      }
       process.exit(1);
     }
   });
