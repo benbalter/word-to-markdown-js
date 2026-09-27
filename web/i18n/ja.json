@@ -91,7 +91,9 @@
     "source": "ソース",
     "donate": "寄付",
     "terms": "利用規約",
-    "privacy": "プライバシー"
+    "privacy": "プライバシー",
+    "languagesLabel": "言語",
+    "linksLabel": "サイトのリンク"
   },
   "footerTagline": "ブラウザ内で変換 · アップロードはされません",
   "homeAria": "Word to Markdown — ホーム",
@@ -108,6 +110,9 @@
   "errorGeneric": "文書の変換中に予期しないエラーが発生しました。もう一度お試しください。",
   "docFileError": "このツールが読み込めるのは新しい .docx ファイルで、古い .doc ファイルには対応していません。Word で文書を開き、File → Save As → Word Document (.docx) を選んで .docx として保存してから、ここにドロップしてください。",
   "fileTooLargeError": "このファイルは大きすぎるため、ブラウザ内では変換できません。20 MB 未満の .docx をお試しください。",
+  "invalidFileError": "このファイルを Word 文書として読み込めませんでした。破損しているか、.docx ファイルではない可能性があります。Word で開き、.docx として保存し直してください。",
+  "protectedFileError": "この文書はパスワードで保護されているか、古い .doc ファイルです。Word でパスワードを解除するか .docx として保存してから、もう一度お試しください。",
+  "copyFailed": "自動でコピーできませんでした。Markdown を選択し、Ctrl+C（Mac では ⌘C）でコピーしてください。",
   "conversionAnnouncement": "変換が完了しました。Markdownの準備ができました。",
   "convertingStatus": "変換中…",
   "dismiss": "閉じる",

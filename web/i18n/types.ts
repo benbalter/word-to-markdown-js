@@ -79,6 +79,10 @@ export interface UIStrings {
     donate: string;
     terms: string;
     privacy: string;
+    /** Accessible name for the footer's language-switcher <nav>. */
+    languagesLabel: string;
+    /** Accessible name for the footer's site-links <nav>. */
+    linksLabel: string;
   };
   footerTagline: string;
   homeAria: string;
@@ -94,6 +98,12 @@ export interface UIStrings {
   docFileError: string;
   /** Shown when a dropped file exceeds the in-browser size limit. */
   fileTooLargeError: string;
+  /** Shown when the file can't be read as a .docx (corrupt, or not Word at all). */
+  invalidFileError: string;
+  /** Shown for password-protected documents and legacy .doc files renamed to .docx. */
+  protectedFileError: string;
+  /** Shown when the copy button can't write to the clipboard (e.g. permission denied). */
+  copyFailed: string;
   /** Announced to assistive tech (aria-live) when a conversion succeeds. */
   conversionAnnouncement: string;
   /** Announced to assistive tech while a conversion is in progress. */

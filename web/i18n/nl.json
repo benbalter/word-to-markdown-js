@@ -91,7 +91,9 @@
     "source": "Broncode",
     "donate": "Doneren",
     "terms": "Voorwaarden",
-    "privacy": "Privacy"
+    "privacy": "Privacy",
+    "languagesLabel": "Taal",
+    "linksLabel": "Sitelinks"
   },
   "footerTagline": "Geconverteerd in je browser · er wordt niets geüpload",
   "homeAria": "Word to Markdown — startpagina",
@@ -108,6 +110,9 @@
   "errorGeneric": "Er is een onverwachte fout opgetreden tijdens het converteren van het document. Probeer het opnieuw.",
   "docFileError": "Deze tool leest moderne .docx-bestanden, geen oudere .doc-bestanden. Open je document in Word en kies File → Save As → Word Document (.docx). Sleep daarna het .docx-bestand hierheen.",
   "fileTooLargeError": "Dit bestand is te groot om in je browser te converteren. Probeer een .docx kleiner dan 20 MB.",
+  "invalidFileError": "Dit bestand kon niet als Word-document worden gelezen. Het is mogelijk beschadigd of geen .docx-bestand. Open het in Word en sla het opnieuw op als .docx.",
+  "protectedFileError": "Dit document is met een wachtwoord beveiligd of is een ouder .doc-bestand. Verwijder in Word het wachtwoord of sla het op als .docx en probeer het opnieuw.",
+  "copyFailed": "Automatisch kopiëren is mislukt. Selecteer de Markdown en kopieer met Ctrl+C (⌘C op een Mac).",
   "conversionAnnouncement": "Conversie voltooid. Je Markdown is klaar.",
   "convertingStatus": "Converteren…",
   "dismiss": "Sluiten",

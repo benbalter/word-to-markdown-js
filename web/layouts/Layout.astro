@@ -186,7 +186,7 @@ const footerLinks = [
     <footer class="mx-auto mt-16 w-full max-w-5xl px-6 pb-10">
       <div class="rule mb-5"></div>
       <nav
-        aria-label="Language"
+        aria-label={t.footer.languagesLabel}
         class="mb-4 flex flex-wrap items-center justify-center gap-x-1 gap-y-1.5 text-[0.8rem]"
       >
         <svg
@@ -232,6 +232,7 @@ const footerLinks = [
         }
       </nav>
       <nav
+        aria-label={t.footer.linksLabel}
         class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm"
       >
         {

@@ -91,7 +91,9 @@
     "source": "Código fuente",
     "donate": "Donar",
     "terms": "Términos",
-    "privacy": "Privacidad"
+    "privacy": "Privacidad",
+    "languagesLabel": "Idioma",
+    "linksLabel": "Enlaces del sitio"
   },
   "footerTagline": "Convertido en tu navegador · no se sube nada",
   "homeAria": "Word to Markdown — inicio",
@@ -108,6 +110,9 @@
   "errorGeneric": "Ocurrió un error inesperado al convertir el documento. Inténtalo de nuevo.",
   "docFileError": "Esta herramienta lee archivos .docx modernos, no archivos .doc más antiguos. En Word, abre tu documento y elige Archivo → Guardar como → Documento de Word (.docx), y luego arrastra el .docx aquí.",
   "fileTooLargeError": "Este archivo es demasiado grande para convertirlo en tu navegador. Prueba con un .docx de menos de 20 MB.",
+  "invalidFileError": "No se pudo leer este archivo como documento de Word. Puede estar dañado o no ser un archivo .docx. Prueba a abrirlo en Word y guardarlo de nuevo como .docx.",
+  "protectedFileError": "Este documento está protegido con contraseña o es un archivo .doc antiguo. En Word, quita la contraseña o guárdalo como .docx y vuelve a intentarlo.",
+  "copyFailed": "No se pudo copiar automáticamente. Selecciona el Markdown y cópialo con Ctrl+C (⌘C en Mac).",
   "conversionAnnouncement": "Conversión completada. Tu Markdown está listo.",
   "convertingStatus": "Convirtiendo…",
   "dismiss": "Descartar",

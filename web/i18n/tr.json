@@ -91,7 +91,9 @@
     "source": "Kaynak",
     "donate": "Bağış yap",
     "terms": "Koşullar",
-    "privacy": "Gizlilik"
+    "privacy": "Gizlilik",
+    "languagesLabel": "Dil",
+    "linksLabel": "Site bağlantıları"
   },
   "footerTagline": "Tarayıcınızda dönüştürülür · hiçbir şey yüklenmez",
   "homeAria": "Word to Markdown — ana sayfa",
@@ -108,6 +110,9 @@
   "errorGeneric": "Belge dönüştürülürken beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.",
   "docFileError": "Bu araç eski .doc dosyalarını değil, modern .docx dosyalarını okur. Word içinde belgenizi açın ve File → Save As → Word Document (.docx) seçeneğini seçin, ardından .docx dosyasını buraya bırakın.",
   "fileTooLargeError": "Bu dosya tarayıcınızda dönüştürmek için çok büyük. Lütfen 20 MB'tan küçük bir .docx deneyin.",
+  "invalidFileError": "Bu dosya bir Word belgesi olarak okunamadı. Dosya bozuk olabilir veya bir .docx dosyası olmayabilir. Word içinde açıp yeniden .docx olarak kaydetmeyi deneyin.",
+  "protectedFileError": "Bu belge parola korumalı veya eski bir .doc dosyası. Word içinde parolayı kaldırın ya da belgeyi .docx olarak kaydedin, ardından tekrar deneyin.",
+  "copyFailed": "Otomatik olarak kopyalanamadı. Markdown'ı seçin ve Ctrl+C (Mac'te ⌘C) ile kopyalayın.",
   "conversionAnnouncement": "Dönüştürme tamamlandı. Markdown'ınız hazır.",
   "convertingStatus": "Dönüştürülüyor…",
   "dismiss": "Kapat",
