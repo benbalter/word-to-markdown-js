@@ -198,13 +198,25 @@ function rowCells(row: HTMLElement): HTMLElement[] {
   );
 }
 
+// Mammoth renders footnotes/endnotes as a trailing <ol> whose items carry ids
+// like `footnote-1` / `endnote-1`.
+const NOTE_ITEM_ID = /^(?:foot|end)note-\d+$/;
+
+function isNoteList(list: HTMLElement): boolean {
+  return (list.childNodes as HTMLElement[]).some(
+    (node: HTMLElement) =>
+      node.tagName?.toLowerCase() === 'li' &&
+      NOTE_ITEM_ID.test(node.getAttribute('id') ?? ''),
+  );
+}
+
 // Process HTML in a single pass: optionally strip images, convert table
 // headers, and remove unicode bullets. This is more efficient than parsing the
 // HTML twice.
 /** @internal Exported for tests only. */
 export function processHtml(
   html: string,
-  opts: { stripImages?: boolean } = {},
+  opts: { stripImages?: boolean; bulletLists?: boolean } = {},
 ): string {
   const root = parse(html);
 
@@ -279,6 +291,22 @@ export function processHtml(
     }
   });
 
+  // Optionally render numbered lists as bullet lists by renaming <ol> to <ul>.
+  // Doing it on the DOM (rather than rewriting `1.` markers in the Markdown)
+  // can't touch numbered lines inside code blocks or literal text. Mammoth's
+  // footnote/endnote list stays ordered: it's not a real list, and the footnote
+  // conversion (or, with footnotes preserved, the numbered note list) relies on
+  // it. Runs after the unicode-bullet strip above so formerly numbered items
+  // keep their content as-is.
+  if (opts.bulletLists) {
+    root.querySelectorAll('ol').forEach((list: HTMLElement) => {
+      if (isNoteList(list)) return;
+      list.tagName = 'ul';
+      list.removeAttribute('start');
+      list.removeAttribute('type');
+    });
+  }
+
   return root.toString();
 }
 
@@ -334,8 +362,6 @@ export function htmlToMd(
 }
 
 // Pre-compiled regex patterns for better performance
-const numberedListRegex = /^(\s*)(\d+)\.\s/;
-const fenceRegex = /^\s*(`{3,}|~{3,})(.*)$/;
 const nonBreakingSpacesRegex = /[\u00A0\u2007\u202F\u2060\uFEFF]/g;
 const smartQuotesRegex = /[\u201C\u201D\u2018\u2019]/g;
 
@@ -375,31 +401,6 @@ const smartQuoteMap: { [key: string]: string } = {
   '\u2018': "'", // Left single quotation mark
   '\u2019': "'", // Right single quotation mark
 };
-
-// Convert numbered lists to bullet lists, leaving fenced code blocks untouched
-function convertNumberedListsToBullets(md: string): string {
-  let fence: string | null = null;
-  return md
-    .split('\n')
-    .map((line) => {
-      const match = line.match(fenceRegex);
-      if (match) {
-        const [, marker, info] = match;
-        // A fence closes only with the same character, at least as long, and
-        // with no info string (```js inside a fence is content, not a close)
-        if (fence === null) fence = marker;
-        else if (
-          marker[0] === fence[0] &&
-          marker.length >= fence.length &&
-          info.trim() === ''
-        )
-          fence = null;
-        return line;
-      }
-      return fence === null ? line.replace(numberedListRegex, '$1- ') : line;
-    })
-    .join('\n');
-}
 
 // Remove unicode non-breaking spaces and convert smart quotes to ASCII in a single pass
 function normalizeText(md: string): string {
@@ -874,8 +875,10 @@ async function runConversionPipeline(
     mammothInput,
     mammothOptions,
   );
+  // Numbered lists stay numbered by default; flatten to bullets on request.
   const processedHtml = processHtml(mammothResult.value, {
     stripImages: options.images === 'strip',
+    bulletLists: options.numberedLists === 'bullets',
   });
   const md = htmlToMd(
     processedHtml,
@@ -887,14 +890,7 @@ async function runConversionPipeline(
   // Footnotes stay as GFM `[^1]` by default; skip the rewrite on request.
   const footnotedMd =
     options.footnotes === 'preserve' ? cleanedMd : convertFootnotes(cleanedMd);
-  // Numbered lists stay numbered by default; flatten to bullets on request.
-  // This must run after convertFootnotes, whose definition regex matches the
-  // numbered `1. body [\u2191](#footnote-ref-1)` list items.
-  const listMd =
-    options.numberedLists === 'bullets'
-      ? convertNumberedListsToBullets(footnotedMd)
-      : footnotedMd;
-  const formattedMd = await prettify(listMd);
+  const formattedMd = await prettify(footnotedMd);
   return {
     markdown: formattedMd,
     messages: mammothResult.messages,

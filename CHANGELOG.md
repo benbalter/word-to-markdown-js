@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+These change the Markdown produced for affected documents, so the next release
+should be a minor bump (0.5.0).
+
+- **`numberedLists: 'bullets'` works on the HTML, not the Markdown.** Numbered
+  lists are now turned into bullet lists before Turndown runs, instead of by
+  rewriting `1.` markers in the output. Document lists convert the same as
+  before. The one difference: a footnote or endnote list that stays raw (with
+  `footnotes: 'preserve'`, or a multi-paragraph note) now keeps its `1.`/`2.`
+  numbering to match the `[1]` reference labels, instead of becoming bullets.
+
 ### Fixed
 
 - Confidentiality warnings no longer fire on "confidential" or "sensitive" in

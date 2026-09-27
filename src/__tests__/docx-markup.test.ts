@@ -54,6 +54,17 @@ describe('docx markup features (end to end)', () => {
     expect(md).toContain('```\n1. install\n2. run\n```');
   });
 
+  it('keeps the raw note list numbered with numberedLists: "bullets" and footnotes: "preserve"', async () => {
+    const md = await convert('src/__fixtures__/footnote.docx', {
+      numberedLists: 'bullets',
+      footnotes: 'preserve',
+    });
+    // Mammoth's note list isn't a document list, so bullets mode leaves it
+    // numbered to match the [1] reference labels.
+    expect(md).toContain('1. The footnote body text.');
+    expect(md).not.toContain('- The footnote body text.');
+  });
+
   it('preserves raw footnote markup when footnotes: "preserve"', async () => {
     const md = await convert('src/__fixtures__/footnote.docx', {
       footnotes: 'preserve',

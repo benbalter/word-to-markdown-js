@@ -279,4 +279,24 @@ describe('edge cases and advanced features', () => {
     expect(html).toContain('<th><img');
     expect(html).toContain('<td>row</td>');
   });
+
+  it('renames <ol> to <ul> with bulletLists, keeping footnote and endnote lists', async () => {
+    const { processHtml } = await import('../main.js');
+    const html = processHtml(
+      '<ol start="3" type="a"><li>One<ol><li>Sub</li></ol></li></ol>' +
+        '<pre><code>1. install</code></pre>' +
+        '<ol><li id="footnote-1"><p>Note.</p></li></ol>' +
+        '<ol><li id="endnote-2"><p>End.</p></li></ol>',
+      { bulletLists: true },
+    );
+    expect(html).toContain('<ul><li>One<ul><li>Sub</li></ul></li></ul>');
+    expect(html).toContain('<pre><code>1. install</code></pre>');
+    expect(html).toContain('<ol><li id="footnote-1">');
+    expect(html).toContain('<ol><li id="endnote-2">');
+  });
+
+  it('leaves <ol> alone without bulletLists', async () => {
+    const { processHtml } = await import('../main.js');
+    expect(processHtml('<ol><li>One</li></ol>')).toBe('<ol><li>One</li></ol>');
+  });
 });
