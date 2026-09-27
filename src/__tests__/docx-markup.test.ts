@@ -23,12 +23,25 @@ describe('docx markup features (end to end)', () => {
     expect(md).not.toContain('#footnote');
   });
 
-  it('leaves a multi-paragraph footnote in raw form rather than dangling', async () => {
+  it('converts a multi-paragraph footnote to one indented GFM definition', async () => {
     const md = await convert('src/__fixtures__/footnote-multiparagraph.docx');
-    // Mammoth puts the second paragraph on an indented continuation line, so the
-    // single-line definition regex can't fold it into a `[^1]:` block. The
-    // reference must then stay raw too — converting it alone would leave a
-    // dangling `[^1]` with no definition. Both paragraphs and the link survive.
+    // The second paragraph is indented four spaces so GFM/Pandoc read it as a
+    // continuation of the same footnote, not a new paragraph after it.
+    expect(md).toBe(
+      [
+        'Text with a multi-paragraph footnote[^1].',
+        '',
+        '[^1]: First paragraph of the note.',
+        '',
+        '    Second paragraph of the note.',
+      ].join('\n'),
+    );
+  });
+
+  it('keeps a multi-paragraph footnote raw with footnotes: "preserve"', async () => {
+    const md = await convert('src/__fixtures__/footnote-multiparagraph.docx', {
+      footnotes: 'preserve',
+    });
     expect(md).toContain('<sup>');
     expect(md).toContain('#footnote-1');
     expect(md).toContain('First paragraph of the note.');
@@ -52,6 +65,17 @@ describe('docx markup features (end to end)', () => {
       numberedLists: 'bullets',
     });
     expect(md).toContain('```\n1. install\n2. run\n```');
+  });
+
+  it('keeps the raw note list numbered with numberedLists: "bullets" and footnotes: "preserve"', async () => {
+    const md = await convert('src/__fixtures__/footnote.docx', {
+      numberedLists: 'bullets',
+      footnotes: 'preserve',
+    });
+    // Mammoth's note list isn't a document list, so bullets mode leaves it
+    // numbered to match the [1] reference labels.
+    expect(md).toContain('1. The footnote body text.');
+    expect(md).not.toContain('- The footnote body text.');
   });
 
   it('preserves raw footnote markup when footnotes: "preserve"', async () => {

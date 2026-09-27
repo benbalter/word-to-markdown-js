@@ -279,4 +279,41 @@ describe('edge cases and advanced features', () => {
     expect(html).toContain('<th><img');
     expect(html).toContain('<td>row</td>');
   });
+
+  it('renames <ol> to <ul> with bulletLists, keeping footnote and endnote lists', async () => {
+    const { processHtml } = await import('../main.js');
+    const html = processHtml(
+      '<ol start="3" type="a"><li>One<ol><li>Sub</li></ol></li></ol>' +
+        '<pre><code>1. install</code></pre>' +
+        '<ol><li id="footnote-1"><p>Note.</p></li></ol>' +
+        '<ol><li id="endnote-2"><p>End.</p></li></ol>',
+      { bulletLists: true },
+    );
+    expect(html).toContain('<ul><li>One<ul><li>Sub</li></ul></li></ul>');
+    expect(html).toContain('<pre><code>1. install</code></pre>');
+    expect(html).toContain('<ol><li id="footnote-1">');
+    expect(html).toContain('<ol><li id="endnote-2">');
+  });
+
+  it('turns Mammoth footnote and endnote markup into GFM footnotes', async () => {
+    const { htmlToMd } = await import('../main.js');
+    const html =
+      '<p>A<sup><a href="#footnote-1" id="footnote-ref-1">[1]</a></sup> ' +
+      'B<sup><a href="#endnote-2" id="endnote-ref-2">[2]</a></sup> ' +
+      'C<sup>2</sup></p>' +
+      '<ol><li id="footnote-1"><p>Foot. <a href="#footnote-ref-1">↑</a></p></li></ol>' +
+      '<ol><li id="endnote-2"><p>End. <a href="#endnote-ref-2">↑</a></p></li></ol>';
+    const md = htmlToMd(html, {}, [], true);
+    expect(md).toContain('A[^1] B[^2] C<sup>2</sup>');
+    expect(md).toContain('[^1]: Foot.');
+    expect(md).toContain('[^2]: End.');
+    expect(md).not.toContain('↑');
+    // Without the flag the markup passes through as before.
+    expect(htmlToMd(html)).toContain('#footnote-1');
+  });
+
+  it('leaves <ol> alone without bulletLists', async () => {
+    const { processHtml } = await import('../main.js');
+    expect(processHtml('<ol><li>One</li></ol>')).toBe('<ol><li>One</li></ol>');
+  });
 });
