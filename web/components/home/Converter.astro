@@ -11,8 +11,8 @@ const t = useTranslations(Astro.currentLocale);
   class="reveal mx-auto mt-10 max-w-2xl [--reveal-delay:.24s]"
   aria-label={t.convertSectionAria}
 >
-  <!-- Polite live region: a successful conversion announces here for screen
-       readers (the results reveal is otherwise silent). -->
+  {/* Polite live region: a successful conversion announces here for screen
+       readers (the results reveal is otherwise silent). */}
   <div id="sr-status" role="status" class="sr-only"></div>
 
   <div
@@ -82,7 +82,7 @@ const t = useTranslations(Astro.currentLocale);
     </p>
   </div>
 
-  <!-- Results (revealed after a successful conversion) -->
+  {/* Results (revealed after a successful conversion) */}
   <div id="results" class="hidden">
     <div
       class="mt-4 flex flex-col items-center justify-between gap-3 sm:flex-row"
@@ -231,11 +231,11 @@ const t = useTranslations(Astro.currentLocale);
       </div>
     </div>
 
-    <!-- Contextual Open & Async pitch, shown at the moment of peak intent (right
+    {/* Contextual Open & Async pitch, shown at the moment of peak intent (right
          after a successful conversion). This is the SOLE post-conversion ask
          (src/index.ts hides the standalone Promo card on success), so it carries
          real weight: book cover + a filled button rather than a bare text link.
-         utm_campaign=results lets this placement be told apart from the card. -->
+         utm_campaign=results lets this placement be told apart from the card. */}
     <aside
       class="mt-4 flex items-center gap-4 rounded-xl border border-chartreuse/40 bg-chartreuse/10 px-4 py-3.5 text-start dark:bg-chartreuse/5"
     >
