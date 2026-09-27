@@ -315,6 +315,27 @@ test.describe('Word to Markdown Web Interface', () => {
     await expect(page.locator('#output')).toContainText('# Heading 1');
   });
 
+  test('ignores a pasted image (Office puts one on the clipboard)', async ({
+    page,
+  }) => {
+    await page.evaluate(() => {
+      const data = new DataTransfer();
+      data.items.add(
+        new File([new Uint8Array([137, 80, 78, 71])], 'image.png'),
+      );
+      document.body.dispatchEvent(
+        new ClipboardEvent('paste', {
+          bubbles: true,
+          cancelable: true,
+          clipboardData: data,
+        }),
+      );
+    });
+    await page.waitForTimeout(500);
+    await expect(page.locator('#error-alert')).toHaveCount(0);
+    await expect(page.locator('#input')).toBeVisible();
+  });
+
   test('converts a file dropped outside the dropzone, e.g. onto the results', async ({
     page,
   }) => {
