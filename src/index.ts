@@ -232,19 +232,26 @@ function isLegacyDocFile(name: string): boolean {
 }
 
 // Conversion errors thrown in the worker arrive as { name, message } (class
-// identity doesn't survive the boundary). These carry a specific, actionable
-// message; anything else (including ConversionError, whose message is a
-// generic English "try again") gets the localized generic message.
-const CONVERSION_ERROR_NAMES = new Set([
-  'UnsupportedFileError',
-  'InvalidFileError',
-]);
+// identity doesn't survive the boundary). The library's messages are English,
+// so map the actionable ones to localized strings by name; anything else
+// (including ConversionError, a generic "try again") gets the generic message.
+const CONVERSION_ERROR_STRINGS = {
+  InvalidFileError: [
+    'invalidFileError',
+    "This file couldn't be read as a Word document. It may be damaged or not a .docx file. Try opening it in Word and saving it again as .docx.",
+  ],
+  UnsupportedFileError: [
+    'protectedFileError',
+    'This document is password-protected or is an older .doc file. In Word, remove the password or save it as a .docx, then try again.',
+  ],
+} as const satisfies Record<string, readonly [UIStringKey, string]>;
 
 function showConversionError(error: unknown): void {
   const name = (error as { name?: string })?.name;
-  const message = (error as { message?: string })?.message;
-  if (name && message && CONVERSION_ERROR_NAMES.has(name)) {
-    showError(message);
+  if (name && Object.hasOwn(CONVERSION_ERROR_STRINGS, name)) {
+    const [key, fallback] =
+      CONVERSION_ERROR_STRINGS[name as keyof typeof CONVERSION_ERROR_STRINGS];
+    showError(uiString(key, fallback));
     return;
   }
   showError(
@@ -317,6 +324,17 @@ function setupClipboard(): void {
         copyResetTimer = window.setTimeout(() => {
           copyLabel.textContent = copyLabelDefault;
         }, 2000);
+      });
+      // Clipboard access can be denied (permissions policy, insecure context,
+      // older browsers). Say so instead of failing silently; the alert's
+      // role="alert" announces it.
+      clipboard.on('error', () => {
+        showError(
+          uiString(
+            'copyFailed',
+            "Couldn't copy automatically. Select the Markdown and copy it with Ctrl+C (⌘C on a Mac).",
+          ),
+        );
       });
     })
     .catch(() => {
@@ -488,23 +506,25 @@ function announce(message: string): void {
   if (status) status.textContent = message;
 }
 
+type UIStringKey =
+  | 'errorGeneric'
+  | 'docFileError'
+  | 'invalidFileError'
+  | 'protectedFileError'
+  | 'copyFailed'
+  | 'dismiss'
+  | 'copied'
+  | 'downloaded'
+  | 'downloadedZip'
+  | 'fileTooLarge'
+  | 'conversionAnnouncement'
+  | 'converting';
+
 // Localized UI strings are rendered into the page as data-* attributes on the
 // #input element (see Home.astro), keeping this module framework- and
 // language-agnostic. Falls back to English when the attribute is absent (e.g.
 // in unit tests that mount a bare DOM).
-function uiString(
-  key:
-    | 'errorGeneric'
-    | 'docFileError'
-    | 'dismiss'
-    | 'copied'
-    | 'downloaded'
-    | 'downloadedZip'
-    | 'fileTooLarge'
-    | 'conversionAnnouncement'
-    | 'converting',
-  fallback: string,
-): string {
+function uiString(key: UIStringKey, fallback: string): string {
   const input = document.getElementById('input');
   const value = input?.dataset[key];
   return value && value.length > 0 ? value : fallback;

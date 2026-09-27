@@ -1,4 +1,9 @@
+import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
+
+const de = JSON.parse(
+  readFileSync(new URL('../../../web/i18n/de.json', import.meta.url), 'utf8'),
+);
 
 // Verifies the i18n foundation: the localized route renders, the page advertises
 // the correct language + a complete self-referential hreflang cluster, and the
@@ -69,6 +74,53 @@ test.describe('Internationalization', () => {
     await expect(page.locator('#output')).toContainText('# Heading 1', {
       timeout: 10000,
     });
+  });
+
+  test("conversion errors are localized, not the library's English", async ({
+    page,
+  }) => {
+    await page.goto('http://localhost:8080/de/');
+    // A .docx name with non-ZIP bytes: the worker throws InvalidFileError.
+    await page.locator('#file').setInputFiles({
+      name: 'kaputt.docx',
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      buffer: Buffer.from('not a zip file'),
+    });
+
+    const error = page.locator('#error-message');
+    await expect(error).toBeVisible({ timeout: 10000 });
+    await expect(error).toHaveText(de.invalidFileError);
+  });
+
+  test('password-protected (OLE) files get the localized message', async ({
+    page,
+  }) => {
+    await page.goto('http://localhost:8080/de/');
+    // The OLE/CFB signature marks encrypted .docx and legacy .doc files; the
+    // worker throws UnsupportedFileError for it.
+    const ole = Buffer.alloc(512);
+    Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]).copy(ole);
+    await page.locator('#file').setInputFiles({
+      name: 'geschuetzt.docx',
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      buffer: ole,
+    });
+
+    const error = page.locator('#error-message');
+    await expect(error).toBeVisible({ timeout: 10000 });
+    await expect(error).toHaveText(de.protectedFileError);
+  });
+
+  test('footer navs carry localized accessible names', async ({ page }) => {
+    await page.goto('http://localhost:8080/de/');
+    await expect(
+      page.locator(`nav[aria-label="${de.footer.languagesLabel}"]`),
+    ).toBeVisible();
+    await expect(
+      page.locator(`nav[aria-label="${de.footer.linksLabel}"]`),
+    ).toBeVisible();
   });
 
   test('legal pages carry no hreflang (English-only)', async ({ page }) => {

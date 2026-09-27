@@ -91,7 +91,9 @@
     "source": "Mã nguồn",
     "donate": "Ủng hộ",
     "terms": "Điều khoản",
-    "privacy": "Quyền riêng tư"
+    "privacy": "Quyền riêng tư",
+    "languagesLabel": "Ngôn ngữ",
+    "linksLabel": "Liên kết trang"
   },
   "footerTagline": "Chuyển đổi trong trình duyệt của bạn · không có gì được tải lên",
   "homeAria": "Word to Markdown — trang chủ",
@@ -108,6 +110,9 @@
   "errorGeneric": "Đã xảy ra lỗi không mong muốn khi chuyển đổi tài liệu. Vui lòng thử lại.",
   "docFileError": "Công cụ này đọc các tệp .docx hiện đại, không phải tệp .doc cũ. Trong Word, hãy mở tài liệu của bạn và chọn Tệp → Lưu dưới dạng → Tài liệu Word (.docx), rồi kéo tệp .docx đó vào đây.",
   "fileTooLargeError": "Tệp này quá lớn để chuyển đổi trong trình duyệt của bạn. Vui lòng thử tệp .docx nhỏ hơn 20 MB.",
+  "invalidFileError": "Không thể đọc tệp này dưới dạng tài liệu Word. Tệp có thể bị hỏng hoặc không phải tệp .docx. Hãy thử mở tệp trong Word rồi lưu lại dưới dạng .docx.",
+  "protectedFileError": "Tài liệu này được bảo vệ bằng mật khẩu hoặc là tệp .doc cũ. Trong Word, hãy gỡ mật khẩu hoặc lưu tài liệu dưới dạng .docx, rồi thử lại.",
+  "copyFailed": "Không thể tự động sao chép. Hãy chọn nội dung Markdown và sao chép bằng Ctrl+C (⌘C trên Mac).",
   "conversionAnnouncement": "Chuyển đổi hoàn tất. Markdown của bạn đã sẵn sàng.",
   "convertingStatus": "Đang chuyển đổi…",
   "dismiss": "Đóng",

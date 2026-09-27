@@ -91,7 +91,9 @@
     "source": "源码",
     "donate": "捐赠",
     "terms": "条款",
-    "privacy": "隐私"
+    "privacy": "隐私",
+    "languagesLabel": "语言",
+    "linksLabel": "网站链接"
   },
   "footerTagline": "在浏览器中完成转换 · 不会上传任何内容",
   "homeAria": "Word to Markdown——首页",
@@ -108,6 +110,9 @@
   "errorGeneric": "转换文档时发生意外错误。请重试。",
   "docFileError": "此工具读取现代 .docx 文件，不支持较旧的 .doc 文件。请在 Word 中打开您的文档并选择 文件 → 另存为 → Word 文档 (.docx)，然后将该 .docx 拖到这里。",
   "fileTooLargeError": "此文件过大，无法在浏览器中转换。请尝试小于 20 MB 的 .docx 文件。",
+  "invalidFileError": "无法将此文件读取为 Word 文档。文件可能已损坏，或不是 .docx 文件。请尝试在 Word 中打开并重新另存为 .docx。",
+  "protectedFileError": "此文档受密码保护，或是较旧的 .doc 文件。请在 Word 中移除密码或另存为 .docx，然后重试。",
+  "copyFailed": "无法自动复制。请选中 Markdown 并按 Ctrl+C（Mac 上为 ⌘C）复制。",
   "conversionAnnouncement": "转换完成。您的 Markdown 已准备就绪。",
   "convertingStatus": "正在转换…",
   "dismiss": "关闭",
