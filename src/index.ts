@@ -635,7 +635,7 @@ function showWarnings(warnings: string[]): void {
 
 // Convert the first of the given files (converting several at once isn't
 // supported), noting how many others were ignored.
-function processFiles(files: FileList | null | undefined): void {
+function processFiles(files: ArrayLike<File> | null | undefined): void {
   if (!files || files.length === 0) return;
   void processFile(files[0], files.length - 1);
 }
@@ -806,11 +806,14 @@ document.addEventListener('DOMContentLoaded', () => {
     false,
   );
 
-  // Pasting a copied .docx (e.g. from Finder or Explorer) converts it. Plain
-  // text pastes carry no files and are left alone.
+  // Pasting a copied .docx (e.g. from Finder or Explorer) converts it. Only
+  // Word files count: copying from Word or Excel often puts an image rendition
+  // on the clipboard too, and plain-text pastes carry no files at all.
   document.addEventListener('paste', (event: ClipboardEvent) => {
-    const files = event.clipboardData?.files;
-    if (!files || files.length === 0) return;
+    const files = Array.from(event.clipboardData?.files ?? []).filter((file) =>
+      /\.docx?$/i.test(file.name),
+    );
+    if (files.length === 0) return;
     event.preventDefault();
     processFiles(files);
   });
