@@ -113,6 +113,7 @@
   "invalidFileError": "无法将此文件读取为 Word 文档。文件可能已损坏，或不是 .docx 文件。请尝试在 Word 中打开并重新另存为 .docx。",
   "protectedFileError": "此文档受密码保护，或是较旧的 .doc 文件。请在 Word 中移除密码或另存为 .docx，然后重试。",
   "copyFailed": "无法自动复制。请选中 Markdown 并按 Ctrl+C（Mac 上为 ⌘C）复制。",
+  "onlyFirstFile": "只转换了第一个文件。请逐个添加其他文件。",
   "conversionAnnouncement": "转换完成。您的 Markdown 已准备就绪。",
   "convertingStatus": "正在转换…",
   "dismiss": "关闭",

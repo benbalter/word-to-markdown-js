@@ -23,6 +23,7 @@ const t = useTranslations(Astro.currentLocale);
     data-invalid-file-error={t.invalidFileError}
     data-protected-file-error={t.protectedFileError}
     data-copy-failed={t.copyFailed}
+    data-only-first-file={t.onlyFirstFile}
     data-conversion-announcement={t.conversionAnnouncement}
     data-converting={t.convertingStatus}
     data-copied={t.copiedButton}
@@ -66,7 +67,12 @@ const t = useTranslations(Astro.currentLocale);
           >{t.dropzoneBrowseLink}</span
         >
       </span>
-      <input type="file" id="file" accept=".docx" class="sr-only" />
+      <input
+        type="file"
+        id="file"
+        accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        class="sr-only"
+      />
     </label>
 
     <p
@@ -82,10 +88,10 @@ const t = useTranslations(Astro.currentLocale);
       class="mt-4 flex flex-col items-center justify-between gap-3 sm:flex-row"
     >
       <h2 class="font-display text-lg font-medium text-navy dark:text-[#f1f2f7]">
-        {t.convertedLabel}{' '}<span
+        {t.convertedLabel}{' '}<bdi
           id="filename"
           class="font-mono text-base text-chartreuse-deep dark:text-chartreuse"
-        ></span>
+        ></bdi>
       </h2>
       <div class="flex flex-wrap items-center gap-2">
         <button

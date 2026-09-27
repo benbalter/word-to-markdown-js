@@ -113,6 +113,7 @@
   "invalidFileError": "No se pudo leer este archivo como documento de Word. Puede estar dañado o no ser un archivo .docx. Prueba a abrirlo en Word y guardarlo de nuevo como .docx.",
   "protectedFileError": "Este documento está protegido con contraseña o es un archivo .doc antiguo. En Word, quita la contraseña o guárdalo como .docx y vuelve a intentarlo.",
   "copyFailed": "No se pudo copiar automáticamente. Selecciona el Markdown y cópialo con Ctrl+C (⌘C en Mac).",
+  "onlyFirstFile": "Solo se convirtió el primer archivo. Añade los demás de uno en uno.",
   "conversionAnnouncement": "Conversión completada. Tu Markdown está listo.",
   "convertingStatus": "Convirtiendo…",
   "dismiss": "Descartar",

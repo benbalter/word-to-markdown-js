@@ -113,6 +113,7 @@
   "invalidFileError": "Dit bestand kon niet als Word-document worden gelezen. Het is mogelijk beschadigd of geen .docx-bestand. Open het in Word en sla het opnieuw op als .docx.",
   "protectedFileError": "Dit document is met een wachtwoord beveiligd of is een ouder .doc-bestand. Verwijder in Word het wachtwoord of sla het op als .docx en probeer het opnieuw.",
   "copyFailed": "Automatisch kopiëren is mislukt. Selecteer de Markdown en kopieer met Ctrl+C (⌘C op een Mac).",
+  "onlyFirstFile": "Alleen het eerste bestand is omgezet. Voeg de andere één voor één toe.",
   "conversionAnnouncement": "Conversie voltooid. Je Markdown is klaar.",
   "convertingStatus": "Converteren…",
   "dismiss": "Sluiten",

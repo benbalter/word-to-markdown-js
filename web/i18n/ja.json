@@ -113,6 +113,7 @@
   "invalidFileError": "このファイルを Word 文書として読み込めませんでした。破損しているか、.docx ファイルではない可能性があります。Word で開き、.docx として保存し直してください。",
   "protectedFileError": "この文書はパスワードで保護されているか、古い .doc ファイルです。Word でパスワードを解除するか .docx として保存してから、もう一度お試しください。",
   "copyFailed": "自動でコピーできませんでした。Markdown を選択し、Ctrl+C（Mac では ⌘C）でコピーしてください。",
+  "onlyFirstFile": "変換したのは最初のファイルだけです。ほかのファイルは 1 つずつ追加してください。",
   "conversionAnnouncement": "変換が完了しました。Markdownの準備ができました。",
   "convertingStatus": "変換中…",
   "dismiss": "閉じる",

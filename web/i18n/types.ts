@@ -104,6 +104,8 @@ export interface UIStrings {
   protectedFileError: string;
   /** Shown when the copy button can't write to the clipboard (e.g. permission denied). */
   copyFailed: string;
+  /** Noted with the result when several files are dropped or pasted at once. */
+  onlyFirstFile: string;
   /** Announced to assistive tech (aria-live) when a conversion succeeds. */
   conversionAnnouncement: string;
   /** Announced to assistive tech while a conversion is in progress. */

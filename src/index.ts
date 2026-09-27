@@ -370,8 +370,15 @@ function recordConversion(outcome: 'success' | 'error'): void {
 
 // Convert a single file. Shared by the file-input change handler and the
 // drag-and-drop handler so both entry points behave identically.
-async function processFile(file: File | undefined): Promise<void> {
+async function processFile(
+  file: File | undefined,
+  ignoredFiles = 0,
+): Promise<void> {
   if (!file) return;
+  // Paste and page-wide drops skip the dropzone's intent listeners, and the idle
+  // prefetch is skipped on low-data connections, so warm (and bind the copy
+  // button) here too. Idempotent.
+  prefetchConverter();
 
   // Reject legacy .doc files up front with the friendlier localized "save as
   // .docx" guidance. Done here (not in the worker) since only the main thread
@@ -426,8 +433,18 @@ async function processFile(file: File | undefined): Promise<void> {
 
     // Display warnings if any (and drop a previous document's)
     document.getElementById('warning-alert')?.remove();
-    if (result.warnings.length > 0) {
-      showWarnings(result.warnings);
+    const warnings =
+      ignoredFiles > 0
+        ? [
+            ...result.warnings,
+            uiString(
+              'onlyFirstFile',
+              'Only the first file was converted. Add the others one at a time.',
+            ),
+          ]
+        : result.warnings;
+    if (warnings.length > 0) {
+      showWarnings(warnings);
     }
 
     // Reveal the results with the raw Markdown (the primary output, and the
@@ -518,7 +535,8 @@ type UIStringKey =
   | 'downloadedZip'
   | 'fileTooLarge'
   | 'conversionAnnouncement'
-  | 'converting';
+  | 'converting'
+  | 'onlyFirstFile';
 
 // Localized UI strings are rendered into the page as data-* attributes on the
 // #input element (see Home.astro), keeping this module framework- and
@@ -548,7 +566,7 @@ function showError(message: string): void {
     closeButton.type = 'button';
     closeButton.setAttribute('aria-label', uiString('dismiss', 'Dismiss'));
     closeButton.className =
-      'shrink-0 leading-none text-red-500/70 transition-colors hover:text-red-700 dark:hover:text-red-100';
+      '-m-1 shrink-0 p-1 leading-none text-red-700 transition-colors hover:text-red-900 dark:text-red-200 dark:hover:text-red-50';
     closeButton.innerHTML =
       '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
     closeButton.addEventListener('click', () => errorElement.remove());
@@ -601,7 +619,7 @@ function showWarnings(warnings: string[]): void {
   closeButton.type = 'button';
   closeButton.setAttribute('aria-label', uiString('dismiss', 'Dismiss'));
   closeButton.className =
-    'shrink-0 leading-none text-amber-600/70 transition-colors hover:text-amber-800 dark:hover:text-amber-100';
+    '-m-1 shrink-0 p-1 leading-none text-amber-800 transition-colors hover:text-amber-950 dark:text-amber-200 dark:hover:text-amber-50';
   closeButton.innerHTML =
     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
   closeButton.addEventListener('click', () => warningElement.remove());
@@ -615,13 +633,26 @@ function showWarnings(warnings: string[]): void {
   }
 }
 
+// Convert the first of the given files (converting several at once isn't
+// supported), noting how many others were ignored.
+function processFiles(files: FileList | null | undefined): void {
+  if (!files || files.length === 0) return;
+  void processFile(files[0], files.length - 1);
+}
+
 function initDragAndDrop(dropzone: HTMLElement): void {
-  // Prevent the browser's default "open the dropped file" behaviour for drops
-  // anywhere outside the dropzone — otherwise a near-miss (or any drop after the
-  // input is hidden) navigates away and discards the page.
-  const cancel = (event: DragEvent): void => event.preventDefault();
-  window.addEventListener('dragover', cancel);
-  window.addEventListener('drop', cancel);
+  // A drop anywhere on the page converts, not just on the dropzone: a near-miss,
+  // or a second document dropped onto the results after the input is hidden.
+  // Cancelling the default also stops the browser opening the file and
+  // discarding the page. Drops on the dropzone are handled (once) below.
+  window.addEventListener('dragover', (event: DragEvent) => {
+    event.preventDefault();
+  });
+  window.addEventListener('drop', (event: DragEvent) => {
+    event.preventDefault();
+    if (dropzone.contains(event.target as Node)) return;
+    processFiles(event.dataTransfer?.files);
+  });
 
   const activate = (event: DragEvent): void => {
     event.preventDefault();
@@ -641,7 +672,7 @@ function initDragAndDrop(dropzone: HTMLElement): void {
   dropzone.addEventListener('drop', (event: DragEvent) => {
     event.preventDefault();
     dropzone.classList.remove('is-dragover');
-    void processFile(event.dataTransfer?.files?.[0]);
+    processFiles(event.dataTransfer?.files);
   });
 }
 
@@ -775,6 +806,15 @@ document.addEventListener('DOMContentLoaded', () => {
     false,
   );
 
+  // Pasting a copied .docx (e.g. from Finder or Explorer) converts it. Plain
+  // text pastes carry no files and are left alone.
+  document.addEventListener('paste', (event: ClipboardEvent) => {
+    const files = event.clipboardData?.files;
+    if (!files || files.length === 0) return;
+    event.preventDefault();
+    processFiles(files);
+  });
+
   const dropzone = document.getElementById('dropzone');
   if (dropzone) {
     initDragAndDrop(dropzone);
@@ -807,11 +847,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Note: the copy button is bound by setupClipboard(), invoked from
-  // prefetchConverter() on idle/intent — never here at DOMContentLoaded, so the
-  // clipboard chunk stays off the initial-paint critical path. prefetchConverter
-  // always runs within a few seconds (unconditional idle/timeout fallback below)
-  // and on the first dropzone interaction, so the binding is in place well before
-  // any conversion produces something to copy.
+  // prefetchConverter() — never here at DOMContentLoaded, so the clipboard chunk
+  // stays off the initial-paint critical path. prefetchConverter runs on idle
+  // (unless on a low-data connection), on the first dropzone interaction, and at
+  // the start of every conversion, so the binding is in place before there is
+  // anything to copy.
 
   const downloadButton = document.getElementById('download-button');
   if (downloadButton !== null) {

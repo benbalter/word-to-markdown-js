@@ -113,6 +113,7 @@
   "invalidFileError": "Bu dosya bir Word belgesi olarak okunamadı. Dosya bozuk olabilir veya bir .docx dosyası olmayabilir. Word içinde açıp yeniden .docx olarak kaydetmeyi deneyin.",
   "protectedFileError": "Bu belge parola korumalı veya eski bir .doc dosyası. Word içinde parolayı kaldırın ya da belgeyi .docx olarak kaydedin, ardından tekrar deneyin.",
   "copyFailed": "Otomatik olarak kopyalanamadı. Markdown'ı seçin ve Ctrl+C (Mac'te ⌘C) ile kopyalayın.",
+  "onlyFirstFile": "Yalnızca ilk dosya dönüştürüldü. Diğerlerini tek tek ekleyin.",
   "conversionAnnouncement": "Dönüştürme tamamlandı. Markdown'ınız hazır.",
   "convertingStatus": "Dönüştürülüyor…",
   "dismiss": "Kapat",

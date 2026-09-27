@@ -113,6 +113,7 @@
   "invalidFileError": "Berkas ini tidak dapat dibaca sebagai dokumen Word. Berkas mungkin rusak atau bukan berkas .docx. Coba buka di Word lalu simpan ulang sebagai .docx.",
   "protectedFileError": "Dokumen ini dilindungi kata sandi atau merupakan berkas .doc lama. Di Word, hapus kata sandinya atau simpan sebagai .docx, lalu coba lagi.",
   "copyFailed": "Tidak dapat menyalin secara otomatis. Pilih Markdown-nya dan salin dengan Ctrl+C (⌘C di Mac).",
+  "onlyFirstFile": "Hanya file pertama yang dikonversi. Tambahkan file lainnya satu per satu.",
   "conversionAnnouncement": "Konversi selesai. Markdown Anda sudah siap.",
   "convertingStatus": "Mengonversi…",
   "dismiss": "Tutup",
