@@ -796,16 +796,24 @@ export function extensionForContentType(contentType: string): string {
   return /^[a-z0-9]+$/.test(subtype) ? subtype : 'bin';
 }
 
-// Decode a base64 string to bytes in both Node (Buffer) and the browser (atob).
-// Mammoth's `image.read('base64')` is the one encoding available in every build.
-function base64ToBytes(b64: string): Uint8Array {
-  if (typeof Buffer !== 'undefined') {
-    return new Uint8Array(Buffer.from(b64, 'base64'));
-  }
-  const binary = atob(b64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return bytes;
+// The image object Mammoth passes to a `convertImage` handler (not exported).
+type MammothImage = Parameters<
+  Parameters<typeof mammoth.images.imgElement>[0]
+>[0];
+
+// Read an image's raw bytes as a standalone Uint8Array. Mammoth types
+// `readAsArrayBuffer()` as an ArrayBuffer, but at runtime it returns JSZip's
+// `uint8array` output, which can be a Node Buffer or a view into a larger buffer
+// (e.g. an uncompressed entry sliced from the .docx itself). `new Uint8Array()`
+// covers every case: it wraps a real ArrayBuffer whole and copies any typed-array
+// view into a fresh, exactly-sized buffer. That matters for the worker, which
+// transfers each image's `.buffer` to the page (src/converter.worker.ts):
+// transferring a shared view would detach unrelated bytes.
+async function readImageBytes(image: MammothImage): Promise<Uint8Array> {
+  // No instanceof check: under Jest's vm modules (and across worker realms) a
+  // Uint8Array may not be an instance of this realm's class, and the
+  // constructor handles both shapes anyway.
+  return new Uint8Array(await image.readAsArrayBuffer());
 }
 
 // Build a Mammoth `convertImage` handler that pulls each image out into a byte
@@ -818,7 +826,7 @@ function createImageExtractor(imageDir: string): {
 } {
   const images: ExtractedImage[] = [];
   const convertImage = mammoth.images.imgElement(async (image) => {
-    const bytes = base64ToBytes(await image.read('base64'));
+    const bytes = await readImageBytes(image);
     const ext = extensionForContentType(image.contentType);
     const path = `${imageDir}/image${images.length + 1}.${ext}`;
     images.push({ path, contentType: image.contentType, bytes });

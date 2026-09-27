@@ -1,3 +1,5 @@
+import fs from 'fs';
+import JSZip from 'jszip';
 import convert, {
   convertWithWarnings,
   extensionForContentType,
@@ -20,6 +22,30 @@ describe("images: 'extract' (end to end)", () => {
     });
     expect(image.bytes).toBeInstanceOf(Uint8Array);
     expect(image.bytes.length).toBeGreaterThan(0);
+  });
+
+  it('returns the exact embedded bytes in a standalone buffer, even from an uncompressed .docx', async () => {
+    // Repack with STORE so the image entry is uncompressed: JSZip may then hand
+    // back a view into the whole .docx. The worker transfers each image's
+    // `.buffer`, so the bytes must own their buffer outright.
+    const zip = await JSZip.loadAsync(fs.readFileSync(IMAGE));
+    const media = zip.file(/^word\/media\//);
+    expect(media).toHaveLength(1);
+    const original = await media[0].async('uint8array');
+    const stored = await zip.generateAsync({
+      type: 'arraybuffer',
+      compression: 'STORE',
+    });
+
+    for (const input of [IMAGE, stored]) {
+      const { images } = await convertWithWarnings(input, {
+        images: 'extract',
+      });
+      const { bytes } = images![0];
+      expect(Array.from(bytes)).toEqual(Array.from(original));
+      expect(bytes.byteOffset).toBe(0);
+      expect(bytes.byteLength).toBe(bytes.buffer.byteLength);
+    }
   });
 
   it('honors a custom imageDir for both the link and the returned path', async () => {
