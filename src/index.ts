@@ -307,57 +307,44 @@ function prefetchConverter(): void {
   import('remark-rehype').catch(ignore);
   import('rehype-sanitize').catch(ignore);
   import('rehype-stringify').catch(ignore);
-  // ClipboardJS powers the post-conversion copy button. Load it lazily here
-  // (never in the initial bundle) and bind it now — prefetchConverter always
-  // runs on idle within a few seconds of load, well before any conversion
-  // result gives the user something to copy.
-  setupClipboard();
 }
 
-// Bind the copy button to ClipboardJS, importing the library on demand. Runs at
-// most once; safe to call before the copy button is visible (it exists in the
-// static markup from load).
-let clipboardBound = false;
-function setupClipboard(): void {
-  if (clipboardBound) return;
-  const copyButton = document.getElementById('copy-button');
-  if (copyButton === null) return;
-  clipboardBound = true;
-  const copyLabel = document.getElementById('copy-label');
-  const copyLabelDefault = copyLabel?.textContent ?? '';
-  let copyResetTimer: number | undefined;
-  void import('clipboard')
-    .then(({ default: ClipboardJS }) => {
-      const clipboard = new ClipboardJS('#copy-button');
-      clipboard.on('success', (event) => {
-        event.clearSelection();
-        if (!copyLabel) return;
-        // Flip the label to a transient confirmation, then restore it. Guard the
-        // captured default against rapid re-clicks by resetting the timer.
-        copyLabel.textContent = uiString('copied', 'Copied!');
-        announce(copyLabel.textContent);
-        window.clearTimeout(copyResetTimer);
-        copyResetTimer = window.setTimeout(() => {
-          copyLabel.textContent = copyLabelDefault;
-        }, 2000);
-      });
-      // Clipboard access can be denied (permissions policy, insecure context,
-      // older browsers). Say so instead of failing silently; the alert's
-      // role="alert" announces it.
-      clipboard.on('error', () => {
-        showError(
-          uiString(
-            'copyFailed',
-            "Couldn't copy automatically. Select the Markdown and copy it with Ctrl+C (⌘C on a Mac).",
-          ),
-        );
-      });
-    })
-    .catch(() => {
-      // If the clipboard chunk fails to load, the button simply does nothing
-      // extra; the Markdown is still selectable manually.
-      clipboardBound = false;
-    });
+// Copy the converted Markdown with the async Clipboard API. The write starts
+// synchronously inside the click handler (no await before it) so browsers that
+// require transient user activation, notably iOS Safari, still honor it.
+let copyLabelDefault = '';
+let copyResetTimer: number | undefined;
+function copyMarkdown(): void {
+  const markdown = lastMarkdown;
+  if (!markdown) return;
+  const copyFailed = (): void => {
+    // Clipboard access can be denied (permissions policy, insecure context,
+    // older browsers). Say so instead of failing silently; the alert's
+    // role="alert" announces it.
+    showError(
+      uiString(
+        'copyFailed',
+        "Couldn't copy automatically. Select the Markdown and copy it with Ctrl+C (⌘C on a Mac).",
+      ),
+    );
+  };
+  // navigator.clipboard is undefined outside secure contexts.
+  if (typeof navigator.clipboard?.writeText !== 'function') {
+    copyFailed();
+    return;
+  }
+  navigator.clipboard.writeText(markdown).then(() => {
+    const copyLabel = document.getElementById('copy-label');
+    if (!copyLabel) return;
+    // Flip the label to a transient confirmation, then restore it. Guard the
+    // captured default against rapid re-clicks by resetting the timer.
+    copyLabel.textContent = uiString('copied', 'Copied!');
+    announce(copyLabel.textContent);
+    window.clearTimeout(copyResetTimer);
+    copyResetTimer = window.setTimeout(() => {
+      copyLabel.textContent = copyLabelDefault;
+    }, 2000);
+  }, copyFailed);
 }
 
 // Record an anonymous "a conversion happened" signal so the hosted site can
@@ -751,23 +738,37 @@ function resetConverter(): void {
   fileInput?.focus();
 }
 
-// Download the converted Markdown as a .md file named after the source document.
-function downloadMarkdown(): void {
-  const markdown = lastMarkdown;
-  if (!markdown) return;
-  const sourceName =
-    document.getElementById('filename')?.textContent ?? 'document';
-  const baseName = sourceName.replace(/\.docx$/i, '') || 'document';
-  const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+// Save a Blob to the user's device under the given filename, via a temporary
+// object URL and a synthetic <a download> click.
+function saveBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
-  anchor.download = `${baseName}.md`;
+  anchor.download = filename;
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
   // Revoking synchronously can cancel the download in some browsers.
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// The source document's name without its .docx extension, used to name
+// downloads.
+function downloadBaseName(): string {
+  const sourceName =
+    document.getElementById('filename')?.textContent ?? 'document';
+  return sourceName.replace(/\.docx$/i, '') || 'document';
+}
+
+// Download the converted Markdown as a .md file named after the source document.
+function downloadMarkdown(): void {
+  const markdown = lastMarkdown;
+  if (!markdown) return;
+  const baseName = downloadBaseName();
+  saveBlob(
+    new Blob([markdown], { type: 'text/markdown;charset=utf-8' }),
+    `${baseName}.md`,
+  );
 
   // Briefly confirm the download on the button label.
   const label = document.getElementById('download-label');
@@ -788,9 +789,7 @@ async function downloadZip(): Promise<void> {
   if (!lastConvertedBuffer || zipInProgress) return;
   const button = document.getElementById('download-zip-button');
   const label = document.getElementById('download-zip-label');
-  const sourceName =
-    document.getElementById('filename')?.textContent ?? 'document';
-  const baseName = sourceName.replace(/\.docx$/i, '') || 'document';
+  const baseName = downloadBaseName();
 
   // Mark the button busy rather than disabling it: disabling a focused button
   // drops focus to <body>. The re-conversion can take a moment, so say so.
@@ -809,16 +808,7 @@ async function downloadZip(): Promise<void> {
     for (const image of result.images ?? []) {
       zip.file(image.path, image.bytes);
     }
-    const blob = await zip.generateAsync({ type: 'blob' });
-
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = `${baseName}.zip`;
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    saveBlob(await zip.generateAsync({ type: 'blob' }), `${baseName}.zip`);
 
     if (label) {
       label.textContent = uiString('downloadedZip', 'Downloaded');
@@ -894,12 +884,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Note: the copy button is bound by setupClipboard(), invoked from
-  // prefetchConverter() — never here at DOMContentLoaded, so the clipboard chunk
-  // stays off the initial-paint critical path. prefetchConverter runs on idle
-  // (unless on a low-data connection), on the first dropzone interaction, and at
-  // the start of every conversion, so the binding is in place before there is
-  // anything to copy.
+  const copyButton = document.getElementById('copy-button');
+  if (copyButton !== null) {
+    copyLabelDefault = document.getElementById('copy-label')?.textContent ?? '';
+    copyButton.addEventListener('click', copyMarkdown);
+  }
 
   const downloadButton = document.getElementById('download-button');
   if (downloadButton !== null) {

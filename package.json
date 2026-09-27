@@ -37,7 +37,6 @@
     "@types/jest": "~30.0",
     "@types/node": "~26",
     "astro": "^7.2.2",
-    "clipboard": "^2.0.11",
     "docx": "^9.7.1",
     "eslint": "^10.8.1",
     "eslint-config-prettier": "~10.1",

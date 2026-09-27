@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { readFileSync } from 'fs';
+import JSZip from 'jszip';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -283,6 +284,40 @@ test.describe('Word to Markdown Web Interface', () => {
     });
   });
 
+  test('copies exactly the converted Markdown to the clipboard', async ({
+    page,
+    context,
+  }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.locator('#file').setInputFiles(fixture('h1.docx'));
+    await expect(page.locator('#output')).toContainText('# Heading 1', {
+      timeout: 10000,
+    });
+
+    await page.locator('#copy-button').click();
+    await expect(page.locator('#copy-label')).toHaveText('Copied!');
+    const copied = await page.evaluate(() => navigator.clipboard.readText());
+    expect(copied).toBe(await page.locator('#output').textContent());
+  });
+
+  test('says so when the clipboard write is rejected', async ({ page }) => {
+    await page.addInitScript(() => {
+      navigator.clipboard.writeText = () =>
+        Promise.reject(new DOMException('Denied', 'NotAllowedError'));
+    });
+    await page.goto('/');
+    await page.locator('#file').setInputFiles(fixture('h1.docx'));
+    await expect(page.locator('#output')).toContainText('# Heading 1', {
+      timeout: 10000,
+    });
+
+    await page.locator('#copy-button').click();
+    await expect(page.locator('#error-message')).toContainText(
+      "Couldn't copy automatically",
+    );
+    await expect(page.locator('#copy-label')).toHaveText('Copy Markdown');
+  });
+
   test('should reset to accept another file via "Convert another"', async ({
     page,
   }) => {
@@ -451,6 +486,33 @@ test.describe('Word to Markdown Web Interface', () => {
       downloadButton.click(),
     ]);
     expect(download.suggestedFilename()).toBe('h1.md');
+  });
+
+  test('downloads a .zip with the Markdown and the extracted image bytes', async ({
+    page,
+  }) => {
+    await page.locator('#file').setInputFiles(fixture('image.docx'));
+    await expect(page.locator('#download-zip-button')).toBeVisible({
+      timeout: 15000,
+    });
+
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.locator('#download-zip-button').click(),
+    ]);
+    expect(download.suggestedFilename()).toBe('image.zip');
+
+    // The worker transfers each image's buffer to the page; the bytes that land
+    // in the zip must match the ones embedded in the .docx exactly.
+    const zip = await JSZip.loadAsync(readFileSync(await download.path()));
+    const source = await JSZip.loadAsync(readFileSync(fixture('image.docx')));
+    const [media] = source.file(/^word\/media\//);
+    const image = zip.file('images/image1.png');
+    expect(image).not.toBeNull();
+    expect(await image!.async('base64')).toBe(await media.async('base64'));
+    expect(await zip.file('image.md')!.async('string')).toContain(
+      '![](images/image1.png)',
+    );
   });
 
   test('should accept a file via drag-and-drop', async ({ page }) => {
