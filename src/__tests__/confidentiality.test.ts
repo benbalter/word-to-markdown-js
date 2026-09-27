@@ -50,6 +50,30 @@ describe('confidentiality flag detection', () => {
       expect(properties.confidentiality).toBe('detected in core properties');
     });
 
+    it('should detect confidentiality in prefixed cp:category', async () => {
+      const zip = new JSZip();
+      zip.file(
+        'docProps/core.xml',
+        '<?xml version="1.0"?><cp:coreProperties><cp:category>Company Confidential</cp:category></cp:coreProperties>',
+      );
+      const buffer = await zip.generateAsync({ type: 'arraybuffer' });
+      const properties = await extractDocumentProperties(buffer);
+
+      expect(properties.confidentiality).toBe('detected in core properties');
+    });
+
+    it('should not flag "confidential" or "sensitive" in free-text core fields', async () => {
+      const zip = new JSZip();
+      zip.file(
+        'docProps/core.xml',
+        '<?xml version="1.0"?><cp:coreProperties><dc:title>Case-sensitive search</dc:title><dc:description>How we handle confidential feedback</dc:description><cp:keywords>search, docs</cp:keywords></cp:coreProperties>',
+      );
+      const buffer = await zip.generateAsync({ type: 'arraybuffer' });
+      const properties = await extractDocumentProperties(buffer);
+
+      expect(properties.confidentiality).toBeUndefined();
+    });
+
     it('should detect sensitivity labels in custom properties', async () => {
       const zip = new JSZip();
       zip.file(

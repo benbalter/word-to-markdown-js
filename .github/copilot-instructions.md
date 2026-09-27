@@ -40,7 +40,8 @@ mammoth). Preserve the typed error classes (`UnsupportedFileError`,
 - `npm run test:e2e` — Playwright against the built site
 - `npm run build` — `build:js` (tsc) then `build:site` (astro)
 - `npm run lint` / `npm run fix` — eslint + prettier
-- `npm run all` — fix + test + build + check-builds (run before pushing)
+- `npm run typecheck` — tsc over the tests
+- `npm run all` — fix + typecheck + test + build (run before pushing)
 
 Node 24.21.0 is pinned (`.nvmrc`, `.tool-versions`, Volta).
 

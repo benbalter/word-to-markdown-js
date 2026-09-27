@@ -1,0 +1,21 @@
+{
+  // Type-check the tests (unit + Playwright e2e), which tsconfig.json excludes
+  // from the build and ts-jest only transpiles (isolatedModules). Run via
+  // `npm run typecheck`.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    // Type the tests' imports of worker/index.js (inferred; not checked).
+    "allowJs": true,
+    "rootDir": ".",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["jest", "node"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "src/index.ts",
+    "src/converter.worker.ts",
+    "src/worker-dom-polyfill.ts"
+  ]
+}

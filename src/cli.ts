@@ -94,7 +94,8 @@ program
       // Write the Markdown to the requested file, or stdout by default.
       if (options.output) {
         await mkdir(path.dirname(options.output), { recursive: true });
-        await writeFile(options.output, result.markdown);
+        // End with a newline, as stdout (console.log) does (markdownlint MD047).
+        await writeFile(options.output, `${result.markdown}\n`);
         console.error(`Wrote Markdown to ${options.output}`);
       } else {
         console.log(result.markdown);

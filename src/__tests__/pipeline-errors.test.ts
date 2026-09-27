@@ -67,8 +67,9 @@ describe('pipeline stage failures', () => {
     throwIn = 'format';
     const error = await convert(VALID).catch((caught: unknown) => caught);
     expect(error).toBeInstanceOf(ConversionError);
-    expect((error as ConversionError).cause).toBeInstanceOf(Error);
-    expect((error as ConversionError).cause?.message).toBe('boom prettier');
+    const cause = (error as Error).cause;
+    expect(cause).toBeInstanceOf(Error);
+    expect((cause as Error).message).toBe('boom prettier');
   });
 
   it('converts normally when neither stage throws (mock sanity check)', async () => {

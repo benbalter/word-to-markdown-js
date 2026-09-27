@@ -5,6 +5,16 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Confidentiality warnings no longer fire on "confidential" or "sensitive" in
+  free-text core properties (title, subject, description, author), so a title
+  like "Case-sensitive search" isn't flagged. Keywords, category, and content
+  status are still checked.
+- CLI: `-o` output ends with a newline, matching stdout.
+
 ## [0.4.0] - 2026-09-26
 
 ### Changed
@@ -94,5 +104,6 @@ These change the Markdown produced for affected documents.
   inline `<sup>`/`<sub>` tags. This was already the case in 0.2.0 — only the
   documentation, which previously listed them as unsupported, was wrong.
 
+[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.4.0...HEAD
 [0.4.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.4.0
 [0.3.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.3.0

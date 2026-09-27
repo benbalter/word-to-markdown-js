@@ -446,6 +446,11 @@ async function prettify(md: string): Promise<string> {
 }
 
 // Extract document properties from a .docx file
+// The text of docProps/core.xml's classification fields (cp:keywords,
+// cp:category, cp:contentStatus), with or without a namespace prefix.
+const CORE_CLASSIFICATION_FIELDS =
+  /<(?:\w+:)?(?:keywords|category|contentStatus)\b[^>]*>([^<]*)</g;
+
 export async function extractDocumentProperties(
   input: string | ArrayBuffer,
 ): Promise<DocumentProperties> {
@@ -481,12 +486,14 @@ export async function extractDocumentProperties(
     const corePropsFile = zip.file('docProps/core.xml');
     if (corePropsFile) {
       const coreXml = await corePropsFile.async('string');
-      // Look for keywords that might indicate sensitivity/confidentiality
-      if (
-        coreXml.toLowerCase().includes('confidential') ||
-        coreXml.toLowerCase().includes('sensitive')
-      ) {
-        properties.confidentiality = 'detected in core properties';
+      // Look for confidentiality markers in the classification fields only.
+      // Free-text fields (title, subject, description, author) are skipped, so a
+      // title like "Case-sensitive search" isn't flagged.
+      for (const [, value] of coreXml.matchAll(CORE_CLASSIFICATION_FIELDS)) {
+        if (/confidential|sensitive/i.test(value)) {
+          properties.confidentiality = 'detected in core properties';
+          break;
+        }
       }
     }
 
