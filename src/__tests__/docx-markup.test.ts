@@ -79,6 +79,16 @@ describe('docx markup features (end to end)', () => {
     expect(md).not.toContain('| ---');
   });
 
+  it('keeps monospace headings and list items structural, not code', async () => {
+    const md = await convert('src/__fixtures__/code-heading-list.docx');
+    // Only the plain monospace paragraph becomes a fenced block; the heading
+    // and the numbered item keep their Markdown structure.
+    expect(md).toContain('# API reference');
+    expect(md).toContain('1. npm install');
+    expect(md).toContain('```\nconst x = 1;\n```');
+    expect((md.match(/```/g) ?? []).length).toBe(2);
+  });
+
   it('keeps a paragraph that only partly uses a monospace font as prose', async () => {
     const md = await convert('src/__fixtures__/code-block.docx');
     // The closing paragraph mixes an inline monospace run into normal prose;

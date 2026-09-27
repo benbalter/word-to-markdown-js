@@ -258,10 +258,18 @@ describe('error messages', () => {
       );
     });
 
-    it('reports blocked system paths as a permission error', async () => {
-      await expect(convert('/proc/x.docx')).rejects.toThrow(
-        FilePermissionError,
+    it('reads system paths like any other (no directory deny-list)', async () => {
+      // The OS decides access; a missing file under /etc is just not found,
+      // not a blanket permission error.
+      await expect(convert('/etc/w2m-missing.docx')).rejects.toThrow(
+        FileNotFoundError,
       );
+    });
+
+    it('names each error after its class', async () => {
+      const error = await convert('/nope/x.docx').catch((e: unknown) => e);
+      expect((error as Error).name).toBe('FileNotFoundError');
+      expect(new WordToMarkdownError('x').name).toBe('WordToMarkdownError');
     });
 
     it('makes every converter error a WordToMarkdownError', async () => {

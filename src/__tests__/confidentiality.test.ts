@@ -1,6 +1,7 @@
 import {
   convertWithWarnings,
   extractDocumentProperties,
+  FileNotFoundError,
   generateWarnings,
 } from '../main.js';
 import JSZip from 'jszip';
@@ -25,6 +26,17 @@ describe('confidentiality flag detection', () => {
   });
 
   describe('extractDocumentProperties', () => {
+    it('rejects an unreadable path instead of reporting no properties', async () => {
+      await expect(
+        extractDocumentProperties('/nonexistent/w2m.docx'),
+      ).rejects.toThrow(FileNotFoundError);
+    });
+
+    it('returns no properties for bytes that are not a zip', async () => {
+      const properties = await extractDocumentProperties(new ArrayBuffer(8));
+      expect(properties).toEqual({});
+    });
+
     it('should detect encryption when EncryptionInfo file exists', async () => {
       const zip = new JSZip();
       zip.file('EncryptionInfo', 'encrypted content');
