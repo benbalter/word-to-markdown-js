@@ -85,7 +85,12 @@ export interface DocumentProperties {
 
 // Base class for every user-facing error the converter throws, so callers can
 // catch them all with one instanceof check
-export class WordToMarkdownError extends Error {}
+export class WordToMarkdownError extends Error {
+  constructor(message?: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = new.target.name;
+  }
+}
 
 // Custom error class for unsupported file formats
 export class UnsupportedFileError extends WordToMarkdownError {
@@ -163,40 +168,21 @@ export function validateFileExtension(filePath: string): void {
   }
 }
 
-// Validates that a file path is safe to use and returns the resolved path (Node.js only)
-function validateFilePath(filePath: string): string {
-  // Resolve to an absolute path first. path.resolve normalizes any `..`
-  // segments, so we deliberately do NOT reject paths that merely contain `..`:
-  // a relative path like `../report.docx`, or a filename like `notes..docx`, is
-  // legitimate CLI/library usage. (There is no sandbox to escape here — a local
-  // caller already has full filesystem access.)
-  // Note: the path module is Node.js-only, but this function is only called in
-  // Node.js contexts (CLI, direct API use with file paths).
-  const resolvedPath = path.resolve(filePath);
-
-  // Check for absolute paths to dangerous system directories (Unix-like systems)
-  const dangerousPaths = ['/etc/', '/sys/', '/proc/', '/root/', '/boot/'];
-  for (const dangerousPath of dangerousPaths) {
-    if (resolvedPath.startsWith(dangerousPath)) {
-      throw new FilePermissionError(filePath);
-    }
-  }
-
-  // Check for Windows system directories
-  const windowsDangerousPaths = ['C:\\Windows\\', 'C:\\Program Files\\'];
-  for (const dangerousPath of windowsDangerousPaths) {
-    if (resolvedPath.toUpperCase().startsWith(dangerousPath.toUpperCase())) {
-      throw new FilePermissionError(filePath);
-    }
-  }
-
-  return resolvedPath;
+// Read a .docx from disk into a standalone ArrayBuffer (Node.js only). The
+// path is resolved as-is: a local caller already has full filesystem access, so
+// there's nothing to sandbox. Paths containing `..` (`../report.docx`,
+// `notes..docx`) are legitimate, and the OS enforces permissions (EACCES maps
+// to FilePermissionError in classifyConversionError).
+async function readFileBytes(filePath: string): Promise<ArrayBuffer> {
+  const fileBuffer = await fs.readFile(path.resolve(filePath));
+  // Copy out of Node's pooled Buffer so the bytes don't alias unrelated data.
+  // readFile never returns a SharedArrayBuffer-backed Buffer, hence the cast.
+  return fileBuffer.buffer.slice(
+    fileBuffer.byteOffset,
+    fileBuffer.byteOffset + fileBuffer.byteLength,
+  ) as ArrayBuffer;
 }
 
-// Turndown will add an empty header if the first row
-// of the table isn't `<th>` elements. This function
-// converts the first row of a table to `<th>` elements
-// so that it renders correctly in Markdown.
 // Common unicode bullets that might appear in Word documents - compiled once
 const unicodeBullets = ['•', '◦', '▪', '▫', '‣', '⁃', '∙', '·'];
 const bulletRegex = new RegExp(
@@ -341,7 +327,7 @@ export function htmlToMd(
 
 // Pre-compiled regex patterns for better performance
 const numberedListRegex = /^(\s*)(\d+)\.\s/;
-const fenceRegex = /^\s*(`{3,}|~{3,})/;
+const fenceRegex = /^\s*(`{3,}|~{3,})(.*)$/;
 const nonBreakingSpacesRegex = /[\u00A0\u2007\u202F\u2060\uFEFF]/g;
 const smartQuotesRegex = /[\u201C\u201D\u2018\u2019]/g;
 
@@ -388,11 +374,17 @@ function convertNumberedListsToBullets(md: string): string {
   return md
     .split('\n')
     .map((line) => {
-      const marker = line.match(fenceRegex)?.[1];
-      if (marker) {
-        // A fence closes only with the same character, at least as long
+      const match = line.match(fenceRegex);
+      if (match) {
+        const [, marker, info] = match;
+        // A fence closes only with the same character, at least as long, and
+        // with no info string (```js inside a fence is content, not a close)
         if (fence === null) fence = marker;
-        else if (marker[0] === fence[0] && marker.length >= fence.length)
+        else if (
+          marker[0] === fence[0] &&
+          marker.length >= fence.length &&
+          info.trim() === ''
+        )
           fence = null;
         return line;
       }
@@ -456,24 +448,20 @@ export async function extractDocumentProperties(
 ): Promise<DocumentProperties> {
   const properties: DocumentProperties = {};
 
+  // A path that can't be read is the caller's problem, not a "no properties"
+  // result, so surface it as a typed error before the lenient parsing below.
+  let arrayBuffer: ArrayBuffer;
   try {
-    let arrayBuffer: ArrayBuffer;
-    if (typeof input === 'string') {
-      // Validate the file path to prevent path traversal attacks
-      const safePath = validateFilePath(input);
+    arrayBuffer =
+      typeof input === 'string' ? await readFileBytes(input) : input;
+  } catch (error) {
+    classifyConversionError(
+      error,
+      typeof input === 'string' ? input : undefined,
+    );
+  }
 
-      // Read file from path and convert to ArrayBuffer
-      const fileBuffer = await fs.readFile(safePath);
-      arrayBuffer = toArrayBuffer(
-        fileBuffer.buffer.slice(
-          fileBuffer.byteOffset,
-          fileBuffer.byteOffset + fileBuffer.byteLength,
-        ),
-      );
-    } else {
-      arrayBuffer = input;
-    }
-
+  try {
     const zip = await JSZip.loadAsync(arrayBuffer);
 
     // Check for encryption - encrypted files have EncryptionInfo and EncryptedPackage
@@ -613,14 +601,7 @@ async function loadInput(input: string | ArrayBuffer): Promise<LoadedInput> {
   let bytes: ArrayBuffer;
   if (typeof input === 'string') {
     validateFileExtension(input);
-    // Validate the file path to prevent path traversal attacks
-    const fileBuffer = await fs.readFile(validateFilePath(input));
-    bytes = toArrayBuffer(
-      fileBuffer.buffer.slice(
-        fileBuffer.byteOffset,
-        fileBuffer.byteOffset + fileBuffer.byteLength,
-      ),
-    );
+    bytes = await readFileBytes(input);
   } else {
     bytes = input;
   }
@@ -642,17 +623,6 @@ async function loadInput(input: string | ArrayBuffer): Promise<LoadedInput> {
 interface MammothMessage {
   type: string;
   message: string;
-}
-
-// Ensure we have an ArrayBuffer (not a SharedArrayBuffer) by copying if needed
-function toArrayBuffer(buffer: ArrayBufferLike): ArrayBuffer {
-  if (buffer instanceof ArrayBuffer) {
-    return buffer;
-  }
-  const uint8Array = new Uint8Array(buffer);
-  const newArrayBuffer = new ArrayBuffer(uint8Array.byteLength);
-  new Uint8Array(newArrayBuffer).set(uint8Array);
-  return newArrayBuffer;
 }
 
 // Synthetic paragraph-style name applied to code paragraphs detected by font
@@ -749,11 +719,27 @@ function isMonospaceParagraph(paragraph: MammothDocNode): boolean {
 // fenced code blocks. Word often encodes code as monospace runs on Normal
 // paragraphs (no code paragraph style), and Mammoth discards font information
 // once it emits HTML — the document model is the only place the signal survives.
+// Headings, titles, and list items keep their structure even when set wholly in
+// a monospace font: their style (or numbering) is a stronger signal than font.
+const STRUCTURAL_STYLE_RE = /^(heading|title|subtitle)\b/i;
+
+function isStructuralParagraph(paragraph: MammothDocNode): boolean {
+  const styleName = paragraph.styleName;
+  return (
+    Boolean(paragraph.numbering) ||
+    (typeof styleName === 'string' && STRUCTURAL_STYLE_RE.test(styleName))
+  );
+}
+
 function tagCodeParagraphs(node: MammothDocNode): MammothDocNode {
   const transformed: MammothDocNode = node.children
     ? { ...node, children: node.children.map(tagCodeParagraphs) }
     : node;
-  if (transformed.type === 'paragraph' && isMonospaceParagraph(transformed)) {
+  if (
+    transformed.type === 'paragraph' &&
+    !isStructuralParagraph(transformed) &&
+    isMonospaceParagraph(transformed)
+  ) {
     return {
       ...transformed,
       styleId: 'W2MCodeBlock',

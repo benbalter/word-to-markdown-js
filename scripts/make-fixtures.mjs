@@ -268,6 +268,41 @@ const codeNumbered = await docx({
 });
 fs.writeFileSync('src/__fixtures__/code-numbered.docx', codeNumbered);
 
+// --- code-heading-list.docx ------------------------------------------------
+// A Heading 1 and a numbered list item set entirely in a monospace font. Code
+// detection keys on wholly-monospace paragraphs, but a heading or list item
+// keeps its structure: only plain paragraphs become fenced code.
+const monoStylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="${W}">
+  <w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/></w:style>
+</w:styles>`;
+const monoNumberingXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:numbering xmlns:w="${W}">
+  <w:abstractNum w:abstractNumId="0"><w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="decimal"/><w:lvlText w:val="%1."/></w:lvl></w:abstractNum>
+  <w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num>
+</w:numbering>`;
+const monoRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/>
+</Relationships>`;
+const codeHeadingListDoc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="${W}"><w:body>
+  <w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r>${MONO}<w:t>API reference</w:t></w:r></w:p>
+  <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr></w:pPr><w:r>${MONO}<w:t>npm install</w:t></w:r></w:p>
+  ${codeLine('const x = 1;')}
+</w:body></w:document>`;
+
+const codeHeadingList = await docx({
+  '[Content_Types].xml': contentTypes(),
+  '_rels/.rels': rels,
+  'word/_rels/document.xml.rels': monoRels,
+  'word/styles.xml': monoStylesXml,
+  'word/numbering.xml': monoNumberingXml,
+  'word/document.xml': codeHeadingListDoc,
+});
+fs.writeFileSync('src/__fixtures__/code-heading-list.docx', codeHeadingList);
+
 console.log(
-  'wrote strikethrough.docx, footnote.docx, footnote-multiparagraph.docx, image.docx, dropped-content.docx, superscript.docx, subscript.docx, underline.docx, dashes.docx, code-block.docx, code-numbered.docx',
+  'wrote strikethrough.docx, footnote.docx, footnote-multiparagraph.docx, image.docx, dropped-content.docx, superscript.docx, subscript.docx, underline.docx, dashes.docx, code-block.docx, code-numbered.docx, code-heading-list.docx',
 );
