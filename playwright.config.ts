@@ -17,8 +17,8 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Use half the runner's cores on CI; retries absorb the odd flake. */
+  workers: process.env.CI ? '50%' : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters.
      In CI, `github` also annotates failures inline on the PR. */
   reporter: process.env.CI ? [['github'], ['html']] : 'html',

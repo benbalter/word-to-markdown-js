@@ -1,4 +1,4 @@
-// ESLint 9 flat config (replaces .eslintrc.json + .eslintignore). Lints the
+// ESLint flat config (replaces .eslintrc.json + .eslintignore). Lints the
 // TypeScript sources; compiled JS, generated output, and config files are left
 // to Prettier / tsc. typescript-eslint v8 is flat-config native, so the
 // `recommended` preset already disables the core rules it supersedes

@@ -21,8 +21,10 @@ is ever uploaded.
 
 ## Conversion pipeline (`src/main.ts`)
 
-1. **mammoth** — `.docx` → HTML
-2. `processHtml` — promote a table's first row to `<th>`, strip Unicode bullets
+1. **mammoth** — `.docx` → HTML; wholly-monospace paragraphs and the
+   `Preformatted Text`/`HTML Preformatted` styles map to `<pre><code>`
+2. `processHtml` — unwrap single-cell `<pre>` code tables, promote a table's
+   first row to `<th>`, strip Unicode bullets
 3. **Turndown** (`@joplin/turndown` + gfm) — HTML → Markdown
 4. `convertNumberedListsToBullets` → `normalizeText` (nbsp/smart-quote cleanup)
 5. **markdownlint** `applyFixes` → **prettier** (markdown)
@@ -41,6 +43,7 @@ mammoth). Preserve the typed error classes (`UnsupportedFileError`,
 - `npm run build` — `build:js` (tsc) then `build:site` (astro)
 - `npm run lint` / `npm run fix` — eslint + prettier
 - `npm run typecheck` — tsc over the tests
+- `npm run knip` — unused files, exports, and dependencies (CI enforces it)
 - `npm run all` — fix + typecheck + test + build (run before pushing)
 
 Node 24.21.0 is pinned (`.nvmrc`, `.tool-versions`, Volta).

@@ -206,6 +206,13 @@ To self-host the static site using Docker Compose:
 3. Run `docker compose up -d`
 4. Access at http://localhost:3000
 
+This serves `dist/` with plain nginx, so it skips what the Cloudflare Worker and
+`public/_headers` add in production: the `Accept-Language` redirect on `/`, the
+`/api/event` counter (requests to it 404), the security headers, and long-lived
+caching for `/_astro/*`. Conversion itself runs in the browser and works the
+same. For a production-like local setup, run `npm run build` and then
+`npx wrangler dev`.
+
 ## More context
 
 See the README of [the original Word to Markdown](https://github.com/benbalter/word-to-markdown?tab=readme-ov-file#the-problem) for the project's motivation.

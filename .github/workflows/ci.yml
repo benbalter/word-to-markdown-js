@@ -37,16 +37,20 @@ jobs:
       - name: Audit dependencies (high, advisory)
         run: npm audit --audit-level=high
         continue-on-error: true
-      # Builds build/ (the CLI tests run it) and dist/ (handed to e2e below).
-      - run: npm run build
-      - run: npm run test
+      # Static checks first: they're fast and need no build, so a lint or knip
+      # failure shows up in a minute, not after the full build and test run.
+      # (They stay in this job because `build` is the required status check.)
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run knip
+      # Builds build/ (the CLI tests run it) and dist/ (handed to e2e below).
+      - run: npm run build
+      - run: npm run test
       # Bundle the Worker the way Cloudflare's deploy does, so a bundling error
-      # fails here instead of on deploy.
+      # fails here instead of on deploy. Wrangler is a pinned devDependency, so
+      # the lockfile (and npm audit) covers it.
       - name: Check Worker bundle
-        run: npx --yes wrangler@4 deploy --dry-run --outdir "$RUNNER_TEMP/worker"
+        run: npx wrangler deploy --dry-run --outdir "$RUNNER_TEMP/worker"
       # Hand the built site to the e2e job so it doesn't rebuild it.
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -55,10 +59,14 @@ jobs:
           retention-days: 1
 
   # The package supports Node >= 22.13 (package.json engines); the build job
-  # covers the pinned Node 24.
-  test-node22:
+  # covers the pinned Node 24. Test the minimum and the newest release too.
+  test-node:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22.13', '26']
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -66,7 +74,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: '22.13'
+          node-version: ${{ matrix.node }}
           cache: 'npm'
       - run: npm ci
       - run: npm run test
