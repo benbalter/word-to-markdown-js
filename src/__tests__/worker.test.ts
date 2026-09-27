@@ -185,9 +185,23 @@ describe('worker fetch handler', () => {
       const req = new Request('https://word2md.com/', {
         headers: { 'Accept-Language': 'de-DE', Cookie: 'lang=de' },
       });
-      await worker.fetch(req, env);
+      const res = await worker.fetch(req, env);
 
       expect(env.ASSETS.fetch).toHaveBeenCalledWith(req);
+      // "/" can also be a redirect or a tagged page, so caches must key on
+      // the headers that decide which.
+      expect(res.headers.get('Vary')).toBe('Accept-Language, Cookie');
+      expect(await res.text()).toBe('asset');
+    });
+
+    it('leaves Vary off other asset paths', async () => {
+      const res = await worker.fetch(
+        new Request('https://word2md.com/de/', {
+          headers: { 'Accept-Language': 'de-DE' },
+        }),
+        makeEnv(),
+      );
+      expect(res.headers.get('Vary')).toBeNull();
     });
   });
 

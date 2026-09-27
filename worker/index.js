@@ -178,7 +178,13 @@ export default {
         : null;
     if (!suggestion) {
       // Serve the matching static asset (index.html for "/", etc.).
-      return env.ASSETS.fetch(request);
+      const response = await env.ASSETS.fetch(request);
+      if (url.pathname !== '/') return response;
+      // The same "/" URL can instead be a redirect or a tagged page depending
+      // on these headers, so a shared cache must key on them too.
+      const varied = new Response(response.body, response);
+      varied.headers.append('Vary', 'Accept-Language, Cookie');
+      return varied;
     }
 
     // Fetch unconditionally: a 304 would let the browser reuse an untagged copy
