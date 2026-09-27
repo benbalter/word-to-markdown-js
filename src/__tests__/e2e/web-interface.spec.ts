@@ -1,9 +1,51 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const fixture = (name: string): string =>
+  path.join(__dirname, '../../__fixtures__', name);
+
+// Dispatch a synthetic drop (or paste) carrying the given fixtures as Files.
+// Playwright's setInputFiles only covers the file input, not these paths.
+async function dispatchFiles(
+  page: Page,
+  kind: 'drop' | 'paste',
+  selector: string,
+  names: string[],
+): Promise<void> {
+  const files = names.map((name) => ({
+    name,
+    base64: readFileSync(fixture(name)).toString('base64'),
+  }));
+  await page.evaluate(
+    ({ kind, selector, files }) => {
+      const data = new DataTransfer();
+      for (const { name, base64 } of files) {
+        const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+        data.items.add(new File([bytes], name));
+      }
+      const target = document.querySelector(selector) ?? document.body;
+      const event =
+        kind === 'drop'
+          ? new DragEvent('drop', {
+              bubbles: true,
+              cancelable: true,
+              dataTransfer: data,
+            })
+          : new ClipboardEvent('paste', {
+              bubbles: true,
+              cancelable: true,
+              clipboardData: data,
+            });
+      target.dispatchEvent(event);
+    },
+    { kind, selector, files },
+  );
+}
 
 test.describe('Word to Markdown Web Interface', () => {
   test.beforeEach(async ({ page }) => {
@@ -263,6 +305,41 @@ test.describe('Word to Markdown Web Interface', () => {
     await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('#filename')).toHaveText(
       'multiple-headings.docx',
+    );
+  });
+
+  test('converts a .docx pasted onto the page', async ({ page }) => {
+    await dispatchFiles(page, 'paste', 'body', ['h1.docx']);
+    await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('#filename')).toHaveText('h1.docx');
+    await expect(page.locator('#output')).toContainText('# Heading 1');
+  });
+
+  test('converts a file dropped outside the dropzone, e.g. onto the results', async ({
+    page,
+  }) => {
+    await page.locator('#file').setInputFiles(fixture('h1.docx'));
+    await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
+
+    // The dropzone is hidden now; a drop on the results replaces the document.
+    await dispatchFiles(page, 'drop', '#results', ['multiple-headings.docx']);
+    await expect(page.locator('#filename')).toHaveText(
+      'multiple-headings.docx',
+      { timeout: 10000 },
+    );
+  });
+
+  test('converts only the first of several dropped files, and says so', async ({
+    page,
+  }) => {
+    await dispatchFiles(page, 'drop', '#dropzone', [
+      'h1.docx',
+      'multiple-headings.docx',
+    ]);
+    await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('#filename')).toHaveText('h1.docx');
+    await expect(page.locator('#warning-alert')).toContainText(
+      'Only the first file was converted',
     );
   });
 

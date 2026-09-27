@@ -113,6 +113,7 @@
   "invalidFileError": "Không thể đọc tệp này dưới dạng tài liệu Word. Tệp có thể bị hỏng hoặc không phải tệp .docx. Hãy thử mở tệp trong Word rồi lưu lại dưới dạng .docx.",
   "protectedFileError": "Tài liệu này được bảo vệ bằng mật khẩu hoặc là tệp .doc cũ. Trong Word, hãy gỡ mật khẩu hoặc lưu tài liệu dưới dạng .docx, rồi thử lại.",
   "copyFailed": "Không thể tự động sao chép. Hãy chọn nội dung Markdown và sao chép bằng Ctrl+C (⌘C trên Mac).",
+  "onlyFirstFile": "Chỉ tệp đầu tiên được chuyển đổi. Hãy thêm các tệp còn lại lần lượt từng tệp.",
   "conversionAnnouncement": "Chuyển đổi hoàn tất. Markdown của bạn đã sẵn sàng.",
   "convertingStatus": "Đang chuyển đổi…",
   "dismiss": "Đóng",
