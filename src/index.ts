@@ -16,6 +16,13 @@ let downloadZipResetTimer: number | undefined;
 // re-run the conversion in extract mode (the on-screen Markdown inlines images
 // as base64; the zip needs them as separate files).
 let lastConvertedBuffer: ArrayBuffer | null = null;
+// The most recently converted Markdown, the download source. Kept here rather
+// than read back from the rendered #output, whose innerText depends on layout.
+let lastMarkdown = '';
+// Guards "Download .zip" against re-entry while it re-converts (the button
+// stays enabled, and focused, so keyboard and screen-reader users keep their
+// place).
+let zipInProgress = false;
 
 // The Word→Markdown converter and the Markdown→HTML renderer pull in heavy
 // dependencies (mammoth, turndown, jszip, unified/remark/rehype, prettier,
@@ -246,21 +253,30 @@ const CONVERSION_ERROR_STRINGS = {
   ],
 } as const satisfies Record<string, readonly [UIStringKey, string]>;
 
-function showConversionError(error: unknown): void {
+// `note` is appended to the message (e.g. the "only the first file" notice,
+// which would otherwise be lost when the conversion fails).
+function showConversionError(error: unknown, note = ''): void {
   const name = (error as { name?: string })?.name;
   if (name && Object.hasOwn(CONVERSION_ERROR_STRINGS, name)) {
     const [key, fallback] =
       CONVERSION_ERROR_STRINGS[name as keyof typeof CONVERSION_ERROR_STRINGS];
-    showError(uiString(key, fallback));
+    showError(withNote(uiString(key, fallback), note));
     return;
   }
   showError(
-    uiString(
-      'errorGeneric',
-      'An unexpected error occurred while converting the document. Please try again.',
+    withNote(
+      uiString(
+        'errorGeneric',
+        'An unexpected error occurred while converting the document. Please try again.',
+      ),
+      note,
     ),
   );
   console.error(error);
+}
+
+function withNote(message: string, note: string): string {
+  return note ? `${message} ${note}` : message;
 }
 
 // Speculatively warm the heavy converter + Markdown-renderer chunks (~340KB
@@ -380,29 +396,47 @@ async function processFile(
   // button) here too. Idempotent.
   prefetchConverter();
 
+  const inputRegion = document.getElementById('input');
+  const dropzone = document.getElementById('dropzone');
+  const srStatus = document.getElementById('sr-status');
+  const endBusy = (): void => {
+    inputRegion?.removeAttribute('aria-busy');
+    dropzone?.classList.remove('is-converting');
+  };
+  const ignoredNote =
+    ignoredFiles > 0
+      ? uiString(
+          'onlyFirstFile',
+          'Only the first file was converted. Add the others one at a time.',
+        )
+      : '';
+
   // Reject legacy .doc files up front with the friendlier localized "save as
   // .docx" guidance. Done here (not in the worker) since only the main thread
   // sees the filename, and it avoids loading the converter for a doomed file.
-  if (isLegacyDocFile(file.name)) {
-    showError(
-      uiString(
-        'docFileError',
-        'This tool reads modern .docx files, not older .doc files. In Word, open your document and choose File → Save As → Word Document (.docx), then drop the .docx here.',
-      ),
-    );
-    return;
-  }
-
-  // Guard against files too large to convert comfortably in the browser —
+  // Also guard against files too large to convert comfortably in the browser —
   // reading a huge ArrayBuffer and running the pipeline can exhaust memory or
   // hang the tab, so fail fast with friendly guidance instead.
-  if (file.size > MAX_FILE_SIZE) {
-    showError(
-      uiString(
-        'fileTooLarge',
-        'This file is too large to convert in your browser. Please try a .docx smaller than 20 MB.',
-      ),
-    );
+  const rejection = isLegacyDocFile(file.name)
+    ? uiString(
+        'docFileError',
+        'This tool reads modern .docx files, not older .doc files. In Word, open your document and choose File → Save As → Word Document (.docx), then drop the .docx here.',
+      )
+    : file.size > MAX_FILE_SIZE
+      ? uiString(
+          'fileTooLarge',
+          'This file is too large to convert in your browser. Please try a .docx smaller than 20 MB.',
+        )
+      : null;
+  if (rejection) {
+    // A rejected file still supersedes a conversion in flight: otherwise that
+    // result lands later, hides the input, and this error with it.
+    if (inputRegion?.hasAttribute('aria-busy')) {
+      activeConversion++;
+      endBusy();
+      if (srStatus) srStatus.textContent = '';
+    }
+    showError(withNote(rejection, ignoredNote));
     return;
   }
 
@@ -415,9 +449,6 @@ async function processFile(
   // so a slow conversion isn't a silent, frozen-looking wait. The dropzone stays
   // visible until the results reveal, so the spinner is the immediate visual
   // feedback for the drop.
-  const inputRegion = document.getElementById('input');
-  const dropzone = document.getElementById('dropzone');
-  const srStatus = document.getElementById('sr-status');
   document.getElementById('error-alert')?.remove();
   inputRegion?.setAttribute('aria-busy', 'true');
   dropzone?.classList.add('is-converting');
@@ -428,21 +459,13 @@ async function processFile(
     const buffer = await file.arrayBuffer();
     const result = await convertBuffer(buffer);
     if (token !== activeConversion) return;
-    inputRegion?.removeAttribute('aria-busy');
-    dropzone?.classList.remove('is-converting');
+    endBusy();
 
     // Display warnings if any (and drop a previous document's)
     document.getElementById('warning-alert')?.remove();
-    const warnings =
-      ignoredFiles > 0
-        ? [
-            ...result.warnings,
-            uiString(
-              'onlyFirstFile',
-              'Only the first file was converted. Add the others one at a time.',
-            ),
-          ]
-        : result.warnings;
+    const warnings = ignoredNote
+      ? [...result.warnings, ignoredNote]
+      : result.warnings;
     if (warnings.length > 0) {
       showWarnings(warnings);
     }
@@ -452,13 +475,16 @@ async function processFile(
     // afterwards via renderPreview(), off the critical path, so its render
     // doesn't sit between the drop and the user seeing their result. Clear the
     // previous document's preview first so it can't linger if this render fails.
+    // textContent, not innerText: the <pre> keeps the newlines, and innerText
+    // would build a <br> per line (slow on a long document).
+    lastMarkdown = result.markdown;
     const outputElement = document.getElementById('output');
-    outputElement.innerText = result.markdown;
+    outputElement.textContent = result.markdown;
     const renderedElement = document.getElementById('rendered');
     if (renderedElement) renderedElement.innerHTML = '';
 
     const filenameElement = document.getElementById('filename');
-    filenameElement.innerText = file.name;
+    filenameElement.textContent = file.name;
 
     // Retain the source bytes and offer "Download .zip" only when the document
     // actually has images (inline mode embeds them as base64 data URIs). Match
@@ -503,11 +529,10 @@ async function processFile(
   } catch (error) {
     if (token !== activeConversion) return;
     // Leave the busy state and clear the "Converting…" announcement.
-    inputRegion?.removeAttribute('aria-busy');
-    dropzone?.classList.remove('is-converting');
+    endBusy();
     if (srStatus) srStatus.textContent = '';
     recordConversion('error');
-    showConversionError(error);
+    showConversionError(error, ignoredNote);
   }
 }
 
@@ -569,7 +594,7 @@ function showError(message: string): void {
       '-m-1 shrink-0 p-1 leading-none text-red-700 transition-colors hover:text-red-900 dark:text-red-200 dark:hover:text-red-50';
     closeButton.innerHTML =
       '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
-    closeButton.addEventListener('click', () => errorElement.remove());
+    closeButton.addEventListener('click', () => dismissAlert(errorElement));
 
     errorElement.appendChild(messageSpan);
     errorElement.appendChild(closeButton);
@@ -592,6 +617,20 @@ function showError(message: string): void {
   errorElement.classList.remove('hidden');
 }
 
+// Remove an alert. If focus was inside it (its close button), move focus to
+// the current primary control instead of letting it fall back to <body>.
+function dismissAlert(alert: HTMLElement): void {
+  const hadFocus = alert.contains(document.activeElement);
+  alert.remove();
+  if (!hadFocus) return;
+  const results = document.getElementById('results');
+  const target =
+    results && !results.classList.contains('hidden')
+      ? document.getElementById('copy-button')
+      : document.getElementById('file');
+  target?.focus();
+}
+
 function showWarnings(warnings: string[]): void {
   // Remove any existing warning alerts
   const existingWarnings = document.getElementById('warning-alert');
@@ -601,9 +640,9 @@ function showWarnings(warnings: string[]): void {
 
   const warningElement = document.createElement('div');
   warningElement.id = 'warning-alert';
-  // role="alert" already implies an assertive live region; a separate
-  // aria-live="polite" would conflict, so we rely on the role alone.
-  warningElement.setAttribute('role', 'alert');
+  // A polite status, not an assertive alert: warnings arrive with the success
+  // announcement and focus move, and an alert would cut those off.
+  warningElement.setAttribute('role', 'status');
   warningElement.className =
     'relative mt-4 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-start text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200';
 
@@ -622,7 +661,7 @@ function showWarnings(warnings: string[]): void {
     '-m-1 shrink-0 p-1 leading-none text-amber-800 transition-colors hover:text-amber-950 dark:text-amber-200 dark:hover:text-amber-50';
   closeButton.innerHTML =
     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
-  closeButton.addEventListener('click', () => warningElement.remove());
+  closeButton.addEventListener('click', () => dismissAlert(warningElement));
 
   warningElement.appendChild(warningList);
   warningElement.appendChild(closeButton);
@@ -690,6 +729,7 @@ function resetConverter(): void {
 
   // Drop the retained bytes and re-hide the zip button for the next document.
   lastConvertedBuffer = null;
+  lastMarkdown = '';
   const zipButton = document.getElementById('download-zip-button');
   if (zipButton) zipButton.style.display = 'none';
 
@@ -713,10 +753,10 @@ function resetConverter(): void {
 
 // Download the converted Markdown as a .md file named after the source document.
 function downloadMarkdown(): void {
-  const markdown = document.getElementById('output')?.innerText ?? '';
+  const markdown = lastMarkdown;
   if (!markdown) return;
   const sourceName =
-    document.getElementById('filename')?.innerText ?? 'document';
+    document.getElementById('filename')?.textContent ?? 'document';
   const baseName = sourceName.replace(/\.docx$/i, '') || 'document';
   const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -745,16 +785,19 @@ function downloadMarkdown(): void {
 // images/ folder. Re-runs the conversion in extract mode against the retained
 // source bytes, then bundles the result with JSZip (already a dependency).
 async function downloadZip(): Promise<void> {
-  if (!lastConvertedBuffer) return;
-  const button = document.getElementById(
-    'download-zip-button',
-  ) as HTMLButtonElement | null;
+  if (!lastConvertedBuffer || zipInProgress) return;
+  const button = document.getElementById('download-zip-button');
   const label = document.getElementById('download-zip-label');
   const sourceName =
-    document.getElementById('filename')?.innerText ?? 'document';
+    document.getElementById('filename')?.textContent ?? 'document';
   const baseName = sourceName.replace(/\.docx$/i, '') || 'document';
 
-  if (button) button.disabled = true;
+  // Mark the button busy rather than disabling it: disabling a focused button
+  // drops focus to <body>. The re-conversion can take a moment, so say so.
+  zipInProgress = true;
+  button?.setAttribute('aria-disabled', 'true');
+  button?.setAttribute('aria-busy', 'true');
+  announce(uiString('converting', 'Converting…'));
   try {
     const [{ default: JSZip }, result] = await Promise.all([
       import('jszip'),
@@ -788,7 +831,9 @@ async function downloadZip(): Promise<void> {
   } catch (error) {
     showConversionError(error);
   } finally {
-    if (button) button.disabled = false;
+    zipInProgress = false;
+    button?.removeAttribute('aria-disabled');
+    button?.removeAttribute('aria-busy');
   }
 }
 

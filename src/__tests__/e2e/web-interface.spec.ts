@@ -364,6 +364,59 @@ test.describe('Word to Markdown Web Interface', () => {
     );
   });
 
+  test('a rejected file supersedes a conversion still in flight', async ({
+    page,
+  }) => {
+    // Drop a real document, then a .doc before the first conversion finishes.
+    // The .doc's error must stay put rather than be swept away when the
+    // earlier result would have landed.
+    await page.evaluate(
+      ({ base64 }) => {
+        const drop = (file: File): void => {
+          const data = new DataTransfer();
+          data.items.add(file);
+          document.getElementById('dropzone')!.dispatchEvent(
+            new DragEvent('drop', {
+              bubbles: true,
+              cancelable: true,
+              dataTransfer: data,
+            }),
+          );
+        };
+        const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+        drop(new File([bytes], 'h1.docx'));
+        drop(new File(['x'], 'legacy.doc'));
+      },
+      { base64: readFileSync(fixture('h1.docx')).toString('base64') },
+    );
+
+    await expect(page.locator('#error-message')).toContainText('.doc');
+    // Give the superseded conversion time to finish; its result is discarded.
+    await page.waitForTimeout(1500);
+    await expect(page.locator('#error-alert')).toBeVisible();
+    await expect(page.locator('#results')).not.toBeVisible();
+    await expect(page.locator('#input')).not.toHaveAttribute('aria-busy');
+  });
+
+  test('dismissing an alert keeps keyboard focus in the converter', async ({
+    page,
+  }) => {
+    await page.locator('#file').setInputFiles({
+      name: 'broken.docx',
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      buffer: Buffer.from('not a real docx'),
+    });
+    const close = page.locator('#error-alert button');
+    await expect(close).toBeVisible({ timeout: 10000 });
+    await close.focus();
+    await page.keyboard.press('Enter');
+
+    await expect(page.locator('#error-alert')).toHaveCount(0);
+    // Before any result, focus returns to the file input, not <body>.
+    await expect(page.locator('#file')).toBeFocused();
+  });
+
   test('should reject a file larger than the size limit', async ({ page }) => {
     // 21 MB of zeros with a .docx name — rejected on size before any parsing.
     await page.locator('#file').setInputFiles({

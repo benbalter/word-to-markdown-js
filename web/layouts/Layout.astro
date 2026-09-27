@@ -262,8 +262,10 @@ const footerLinks = [
       // is:inline) script, because Astro's CSP only hashes scripts it bundles.
       try {
         const root = document.documentElement;
-        if (root.hasAttribute('data-localized')) {
-          document.cookie = `lang=${root.lang}; path=/; max-age=31536000; samesite=lax; secure`;
+        // The locale key (e.g. "zh-hant"), matching what the Worker sets —
+        // not root.lang, which is the BCP 47 tag ("zh-Hant").
+        if (root.hasAttribute('data-localized') && root.dataset.locale) {
+          document.cookie = `lang=${root.dataset.locale}; path=/; max-age=31536000; samesite=lax; secure`;
         }
       } catch {
         /* cookies unavailable — fine, redirect simply re-evaluates next visit */
