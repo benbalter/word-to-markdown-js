@@ -8,7 +8,6 @@
     "rootDir": "./src",
     "outDir": "build",
     "allowSyntheticDefaultImports": true,
-    "importHelpers": true,
     "strict": true,
     // Ship typings with the package. `@internal` exports (test hooks) are
     // left out of them.

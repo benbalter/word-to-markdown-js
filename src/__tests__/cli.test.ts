@@ -1,5 +1,12 @@
-import { execFileSync } from 'child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'fs';
+import { execFileSync, spawnSync } from 'child_process';
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'fs';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -41,29 +48,17 @@ interface CliResult {
 }
 
 function runCli(args: string[]): CliResult {
-  try {
-    const stdout = execFileSync(process.execPath, [cliPath, ...args], {
-      cwd: root,
-      encoding: 'utf8',
-      // Pipe stderr (don't inherit) so warning/error output is captured for
-      // assertions instead of being echoed into the test runner's console.
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-    return { stdout, stderr: '', status: 0 };
-  } catch (error) {
-    // execFileSync throws on a non-zero exit; the thrown error carries the
-    // captured streams and the exit status.
-    const e = error as {
-      stdout?: string | Buffer;
-      stderr?: string | Buffer;
-      status?: number;
-    };
-    return {
-      stdout: e.stdout?.toString() ?? '',
-      stderr: e.stderr?.toString() ?? '',
-      status: typeof e.status === 'number' ? e.status : 1,
-    };
-  }
+  // spawnSync (unlike execFileSync) captures stderr on success too, so
+  // assertions about warnings on a clean exit actually see the stream.
+  const result = spawnSync(process.execPath, [cliPath, ...args], {
+    cwd: root,
+    encoding: 'utf8',
+  });
+  return {
+    stdout: result.stdout,
+    stderr: result.stderr,
+    status: result.status ?? 1,
+  };
 }
 
 describe('w2m CLI', () => {
@@ -161,6 +156,45 @@ describe('w2m CLI', () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toMatch(/^\s*1\.\s+One/m);
     expect(result.stdout).not.toContain('- One');
+  });
+
+  it('prints conversion warnings to stderr on a clean exit', () => {
+    const result = runCli([fixture('dropped-content.docx')]);
+    expect(result.status).toBe(0);
+    expect(result.stderr).toContain('Warning:');
+    expect(result.stdout).not.toContain('Warning:');
+  });
+
+  it('drops underlines by default and keeps them with --underline', () => {
+    expect(runCli([fixture('underline.docx')]).stdout).not.toContain('<u>');
+    const result = runCli(['--underline', fixture('underline.docx')]);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('<u>underlined</u>');
+  });
+
+  it('--preserve-footnotes keeps raw footnote markup', () => {
+    expect(runCli([fixture('footnote.docx')]).stdout).toContain('[^1]');
+    const result = runCli(['--preserve-footnotes', fixture('footnote.docx')]);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('#footnote-1');
+    expect(result.stdout).not.toContain('[^1]');
+  });
+
+  it('--verbose adds the underlying cause to a failure', () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'w2m-cli-'));
+    try {
+      const bad = path.join(dir, 'bad.docx');
+      writeFileSync(bad, 'not a zip');
+      const quiet = runCli([bad]);
+      expect(quiet.status).toBe(1);
+      expect(quiet.stderr).not.toContain('Caused by:');
+      const verbose = runCli(['--verbose', bad]);
+      expect(verbose.status).toBe(1);
+      expect(verbose.stderr).toContain('Invalid file');
+      expect(verbose.stderr).toContain('Caused by:');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it('--bullet-lists converts numbered lists to bullets', () => {

@@ -108,10 +108,11 @@ export class FileNotFoundError extends WordToMarkdownError {
 
 // Custom error class for invalid/corrupted files
 export class InvalidFileError extends WordToMarkdownError {
-  constructor(filePath?: string) {
+  constructor(filePath?: string, cause?: unknown) {
     const location = filePath ? `: "${filePath}"` : '';
     super(
       `Invalid file${location}. The file is not a valid .docx file or is corrupted. Please ensure the file is a valid Microsoft Word document (.docx format).`,
+      cause === undefined ? undefined : { cause },
     );
     this.name = 'InvalidFileError';
   }
@@ -295,33 +296,40 @@ export function processHtml(
   return root.toString();
 }
 
-// Reusable TurndownService instance to avoid recreating it for each conversion
-let turndownServiceInstance: TurndownService | null = null;
+function createTurndownService(
+  options: object,
+  keepTags: string[],
+): TurndownService {
+  const service = new TurndownService({
+    ...defaultTurndownOptions,
+    ...options,
+  });
+  service.use(turndownPluginGfm.gfm);
+  if (keepTags.length > 0) service.keep(keepTags);
+  return service;
+}
+
+// Reusable services for the default options, keyed by keep-tags (e.g. '' or
+// 'u' for --underline), so repeat conversions don't rebuild Turndown and its
+// GFM rules. `keep()` mutates a service, hence one per keep-tag set.
+const turndownServices = new Map<string, TurndownService>();
 
 function getTurndownService(
   options: object = {},
   keepTags: string[] = [],
 ): TurndownService {
-  // Create a new instance if options or keep-tags are provided; otherwise reuse
-  // the singleton. `keep()` mutates the instance, so it must never touch the
-  // shared singleton — a fresh service is required whenever keepTags is set.
-  if (Object.keys(options).length > 0 || keepTags.length > 0) {
-    const service = new TurndownService({
-      ...defaultTurndownOptions,
-      ...options,
-    });
-    service.use(turndownPluginGfm.gfm);
-    if (keepTags.length > 0) {
-      service.keep(keepTags);
-    }
-    return service;
+  // Caller-supplied Turndown options may hold functions (custom rules), which
+  // can't be keyed reliably; build a fresh service for those.
+  if (Object.keys(options).length > 0) {
+    return createTurndownService(options, keepTags);
   }
-
-  if (!turndownServiceInstance) {
-    turndownServiceInstance = new TurndownService(defaultTurndownOptions);
-    turndownServiceInstance.use(turndownPluginGfm.gfm);
+  const key = [...keepTags].sort().join(',');
+  let service = turndownServices.get(key);
+  if (!service) {
+    service = createTurndownService({}, keepTags);
+    turndownServices.set(key, service);
   }
-  return turndownServiceInstance;
+  return service;
 }
 
 // Convert HTML to GitHub-flavored Markdown. `keepTags` lists HTML tags to
@@ -793,6 +801,7 @@ const CONTENT_TYPE_EXTENSIONS: { [contentType: string]: string } = {
 // Pick a file extension for an extracted image. Falls back to the content
 // type's subtype when it's a clean alphanumeric token, else `bin`. Exported for
 // unit testing since only a PNG fixture exists.
+/** @internal */
 export function extensionForContentType(contentType: string): string {
   const normalized = contentType.toLowerCase();
   const known = CONTENT_TYPE_EXTENSIONS[normalized];
@@ -961,7 +970,7 @@ function classifyConversionError(error: unknown, filePath?: string): never {
   if (isInvalidDocxError(errorMessage)) {
     // Note: For ArrayBuffer inputs (e.g., web uploads), filePath will be
     // undefined, so the message won't include the original filename.
-    throw new InvalidFileError(filePath);
+    throw new InvalidFileError(filePath, error);
   }
 
   // Wrap other errors with a general conversion error
