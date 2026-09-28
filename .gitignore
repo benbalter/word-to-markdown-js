@@ -45,3 +45,6 @@ playwright-report/
 # offline re-processing, never committed; the eval specs live in
 # scripts/eval-specs/.
 scripts/.gen-cache/
+
+# cf CLI build output
+.cloudflare/

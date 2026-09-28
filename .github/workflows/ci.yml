@@ -47,10 +47,15 @@ jobs:
       - run: npm run build
       - run: npm run test
       # Bundle the Worker the way Cloudflare's deploy does, so a bundling error
-      # fails here instead of on deploy. Wrangler is a pinned devDependency, so
-      # the lockfile (and npm audit) covers it.
+      # fails here instead of on deploy. The deploy uses `--prebuilt` because cf
+      # detects Astro and would otherwise run bare `astro build` instead of
+      # `npm run build`. cf-wrangler (shipped in wrangler) writes the bundle to
+      # .cloudflare/output; the dry run needs no credentials. Both CLIs are
+      # pinned devDependencies, so the lockfile (and npm audit) covers them.
       - name: Check Worker bundle
-        run: npx wrangler deploy --dry-run --outdir "$RUNNER_TEMP/worker"
+        run: |
+          npx cf-wrangler build
+          npx cf deploy --prebuilt --dry-run
       # Hand the built site to the e2e job so it doesn't rebuild it.
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

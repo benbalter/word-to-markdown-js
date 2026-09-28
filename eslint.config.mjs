@@ -12,14 +12,16 @@ import globals from 'globals';
 export default tseslint.config(
   // Never lint compiled output, generated types, coverage, or root config
   // files. Flat config only auto-ignores node_modules/.git, so dot-dirs like
-  // .astro (Astro's generated types) must be listed explicitly. Hand-written
-  // JS in worker/ and scripts/ is linted (see below).
+  // .astro (Astro's generated types) and .cloudflare (the cf CLI's bundled
+  // Worker) must be listed explicitly. Hand-written JS in worker/ and scripts/
+  // is linted (see below).
   {
     ignores: [
       'dist/**',
       'build/**',
       'coverage/**',
       '.astro/**',
+      '.cloudflare/**',
       'src/__fixtures__/**',
       '*.js',
       '*.mjs',

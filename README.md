@@ -211,7 +211,7 @@ This serves `dist/` with plain nginx, so it skips what the Cloudflare Worker and
 `/api/event` counter (requests to it 404), the security headers, and long-lived
 caching for `/_astro/*`. Conversion itself runs in the browser and works the
 same. For a production-like local setup, run `npm run build` and then
-`npx wrangler dev`.
+`npx cf-wrangler dev`.
 
 ## More context
 

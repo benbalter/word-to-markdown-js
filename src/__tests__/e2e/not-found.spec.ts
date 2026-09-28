@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 // Unknown paths get the branded 404 page (dist/404.html) with a real 404
-// status — Cloudflare via `not_found_handling`, `astro preview` by convention.
+// status — Cloudflare via `notFoundHandling`, `astro preview` by convention.
 
 test.describe('404 page', () => {
   test('unknown paths return the branded not-found page', async ({ page }) => {

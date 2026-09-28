@@ -1,4 +1,4 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "entry": ["scripts/*.mjs"]
+  "entry": ["scripts/*.mjs", "cloudflare.config.ts", "wrangler.config.ts"]
 }

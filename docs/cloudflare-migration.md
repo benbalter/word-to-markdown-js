@@ -5,11 +5,14 @@
 > rollback steps below.
 
 This repo is preconfigured for **Cloudflare Workers (Static Assets)** — the
-model Cloudflare's Git integration now uses for sites (it runs `wrangler
-deploy`, not the older `wrangler pages deploy`).
+model Cloudflare's Git integration now uses for sites. Deploys use the
+[`cf` CLI](https://blog.cloudflare.com/cloudflare-cf-cli-launch/).
 
-- `wrangler.jsonc` — serves `dist/` via the `ASSETS` binding and runs the Worker
-  first only on `/` and `/api/event`.
+- `cloudflare.config.ts` — the Worker: name, entrypoint, the `ASSETS` and
+  `EVENTS` bindings, and `runWorkerFirst` so the Worker runs first only on `/`
+  and `/api/event`.
+- `wrangler.config.ts` — points the Wrangler build step (which `cf` delegates
+  to) at `dist/`.
 - `worker/index.js` — the Worker: locale-redirects `/` based on
   `Accept-Language`, counts anonymous conversions on `/api/event`, and falls
   through to static assets via `env.ASSETS.fetch()`.
@@ -22,7 +25,8 @@ domain.
 
 > If you connected the repo and the first build failed with _"you have run
 > `wrangler deploy` on a Pages project"_ — that was the old Pages-style
-> `wrangler.jsonc`. This doc's config fixes it; re-run the build after merging.
+> `wrangler.jsonc` (since replaced by `cloudflare.config.ts`). Re-run the build
+> with the deploy command below.
 
 ## 1. Create the Worker (no DNS change yet)
 
@@ -31,8 +35,12 @@ domain.
    pick `benbalter/word-to-markdown-js`.
 3. Build settings:
    - **Build command:** `npm run build`
-   - **Deploy command:** `npx wrangler deploy` (the default)
-   - Output is taken from `wrangler.jsonc` (`assets.directory: ./dist`).
+   - **Deploy command:** `npx cf-wrangler build && npx cf deploy --prebuilt`
+   - `cf-wrangler build` bundles the Worker and copies `dist/` (set in
+     `wrangler.config.ts`) into `.cloudflare/output/`; `cf deploy --prebuilt`
+     uploads that as-is. Plain `cf deploy` won't work: it detects Astro and
+     runs bare `astro build` instead of `npm run build`, and the default
+     `npx wrangler deploy` needs the `wrangler.jsonc` this repo no longer has.
 4. Deploy. You'll get a `https://word-to-markdown-js.<your-subdomain>.workers.dev`
    URL.
 
@@ -83,15 +91,15 @@ until step 4, the old deployment is still there as a fallback.
 
 ## Notes & options
 
-- **Local check:** `npx wrangler dev` runs the Worker + assets on miniflare
-  (`http://localhost:8787`) so you can curl the redirect behavior without
-  deploying.
+- **Local check:** after `npm run build`, `npx cf-wrangler dev` runs the Worker
+  - assets on miniflare (`http://localhost:8787`) so you can curl the redirect behavior without
+    deploying.
 - **Build command:** `npm run build` runs the library `tsc` step too; `npm run
 build:site` alone also produces `dist` if you prefer a leaner build.
 - **No auto-redirect, if you prefer:** the language switcher already gives full
   manual control. To disable auto-redirect entirely (the most conservative SEO
-  choice), set `run_worker_first` to `[]` in `wrangler.jsonc` (or remove
-  `worker/index.js` and the `main`/`run_worker_first` keys) and drop the inline
+  choice), set `runWorkerFirst` to `[]` in `cloudflare.config.ts` (or remove
+  `worker/index.js` and the `entrypoint`/`runWorkerFirst` keys) and drop the inline
   cookie script in `web/layouts/Layout.astro`.
 - **Tuning the redirect:** the Worker's `SUPPORTED_LOCALES` is derived from
   `web/i18n/locales.ts`, the single source of truth for locales.

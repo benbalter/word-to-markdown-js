@@ -1,11 +1,11 @@
 // Cloudflare Worker entry for the site (Workers Static Assets model).
 //
 // The static Astro output in ./dist is served via the ASSETS binding. This
-// Worker runs first on "/" and "/api/event" (see `run_worker_first` in
-// wrangler.jsonc): on a first visit to "/" with no language cookie it sends the
-// visitor to the best Accept-Language match among the non-default locales
-// (otherwise it falls through to the static English root), and "/api/event" is
-// the anonymous conversion counter. Every other path (localized pages, assets,
+// Worker runs first on "/" and "/api/event" (see `runWorkerFirst` in
+// cloudflare.config.ts): on a first visit to "/" with no language cookie it
+// sends the visitor to the best Accept-Language match among the non-default
+// locales (otherwise it falls through to the static English root), and
+// "/api/event" is the anonymous conversion counter. Every other path (localized pages, assets,
 // legal pages) is served directly from assets and never reaches here.
 //
 // SEO: the redirect is a 302 (temporary), every locale is independently
@@ -141,7 +141,7 @@ export default {
       return new Response(null, { status: 204 });
     }
 
-    // Only the root is a candidate for the locale redirect. (run_worker_first
+    // Only the root is a candidate for the locale redirect. (runWorkerFirst
     // also lists "/api/event" above, but that path returned already.)
     if (url.pathname === '/') {
       const cookie = request.headers.get('Cookie') || '';
