@@ -244,21 +244,6 @@ export function processHtml(
 ): string {
   const root = parse(html);
 
-  // Allowlist link schemes. A Word hyperlink can target any URL, and Turndown's
-  // own `javascript:` check is bypassable (e.g. a leading U+0001), so keep only
-  // http(s)/mailto, fragment and relative links; unwrap anything else to its
-  // text so it can't become a script link in a downstream Markdown renderer.
-  root.querySelectorAll('a[href]').forEach((link: HTMLElement) => {
-    const href = link.getAttribute('href') ?? '';
-    const safe = safeHref(href);
-    if (safe === null) {
-      link.replaceWith(...link.childNodes);
-    } else if (safe !== href) {
-      // setAttribute takes the raw (serialized) value and only escapes quotes.
-      link.setAttribute('href', safe.replace(/&/g, '&amp;'));
-    }
-  });
-
   // Remove images (Mammoth inlines them as base64 data URIs by default, which
   // can bloat the output for image-heavy documents).
   if (opts.stripImages) {
@@ -406,6 +391,34 @@ function addFootnoteRules(service: TurndownService): void {
   });
 }
 
+// Allowlist link schemes on the DOM Turndown converts. A Word hyperlink (or
+// caller-supplied HTML) can target any URL, and Turndown's own `javascript:`
+// check is bypassable (e.g. a leading U+0001), so keep only http(s)/mailto,
+// fragment and relative links; drop the href of anything else so the link
+// renders as its text and can't become a script link downstream.
+//
+// This runs as a rule filter rather than a separate HTML pre-pass so it sees
+// exactly the DOM Turndown builds (no parser differential; e.g. node-html-parser
+// treats <pre> and <noscript> content as raw text). Turndown asks the rules for
+// a node before converting its children, and it's added last so it's checked
+// first, so every <a> is cleaned before any rule reads its href or an ancestor
+// is kept verbatim as HTML (keepTags, GFM tables it can't convert). The filter
+// never matches: it only cleans the node and lets the normal rules convert it.
+function addLinkAllowlistRule(service: TurndownService): void {
+  service.addRule('linkSchemeAllowlist', {
+    filter: (node) => {
+      if (node.nodeName !== 'A') return false;
+      const href = node.getAttribute('href');
+      if (href === null) return false;
+      const safe = safeHref(href);
+      if (safe === null) node.removeAttribute('href');
+      else if (safe !== href) node.setAttribute('href', safe);
+      return false;
+    },
+    replacement: (content) => content,
+  });
+}
+
 function createTurndownService(
   options: object,
   keepTags: string[],
@@ -418,6 +431,7 @@ function createTurndownService(
   service.use(turndownPluginGfm.gfm);
   if (keepTags.length > 0) service.keep(keepTags);
   if (gfmFootnotes) addFootnoteRules(service);
+  addLinkAllowlistRule(service);
   return service;
 }
 

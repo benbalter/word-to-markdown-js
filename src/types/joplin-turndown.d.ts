@@ -9,6 +9,8 @@ declare module '@joplin/turndown' {
   interface TurndownNode {
     nodeName: string;
     getAttribute(name: string): string | null;
+    setAttribute(name: string, value: string): void;
+    removeAttribute(name: string): void;
     firstElementChild: TurndownNode | null;
     childElementCount: number;
   }

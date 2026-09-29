@@ -1,5 +1,5 @@
 import JSZip from 'jszip';
-import convert, { processHtml } from '../main.js';
+import convert, { htmlToMd } from '../main.js';
 
 // Only http:, https: and mailto: links (plus fragments and relative URLs) may
 // reach the Markdown. Anything else is unwrapped to its text, so a hyperlink in
@@ -23,13 +23,17 @@ const escapeXml = (s: string): string =>
     .replace(/\t/g, '&#x9;');
 
 // A minimal .docx with one paragraph per link: an external hyperlink
-// relationship for URLs, or a w:anchor for "#bookmark" targets.
+// relationship for URLs, or a w:anchor for "#bookmark" targets. `mono` sets a
+// monospace font, which the converter turns into a <pre><code> block.
 async function docxWithLinks(
-  links: { text: string; target: string }[],
+  links: { text: string; target: string; mono?: boolean }[],
 ): Promise<ArrayBuffer> {
   const rels: string[] = [];
-  const paras = links.map(({ text, target }, i) => {
-    const run = `<w:r><w:t>${escapeXml(text)}</w:t></w:r>`;
+  const paras = links.map(({ text, target, mono }, i) => {
+    const rPr = mono
+      ? '<w:rPr><w:rFonts w:ascii="Courier New" w:hAnsi="Courier New"/></w:rPr>'
+      : '';
+    const run = `<w:r>${rPr}<w:t>${escapeXml(text)}</w:t></w:r>`;
     if (target.startsWith('#')) {
       return `<w:p><w:hyperlink w:anchor="${escapeXml(target.slice(1))}">${run}</w:hyperlink></w:p>`;
     }
@@ -125,45 +129,86 @@ describe('link scheme allowlist', () => {
       );
       expect(md).toBe('[site](https://example.com/)');
     });
+
+    it('unwraps an unsafe link inside a code block', async () => {
+      const md = await convert(
+        await docxWithLinks([
+          { text: 'code line', target: 'vbscript:msgbox(1)', mono: true },
+        ]),
+      );
+      expect(md).not.toMatch(/vbscript|\]\(/);
+      expect(md).toContain('code line');
+    });
   });
 
-  describe('processHtml', () => {
+  // htmlToMd is part of the public API, so HTML passed to it directly gets the
+  // same allowlist as the .docx pipeline.
+  describe('htmlToMd', () => {
     it.each(unsafe)('unwraps a %s link', (_, href) => {
-      const html = processHtml(
+      const md = htmlToMd(
         `<p>before <a href="${escapeXml(href)}"><strong>bold</strong> text</a> after</p>`,
       );
-      expect(html).toBe('<p>before <strong>bold</strong> text after</p>');
+      expect(md).toBe('before **bold** text after');
     });
 
     it('unwraps a link whose href is not a parseable URL', () => {
-      expect(processHtml('<a href="http://[::1">x</a>')).toBe('x');
+      expect(htmlToMd('<a href="http://[::1">x</a>')).toBe('x');
     });
 
     it.each([
-      'http://example.com/',
-      'HTTPS://example.com/',
-      'mailto:ben@example.com',
-      '#footnote-1',
-      '../relative/path',
-      '/root-relative',
-      '//example.com/protocol-relative',
-      '',
-    ])('keeps href %j', (href) => {
-      const html = `<a href="${href}">x</a>`;
-      expect(processHtml(html)).toBe(html);
+      ['http://example.com/', '[x](http://example.com/)'],
+      ['HTTPS://example.com/', '[x](HTTPS://example.com/)'],
+      ['mailto:ben@example.com', '[x](mailto:ben@example.com)'],
+      ['#section-1', '[x](#section-1)'],
+      ['../relative/path', '[x](../relative/path)'],
+      ['/root-relative', '[x](/root-relative)'],
+      ['//example.com/p', '[x](//example.com/p)'],
+    ])('keeps href %j', (href, expected) => {
+      expect(htmlToMd(`<a href="${href}">x</a>`)).toBe(expected);
     });
 
-    it('re-serializes a trimmed href without altering its query', () => {
+    it('strips leading and trailing controls from an allowed link', () => {
       expect(
-        processHtml(
-          '<a href="&#x1; https://x.test/?a=1&amp;b=&quot;2&quot;">x</a>',
-        ),
-      ).toBe('<a href="https://x.test/?a=1&amp;b=&quot;2&quot;">x</a>');
+        htmlToMd('<a href="&#x1; https://x.test/?a=1&amp;b=2 &#x1f;">x</a>'),
+      ).toBe('[x](https://x.test/?a=1&b=2)');
+    });
+
+    it('applies with reference-style links', () => {
+      expect(
+        htmlToMd('<a href="&#x1;javascript:alert(1)">x</a>', {
+          linkStyle: 'referenced',
+        }),
+      ).toBe('x');
+    });
+
+    // Contexts where an HTML pre-pass parser might not see the link, or where
+    // Turndown copies HTML through verbatim.
+    it.each([
+      ['<pre>', '<pre><a href="vbscript:x">y</a></pre>'],
+      ['<pre><code>', '<pre><code><a href="vbscript:x">y</a></code></pre>'],
+      ['<noscript>', '<noscript><a href="vbscript:x">y</a></noscript>'],
+      [
+        'a table kept as HTML',
+        '<table><tr><td><a href="data:text/html,x">y</a></td></tr><tr><td>z</td></tr></table>',
+      ],
+    ])('unwraps an unsafe link inside %s', (_, html) => {
+      const md = htmlToMd(html);
+      expect(md).not.toMatch(/vbscript|data:|\]\(/);
+      expect(md).toContain('y');
+    });
+
+    it('drops an unsafe href inside a tag kept as HTML', () => {
+      const md = htmlToMd(
+        '<p><u><a href="&#x1;javascript:alert(1)">y</a></u></p>',
+        {},
+        ['u'],
+      );
+      expect(md).not.toMatch(/javascript|href/);
+      expect(md).toContain('y');
     });
 
     it('leaves anchors without an href (bookmarks) alone', () => {
-      const html = '<p><a id="_Toc1"></a>Heading</p>';
-      expect(processHtml(html)).toBe(html);
+      expect(htmlToMd('<p><a id="_Toc1"></a>Heading</p>')).toBe('Heading');
     });
   });
 });
