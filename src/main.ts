@@ -210,6 +210,30 @@ function isNoteList(list: HTMLElement): boolean {
   );
 }
 
+// Link schemes allowed through to the Markdown. Fragments and relative URLs
+// resolve against an https: base below, so they pass too.
+const SAFE_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);
+// Browsers (via the WHATWG URL parser) ignore leading and trailing C0 controls
+// and spaces, so `\x01javascript:` is still a `javascript:` URL. String#trim()
+// doesn't remove them, so strip them explicitly along with other whitespace.
+// eslint-disable-next-line no-control-regex
+const EDGE_CONTROLS_REGEX = /^[\s\u0000-\u001F]+|[\s\u0000-\u001F]+$/g;
+
+// Returns the cleaned href if it's safe to keep, or null if the link should be
+// unwrapped to its text. Parsing with the WHATWG URL parser (available in Node
+// and browsers) determines the scheme exactly as a browser would, including
+// tabs/newlines inside the scheme (`java\tscript:`) and any letter case.
+function safeHref(href: string): string | null {
+  const trimmed = href.replace(EDGE_CONTROLS_REGEX, '');
+  let url: URL;
+  try {
+    url = new URL(trimmed, 'https://base.invalid/');
+  } catch {
+    return null;
+  }
+  return SAFE_LINK_PROTOCOLS.has(url.protocol) ? trimmed : null;
+}
+
 // Process HTML in a single pass: optionally strip images, convert table
 // headers, and remove unicode bullets. This is more efficient than parsing the
 // HTML twice.
@@ -219,6 +243,21 @@ export function processHtml(
   opts: { stripImages?: boolean; bulletLists?: boolean } = {},
 ): string {
   const root = parse(html);
+
+  // Allowlist link schemes. A Word hyperlink can target any URL, and Turndown's
+  // own `javascript:` check is bypassable (e.g. a leading U+0001), so keep only
+  // http(s)/mailto, fragment and relative links; unwrap anything else to its
+  // text so it can't become a script link in a downstream Markdown renderer.
+  root.querySelectorAll('a[href]').forEach((link: HTMLElement) => {
+    const href = link.getAttribute('href') ?? '';
+    const safe = safeHref(href);
+    if (safe === null) {
+      link.replaceWith(...link.childNodes);
+    } else if (safe !== href) {
+      // setAttribute takes the raw (serialized) value and only escapes quotes.
+      link.setAttribute('href', safe.replace(/&/g, '&amp;'));
+    }
+  });
 
   // Remove images (Mammoth inlines them as base64 data URIs by default, which
   // can bloat the output for image-heavy documents).
