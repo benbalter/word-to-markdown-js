@@ -7,10 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-29
+
+### Security
+
+- Allowlist link schemes (http, https, mailto, relative and fragment links) before
+  Markdown conversion, for both .docx input and `htmlToMd()`. Leading control
+  characters no longer let `javascript:` links through
+  ([GHSA-6rhg-55q7-v8wx](https://github.com/benbalter/word-to-markdown-js/security/advisories/GHSA-6rhg-55q7-v8wx)).
+
 ### Changed
 
-These change the Markdown produced for affected documents, so the next release
-should be a minor bump (0.5.0).
+These change the Markdown produced for affected documents.
 
 - **`numberedLists: 'bullets'` works on the HTML, not the Markdown.** Numbered
   lists are now turned into bullet lists before Turndown runs, instead of by
@@ -127,6 +135,7 @@ These change the Markdown produced for affected documents.
   inline `<sup>`/`<sub>` tags. This was already the case in 0.2.0 — only the
   documentation, which previously listed them as unsupported, was wrong.
 
-[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.5.0
 [0.4.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.4.0
 [0.3.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.3.0

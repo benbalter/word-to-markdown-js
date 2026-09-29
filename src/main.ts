@@ -210,6 +210,30 @@ function isNoteList(list: HTMLElement): boolean {
   );
 }
 
+// Link schemes allowed through to the Markdown. Fragments and relative URLs
+// resolve against an https: base below, so they pass too.
+const SAFE_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);
+// Browsers (via the WHATWG URL parser) ignore leading and trailing C0 controls
+// and spaces, so `\x01javascript:` is still a `javascript:` URL. String#trim()
+// doesn't remove them, so strip them explicitly along with other whitespace.
+// eslint-disable-next-line no-control-regex
+const EDGE_CONTROLS_REGEX = /^[\s\u0000-\u001F]+|[\s\u0000-\u001F]+$/g;
+
+// Returns the cleaned href if it's safe to keep, or null if the link should be
+// unwrapped to its text. Parsing with the WHATWG URL parser (available in Node
+// and browsers) determines the scheme exactly as a browser would, including
+// tabs/newlines inside the scheme (`java\tscript:`) and any letter case.
+function safeHref(href: string): string | null {
+  const trimmed = href.replace(EDGE_CONTROLS_REGEX, '');
+  let url: URL;
+  try {
+    url = new URL(trimmed, 'https://base.invalid/');
+  } catch {
+    return null;
+  }
+  return SAFE_LINK_PROTOCOLS.has(url.protocol) ? trimmed : null;
+}
+
 // Process HTML in a single pass: optionally strip images, convert table
 // headers, and remove unicode bullets. This is more efficient than parsing the
 // HTML twice.
@@ -367,6 +391,34 @@ function addFootnoteRules(service: TurndownService): void {
   });
 }
 
+// Allowlist link schemes on the DOM Turndown converts. A Word hyperlink (or
+// caller-supplied HTML) can target any URL, and Turndown's own `javascript:`
+// check is bypassable (e.g. a leading U+0001), so keep only http(s)/mailto,
+// fragment and relative links; drop the href of anything else so the link
+// renders as its text and can't become a script link downstream.
+//
+// This runs as a rule filter rather than a separate HTML pre-pass so it sees
+// exactly the DOM Turndown builds (no parser differential; e.g. node-html-parser
+// treats <pre> and <noscript> content as raw text). Turndown asks the rules for
+// a node before converting its children, and it's added last so it's checked
+// first, so every <a> is cleaned before any rule reads its href or an ancestor
+// is kept verbatim as HTML (keepTags, GFM tables it can't convert). The filter
+// never matches: it only cleans the node and lets the normal rules convert it.
+function addLinkAllowlistRule(service: TurndownService): void {
+  service.addRule('linkSchemeAllowlist', {
+    filter: (node) => {
+      if (node.nodeName !== 'A') return false;
+      const href = node.getAttribute('href');
+      if (href === null) return false;
+      const safe = safeHref(href);
+      if (safe === null) node.removeAttribute('href');
+      else if (safe !== href) node.setAttribute('href', safe);
+      return false;
+    },
+    replacement: (content) => content,
+  });
+}
+
 function createTurndownService(
   options: object,
   keepTags: string[],
@@ -379,6 +431,7 @@ function createTurndownService(
   service.use(turndownPluginGfm.gfm);
   if (keepTags.length > 0) service.keep(keepTags);
   if (gfmFootnotes) addFootnoteRules(service);
+  addLinkAllowlistRule(service);
   return service;
 }
 
