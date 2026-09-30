@@ -12,7 +12,13 @@ export default {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(m)?ts$',
-  testPathIgnorePatterns: ['<rootDir>/src/__tests__/e2e/'],
+  // `.claude/worktrees/` holds agent git worktrees: full repo copies whose
+  // Playwright specs (and package.json) Jest would otherwise pick up.
+  testPathIgnorePatterns: [
+    '<rootDir>/src/__tests__/e2e/',
+    '<rootDir>/.claude/',
+  ],
+  modulePathIgnorePatterns: ['<rootDir>/.claude/'],
   coverageDirectory: 'coverage',
   collectCoverageFrom: [
     'src/**/*.ts',
