@@ -1,6 +1,6 @@
 {
   "name": "word-to-markdown",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Convert Word (.docx) documents to Markdown via CLI, Node.js, or browser",
   "type": "module",
   "keywords": [

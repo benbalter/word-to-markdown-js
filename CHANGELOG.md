@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-09-30
+
+### Changed
+
+- Clearer npm package description and more search keywords (`docx-to-markdown`,
+  `word-to-markdown`, `microsoft-word`, `md`, `gfm`), and a README title that
+  says what the tool does. No code changes.
+
 ## [0.5.0] - 2026-09-29
 
 ### Security
@@ -135,7 +143,8 @@ These change the Markdown produced for affected documents.
   inline `<sup>`/`<sub>` tags. This was already the case in 0.2.0 — only the
   documentation, which previously listed them as unsupported, was wrong.
 
-[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.5.1
 [0.5.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.5.0
 [0.4.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.4.0
 [0.3.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.3.0
