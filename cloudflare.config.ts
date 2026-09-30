@@ -12,6 +12,15 @@ export default defineConfig({
     name: 'word-to-markdown-js',
     compatibilityDate: '2026-06-01',
     entrypoint: 'worker/index.js',
+    // Real-time issue detection: groups uncaught exceptions, 5xx responses, and
+    // console.error() calls into Issues in the dashboard. Set here because a
+    // dashboard-only toggle is turned off by the next deploy.
+    // https://developers.cloudflare.com/workers/observability/issues/
+    observability: {
+      issues: {
+        enabled: true,
+      },
+    },
     assets: {
       // Unknown paths get dist/404.html with a 404 status instead of a bare
       // Cloudflare error page.
