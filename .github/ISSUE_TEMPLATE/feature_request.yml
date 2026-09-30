@@ -1,0 +1,31 @@
+name: Feature request
+description: Suggest something Word to Markdown should do that it doesn't.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the problem, not just the solution. "My tables lose their alignment" is more useful than "add a table option."
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: What would you like to happen?
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where would you use this?
+      multiple: true
+      options:
+        - word2md.com (browser)
+        - Command line
+        - Node library
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else?
+      description: Alternatives you've tried, sample documents, or links to how other tools handle it.
