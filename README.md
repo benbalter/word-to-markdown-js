@@ -1,4 +1,4 @@
-# Word to Markdown
+# Word to Markdown (DOCX → Markdown converter)
 
 [![npm version](https://img.shields.io/npm/v/word-to-markdown.svg)](https://www.npmjs.com/package/word-to-markdown)
 [![npm downloads](https://img.shields.io/npm/dm/word-to-markdown.svg)](https://www.npmjs.com/package/word-to-markdown)

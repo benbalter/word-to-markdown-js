@@ -1,7 +1,7 @@
 {
   "name": "word-to-markdown",
   "version": "0.5.0",
-  "description": "Convert Word documents to beautiful Markdown.",
+  "description": "Convert Word (.docx) documents to Markdown via CLI, Node.js, or browser",
   "type": "module",
   "keywords": [
     "word",
@@ -11,7 +11,12 @@
     "converter",
     "mammoth",
     "turndown",
-    "cli"
+    "cli",
+    "docx-to-markdown",
+    "word-to-markdown",
+    "microsoft-word",
+    "md",
+    "gfm"
   ],
   "homepage": "https://word2md.com",
   "repository": {
