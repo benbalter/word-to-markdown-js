@@ -24,4 +24,11 @@
   "analytics_engine_datasets": [
     { "binding": "EVENTS", "dataset": "word2md_events" },
   ],
+  // Real-time issue detection: groups uncaught exceptions, 5xx responses, and
+  // console.error() calls into Issues in the dashboard. Set here because a
+  // dashboard-only toggle is turned off by the next deploy.
+  // https://developers.cloudflare.com/workers/observability/issues/
+  "observability": {
+    "issues": { "enabled": true },
+  },
 }
