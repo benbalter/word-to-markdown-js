@@ -24,9 +24,10 @@ is ever uploaded.
 1. **mammoth** — `.docx` → HTML; wholly-monospace paragraphs and the
    `Preformatted Text`/`HTML Preformatted` styles map to `<pre><code>`
 2. `processHtml` — unwrap single-cell `<pre>` code tables, promote a table's
-   first row to `<th>`, strip Unicode bullets
+   first row to `<th>`, strip Unicode bullets, and (with
+   `numberedLists: 'bullets'`) rename `<ol>` to `<ul>`
 3. **Turndown** (`@joplin/turndown` + gfm) — HTML → Markdown
-4. `convertNumberedListsToBullets` → `normalizeText` (nbsp/smart-quote cleanup)
+4. `normalizeText` (nbsp/smart-quote cleanup)
 5. **markdownlint** `applyFixes` → **prettier** (markdown)
 
 `convert()` returns the Markdown string; `convertWithWarnings()` also returns
@@ -51,6 +52,7 @@ Node 24.21.0 is pinned (`.nvmrc`, `.tool-versions`, Volta).
 ## Testing
 
 Add cases to `src/__tests__/`; `.docx` fixtures live in `src/__fixtures__/`.
-When adding a locale, keep the four locale lists in sync (see `CLAUDE.md`);
+When adding a locale, start from `web/i18n/locales.ts`, the single source of
+truth (see `CLAUDE.md`);
 `src/__tests__/i18n-completeness.test.ts` and `i18n-locale-sync.test.ts` enforce
 this.
