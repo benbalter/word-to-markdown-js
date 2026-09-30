@@ -1,0 +1,61 @@
+name: Bug report
+description: A document didn't convert the way you expected, or something errored.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. Conversion bugs almost always depend on the input, so a sample document is the single most useful thing you can include.
+
+        **Don't attach anything confidential.** Issues are public. If you can, trim the document down to just the part that converts incorrectly.
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where did you run the conversion?
+      options:
+        - word2md.com (browser)
+        - Command line (npx word-to-markdown / w2m)
+        - Node library (import from word-to-markdown)
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: For the CLI or library, the output of `npx word-to-markdown --version` or the version in your package.json. Leave blank for word2md.com.
+      placeholder: 0.5.0
+  - type: textarea
+    id: sample
+    attributes:
+      label: Sample document
+      description: Drag and drop a .docx that reproduces the problem.
+      placeholder: Attach a .docx here
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Markdown
+      description: What you expected the output to be.
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Markdown or error
+      description: What you got instead. Paste the output or the error message.
+      render: markdown
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser and OS for word2md.com, or Node version and OS for the CLI or library.
+      placeholder: Chrome 140 on macOS / Node 24 on Ubuntu
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else?
+      description: Where the document came from (Word, Google Docs, LibreOffice, Pages), or anything else that might help.
