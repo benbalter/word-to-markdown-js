@@ -884,6 +884,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // The output panels are focusable (tabindex) so a click focuses them; scope
+  // Ctrl/Cmd+A to the focused panel instead of selecting the whole page.
+  for (const panel of document.querySelectorAll<HTMLElement>(
+    '[data-select-all]',
+  )) {
+    panel.addEventListener('keydown', (event: KeyboardEvent) => {
+      if (
+        event.key.toLowerCase() !== 'a' ||
+        !(event.ctrlKey || event.metaKey) ||
+        event.altKey ||
+        event.shiftKey
+      ) {
+        return;
+      }
+      event.preventDefault();
+      window.getSelection()?.selectAllChildren(panel);
+    });
+  }
+
   const copyButton = document.getElementById('copy-button');
   if (copyButton !== null) {
     copyLabelDefault = document.getElementById('copy-label')?.textContent ?? '';
