@@ -38,8 +38,10 @@ dist/
 # Playwright test results
 test-results/
 playwright-report/
-# Cloudflare Wrangler / Pages local dev artifacts
+# Cloudflare Wrangler / Pages local dev artifacts, and the bundle `wrangler deploy`
+# writes before uploading
 .wrangler/
+.cloudflare/
 
 # Local output of the gen:* scripts (raw model responses, judgments). Kept for
 # offline re-processing, never committed; the eval specs live in

@@ -20,6 +20,7 @@ export default tseslint.config(
       'build/**',
       'coverage/**',
       '.astro/**',
+      '.cloudflare/**',
       'src/__fixtures__/**',
       '*.js',
       '*.mjs',

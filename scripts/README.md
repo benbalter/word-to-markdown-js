@@ -27,7 +27,7 @@ report. Fixtures are generated from LLM specs and only kept if the real converte
 can read them (round-trip guard).
 
 ```bash
-node scripts/spike.mjs        # sanity: build+convert one hand-written fixture
+node scripts/spike.mjs        # quick check: build+convert one hand-written fixture
 npm run gen:specs             # A1 (credits): LLM → scripts/eval-specs/*.json
 npm run gen:fixtures          # A2: specs → src/__fixtures__/eval/*.{docx,md}
 npm run gen:judge             # A3/A4 (credits): score fidelity → docs/converter-quality-report.md
