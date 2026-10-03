@@ -1,7 +1,4 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "github>benbalter/renovate-config:instant",
-    "helpers:pinGitHubActionDigests"
-  ]
+  "extends": ["github>benbalter/renovate-config:instant"]
 }
