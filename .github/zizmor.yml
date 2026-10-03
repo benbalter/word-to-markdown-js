@@ -1,0 +1,8 @@
+# Actions are referenced by version tag, not SHA: the pin churn was noise
+# (see benbalter/renovate-config 2482ee7). Tell zizmor's unpinned-uses audit
+# that a tag is the intended policy, so it doesn't flag every step.
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        '*': ref-pin
