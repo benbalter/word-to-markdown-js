@@ -20,6 +20,7 @@ npm run all          # fix + typecheck + test + build (not everything CI runs; s
 ```
 
 Run a single unit test: `NODE_OPTIONS=--experimental-vm-modules npx jest src/__tests__/smart-quotes.test.ts`
+
 Run a single e2e spec: `npx playwright test src/__tests__/e2e/i18n.spec.ts`
 
 Node 24.21.0 is pinned (`.nvmrc`, `.tool-versions`, Volta). The `--experimental-vm-modules` flag is required because the project is pure ESM and Jest runs the TS sources via `ts-jest` ESM preset.
