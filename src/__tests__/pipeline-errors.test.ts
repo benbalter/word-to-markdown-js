@@ -72,7 +72,7 @@ describe('pipeline stage failures', () => {
     expect((cause as Error).message).toBe('boom prettier');
   });
 
-  it('converts normally when neither stage throws (mock sanity check)', async () => {
+  it('converts normally when neither stage throws (mock check)', async () => {
     throwIn = 'none';
     const markdown = await convert(VALID);
     expect(typeof markdown).toBe('string');
