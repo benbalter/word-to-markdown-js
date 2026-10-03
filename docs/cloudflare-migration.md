@@ -4,9 +4,7 @@
 > Pages workflow is gone. This runbook is kept for reference and for the
 > rollback steps below.
 
-This repo is preconfigured for **Cloudflare Workers (Static Assets)** — the
-model Cloudflare's Git integration now uses for sites (it runs `wrangler
-deploy`, not the older `wrangler pages deploy`).
+This repo is preconfigured for **Cloudflare Workers (Static Assets)** — the model Cloudflare's Git integration now uses for sites (it runs `wrangler deploy`, not the older `wrangler pages deploy`).
 
 - `wrangler.jsonc` — serves `dist/` via the `ASSETS` binding and runs the Worker
   first only on `/` and `/api/event`.
@@ -15,10 +13,7 @@ deploy`, not the older `wrangler pages deploy`).
   through to static assets via `env.ASSETS.fetch()`.
 - The site stays a static Astro build (`output: 'static'`); no SSR adapter.
 
-Everything below is done in the Cloudflare dashboard and your DNS — there's no
-more code to write. Steps are ordered so the live site never breaks: stand up
-Cloudflare in parallel, verify it on its `*.workers.dev` URL, then move the
-domain.
+Everything below is done in the Cloudflare dashboard and your DNS — there's no more code to write. Steps are ordered so the live site never breaks: stand up Cloudflare in parallel, verify it on its `*.workers.dev` URL, then move the domain.
 
 > If you connected the repo and the first build failed with _"you have run
 > `wrangler deploy` on a Pages project"_ — that was the old Pages-style
@@ -27,21 +22,17 @@ domain.
 ## 1. Create the Worker (no DNS change yet)
 
 1. Sign up at <https://dash.cloudflare.com> (free).
-2. **Workers & Pages → Create → Import a repository**, authorize GitHub, and
-   pick `benbalter/word-to-markdown-js`.
+2. **Workers & Pages → Create → Import a repository**, authorize GitHub, and pick `benbalter/word-to-markdown-js`.
 3. Build settings:
    - **Build command:** `npm run build`
    - **Deploy command:** `npx wrangler deploy` (the default)
    - Output is taken from `wrangler.jsonc` (`assets.directory: ./dist`).
-4. Deploy. You'll get a `https://word-to-markdown-js.<your-subdomain>.workers.dev`
-   URL.
+4. Deploy. You'll get a `https://word-to-markdown-js.<your-subdomain>.workers.dev` URL.
 
 ## 2. Verify on the workers.dev URL before touching DNS
 
-- Open the `*.workers.dev` URL and a few localized paths (`/id/`, `/vi/`,
-  `/de/`). Confirm pages render and the language switcher works.
-- Test the edge redirect (it only runs on Cloudflare, not in a local static
-  preview):
+- Open the `*.workers.dev` URL and a few localized paths (`/id/`, `/vi/`, `/de/`). Confirm pages render and the language switcher works.
+- Test the edge redirect (it only runs on Cloudflare, not in a local static preview):
   ```sh
   WD=https://word-to-markdown-js.<your-subdomain>.workers.dev
   # 302 to /de/ (no cookie, German preferred):
@@ -56,15 +47,11 @@ domain.
 
 ## 3. Move the domain
 
-Apex domains (`word2md.com`) need Cloudflare to manage DNS (for CNAME
-flattening). Recommended path:
+Apex domains (`word2md.com`) need Cloudflare to manage DNS (for CNAME flattening). Recommended path:
 
 1. In Cloudflare: **Add a site** → `word2md.com` → it scans existing DNS records.
-2. At your domain registrar, change the **nameservers** to the two Cloudflare
-   gives you. (Propagation: minutes to a few hours.)
-3. In the Worker: **Settings → Domains & Routes → Add → Custom domain** →
-   `word2md.com` (and optionally `www`). Cloudflare adds the records
-   automatically once it manages the zone.
+2. At your domain registrar, change the **nameservers** to the two Cloudflare gives you. (Propagation: minutes to a few hours.)
+3. In the Worker: **Settings → Domains & Routes → Add → Custom domain** → `word2md.com` (and optionally `www`). Cloudflare adds the records automatically once it manages the zone.
 4. Wait for the domain to show **Active** and HTTPS to provision.
 
 ## 4. Decommission GitHub Pages (after Cloudflare is live)
@@ -72,14 +59,11 @@ flattening). Recommended path:
 Once `https://word2md.com` is served by Cloudflare and verified:
 
 1. Repo **Settings → Pages** → set Source to **None** (disables GitHub Pages).
-2. Delete `.github/workflows/static.yml` in a follow-up PR (it deploys to GitHub
-   Pages and is now redundant). Cloudflare's Git integration handles deploys.
+2. Delete `.github/workflows/static.yml` in a follow-up PR (it deploys to GitHub Pages and is now redundant). Cloudflare's Git integration handles deploys.
 
 ## Rollback
 
-If anything looks wrong after the DNS move, revert the nameservers (or the
-custom-domain record) back to GitHub Pages. Because GitHub Pages stays enabled
-until step 4, the old deployment is still there as a fallback.
+If anything looks wrong after the DNS move, revert the nameservers (or the custom-domain record) back to GitHub Pages. Because GitHub Pages stays enabled until step 4, the old deployment is still there as a fallback.
 
 ## Notes & options
 

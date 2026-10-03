@@ -89,8 +89,7 @@ The converted Markdown is written to **stdout** and any document warnings (encry
 
 Options:
 
-- `-o, --output <file>` — write the Markdown to `<file>` instead of stdout
-  (warnings still go to stderr).
+- `-o, --output <file>` — write the Markdown to `<file>` instead of stdout (warnings still go to stderr).
 - `--bullet-lists` — convert numbered lists to bullets instead of keeping `1./2./3.`.
 - `--underline` — preserve underlined text as inline `<u>` tags (dropped by default).
 - `--strip-images` — remove images instead of embedding them as base64 data URIs.
@@ -206,12 +205,7 @@ To self-host the static site using Docker Compose:
 3. Run `docker compose up -d`
 4. Access at http://localhost:3000
 
-This serves `dist/` with plain nginx, so it skips what the Cloudflare Worker and
-`public/_headers` add in production: the `Accept-Language` redirect on `/`, the
-`/api/event` counter (requests to it 404), the security headers, and long-lived
-caching for `/_astro/*`. Conversion itself runs in the browser and works the
-same. For a production-like local setup, run `npm run build` and then
-`npx wrangler dev`.
+This serves `dist/` with plain nginx, so it skips what the Cloudflare Worker and `public/_headers` add in production: the `Accept-Language` redirect on `/`, the `/api/event` counter (requests to it 404), the security headers, and long-lived caching for `/_astro/*`. Conversion itself runs in the browser and works the same. For a production-like local setup, run `npm run build` and then `npx wrangler dev`.
 
 ## More context
 

@@ -1,8 +1,6 @@
 # End-to-End Testing with Playwright
 
-The E2E suite uses [Playwright](https://playwright.dev/) to test the built
-static site (`dist/`) in a real browser. There is no server-side API: all
-conversion happens client-side, so every test drives the web UI.
+The E2E suite uses [Playwright](https://playwright.dev/) to test the built static site (`dist/`) in a real browser. There is no server-side API: all conversion happens client-side, so every test drives the web UI.
 
 ## Test Structure
 
@@ -22,8 +20,7 @@ src/__tests__/e2e/
 `playwright.config.ts`:
 
 - Runs Chromium via the system Chrome (`channel: 'chrome'`).
-- Serves `dist/` with `npm run preview -- --port 8080` and reuses an
-  already-running server outside CI.
+- Serves `dist/` with `npm run preview -- --port 8080` and reuses an already-running server outside CI.
 - Retries twice and runs one worker in CI.
 
 The config does **not** build the site. Build it first.
@@ -42,22 +39,17 @@ npx playwright show-report                            # HTML report
 ## Prerequisites
 
 - Node.js 24 (pinned in `.nvmrc`)
-- Google Chrome. If it's missing, install it or run
-  `npx playwright install chrome`.
+- Google Chrome. If it's missing, install it or run `npx playwright install chrome`.
 
 ## Test Data
 
-Tests upload Word fixtures from `src/__fixtures__/`, for example `h1.docx`,
-`multiple-headings.docx`, `table.docx` and `strong.docx`.
+Tests upload Word fixtures from `src/__fixtures__/`, for example `h1.docx`, `multiple-headings.docx`, `table.docx` and `strong.docx`.
 
 ## Troubleshooting
 
-**Port 8080 in use:** stop the other process (`lsof -i :8080`), or leave a
-preview of the current build running and Playwright will reuse it.
+**Port 8080 in use:** stop the other process (`lsof -i :8080`), or leave a preview of the current build running and Playwright will reuse it.
 
-**`Process from config.webServer exited early`:** some environments make
-`astro preview` detach into the background. Start `npm run preview -- --port
-8080` yourself, then rerun the tests.
+**`Process from config.webServer exited early`:** some environments make `astro preview` detach into the background. Start `npm run preview -- --port 8080` yourself, then rerun the tests.
 
 ## Writing New Tests
 
@@ -69,5 +61,4 @@ test('does the new thing', async ({ page }) => {
 });
 ```
 
-Check selectors against the existing specs. Don't use fixed timeouts; wait
-with `await expect(...).toBeVisible()` and similar.
+Check selectors against the existing specs. Don't use fixed timeouts; wait with `await expect(...).toBeVisible()` and similar.
