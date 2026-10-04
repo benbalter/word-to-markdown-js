@@ -105,7 +105,9 @@ test.describe('Word to Markdown Web Interface', () => {
       .toContain('<h1>Heading 1</h1>');
   });
 
-  test('Ctrl+A in an output panel selects only that panel', async ({ page }) => {
+  test('Ctrl+A in an output panel selects only that panel', async ({
+    page,
+  }) => {
     const fixturePath = path.join(__dirname, '../../__fixtures__/h1.docx');
     await page.locator('#file').setInputFiles(fixturePath);
     const output = page.locator('#output');
@@ -125,7 +127,12 @@ test.describe('Word to Markdown Web Interface', () => {
     const renderedSelection = await page.evaluate(() =>
       window.getSelection()?.toString(),
     );
-    expect(renderedSelection?.trim()).toBe('Heading 1');
+    // Selection.toString() and textContent disagree on line breaks between
+    // block elements, so check the panel's text is there and the Markdown
+    // panel's (or the rest of the page's) isn't.
+    expect(renderedSelection).toContain('Heading 1');
+    expect(renderedSelection).toContain('Paragraph text');
+    expect(renderedSelection).not.toContain('# Heading 1');
   });
 
   test('runs the conversion in a Web Worker (off the main thread)', async ({
