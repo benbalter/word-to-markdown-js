@@ -33,6 +33,14 @@
   "analytics_engine_datasets": [
     { "binding": "EVENTS", "dataset": "word2md_events" },
   ],
+  // Worker Previews (`wrangler preview`, run by Workers Builds for every
+  // non-main branch) need their own bindings. Previews write to a separate
+  // dataset so beacons from preview pages never count in production totals.
+  "previews": {
+    "analytics_engine_datasets": [
+      { "binding": "EVENTS", "dataset": "word2md_events_preview" },
+    ],
+  },
   // Real-time issue detection: groups uncaught exceptions, 5xx responses, and
   // console.error() calls into Issues in the dashboard. Set here because a
   // dashboard-only toggle is turned off by the next deploy.
