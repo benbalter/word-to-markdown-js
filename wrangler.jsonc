@@ -8,6 +8,15 @@
   // assets. `name` matches the Cloudflare project created from the repo.
   "name": "word-to-markdown-js",
   "compatibility_date": "2026-06-01",
+  // The site lives only at word2md.com. The *.workers.dev route was for
+  // verification before the DNS cutover; left on, it serves a full mirror that
+  // skips the zone's rules and Web Analytics. Set here because a dashboard
+  // toggle is re-enabled by the next deploy. Preview URLs stay on so each PR's
+  // Workers Builds preview runs the real Worker before production; disabling
+  // workers.dev doesn't disable them.
+  // https://developers.cloudflare.com/workers/configuration/routing/workers-dev/
+  "workers_dev": false,
+  "preview_urls": true,
   "main": "worker/index.js",
   "assets": {
     "directory": "./dist",

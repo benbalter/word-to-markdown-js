@@ -61,6 +61,7 @@ If anything looks wrong after the DNS move, revert the nameservers (or the custo
 ## Notes & options
 
 - **Local check:** `npx wrangler dev` runs the Worker + assets on miniflare (`http://localhost:8787`) so you can curl the redirect behavior without deploying.
-- **Build command:** `npm run build` runs the library `tsc` step too; `npm run build:site` alone also produces `dist` if you prefer a leaner build.
+- **Build command:** the production trigger runs `npm run build && npm test`, so a failing Jest suite stops the deploy (the CLI tests reuse the fresh `build/`). It skips commits that only touch `.github/`, `docs/`, `src/__tests__/`, `CHANGELOG.md`, `README.md`, or `CONTRIBUTING.md`. A second trigger builds every other branch and runs `npx wrangler versions upload`, giving each PR a preview URL that runs the real Worker.
+- **workers.dev:** disabled in `wrangler.jsonc` (`workers_dev: false`) now that the custom domain is live; `preview_urls: true` keeps PR previews working.
 - **No auto-redirect, if you prefer:** the language switcher already gives full manual control. To disable auto-redirect entirely (the most conservative SEO choice), set `run_worker_first` to `[]` in `wrangler.jsonc` (or remove `worker/index.js` and the `main`/`run_worker_first` keys) and drop the inline cookie script in `web/layouts/Layout.astro`.
 - **Tuning the redirect:** the Worker's `SUPPORTED_LOCALES` is derived from `web/i18n/locales.ts`, the single source of truth for locales.
