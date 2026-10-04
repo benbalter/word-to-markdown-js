@@ -198,6 +198,123 @@ function rowCells(row: HTMLElement): HTMLElement[] {
   );
 }
 
+// Word's table grid, flattened onto the rows: every row gets one explicit
+// <td> per grid column, and no cell keeps a colspan/rowspan.
+//
+// Markdown has no merged cells, so the only faithful degradation is to expand
+// each merge into real cells: the spanned text lands in the first of the merged
+// cells and the rest are empty. That also removes the reason the output was
+// invalid before. Turndown's GFM table plugin derives the delimiter row's cell
+// count from the table's *cell* count (max over rows) while expanding the
+// header row's colspans, so a header whose colspans make it shorter than the
+// widest row yields a delimiter with too many cells and the whole table stops
+// being a GFM table. It ignores rowspan entirely, leaving later rows one cell
+// short. Filling the grid up front makes every row the same width, leaves both
+// plugin assumptions true, and is the behavior Markdown can actually represent.
+//
+// Must run after the 1×1 <pre> unwrap above (which keys on a cell count of 1)
+// and before the header promotion below.
+function expandMergedCells(table: HTMLElement): void {
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) return;
+  // Turndown's GFM plugin renders a one-row, one-cell table as plain content
+  // instead of a table, so the colspan has to survive for that check to fire:
+  // without it, a bordered single-cell box turns into a two-column table.
+  if (rows.length === 1 && rowCells(rows[0]).length === 1) return;
+
+  // Grid columns covered by a rowspan that started in an earlier row, mapped to
+  // the first row that reaches them and dropped as it is filled.
+  const carriedOver = new Map<number, number>();
+
+  for (let r = 0; r < rows.length; r++) {
+    const row = rows[r];
+    // The cells this row contributes itself (colspans still collapsed), each
+    // read alongside the column it starts at, which skips the columns carried
+    // over from the rows above.
+    const placed: { cell: HTMLElement; column: number; colspan: number }[] = [];
+    let column = 0;
+    for (const cell of rowCells(row)) {
+      while (carriedOver.has(column)) column++;
+      const colspan = spanOf(cell, 'colspan');
+      placed.push({ cell, column, colspan });
+      column += colspan;
+    }
+
+    // One output cell per grid column: the row's own cell where it starts, an
+    // empty cell for the rest of its colspan, and an empty cell wherever a
+    // rowspan from above covers this row.
+    const expanded = new Map<number, HTMLElement>();
+    for (const { cell, column: start, colspan } of placed) {
+      for (let i = 0; i < colspan; i++) {
+        if (i === 0) {
+          expanded.set(start, cell);
+          continue;
+        }
+        const filler = emptyCellLike(cell);
+        cell.after(filler);
+        expanded.set(start + i, filler);
+      }
+      // Cover this cell's columns in the rows it spans. A column already taken
+      // by a merge from higher up keeps its original start, so a merge that
+      // collides is truncated rather than stealing the column.
+      const rowspan = spanOf(cell, 'rowspan');
+      for (let c = start; c < start + colspan; c++) {
+        for (let i = 1; i < rowspan && r + i < rows.length; i++) {
+          const covered = carriedOver.get(c);
+          if (covered === undefined || r + i < covered) {
+            carriedOver.set(c, r + i);
+          }
+        }
+      }
+    }
+
+    // Fill the columns this row inherits from a rowspan above. Anchoring each
+    // filler to the cell before it — or to the front of the row when it is the
+    // first column — keeps them in grid order however the row itself is built.
+    for (const [target, firstRow] of [...carriedOver].sort(
+      (a, b) => a[0] - b[0],
+    )) {
+      if (firstRow !== r) continue;
+      const anchor = expanded.get(target - 1);
+      const filler = emptyCellLike(anchor ?? placed[0]?.cell ?? null);
+      if (anchor) anchor.after(filler);
+      else row.prepend(filler);
+      expanded.set(target, filler);
+      carriedOver.delete(target);
+    }
+
+    for (const { cell } of placed) {
+      cell.removeAttribute('colspan');
+      cell.removeAttribute('rowspan');
+    }
+  }
+}
+
+// A merge's extent. Only counts above one: `colspan="0"`/`"-1"` (which Word
+// writes for a merge running to the end of the row) and junk values mean "one
+// cell", the same as no attribute at all.
+function spanOf(cell: HTMLElement, attribute: string): number {
+  const raw = Number.parseInt(cell.getAttribute(attribute) ?? '', 10);
+  return Number.isInteger(raw) && raw > 1 ? raw : 1;
+}
+
+// An empty, unspanned <td> shaped like `cell`, so the filler inherits the same
+// tag (the header promotion pass runs later) and paragraph nesting as the cell
+// it stands in for. No model to copy means every cell in the row is empty,
+// where a <td> keeps the existing behavior of promoting the next non-empty row
+// instead.
+function emptyCellLike(cell: HTMLElement | null): HTMLElement {
+  const copy = cell ? parse(cell.outerHTML) : null;
+  const source = (copy?.querySelector('td, th') ?? copy) as HTMLElement | null;
+  const empty =
+    source ?? parse('<table><tr><td></td></tr></table>').querySelector('td')!;
+  empty.tagName = 'td';
+  empty.removeAttribute('colspan');
+  empty.removeAttribute('rowspan');
+  empty.innerHTML = '';
+  return empty;
+}
+
 // Mammoth renders footnotes/endnotes as a trailing <ol> whose items carry ids
 // like `footnote-1` / `endnote-1`.
 const NOTE_ITEM_ID = /^(?:foot|end)note-\d+$/;
@@ -268,6 +385,12 @@ export function processHtml(
     if (pres.length !== 1) return;
     if (cell.textContent.trim() !== pres[0].textContent.trim()) return;
     table.replaceWith(pres[0]);
+  });
+
+  // Flatten Word's merged cells into one empty <td> per spanned grid column.
+  // Runs after the 1×1 <pre> unwrap above, which keys on a cell count of one.
+  root.querySelectorAll('table').forEach((table: HTMLElement) => {
+    expandMergedCells(table);
   });
 
   // Process tables - convert first row to table headers
