@@ -82,9 +82,12 @@ describe('edge cases and advanced features', () => {
 
   // Test table edge cases
   it('should handle tables with colspan and rowspan', async () => {
-    const { htmlToMd } = await import('../main.js');
+    const { htmlToMd, processHtml } = await import('../main.js');
 
-    // Note: Most Markdown flavors don't support colspan/rowspan, but we test graceful degradation
+    // Markdown has no merged cells, so merges degrade into empty cells. Going
+    // through processHtml (as the converter does) is what makes the rows line
+    // up: header promotion is what asks Turndown for a delimiter row, and that
+    // row used to be built with more cells than the header had.
     const complexTableHtml = `
       <table>
         <tr>
@@ -103,13 +106,140 @@ describe('edge cases and advanced features', () => {
       </table>
     `;
 
-    const result = htmlToMd(complexTableHtml);
+    const result = htmlToMd(processHtml(complexTableHtml));
 
-    // Should contain table structure even if colspan/rowspan is not preserved
-    expect(result).toContain('| Normal cell |'); // First row content
-    expect(result).toContain('Spanning cell');
-    expect(result).toContain('Tall cell');
-    expect(result).toContain('| --- |');
+    // Every row spans the same three columns: the colspan widens the header to
+    // three cells, and the rowspan puts an empty cell in the last row.
+    expect(result).toEqual(
+      [
+        '| Normal cell | Spanning cell |     |',
+        '| --- | --- | --- |',
+        '| Tall cell | Cell 1 | Cell 2 |',
+        '|     | Cell 3 | Cell 4 |',
+      ].join('\n'),
+    );
+  });
+
+  it('should keep the delimiter row in step with a colspan header', async () => {
+    const { htmlToMd, processHtml } = await import('../main.js');
+
+    // https://github.com/benbalter/word-to-markdown-js/issues/282 — a header
+    // whose merged cells make it narrower than the body produced a delimiter
+    // row with more cells than the header, so the table stopped rendering.
+    const html = `
+      <table>
+        <tr>
+          <td>Product</td>
+          <td colspan="2">North America</td>
+          <td colspan="2">Europe</td>
+        </tr>
+        <tr>
+          <td>Item</td>
+          <td>Q1</td>
+          <td>Q2</td>
+          <td>Q1</td>
+          <td>Q2</td>
+        </tr>
+      </table>
+    `;
+
+    const result = htmlToMd(processHtml(html));
+    const widths = result
+      .split('\n')
+      .filter((line: string) => line.startsWith('|'))
+      .map((line: string) => line.split('|').length - 2);
+
+    expect(widths).toEqual([5, 5, 5]);
+    expect(result).toContain(
+      '| Product | North America |     | Europe |     |',
+    );
+  });
+
+  it('should not pad a one-cell table into a table', async () => {
+    const { htmlToMd, processHtml } = await import('../main.js');
+
+    // Word's bordered single-cell box: rendered as content, not a table, and
+    // the colspan must not turn it into a two-column one.
+    const html = '<table><tr><td colspan="2"><p>Note</p></td></tr></table>';
+
+    expect(htmlToMd(processHtml(html))).toEqual('Note');
+  });
+
+  it('should ignore a merge extent that is not a count', async () => {
+    const { htmlToMd, processHtml } = await import('../main.js');
+
+    // Word writes colspan="0"/"-" for a merge that runs to the end of the row.
+    const html =
+      '<table><tr><td>a</td><td>b</td></tr><tr><td colspan="0">c</td><td rowspan="-1">d</td></tr></table>';
+
+    expect(htmlToMd(processHtml(html))).toEqual(
+      ['| a   | b   |', '| --- | --- |', '| c   | d   |'].join('\n'),
+    );
+  });
+
+  it('should fill every row a rowspan covers, not just the next one', async () => {
+    const { htmlToMd, processHtml } = await import('../main.js');
+
+    const html =
+      '<table><tr><td>H1</td><td>H2</td></tr><tr><td rowspan="3">A</td><td>1</td></tr><tr><td>2</td></tr><tr><td>3</td></tr></table>';
+
+    expect(htmlToMd(processHtml(html))).toEqual(
+      [
+        '| H1  | H2  |',
+        '| --- | --- |',
+        '| A   | 1   |',
+        '|     | 2   |',
+        '|     | 3   |',
+      ].join('\n'),
+    );
+  });
+
+  it('should fill a block merged across both rows and columns', async () => {
+    const { htmlToMd, processHtml } = await import('../main.js');
+
+    const html =
+      '<table><tr><td>a</td><td>b</td><td>c</td></tr><tr><td colspan="2" rowspan="2">X</td><td>f</td></tr><tr><td>h</td></tr></table>';
+
+    expect(htmlToMd(processHtml(html))).toEqual(
+      [
+        '| a   | b   | c   |',
+        '| --- | --- | --- |',
+        '| X   |     | f   |',
+        '|     |     | h   |',
+      ].join('\n'),
+    );
+  });
+
+  it("should not apply an outer table's merges to a nested table", async () => {
+    const { processHtml } = await import('../main.js');
+    const { parse } = await import('node-html-parser');
+
+    const html =
+      '<table><tr><td>H1</td><td>H2</td></tr><tr><td rowspan="2">A<table><tr><td>x</td><td>y</td></tr><tr><td>z</td><td>w</td></tr></table></td><td>1</td></tr><tr><td>2</td></tr></table>';
+
+    const inner = parse(processHtml(html)).querySelector('td table')!;
+    const widths = inner
+      .querySelectorAll('tr')
+      .map((row) => row.querySelectorAll('td, th').length);
+
+    expect(widths).toEqual([2, 2]);
+  });
+
+  it('should expand merges in a repeating header row', async () => {
+    const { htmlToMd, processHtml } = await import('../main.js');
+
+    // Mammoth writes a Word row marked "Repeat as header row" as <thead><th>,
+    // which the header promotion leaves alone.
+    const html =
+      '<table><thead><tr><th>Product</th><th colspan="2">North America</th></tr></thead><tbody><tr><td>Shoes</td><td>Q1</td><td>Q2</td></tr></tbody></table>';
+
+    expect(htmlToMd(processHtml(html))).toEqual(
+      [
+        '| Product | North America |     |',
+        '| --- | --- | --- |',
+        '| Shoes | Q1  | Q2  |',
+      ].join('\n'),
+    );
   });
 
   // Test list edge cases
