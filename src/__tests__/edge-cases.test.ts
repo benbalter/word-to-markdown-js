@@ -177,6 +177,71 @@ describe('edge cases and advanced features', () => {
     );
   });
 
+  it('should fill every row a rowspan covers, not just the next one', async () => {
+    const { htmlToMd, processHtml } = await import('../main.js');
+
+    const html =
+      '<table><tr><td>H1</td><td>H2</td></tr><tr><td rowspan="3">A</td><td>1</td></tr><tr><td>2</td></tr><tr><td>3</td></tr></table>';
+
+    expect(htmlToMd(processHtml(html))).toEqual(
+      [
+        '| H1  | H2  |',
+        '| --- | --- |',
+        '| A   | 1   |',
+        '|     | 2   |',
+        '|     | 3   |',
+      ].join('\n'),
+    );
+  });
+
+  it('should fill a block merged across both rows and columns', async () => {
+    const { htmlToMd, processHtml } = await import('../main.js');
+
+    const html =
+      '<table><tr><td>a</td><td>b</td><td>c</td></tr><tr><td colspan="2" rowspan="2">X</td><td>f</td></tr><tr><td>h</td></tr></table>';
+
+    expect(htmlToMd(processHtml(html))).toEqual(
+      [
+        '| a   | b   | c   |',
+        '| --- | --- | --- |',
+        '| X   |     | f   |',
+        '|     |     | h   |',
+      ].join('\n'),
+    );
+  });
+
+  it("should not apply an outer table's merges to a nested table", async () => {
+    const { processHtml } = await import('../main.js');
+    const { parse } = await import('node-html-parser');
+
+    const html =
+      '<table><tr><td>H1</td><td>H2</td></tr><tr><td rowspan="2">A<table><tr><td>x</td><td>y</td></tr><tr><td>z</td><td>w</td></tr></table></td><td>1</td></tr><tr><td>2</td></tr></table>';
+
+    const inner = parse(processHtml(html)).querySelector('td table')!;
+    const widths = inner
+      .querySelectorAll('tr')
+      .map((row) => row.querySelectorAll('td, th').length);
+
+    expect(widths).toEqual([2, 2]);
+  });
+
+  it('should expand merges in a repeating header row', async () => {
+    const { htmlToMd, processHtml } = await import('../main.js');
+
+    // Mammoth writes a Word row marked "Repeat as header row" as <thead><th>,
+    // which the header promotion leaves alone.
+    const html =
+      '<table><thead><tr><th>Product</th><th colspan="2">North America</th></tr></thead><tbody><tr><td>Shoes</td><td>Q1</td><td>Q2</td></tr></tbody></table>';
+
+    expect(htmlToMd(processHtml(html))).toEqual(
+      [
+        '| Product | North America |     |',
+        '| --- | --- | --- |',
+        '| Shoes | Q1  | Q2  |',
+      ].join('\n'),
+    );
+  });
+
   // Test list edge cases
   it('should handle deeply nested mixed lists', async () => {
     const { htmlToMd } = await import('../main.js');

@@ -199,7 +199,7 @@ function rowCells(row: HTMLElement): HTMLElement[] {
 }
 
 // Word's table grid, flattened onto the rows: every row gets one explicit
-// <td> per grid column, and no cell keeps a colspan/rowspan.
+// cell per grid column, and no cell keeps a colspan/rowspan.
 //
 // Markdown has no merged cells, so the only faithful degradation is to expand
 // each merge into real cells: the spanned text lands in the first of the merged
@@ -215,79 +215,66 @@ function rowCells(row: HTMLElement): HTMLElement[] {
 // Must run after the 1×1 <pre> unwrap above (which keys on a cell count of 1)
 // and before the header promotion below.
 function expandMergedCells(table: HTMLElement): void {
-  const rows = table.querySelectorAll('tr');
+  // Only this table's own rows: a table nested in a cell is expanded on its
+  // own, and must not inherit the outer table's merges.
+  const rows = table
+    .querySelectorAll('tr')
+    .filter((row: HTMLElement) => row.closest('table') === table);
   if (rows.length === 0) return;
   // Turndown's GFM plugin renders a one-row, one-cell table as plain content
   // instead of a table, so the colspan has to survive for that check to fire:
   // without it, a bordered single-cell box turns into a two-column table.
-  if (rows.length === 1 && rowCells(rows[0]).length === 1) return;
+  if (rows.length === 1 && gridCells(rows[0]).length === 1) return;
 
-  // Grid columns covered by a rowspan that started in an earlier row, mapped to
-  // the first row that reaches them and dropped as it is filled.
-  const carriedOver = new Map<number, number>();
+  // For each grid column, the last row a rowspan from above still covers.
+  const coveredUntil: number[] = [];
+  const isCovered = (column: number, r: number) =>
+    (coveredUntil[column] ?? -1) >= r;
 
-  for (let r = 0; r < rows.length; r++) {
-    const row = rows[r];
-    // The cells this row contributes itself (colspans still collapsed), each
-    // read alongside the column it starts at, which skips the columns carried
-    // over from the rows above.
-    const placed: { cell: HTMLElement; column: number; colspan: number }[] = [];
+  rows.forEach((row: HTMLElement, r: number) => {
+    const cells = gridCells(row);
     let column = 0;
-    for (const cell of rowCells(row)) {
-      while (carriedOver.has(column)) column++;
-      const colspan = spanOf(cell, 'colspan');
-      placed.push({ cell, column, colspan });
-      column += colspan;
-    }
-
-    // One output cell per grid column: the row's own cell where it starts, an
-    // empty cell for the rest of its colspan, and an empty cell wherever a
-    // rowspan from above covers this row.
-    const expanded = new Map<number, HTMLElement>();
-    for (const { cell, column: start, colspan } of placed) {
-      for (let i = 0; i < colspan; i++) {
-        if (i === 0) {
-          expanded.set(start, cell);
-          continue;
-        }
-        const filler = emptyCellLike(cell);
-        cell.after(filler);
-        expanded.set(start + i, filler);
-      }
-      // Cover this cell's columns in the rows it spans. A column already taken
-      // by a merge from higher up keeps its original start, so a merge that
-      // collides is truncated rather than stealing the column.
-      const rowspan = spanOf(cell, 'rowspan');
-      for (let c = start; c < start + colspan; c++) {
-        for (let i = 1; i < rowspan && r + i < rows.length; i++) {
-          const covered = carriedOver.get(c);
-          if (covered === undefined || r + i < covered) {
-            carriedOver.set(c, r + i);
-          }
-        }
-      }
-    }
-
-    // Fill the columns this row inherits from a rowspan above. Anchoring each
-    // filler to the cell before it — or to the front of the row when it is the
-    // first column — keeps them in grid order however the row itself is built.
-    for (const [target, firstRow] of [...carriedOver].sort(
-      (a, b) => a[0] - b[0],
-    )) {
-      if (firstRow !== r) continue;
-      const anchor = expanded.get(target - 1);
-      const filler = emptyCellLike(anchor ?? placed[0]?.cell ?? null);
-      if (anchor) anchor.after(filler);
+    let previous: HTMLElement | null = null;
+    // Insert an empty cell at the current column, right after the last one
+    // placed (or at the front of the row), so cells stay in grid order.
+    const fill = (model: HTMLElement | null) => {
+      const filler = emptyCellLike(model);
+      if (previous) previous.after(filler);
       else row.prepend(filler);
-      expanded.set(target, filler);
-      carriedOver.delete(target);
-    }
+      previous = filler;
+      column++;
+    };
 
-    for (const { cell } of placed) {
+    for (const cell of cells) {
+      while (isCovered(column, r)) fill(previous ?? cell);
+      const colspan = spanOf(cell, 'colspan');
+      const rowspan = spanOf(cell, 'rowspan');
+      for (let i = 0; i < colspan; i++) {
+        coveredUntil[column + i] = Math.max(
+          coveredUntil[column + i] ?? -1,
+          r + rowspan - 1,
+        );
+      }
       cell.removeAttribute('colspan');
       cell.removeAttribute('rowspan');
+      previous = cell;
+      column++;
+      for (let i = 1; i < colspan; i++) fill(cell);
     }
-  }
+
+    // Columns past the row's last cell that a rowspan from above still covers.
+    while (coveredUntil.slice(column).some((until) => until >= r)) {
+      fill(previous ?? cells[0] ?? null);
+    }
+  });
+}
+
+// A row's own cells, header cells included: Mammoth writes a Word header row
+// marked "Repeat as header row" as <th>, and its merges need expanding too.
+function gridCells(row: HTMLElement): HTMLElement[] {
+  return (row.childNodes as HTMLElement[]).filter((node: HTMLElement) =>
+    ['td', 'th'].includes(node.tagName?.toLowerCase()),
+  );
 }
 
 // A merge's extent. Only counts above one: `colspan="0"`/`"-1"` (which Word
@@ -298,20 +285,20 @@ function spanOf(cell: HTMLElement, attribute: string): number {
   return Number.isInteger(raw) && raw > 1 ? raw : 1;
 }
 
-// An empty, unspanned <td> shaped like `cell`, so the filler inherits the same
-// tag (the header promotion pass runs later) and paragraph nesting as the cell
-// it stands in for. No model to copy means every cell in the row is empty,
-// where a <td> keeps the existing behavior of promoting the next non-empty row
-// instead.
+// An empty, unspanned cell with the same tag and attributes as `cell`, so a
+// filler in a <th> header row is a <th> too. With no model (a row made up
+// entirely of cells merged down from above) it is a <td>, which the header
+// promotion below treats like any other cell.
 function emptyCellLike(cell: HTMLElement | null): HTMLElement {
-  const copy = cell ? parse(cell.outerHTML) : null;
-  const source = (copy?.querySelector('td, th') ?? copy) as HTMLElement | null;
-  const empty =
-    source ?? parse('<table><tr><td></td></tr></table>').querySelector('td')!;
-  empty.tagName = 'td';
-  empty.removeAttribute('colspan');
-  empty.removeAttribute('rowspan');
-  empty.innerHTML = '';
+  const tag = cell?.tagName.toLowerCase() === 'th' ? 'th' : 'td';
+  const empty = parse(
+    `<table><tr><${tag}></${tag}></tr></table>`,
+  ).querySelector(tag)!;
+  for (const [name, value] of Object.entries(cell?.attributes ?? {})) {
+    if (name !== 'colspan' && name !== 'rowspan') {
+      empty.setAttribute(name, value);
+    }
+  }
   return empty;
 }
 
