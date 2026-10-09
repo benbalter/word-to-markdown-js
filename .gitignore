@@ -47,3 +47,7 @@ playwright-report/
 # offline re-processing, never committed; the eval specs live in
 # scripts/eval-specs/.
 scripts/.gen-cache/
+
+# Impeccable design-skill per-user settings (shared design context is committed)
+.impeccable/config.local.json
+.impeccable/live/

@@ -1,0 +1,307 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-09T22:00:00Z",
+  "title": "Design System: Word to Markdown",
+  "extensions": {
+    "colorMeta": {
+      "chartreuse": {
+        "role": "primary",
+        "displayName": "Signal Chartreuse",
+        "canonical": "#d0d820",
+        "tonalRamp": [
+          "#2a2c00",
+          "#43470a",
+          "#646a00",
+          "#868d00",
+          "#a9b100",
+          "#d0d820",
+          "#e3e86f",
+          "#f3f6c4"
+        ]
+      },
+      "chartreuse-deep": {
+        "role": "primary",
+        "displayName": "Proof Olive",
+        "canonical": "#646a00",
+        "tonalRamp": [
+          "#1c1e00",
+          "#2e3100",
+          "#444800",
+          "#646a00",
+          "#7d8411",
+          "#9aa13a",
+          "#c2c77e",
+          "#e6e9c4"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Document Paper",
+        "canonical": "#f6f5ef"
+      },
+      "paper-card": {
+        "role": "neutral",
+        "displayName": "Fresh Sheet",
+        "canonical": "#fffdf8"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Midnight Ink",
+        "canonical": "#0a1120"
+      },
+      "ink-card": {
+        "role": "neutral",
+        "displayName": "Ink Well",
+        "canonical": "#111c30"
+      },
+      "navy": {
+        "role": "neutral",
+        "displayName": "Brand Navy",
+        "canonical": "#14213c",
+        "tonalRamp": [
+          "#0a1120",
+          "#14213c",
+          "#243049",
+          "#3a4762",
+          "#54607a",
+          "#7a859d",
+          "#9aa6bf",
+          "#e9ebf2"
+        ]
+      },
+      "navy-soft": {
+        "role": "neutral",
+        "displayName": "Slate Note",
+        "canonical": "#54607a"
+      },
+      "mist": {
+        "role": "neutral",
+        "displayName": "Mist",
+        "canonical": "#9aa6bf"
+      },
+      "snow": {
+        "role": "neutral",
+        "displayName": "Snow",
+        "canonical": "#f1f2f7"
+      },
+      "rule-light": {
+        "role": "neutral",
+        "displayName": "Paper Rule",
+        "canonical": "#e5e3d8"
+      },
+      "rule-dark": {
+        "role": "neutral",
+        "displayName": "Ink Rule",
+        "canonical": "#243049"
+      },
+      "alert-error": {
+        "role": "neutral",
+        "displayName": "Alert Red",
+        "canonical": "#9f0712"
+      },
+      "alert-warning": {
+        "role": "neutral",
+        "displayName": "Alert Amber",
+        "canonical": "#7b3306"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The single hero h1, set as the three-family wordmark: italic Fraunces 'Word', Hanken 'to', JetBrains Mono 'Markdown'."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Centered section headings."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card, step, panel, dropzone, and FAQ question titles."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Hero tagline."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Descriptions, table cells, FAQ answers."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Eyebrows, panel headers, captions; switches to sans with normal tracking in RTL."
+      },
+      "code": {
+        "displayName": "Code",
+        "purpose": "Markdown output and file extensions."
+      }
+    },
+    "shadows": [
+      {
+        "name": "resting-hairline",
+        "value": "0 1px 2px rgba(20,33,60,0.04)",
+        "purpose": "Dropzone at rest."
+      },
+      {
+        "name": "drag-glow",
+        "value": "0 14px 40px -18px rgba(208,216,32,0.55)",
+        "purpose": "Dropzone while a file is dragged over it."
+      },
+      {
+        "name": "floating",
+        "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+        "purpose": "Fixed language-suggestion banner."
+      },
+      {
+        "name": "promo-lift",
+        "value": "0 6px 18px rgba(0,0,0,0.35)",
+        "purpose": "Open & Async promo card on hover."
+      }
+    ],
+    "motion": [
+      {
+        "name": "rise",
+        "value": "0.7s cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Staggered page-load reveal (14px rise + fade); delays set per element via --reveal-delay."
+      },
+      {
+        "name": "state",
+        "value": "0.15s–0.18s ease",
+        "purpose": "Border, background, transform, and shadow state transitions."
+      },
+      {
+        "name": "spin",
+        "value": "0.7s linear infinite",
+        "purpose": "Dropzone converting spinner."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Default action button: Download, Convert another, CLI copy.",
+      "html": "<button class=\"ds-btn\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\"/><path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\"/></svg>Download .md</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 8px; border: 1px solid rgb(20 33 60 / 0.15); background: var(--color-paper-card, #fffdf8); color: var(--color-navy, #14213c); font: 500 14px/1.25 'Hanken Grotesk', system-ui, sans-serif; cursor: pointer; transition: border-color .15s, background-color .15s; } .ds-btn:hover { border-color: #d0d820; background: rgb(208 216 32 / 0.1); } .ds-btn:focus-visible { outline: 2px solid #646a00; outline-offset: 2px; }"
+    },
+    {
+      "name": "Accent Button",
+      "kind": "button",
+      "refersTo": "button-accent",
+      "description": "Copy Markdown: the single filled next action after a successful conversion.",
+      "html": "<button class=\"ds-btn-accent\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\"/><path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\"/></svg>Copy Markdown</button>",
+      "css": ".ds-btn-accent { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border: 1px solid #d0d820; cursor: pointer; border-radius: 8px; background: #d0d820; color: #14213c; font: 600 14px/1.25 'Hanken Grotesk', system-ui, sans-serif; box-shadow: 0 1px 2px rgb(0 0 0 / 0.05); transition: background-color .15s, color .15s; } .ds-btn-accent:hover { background: #646a00; color: #fff; } .ds-btn-accent:focus-visible { outline: 2px solid #646a00; outline-offset: 2px; }"
+    },
+    {
+      "name": "Dropzone",
+      "kind": "input",
+      "refersTo": "dropzone",
+      "description": "Signature file input: a label wrapping a visually hidden file input.",
+      "html": "<label class=\"ds-dropzone\"><span class=\"ds-dropzone-icon\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4\"/><path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/><path d=\"M2 15h10\"/><path d=\"m9 18 3-3-3-3\"/></svg></span><span class=\"ds-dropzone-title\">Drop your .docx here</span><span class=\"ds-dropzone-sub\">or <u>click to choose a file</u></span><span class=\"ds-dropzone-note\">Up to 20 MB · Converted on this device, never uploaded</span><input type=\"file\" class=\"ds-sr\"></label>",
+      "css": ".ds-dropzone { display: flex; flex-direction: column; align-items: center; padding: 56px 24px; border: 2px dashed #e5e3d8; border-radius: 16px; background: rgb(255 253 248 / 0.7); backdrop-filter: blur(4px); box-shadow: 0 1px 2px rgba(20,33,60,0.04); text-align: center; cursor: pointer; transition: border-color .18s, background-color .18s, transform .18s, box-shadow .18s; } .ds-dropzone:hover { border-color: rgb(208 216 32 / 0.7); } .ds-dropzone:focus-within { border-color: #d0d820; border-style: solid; outline: 2px solid #646a00; outline-offset: 2px; } .ds-dropzone-icon { display: inline-flex; width: 56px; height: 56px; margin-bottom: 20px; align-items: center; justify-content: center; border-radius: 9999px; border: 1px solid rgb(208 216 32 / 0.4); background: rgb(208 216 32 / 0.1); color: #646a00; } .ds-dropzone-title { font: 500 20px/1.4 Fraunces, Georgia, serif; color: #14213c; } .ds-dropzone-sub { margin-top: 6px; font: 14px/1.4 'Hanken Grotesk', system-ui, sans-serif; color: #54607a; } .ds-dropzone-sub u { color: #646a00; font-weight: 500; text-decoration-thickness: 2px; text-underline-offset: 2px; } .ds-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); } .ds-dropzone-note { margin-top: 20px; font: 500 0.72rem/1.4 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.025em; color: #54607a; }"
+    },
+    {
+      "name": "Result Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Markdown / Preview output panel with a dot-and-mono-label header strip.",
+      "html": "<div class=\"ds-panel\"><div class=\"ds-panel-head\"><span class=\"ds-dot\"></span><span class=\"ds-panel-label\">Markdown</span></div><pre class=\"ds-panel-body\"><code># Heading\n\nSome **bold** text.</code></pre></div>",
+      "css": ".ds-panel { overflow: hidden; border: 1px solid #e5e3d8; border-radius: 12px; background: #fffdf8; } .ds-panel-head { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-bottom: 1px solid #e5e3d8; } .ds-dot { width: 10px; height: 10px; border-radius: 9999px; background: #d0d820; } .ds-panel-label { font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.025em; text-transform: uppercase; color: #54607a; } .ds-panel-body { margin: 0; padding: 12px 16px; font: 0.82rem/1.625 'JetBrains Mono', ui-monospace, monospace; color: #14213c; }"
+    },
+    {
+      "name": "File Chips",
+      "kind": "chip",
+      "refersTo": "file-chip",
+      "description": "Hero transformation strip: neutral input chip, arrow, chartreuse-tinted output chip.",
+      "html": "<div class=\"ds-flow\"><span class=\"ds-chip\">.docx</span><span class=\"ds-arrow\" aria-hidden=\"true\">&rarr;</span><span class=\"ds-chip ds-chip-out\">.md</span></div>",
+      "css": ".ds-flow { display: flex; align-items: center; gap: 12px; } .ds-chip { display: inline-flex; padding: 8px 12px; border: 1px solid #e5e3d8; border-radius: 8px; background: rgb(255 253 248 / 0.7); font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace; color: #54607a; } .ds-chip-out { border-color: rgb(208 216 32 / 0.4); background: rgb(208 216 32 / 0.1); color: #646a00; } .ds-arrow { color: #646a00; font-size: 20px; }"
+    },
+    {
+      "name": "Eyebrow",
+      "kind": "custom",
+      "refersTo": "eyebrow",
+      "description": "Tracked uppercase mono kicker above the hero h1.",
+      "html": "<p class=\"ds-eyebrow\">Free · Open source · 100% in your browser</p>",
+      "css": ".ds-eyebrow { margin: 0; font: 500 0.72rem/1.4 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.22em; text-transform: uppercase; color: #646a00; }"
+    },
+    {
+      "name": "FAQ Disclosure",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Grouped details rows inside one bordered container with internal dividers.",
+      "html": "<div class=\"ds-faq\"><details class=\"ds-faq-row\" open><summary>Are my documents uploaded?<span aria-hidden=\"true\">&#8964;</span></summary><p>No. Conversion happens entirely in your browser.</p></details><details class=\"ds-faq-row\"><summary>Is it free?<span aria-hidden=\"true\">&#8964;</span></summary><p>Yes.</p></details></div>",
+      "css": ".ds-faq { overflow: hidden; border: 1px solid #e5e3d8; border-radius: 12px; } .ds-faq-row { background: rgb(255 253 248 / 0.6); } .ds-faq-row + .ds-faq-row { border-top: 1px solid #e5e3d8; } .ds-faq-row summary { display: flex; justify-content: space-between; gap: 16px; padding: 16px 20px; list-style: none; cursor: pointer; font: 500 16px/1.4 Fraunces, Georgia, serif; color: #14213c; } .ds-faq-row summary span { color: #646a00; transition: transform .15s; } .ds-faq-row[open] summary span { transform: rotate(180deg); } .ds-faq-row summary:focus-visible { outline: 2px solid #646a00; outline-offset: -2px; } .ds-faq-row p { margin: 0; padding: 0 20px 16px; font: 14px/1.625 'Hanken Grotesk', system-ui, sans-serif; color: #54607a; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Typeset Diff",
+    "overview": "Every screen shows the product's one transformation: a document becomes Markdown. The serif (Fraunces, often italic) stands for the Word document, the world of editors and print. The monospace (JetBrains Mono) stands for the result, the world of repos and plain text. A clean grotesque (Hanken Grotesk) carries the body text between them. Chartreuse marks the change, the way a diff highlights the lines that moved.\n\nThe page is calm and editorial. It sits on warm document paper in light mode and deep navy-black ink in dark mode. A faint dot grid in light mode (a soft chartreuse glow in dark) adds texture to the top of the page. The layout is a single centered column with generous vertical space between sections.\n\nThe controls stay quiet so the result can stand out. Buttons, cards and the dropzone are neutral, outlined surfaces until someone interacts with them; then they pick up chartreuse. The only filled chartreuse control is Copy Markdown, the next action after a successful conversion.",
+    "keyCharacteristics": [
+      "Three type families, each with a meaning: serif = document, mono = Markdown, sans = explanation.",
+      "Navy plus a single chartreuse accent, in a light and a dark theme.",
+      "Flat surfaces separated by 1px rules and tone. Shadows only show state.",
+      "Consistent rounded corners (8px controls, 12px panels, 16px dropzone).",
+      "Motion is limited to one staggered page-load reveal, plus hover and drag feedback, and all of it respects reduced motion.",
+      "Built for 21 locales, including right-to-left and CJK."
+    ],
+    "rules": [
+      {
+        "name": "The Diff Highlight Rule",
+        "body": "Chartreuse marks only the transformation (the output, the arrow, the converted file) or the single next action. If it's on something unrelated to the result, take it off.",
+        "section": "colors"
+      },
+      {
+        "name": "The Paper Contrast Rule",
+        "body": "On paper, bright chartreuse may appear only as a fill or tint. Any accent text, icon, or focus ring on paper uses Proof Olive.",
+        "section": "colors"
+      },
+      {
+        "name": "The Theme Pair Rule",
+        "body": "Every color has a dark-mode partner (paper→ink, paper-card→ink-card, navy→snow, navy-soft→mist, rule-light→rule-dark, chartreuse-deep→chartreuse). A new surface isn't finished until both themes are set.",
+        "section": "colors"
+      },
+      {
+        "name": "The Three Voices Rule",
+        "body": "Serif is for things that read like a document (headings, titles). Mono is for things that are, or name, Markdown and files (output, extensions, labels). Sans is for everything else. Don't use mono just to look technical.",
+        "section": "typography"
+      },
+      {
+        "name": "The RTL Tracking Rule",
+        "body": "Tracked mono labels switch to the sans with normal letter spacing in right-to-left locales (rtl:font-sans rtl:tracking-normal), because tracking breaks Arabic letters apart. Every new tracked label needs the same override.",
+        "section": "typography"
+      },
+      {
+        "name": "The State-Only Shadow Rule",
+        "body": "Nothing has a noticeable shadow at rest. A shadow means \"this is responding to you\" or \"this floats above the page.\"",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use the three families for their meanings: Fraunces for document headings, JetBrains Mono for file names, Markdown and labels, and Hanken Grotesk for prose.",
+      "Do pair every color with its dark-mode partner (The Theme Pair Rule) and test both themes.",
+      "Do use Proof Olive (chartreuse-deep) for accent text, icons and focus rings on paper. Keep bright chartreuse for fills, tints and ink backgrounds.",
+      "Do separate surfaces with 1px rules and tone, and group related items in one bordered container with internal dividers.",
+      "Do keep the page's motion to the existing staggered rise reveal (0.7s, cubic-bezier(0.16, 1, 0.3, 1)) and short 0.15–0.18s state transitions, all disabled under prefers-reduced-motion.",
+      "Do add rtl:font-sans rtl:tracking-normal to tracked mono labels and rtl:-scale-x-100 to directional icons.",
+      "Do style through classes or element.style from JS; the site's Content-Security-Policy blocks inline style=\"\" attributes."
+    ],
+    "donts": [
+      "Don't use bright chartreuse as text or an outline on paper; it's about 1.4:1 contrast.",
+      "Don't add a second filled chartreuse button to a screen. The filled accent is reserved for the one next action.",
+      "Don't give resting surfaces a shadow; shadows only show state or floating.",
+      "Don't hard-code a near-white for dark-mode text; use Snow (text-snow, var(--color-snow)).",
+      "Don't let the Open & Async promo take on the converter's styling or appear above the dropzone.",
+      "Don't use mono just to look technical when the text isn't a file, code, Markdown, or a label."
+    ]
+  }
+}
