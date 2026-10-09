@@ -17,6 +17,11 @@
   // https://developers.cloudflare.com/workers/configuration/routing/workers-dev/
   "workers_dev": false,
   "preview_urls": true,
+  // The word2md.com custom domain, declared so it lives with the Worker: a
+  // redeploy (or a move to another Cloudflare account) recreates it instead of
+  // depending on a dashboard setting. Keeping an existing custom domain needs
+  // no extra token permission (Workers Routes Write is only for changes).
+  "routes": [{ "pattern": "word2md.com", "custom_domain": true }],
   "main": "worker/index.js",
   "assets": {
     "directory": "./dist",
