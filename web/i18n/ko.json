@@ -7,6 +7,7 @@
   "dropzoneTitle": ".docx 파일을 여기에 놓으세요",
   "dropzoneBrowsePrefix": "또는 ",
   "dropzoneBrowseLink": "클릭해 파일을 선택하세요",
+  "dropzoneNote": "최대 20 MB · 이 기기에서 변환되며 업로드되지 않습니다",
   "googleDocHint": "Google Docs인가요? File → Download → Microsoft Word (.docx)",
   "convertSectionAria": "문서 변환",
   "convertedLabel": "변환됨",
@@ -17,11 +18,19 @@
   "downloadZipButton": ".zip 다운로드",
   "downloadedZipButton": "다운로드됨",
   "convertAnother": "다른 파일 변환하기",
+  "warnings": {
+    "encrypted": "이 문서는 암호화된 것으로 보여 일부 내용이 누락될 수 있습니다.",
+    "sensitivity": "이 문서에는 민감도 레이블({label})이 있습니다. 변환하고 공유해도 되는지 확인하세요.",
+    "confidentiality": "이 문서는 기밀로 표시되어 있습니다({label}). 변환해도 되는지 확인하세요.",
+    "protected": "이 문서에는 편집 제한이 있어 일부 내용이 제대로 변환되지 않을 수 있습니다.",
+    "contentLoss": "수식이나 지원되지 않는 개체 등 일부 내용은 변환할 수 없어 제외되었습니다.",
+    "technical": "기술 세부 정보"
+  },
   "panelMarkdown": "Markdown",
   "panelPreview": "미리보기",
   "steps": [
     {
-      "t": "업로드",
+      "t": "놓기",
       "d": ".docx 파일을 끌어다 놓거나 클릭해서 선택하세요."
     },
     {
@@ -55,11 +64,11 @@
   "faqs": [
     {
       "q": "Word 문서를 Markdown으로 어떻게 변환하나요?",
-      "a": ".docx 파일을 페이지에 끌어다 놓거나(또는 클릭해 찾아보세요) 업로드하세요. Word to Markdown가 브라우저에서 변환하고 즉시 Markdown을 보여줍니다 — 복사하거나 .md 파일로 다운로드할 수 있습니다."
+      "a": ".docx 파일을 페이지에 끌어다 놓으세요(또는 클릭해서 찾아보세요). Word to Markdown이 브라우저에서 변환하고 즉시 Markdown을 보여줍니다 — 복사하거나 .md 파일로 다운로드할 수 있습니다."
     },
     {
       "q": "Word to Markdown는 무료인가요?",
-      "a": "네. 완전히 무료인 오픈 소스입니다 — 가입도 없고, 파일 제한도 없고, 광고도 없습니다."
+      "a": "네. 완전히 무료인 오픈 소스입니다. 가입도, 광고도 없고, 변환할 수 있는 문서 수에도 제한이 없습니다."
     },
     {
       "q": "문서가 서버에 업로드되나요?",

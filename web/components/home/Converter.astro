@@ -30,6 +30,12 @@ const t = useTranslations(Astro.currentLocale);
     data-downloaded={t.downloadedButton}
     data-downloaded-zip={t.downloadedZipButton}
     data-dismiss={t.dismiss}
+    data-warning-encrypted={t.warnings.encrypted}
+    data-warning-sensitivity={t.warnings.sensitivity}
+    data-warning-confidentiality={t.warnings.confidentiality}
+    data-warning-protected={t.warnings.protected}
+    data-warning-content-loss={t.warnings.contentLoss}
+    data-warning-technical={t.warnings.technical}
   >
     <label
       for="file"
@@ -51,13 +57,15 @@ const t = useTranslations(Astro.currentLocale);
           stroke-linejoin="round"
           aria-hidden="true"
         >
-          <path d="M12 15V3" />
-          <path d="m7 8 5-5 5 5" />
-          <path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" />
+          {/* A file going in, not an upload arrow: nothing leaves the device. */}
+          <path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4" />
+          <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+          <path d="M2 15h10" />
+          <path d="m9 18 3-3-3-3" />
         </svg>
       </span>
       <span
-        class="font-display text-xl font-medium text-navy dark:text-[#f1f2f7]"
+        class="font-display text-xl font-medium text-navy dark:text-snow"
       >
         {t.dropzoneTitle}
       </span>
@@ -66,6 +74,30 @@ const t = useTranslations(Astro.currentLocale);
           class="font-medium text-chartreuse-deep underline decoration-2 underline-offset-2 dark:text-chartreuse"
           >{t.dropzoneBrowseLink}</span
         >
+      </span>
+      {/* Reassurance at the moment of dropping a possibly sensitive file. It
+           stays visible while converting (the dropzone does), not just in the
+           hero above. Also states the browser's size limit up front. */}
+      <span
+        class="mt-5 block max-w-xs font-mono text-[0.72rem] tracking-wide text-balance text-navy-soft sm:max-w-none rtl:font-sans rtl:tracking-normal dark:text-mist"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="me-1.5 inline-block align-[-2px] text-chartreuse-deep dark:text-chartreuse"
+          aria-hidden="true"
+        >
+          <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+        {t.dropzoneNote}
       </span>
       <input
         type="file"
@@ -83,21 +115,24 @@ const t = useTranslations(Astro.currentLocale);
   </div>
 
   {/* Results (revealed after a successful conversion) */}
-  <div id="results" class="hidden">
-    <div
-      class="mt-4 flex flex-col items-center justify-between gap-3 sm:flex-row"
-    >
-      <h2 class="font-display text-lg font-medium text-navy dark:text-[#f1f2f7]">
+  <div id="results" class="hidden scroll-mt-6">
+    {/* Filename on its own line, actions below: side by side, a long name
+         wrapped mid-word ("dropped-" / "content.docx") beside four buttons. */}
+    <div class="mt-4 flex flex-col items-center gap-3 sm:items-start">
+      <h2
+        class="max-w-full text-center font-display text-lg font-medium text-navy sm:text-start dark:text-snow"
+      >
         {t.convertedLabel}{' '}<bdi
           id="filename"
-          class="font-mono text-base text-chartreuse-deep dark:text-chartreuse"
+          class="font-mono text-base break-all text-chartreuse-deep dark:text-chartreuse"
         ></bdi>
       </h2>
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        {/* Copy is the one filled accent on the page: it's the next action. */}
         <button
           id="copy-button"
           type="button"
-          class="inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-[#eef0f6] dark:hover:border-chartreuse"
+          class="inline-flex items-center gap-2 rounded-lg border border-chartreuse bg-chartreuse px-3.5 py-2 text-sm font-semibold text-navy shadow-sm transition-colors hover:border-chartreuse-deep hover:bg-chartreuse-deep hover:text-white"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -119,7 +154,7 @@ const t = useTranslations(Astro.currentLocale);
         <button
           id="download-button"
           type="button"
-          class="inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-[#eef0f6] dark:hover:border-chartreuse"
+          class="inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-snow dark:hover:border-chartreuse"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -142,7 +177,7 @@ const t = useTranslations(Astro.currentLocale);
         <button
           id="download-zip-button"
           type="button"
-          class="hidden items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 disabled:opacity-60 dark:border-white/15 dark:bg-ink-card dark:text-[#eef0f6] dark:hover:border-chartreuse"
+          class="hidden items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 disabled:opacity-60 dark:border-white/15 dark:bg-ink-card dark:text-snow dark:hover:border-chartreuse"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -168,7 +203,7 @@ const t = useTranslations(Astro.currentLocale);
         <button
           id="convert-another"
           type="button"
-          class="inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-[#eef0f6] dark:hover:border-chartreuse"
+          class="inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-snow dark:hover:border-chartreuse"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -206,7 +241,7 @@ const t = useTranslations(Astro.currentLocale);
           >
         </div>
         <pre
-          class="max-h-[28rem] overflow-auto px-4 py-3 text-start" dir="ltr" tabindex="0" data-select-all><code id="output" class="font-mono text-[0.82rem] leading-relaxed text-navy dark:text-[#e3e6ef]"></code></pre>
+          class="max-h-[28rem] overflow-auto px-4 py-3 text-start" dir="ltr" tabindex="0" data-select-all><code id="output" class="font-mono text-[0.82rem] leading-relaxed text-navy dark:text-snow"></code></pre>
       </div>
 
       <div
@@ -232,37 +267,25 @@ const t = useTranslations(Astro.currentLocale);
       </div>
     </div>
 
-    {/* Contextual Open & Async pitch, shown at the moment of peak intent (right
-         after a successful conversion). This is the SOLE post-conversion ask
-         (src/index.ts hides the standalone Promo card on success), so it carries
-         real weight: book cover + a filled button rather than a bare text link.
-         utm_campaign=results lets this placement be told apart from the card. */}
+    {/* Contextual Open & Async pitch after a successful conversion. It is the
+         only ask on the results screen (src/index.ts hides the standalone
+         Promo card on success), but it stays quiet: a hairline row with a text
+         link after the output, so the filled accent belongs to Copy, the next
+         conversion action. utm_campaign=results tells this placement apart
+         from the card. */}
     <aside
-      class="mt-4 flex items-center gap-4 rounded-xl border border-chartreuse/40 bg-chartreuse/10 px-4 py-3.5 text-start dark:bg-chartreuse/5"
+      class="mt-6 flex flex-col gap-1.5 rounded-xl border border-rule-light px-4 py-3 text-start text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4 dark:border-rule-dark"
     >
-      <img
-        src="/open-and-async-cover.png"
-        width="48"
-        height="66"
-        decoding="async"
-        loading="lazy"
-        alt={t.promo.coverAlt}
-        class="hidden shrink-0 rounded shadow-sm sm:block"
-      />
-      <div
-        class="flex flex-1 flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+      <p class="leading-relaxed text-navy-soft dark:text-mist">
+        {t.promo.resultsLead}
+      </p>
+      <a
+        href="https://open-and-async.com/?utm_source=word2md&utm_medium=referral&utm_campaign=results"
+        class="inline-flex shrink-0 items-center gap-1.5 font-medium whitespace-nowrap text-chartreuse-deep underline decoration-chartreuse/50 decoration-2 underline-offset-4 transition-colors hover:decoration-chartreuse dark:text-chartreuse"
       >
-        <p class="text-sm leading-relaxed text-navy-soft dark:text-mist">
-          {t.promo.resultsLead}
-        </p>
-        <a
-          href="https://open-and-async.com/?utm_source=word2md&utm_medium=referral&utm_campaign=results"
-          class="inline-flex shrink-0 items-center gap-1.5 self-start rounded-lg bg-chartreuse px-4 py-2 text-sm font-semibold whitespace-nowrap text-navy shadow-sm transition-colors hover:bg-chartreuse-deep hover:text-white sm:self-auto"
-        >
-          {t.promo.resultsCta}
-          <span aria-hidden="true" class="rtl:-scale-x-100">&rarr;</span>
-        </a>
-      </div>
+        {t.promo.resultsCta}
+        <span aria-hidden="true" class="rtl:-scale-x-100">&rarr;</span>
+      </a>
     </aside>
   </div>
 </section>

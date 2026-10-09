@@ -7,6 +7,7 @@
   "dropzoneTitle": "Sleep je .docx hierheen",
   "dropzoneBrowsePrefix": "of ",
   "dropzoneBrowseLink": "klik om een bestand te kiezen",
+  "dropzoneNote": "Tot 20 MB · Geconverteerd op dit apparaat, nooit geüpload",
   "googleDocHint": "Google Doc? File → Download → Microsoft Word (.docx)",
   "convertSectionAria": "Een document converteren",
   "convertedLabel": "Geconverteerd",
@@ -17,11 +18,19 @@
   "downloadZipButton": ".zip downloaden",
   "downloadedZipButton": "Gedownload",
   "convertAnother": "Nog een bestand converteren",
+  "warnings": {
+    "encrypted": "Dit document lijkt versleuteld te zijn, dus er kan inhoud ontbreken.",
+    "sensitivity": "Dit document heeft een vertrouwelijkheidslabel ({label}). Controleer of je het mag converteren en delen.",
+    "confidentiality": "Dit document is gemarkeerd als vertrouwelijk ({label}). Controleer of je het mag converteren.",
+    "protected": "Dit document heeft bewerkingsbeperkingen, dus sommige inhoud wordt mogelijk niet goed geconverteerd.",
+    "contentLoss": "Sommige inhoud kon niet worden geconverteerd en is weggelaten, zoals vergelijkingen of niet-ondersteunde objecten.",
+    "technical": "Technische details"
+  },
   "panelMarkdown": "Markdown",
   "panelPreview": "Voorbeeld",
   "steps": [
     {
-      "t": "Uploaden",
+      "t": "Slepen",
       "d": "Sleep een .docx-bestand hierheen, of klik om er een te kiezen."
     },
     {
@@ -59,7 +68,7 @@
     },
     {
       "q": "Is Word to Markdown gratis?",
-      "a": "Ja. Het is volledig gratis en open source — geen registratie, geen bestandslimieten en geen advertenties."
+      "a": "Ja. Het is volledig gratis en open source: geen registratie, geen advertenties en geen limiet op hoeveel documenten je converteert."
     },
     {
       "q": "Worden mijn documenten naar een server geüpload?",

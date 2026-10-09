@@ -104,7 +104,7 @@ const { markdown } = await convertWithWarnings(arrayBuffer);
 ### API
 
 - **`convert(input, options?): Promise<string>`** — resolves to the Markdown.
-- **`convertWithWarnings(input, options?): Promise<{ markdown: string; warnings: string[]; images? }>`** — also returns human-readable warnings for encrypted, protected, or sensitivity-labeled documents, and (in `extract` mode) the extracted images.
+- **`convertWithWarnings(input, options?): Promise<{ markdown: string; warnings: string[]; warningDetails: WarningDetail[]; images? }>`** — also returns human-readable warnings for encrypted, protected, or sensitivity-labeled documents and for dropped content, and (in `extract` mode) the extracted images. `warningDetails` has one `{ kind, message, detail? }` entry per warning, where `kind` is `encrypted`, `sensitivity`, `confidentiality`, `protected`, or `content-loss` and `detail` is the document's label or Mammoth's raw message. Use it to present or translate warnings without parsing the English text.
 
 `input` is a file-path `string` (Node) or an `ArrayBuffer`. `options` (type `ConvertOptions`) is optional:
 

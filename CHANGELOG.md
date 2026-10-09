@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- `convertWithWarnings()` now also returns `warningDetails`: one `{ kind, message, detail? }` entry per string in `warnings`, so callers can present or localize warnings without parsing the English text. `kind` is `encrypted`, `sensitivity`, `confidentiality`, `protected`, or `content-loss`. The `warnings` strings are unchanged.
+
+### Changed
+
+- word2md.com: Copy Markdown is now the main action after a conversion, and the result scrolls into view. Warnings appear in the page's language, with the converter's raw messages behind a "Technical details" toggle. Code in the output and preview no longer shows font ligatures, so `->` and `--` look exactly as they're copied.
+
 ## [0.5.1] - 2026-09-30
 
 ### Changed

@@ -7,6 +7,7 @@
   "dropzoneTitle": "Letakkan file .docx Anda di sini",
   "dropzoneBrowsePrefix": "atau ",
   "dropzoneBrowseLink": "klik untuk memilih file",
+  "dropzoneNote": "Hingga 20 MB · Dikonversi di perangkat ini, tidak pernah diunggah",
   "googleDocHint": "Punya Google Doc? File → Unduh → Microsoft Word (.docx)",
   "convertSectionAria": "Konversi dokumen",
   "convertedLabel": "Dikonversi",
@@ -17,11 +18,19 @@
   "downloadZipButton": "Unduh .zip",
   "downloadedZipButton": "Terunduh",
   "convertAnother": "Konversi berkas lain",
+  "warnings": {
+    "encrypted": "Dokumen ini tampaknya terenkripsi, jadi sebagian konten mungkin hilang.",
+    "sensitivity": "Dokumen ini memiliki label sensitivitas ({label}). Pastikan Anda diizinkan untuk mengonversi dan membagikannya.",
+    "confidentiality": "Dokumen ini ditandai rahasia ({label}). Pastikan Anda diizinkan untuk mengonversinya.",
+    "protected": "Dokumen ini memiliki batasan pengeditan, jadi sebagian konten mungkin tidak terkonversi dengan benar.",
+    "contentLoss": "Sebagian konten tidak dapat dikonversi dan dihilangkan, seperti persamaan atau objek yang tidak didukung.",
+    "technical": "Detail teknis"
+  },
   "panelMarkdown": "Markdown",
   "panelPreview": "Pratinjau",
   "steps": [
     {
-      "t": "Unggah",
+      "t": "Letakkan",
       "d": "Seret file .docx, atau klik untuk memilih."
     },
     {
@@ -59,7 +68,7 @@
     },
     {
       "q": "Apakah Word to Markdown gratis?",
-      "a": "Ya. Sepenuhnya gratis dan open source — tanpa pendaftaran, tanpa batas ukuran file, dan tanpa iklan."
+      "a": "Ya. Sepenuhnya gratis dan open source: tanpa pendaftaran, tanpa iklan, dan tanpa batas jumlah dokumen yang Anda konversi."
     },
     {
       "q": "Apakah dokumen saya diunggah ke server?",

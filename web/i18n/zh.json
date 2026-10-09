@@ -7,6 +7,7 @@
   "dropzoneTitle": "将 .docx 拖到这里",
   "dropzoneBrowsePrefix": "或",
   "dropzoneBrowseLink": "点击选择文件",
+  "dropzoneNote": "最大 20 MB · 在此设备上转换，绝不上传",
   "googleDocHint": "Google Docs？文件 → 下载 → Microsoft Word (.docx)",
   "convertSectionAria": "转换文档",
   "convertedLabel": "已转换",
@@ -17,11 +18,19 @@
   "downloadZipButton": "下载 .zip",
   "downloadedZipButton": "已下载",
   "convertAnother": "转换另一个文件",
+  "warnings": {
+    "encrypted": "此文档似乎已加密，因此可能缺少部分内容。",
+    "sensitivity": "此文档带有敏感度标签（{label}）。请确认您有权转换并分享它。",
+    "confidentiality": "此文档已标记为机密（{label}）。请确认您有权转换它。",
+    "protected": "此文档有编辑限制，因此部分内容可能无法正确转换。",
+    "contentLoss": "部分内容无法转换，已被省略，例如公式或不支持的对象。",
+    "technical": "技术详情"
+  },
   "panelMarkdown": "Markdown",
   "panelPreview": "预览",
   "steps": [
     {
-      "t": "上传",
+      "t": "拖放",
       "d": "拖入一个 .docx 文件，或点击选择文件。"
     },
     {
@@ -59,7 +68,7 @@
     },
     {
       "q": "Word to Markdown 是免费的吗？",
-      "a": "是的。它完全免费且开源——无需注册、没有文件数量限制，也没有广告。"
+      "a": "是的。它完全免费且开源：无需注册、没有广告，转换的文档数量也没有限制。"
     },
     {
       "q": "我的文档会被上传到服务器吗？",
