@@ -7,6 +7,7 @@
   "dropzoneTitle": "Släpp din .docx här",
   "dropzoneBrowsePrefix": "eller ",
   "dropzoneBrowseLink": "klicka för att välja en fil",
+  "dropzoneNote": "Upp till 20 MB · Konverteras på den här enheten, laddas aldrig upp",
   "googleDocHint": "Google Doc? Arkiv → Ladda ned → Microsoft Word (.docx)",
   "convertSectionAria": "Konvertera ett dokument",
   "convertedLabel": "Konverterad",
@@ -17,11 +18,19 @@
   "downloadZipButton": "Ladda ner .zip",
   "downloadedZipButton": "Nedladdat",
   "convertAnother": "Konvertera en annan fil",
+  "warnings": {
+    "encrypted": "Dokumentet verkar vara krypterat, så en del innehåll kan saknas.",
+    "sensitivity": "Dokumentet har en känslighetsetikett ({label}). Kontrollera att du får konvertera och dela det.",
+    "confidentiality": "Dokumentet är märkt som konfidentiellt ({label}). Kontrollera att du får konvertera det.",
+    "protected": "Dokumentet har redigeringsbegränsningar, så en del innehåll kanske inte konverteras korrekt.",
+    "contentLoss": "En del innehåll kunde inte konverteras och utelämnades, till exempel ekvationer eller objekt som inte stöds.",
+    "technical": "Tekniska detaljer"
+  },
   "panelMarkdown": "Markdown",
   "panelPreview": "Förhandsvisning",
   "steps": [
     {
-      "t": "Ladda upp",
+      "t": "Släpp",
       "d": "Dra in en .docx-fil eller klicka för att välja en."
     },
     {
@@ -59,7 +68,7 @@
     },
     {
       "q": "Är Word to Markdown gratis?",
-      "a": "Ja. Det är helt gratis och har öppen källkod — ingen registrering, inga filgränser och inga annonser."
+      "a": "Ja. Det är helt gratis och har öppen källkod: ingen registrering, inga annonser och ingen gräns för hur många dokument du konverterar."
     },
     {
       "q": "Laddas mina dokument upp till en server?",

@@ -10,7 +10,7 @@ Drag a `.docx` file onto the page (or click to browse) and Word to Markdown retu
 
 How it works:
 
-1. Upload — drag in a `.docx`, or click to pick one.
+1. Drop — drag in a `.docx`, or click to pick one.
 2. Convert — it transforms locally, with no server and no wait.
 3. Copy — grab clean, GitHub-flavored Markdown.
 

@@ -1,4 +1,4 @@
-import type { ExtractedImage } from './main.js';
+import type { ExtractedImage, WarningDetail } from './main.js';
 
 // Upper bound on the file we'll attempt to read into memory and convert
 // client-side. Comfortably above any real Word document; guards against a
@@ -104,6 +104,7 @@ async function renderPreview(
 interface ConversionResult {
   markdown: string;
   warnings: string[];
+  warningDetails: WarningDetail[];
   images?: ExtractedImage[];
 }
 
@@ -450,11 +451,10 @@ async function processFile(
 
     // Display warnings if any (and drop a previous document's)
     document.getElementById('warning-alert')?.remove();
-    const warnings = ignoredNote
-      ? [...result.warnings, ignoredNote]
-      : result.warnings;
-    if (warnings.length > 0) {
-      showWarnings(warnings);
+    const { lines, technical } = localizeWarnings(result.warningDetails);
+    if (ignoredNote) lines.push(ignoredNote);
+    if (lines.length > 0) {
+      showWarnings(lines, technical);
     }
 
     // Reveal the results with the raw Markdown (the primary output, and the
@@ -507,7 +507,18 @@ async function processFile(
         'Conversion complete. Your Markdown is ready.',
       ),
     );
-    document.getElementById('copy-button')?.focus();
+    // Bring the result into view: it lands where the dropzone was, below the
+    // hero, which on a phone leaves it entirely off screen. Scroll first, then
+    // focus without scrolling so the two don't fight. Both APIs are optional
+    // chained because jsdom (unit tests) implements neither.
+    const reduceMotion = window.matchMedia?.(
+      '(prefers-reduced-motion: reduce)',
+    )?.matches;
+    resultsElement.scrollIntoView?.({
+      behavior: reduceMotion ? 'auto' : 'smooth',
+      block: 'start',
+    });
+    document.getElementById('copy-button')?.focus({ preventScroll: true });
 
     recordConversion('success');
 
@@ -548,7 +559,13 @@ type UIStringKey =
   | 'fileTooLarge'
   | 'conversionAnnouncement'
   | 'converting'
-  | 'onlyFirstFile';
+  | 'onlyFirstFile'
+  | 'warningEncrypted'
+  | 'warningSensitivity'
+  | 'warningConfidentiality'
+  | 'warningProtected'
+  | 'warningContentLoss'
+  | 'warningTechnical';
 
 // Localized UI strings are rendered into the page as data-* attributes on the
 // #input element (see Home.astro), keeping this module framework- and
@@ -618,7 +635,69 @@ function dismissAlert(alert: HTMLElement): void {
   target?.focus();
 }
 
-function showWarnings(warnings: string[]): void {
+// Turn the converter's structured warnings into localized lines for the UI.
+// The converter's own English strings are written for the CLI and library;
+// mammoth's raw messages (e.g. "An unrecognised element was ignored:
+// w:someUnknownElement") collapse into one plain line, with the raw text kept
+// for a "Technical details" disclosure.
+function localizeWarnings(details: readonly WarningDetail[] = []): {
+  lines: string[];
+  technical: string[];
+} {
+  const lines: string[] = [];
+  const technical: string[] = [];
+  for (const warning of details) {
+    const label = warning.detail ?? '';
+    switch (warning.kind) {
+      case 'encrypted':
+        lines.push(
+          uiString(
+            'warningEncrypted',
+            'This document appears to be encrypted, so some content may be missing.',
+          ),
+        );
+        break;
+      case 'sensitivity':
+        lines.push(
+          uiString(
+            'warningSensitivity',
+            "This document has a sensitivity label ({label}). Make sure you're allowed to convert and share it.",
+          ).replace('{label}', () => label),
+        );
+        break;
+      case 'confidentiality':
+        lines.push(
+          uiString(
+            'warningConfidentiality',
+            "This document is marked confidential ({label}). Make sure you're allowed to convert it.",
+          ).replace('{label}', () => label),
+        );
+        break;
+      case 'protected':
+        lines.push(
+          uiString(
+            'warningProtected',
+            'This document has editing restrictions, so some content may not convert properly.',
+          ),
+        );
+        break;
+      case 'content-loss':
+        technical.push(label);
+        break;
+    }
+  }
+  if (technical.length > 0) {
+    lines.push(
+      uiString(
+        'warningContentLoss',
+        "Some content couldn't be converted and was left out, such as equations or unsupported objects.",
+      ),
+    );
+  }
+  return { lines, technical };
+}
+
+function showWarnings(warnings: string[], technical: string[] = []): void {
   // Remove any existing warning alerts
   const existingWarnings = document.getElementById('warning-alert');
   if (existingWarnings) {
@@ -634,7 +713,7 @@ function showWarnings(warnings: string[]): void {
     'relative mt-4 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-start text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200';
 
   const warningList = document.createElement('ul');
-  warningList.className = 'flex-1 list-disc space-y-1 ps-4';
+  warningList.className = 'list-disc space-y-1 ps-4';
   warnings.forEach((warning) => {
     const listItem = document.createElement('li');
     listItem.textContent = warning;
@@ -650,7 +729,30 @@ function showWarnings(warnings: string[]): void {
     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
   closeButton.addEventListener('click', () => dismissAlert(warningElement));
 
-  warningElement.appendChild(warningList);
+  const body = document.createElement('div');
+  body.className = 'flex-1';
+  body.appendChild(warningList);
+  if (technical.length > 0) {
+    const disclosure = document.createElement('details');
+    disclosure.className = 'mt-2';
+    const summary = document.createElement('summary');
+    summary.className =
+      'cursor-pointer text-xs font-medium underline decoration-amber-400 underline-offset-2';
+    summary.textContent = uiString('warningTechnical', 'Technical details');
+    const technicalList = document.createElement('ul');
+    technicalList.className =
+      'mt-1.5 space-y-0.5 font-mono text-[0.72rem] break-words';
+    technicalList.dir = 'ltr';
+    technical.forEach((line) => {
+      const item = document.createElement('li');
+      item.textContent = line;
+      technicalList.appendChild(item);
+    });
+    disclosure.append(summary, technicalList);
+    body.appendChild(disclosure);
+  }
+
+  warningElement.appendChild(body);
   warningElement.appendChild(closeButton);
 
   const resultsElement = document.getElementById('results');

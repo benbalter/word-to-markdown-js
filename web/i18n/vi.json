@@ -7,6 +7,7 @@
   "dropzoneTitle": "Thả tệp .docx của bạn vào đây",
   "dropzoneBrowsePrefix": "hoặc ",
   "dropzoneBrowseLink": "nhấp để chọn tệp",
+  "dropzoneNote": "Tối đa 20 MB · Chuyển đổi ngay trên thiết bị này, không bao giờ được tải lên",
   "googleDocHint": "Google Doc? Tệp → Tải xuống → Microsoft Word (.docx)",
   "convertSectionAria": "Chuyển đổi tài liệu",
   "convertedLabel": "Đã chuyển đổi",
@@ -17,11 +18,19 @@
   "downloadZipButton": "Tải .zip",
   "downloadedZipButton": "Đã tải xuống",
   "convertAnother": "Chuyển đổi tệp khác",
+  "warnings": {
+    "encrypted": "Tài liệu này có vẻ đã được mã hóa, nên có thể thiếu một số nội dung.",
+    "sensitivity": "Tài liệu này có nhãn độ nhạy cảm ({label}). Hãy đảm bảo bạn được phép chuyển đổi và chia sẻ tài liệu.",
+    "confidentiality": "Tài liệu này được đánh dấu là bảo mật ({label}). Hãy đảm bảo bạn được phép chuyển đổi tài liệu.",
+    "protected": "Tài liệu này có hạn chế chỉnh sửa, nên một số nội dung có thể không được chuyển đổi chính xác.",
+    "contentLoss": "Một số nội dung không thể chuyển đổi và đã bị bỏ qua, chẳng hạn như phương trình hoặc đối tượng không được hỗ trợ.",
+    "technical": "Chi tiết kỹ thuật"
+  },
   "panelMarkdown": "Markdown",
   "panelPreview": "Xem trước",
   "steps": [
     {
-      "t": "Tải lên",
+      "t": "Thả tệp",
       "d": "Kéo tệp .docx vào, hoặc nhấp để chọn."
     },
     {
@@ -59,7 +68,7 @@
     },
     {
       "q": "Word to Markdown có miễn phí không?",
-      "a": "Có. Hoàn toàn miễn phí và mã nguồn mở — không cần đăng ký, không giới hạn dung lượng tệp, và không quảng cáo."
+      "a": "Có. Hoàn toàn miễn phí và mã nguồn mở: không cần đăng ký, không quảng cáo, và không giới hạn số tài liệu bạn chuyển đổi."
     },
     {
       "q": "Tài liệu của tôi có được tải lên máy chủ không?",

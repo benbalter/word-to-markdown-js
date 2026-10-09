@@ -69,9 +69,29 @@ export interface ExtractedImage {
   bytes: Uint8Array;
 }
 
+// A machine-readable form of one entry in `ConvertResult.warnings`, so callers
+// (like the web UI) can present or localize warnings without parsing the
+// English text. `detail` carries the document's own label/marker, or
+// mammoth's raw message for `content-loss`.
+export type WarningKind =
+  | 'encrypted'
+  | 'sensitivity'
+  | 'confidentiality'
+  | 'protected'
+  | 'content-loss';
+
+export interface WarningDetail {
+  kind: WarningKind;
+  /** The same English string that appears in `warnings`. */
+  message: string;
+  detail?: string;
+}
+
 export interface ConvertResult {
   markdown: string;
   warnings: string[];
+  /** One entry per `warnings` string, in the same order. */
+  warningDetails: WarningDetail[];
   /** Present (possibly empty) when converting with `images: 'extract'`. */
   images?: ExtractedImage[];
 }
@@ -739,30 +759,44 @@ export async function extractDocumentProperties(
 
 // Generate warnings based on document properties
 export function generateWarnings(properties: DocumentProperties): string[] {
-  const warnings: string[] = [];
+  return generateWarningDetails(properties).map((w) => w.message);
+}
+
+function generateWarningDetails(
+  properties: DocumentProperties,
+): WarningDetail[] {
+  const warnings: WarningDetail[] = [];
 
   if (properties.encryption) {
-    warnings.push(
-      'Warning: This document appears to be encrypted. Conversion may not include all content or may fail entirely.',
-    );
+    warnings.push({
+      kind: 'encrypted',
+      message:
+        'Warning: This document appears to be encrypted. Conversion may not include all content or may fail entirely.',
+    });
   }
 
   if (properties.sensitivity) {
-    warnings.push(
-      `Warning: This document has sensitivity labels (${properties.sensitivity}). Please ensure you have permission to convert and share this content.`,
-    );
+    warnings.push({
+      kind: 'sensitivity',
+      detail: properties.sensitivity,
+      message: `Warning: This document has sensitivity labels (${properties.sensitivity}). Please ensure you have permission to convert and share this content.`,
+    });
   }
 
   if (properties.confidentiality) {
-    warnings.push(
-      `Warning: This document contains confidentiality markers (${properties.confidentiality}). Please verify that conversion is authorized.`,
-    );
+    warnings.push({
+      kind: 'confidentiality',
+      detail: properties.confidentiality,
+      message: `Warning: This document contains confidentiality markers (${properties.confidentiality}). Please verify that conversion is authorized.`,
+    });
   }
 
   if (properties.protection) {
-    warnings.push(
-      'Warning: This document has editing restrictions enabled. Some content may not convert properly.',
-    );
+    warnings.push({
+      kind: 'protected',
+      message:
+        'Warning: This document has editing restrictions enabled. Some content may not convert properly.',
+    });
   }
 
   return warnings;
@@ -1160,8 +1194,14 @@ function classifyConversionError(error: unknown, filePath?: string): never {
 export function extractMammothWarnings(
   messages: readonly MammothMessage[],
 ): string[] {
+  return extractMammothWarningDetails(messages).map((w) => w.message);
+}
+
+function extractMammothWarningDetails(
+  messages: readonly MammothMessage[],
+): WarningDetail[] {
   const seen = new Set<string>();
-  const warnings: string[] = [];
+  const warnings: WarningDetail[] = [];
 
   for (const message of messages) {
     if (message.type !== 'warning' && message.type !== 'error') {
@@ -1188,7 +1228,11 @@ export function extractMammothWarnings(
     const warning = `Warning: Some document content may not have converted cleanly (${message.message}).`;
     if (!seen.has(warning)) {
       seen.add(warning);
-      warnings.push(warning);
+      warnings.push({
+        kind: 'content-loss',
+        message: warning,
+        detail: message.message,
+      });
     }
   }
 
@@ -1207,15 +1251,18 @@ export async function convertWithWarnings(
 
     // Extract document properties to check for confidentiality flags
     const properties = await extractDocumentProperties(loaded.bytes);
-    const warnings = generateWarnings(properties);
+    const warningDetails = generateWarningDetails(properties);
 
     const { markdown, messages, images } = await runConversionPipeline(
       loaded.mammothInput,
       options,
     );
-    warnings.push(...extractMammothWarnings(messages));
+    warningDetails.push(...extractMammothWarningDetails(messages));
 
-    return images ? { markdown, warnings, images } : { markdown, warnings };
+    const warnings = warningDetails.map((w) => w.message);
+    return images
+      ? { markdown, warnings, warningDetails, images }
+      : { markdown, warnings, warningDetails };
   } catch (error) {
     classifyConversionError(error, filePath);
   }

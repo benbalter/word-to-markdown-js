@@ -8,7 +8,7 @@ interface FaqEntry {
 }
 
 interface Step {
-  /** Short title, e.g. "Upload". */
+  /** Short title, e.g. "Drop". */
   t: string;
   /** One-line description. */
   d: string;
@@ -30,6 +30,8 @@ export interface UIStrings {
   dropzoneTitle: string;
   dropzoneBrowsePrefix: string; // "or "
   dropzoneBrowseLink: string; // "click to browse"
+  /** Line inside the dropzone: size limit + "never uploaded" reassurance. */
+  dropzoneNote: string;
   googleDocHint: string;
   convertSectionAria: string;
 
@@ -47,6 +49,20 @@ export interface UIStrings {
   downloadedZipButton: string;
   /** Resets the converter to accept another document. */
   convertAnother: string;
+  /**
+   * Converter warnings, shown after a conversion. `sensitivity` and
+   * `confidentiality` contain a literal `{label}` placeholder, replaced with
+   * the document's own label/marker text.
+   */
+  warnings: {
+    encrypted: string;
+    sensitivity: string;
+    confidentiality: string;
+    protected: string;
+    contentLoss: string;
+    /** Summary of the disclosure holding the converter's raw messages. */
+    technical: string;
+  };
   panelMarkdown: string;
   panelPreview: string;
 

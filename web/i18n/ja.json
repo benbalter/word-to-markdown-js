@@ -7,6 +7,7 @@
   "dropzoneTitle": ".docx をここにドロップ",
   "dropzoneBrowsePrefix": "または ",
   "dropzoneBrowseLink": "クリックしてファイルを選択",
+  "dropzoneNote": "20 MB まで · このデバイス上で変換、アップロードされません",
   "googleDocHint": "Google Docs？ File → Download → Microsoft Word (.docx)",
   "convertSectionAria": "文書を変換",
   "convertedLabel": "変換済み",
@@ -17,11 +18,19 @@
   "downloadZipButton": ".zip をダウンロード",
   "downloadedZipButton": "ダウンロード済み",
   "convertAnother": "別のファイルを変換",
+  "warnings": {
+    "encrypted": "このドキュメントは暗号化されているようです。一部の内容が欠けている可能性があります。",
+    "sensitivity": "このドキュメントには秘密度ラベル（{label}）が付いています。変換・共有してよいか確認してください。",
+    "confidentiality": "このドキュメントは機密としてマークされています（{label}）。変換してよいか確認してください。",
+    "protected": "このドキュメントには編集制限があるため、一部の内容が正しく変換されない可能性があります。",
+    "contentLoss": "数式やサポートされていないオブジェクトなど、一部の内容は変換できなかったため省略されました。",
+    "technical": "技術的な詳細"
+  },
   "panelMarkdown": "Markdown",
   "panelPreview": "プレビュー",
   "steps": [
     {
-      "t": "アップロード",
+      "t": "ドロップ",
       "d": ".docx ファイルをドラッグ＆ドロップするか、クリックして選択します。"
     },
     {
@@ -59,7 +68,7 @@
     },
     {
       "q": "Word to Markdown は無料ですか？",
-      "a": "はい。完全無料のオープンソースです — 登録不要、ファイル数の制限なし、広告もありません。"
+      "a": "はい。完全無料のオープンソースです。登録不要、広告なし、変換できるドキュメント数にも制限はありません。"
     },
     {
       "q": "文書はサーバーにアップロードされますか？",

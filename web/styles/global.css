@@ -24,6 +24,7 @@
   --color-navy: #14213c; /* primary ink / brand navy */
   --color-navy-soft: #54607a; /* muted text on paper */
   --color-mist: #9aa6bf; /* muted text on ink */
+  --color-snow: #f1f2f7; /* primary text on ink */
   --color-chartreuse: #d0d820; /* signature accent */
   --color-chartreuse-deep: #646a00; /* accent that passes contrast on paper */
   --color-rule-light: #e5e3d8; /* hairline borders on paper */
@@ -32,8 +33,21 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  /* Code shows the exact characters that get copied: JetBrains Mono's
+     ligatures would draw `->` or `--` as single glyphs. */
+  code,
+  pre,
+  kbd,
+  samp {
+    font-variant-ligatures: none;
   }
 
   body {
@@ -48,7 +62,7 @@
   @media (prefers-color-scheme: dark) {
     body {
       background-color: var(--color-ink);
-      color: #e9ebf2;
+      color: var(--color-snow);
     }
   }
 
@@ -302,8 +316,8 @@
 }
 @media (prefers-color-scheme: dark) {
   .prose {
-    --tw-prose-headings: #f1f2f7;
-    --tw-prose-links: #f1f2f7;
-    --tw-prose-bold: #f1f2f7;
+    --tw-prose-headings: var(--color-snow);
+    --tw-prose-links: var(--color-snow);
+    --tw-prose-bold: var(--color-snow);
   }
 }

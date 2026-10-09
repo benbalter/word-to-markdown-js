@@ -7,6 +7,7 @@
   "dropzoneTitle": ".docx dosyanızı buraya bırakın",
   "dropzoneBrowsePrefix": "veya ",
   "dropzoneBrowseLink": "dosya seçmek için tıklayın",
+  "dropzoneNote": "20 MB'a kadar · Bu cihazda dönüştürülür, asla yüklenmez",
   "googleDocHint": "Google Docs mu? File → Download → Microsoft Word (.docx)",
   "convertSectionAria": "Bir belgeyi dönüştür",
   "convertedLabel": "Dönüştürüldü",
@@ -17,11 +18,19 @@
   "downloadZipButton": ".zip dosyasını indir",
   "downloadedZipButton": "İndirildi",
   "convertAnother": "Başka bir dosyayı dönüştür",
+  "warnings": {
+    "encrypted": "Bu belge şifrelenmiş görünüyor, bu nedenle bazı içerikler eksik olabilir.",
+    "sensitivity": "Bu belgede bir duyarlılık etiketi var ({label}). Dönüştürme ve paylaşma izniniz olduğundan emin olun.",
+    "confidentiality": "Bu belge gizli olarak işaretlenmiş ({label}). Dönüştürme izniniz olduğundan emin olun.",
+    "protected": "Bu belgede düzenleme kısıtlamaları var, bu nedenle bazı içerikler düzgün dönüştürülmeyebilir.",
+    "contentLoss": "Denklemler veya desteklenmeyen nesneler gibi bazı içerikler dönüştürülemedi ve atlandı.",
+    "technical": "Teknik ayrıntılar"
+  },
   "panelMarkdown": "Markdown",
   "panelPreview": "Önizleme",
   "steps": [
     {
-      "t": "Yükle",
+      "t": "Bırak",
       "d": ".docx dosyasını sürükleyip bırakın veya seçmek için tıklayın."
     },
     {
@@ -59,7 +68,7 @@
     },
     {
       "q": "Word to Markdown ücretsiz mi?",
-      "a": "Evet. Tamamen ücretsiz ve açık kaynaklıdır — kayıt yok, dosya sınırı yok, reklam yok."
+      "a": "Evet. Tamamen ücretsiz ve açık kaynaklıdır: kayıt yok, reklam yok ve dönüştürebileceğiniz belge sayısında sınır yok."
     },
     {
       "q": "Belgelerim bir sunucuya yükleniyor mu?",

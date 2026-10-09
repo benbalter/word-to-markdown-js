@@ -6,8 +6,9 @@ import { useTranslations } from '../../i18n';
 const t = useTranslations(Astro.currentLocale);
 
 const stepIcons = [
-  // Upload
-  '<path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/>',
+  // Drop a file in (an arrow into a document, not an upload arrow: nothing
+  // leaves the device)
+  '<path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M2 15h10"/><path d="m9 18 3-3-3-3"/>',
   // Convert (transform / two-way arrows)
   '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>',
   // Copy or save
@@ -40,7 +41,7 @@ const stepIcons = [
               {String(i + 1).padStart(2, '0')}
             </span>
           </div>
-          <h2 class="mt-3 font-display text-lg font-medium text-navy dark:text-[#f1f2f7]">
+          <h2 class="mt-3 font-display text-lg font-medium text-navy dark:text-snow">
             {step.t}
           </h2>
           <p class="mt-1 text-sm leading-relaxed text-navy-soft dark:text-mist">

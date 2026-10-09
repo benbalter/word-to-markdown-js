@@ -1,12 +1,13 @@
 {
   "eyebrow": "Free · Open source · 100% in your browser",
-  "tagline": "Convert Word (.docx) files to clean Markdown — entirely in your browser. Your files are never uploaded.",
+  "tagline": "Convert Word (.docx) files to clean Markdown, entirely in your browser. Your files are never uploaded.",
   "trustBadge": "Trusted since 2014",
   "flowFromAlt": "Word document",
   "flowToAlt": "Markdown file",
   "dropzoneTitle": "Drop your .docx here",
   "dropzoneBrowsePrefix": "or ",
   "dropzoneBrowseLink": "click to choose a file",
+  "dropzoneNote": "Up to 20 MB · Converted on this device, never uploaded",
   "googleDocHint": "Google Doc? File → Download → Microsoft Word (.docx)",
   "convertSectionAria": "Convert a document",
   "convertedLabel": "Converted",
@@ -17,16 +18,24 @@
   "downloadZipButton": "Download .zip",
   "downloadedZipButton": "Downloaded",
   "convertAnother": "Convert another file",
+  "warnings": {
+    "encrypted": "This document appears to be encrypted, so some content may be missing.",
+    "sensitivity": "This document has a sensitivity label ({label}). Make sure you're allowed to convert and share it.",
+    "confidentiality": "This document is marked confidential ({label}). Make sure you're allowed to convert it.",
+    "protected": "This document has editing restrictions, so some content may not convert properly.",
+    "contentLoss": "Some content couldn't be converted and was left out, such as equations or unsupported objects.",
+    "technical": "Technical details"
+  },
   "panelMarkdown": "Markdown",
   "panelPreview": "Preview",
   "steps": [
     {
-      "t": "Upload",
+      "t": "Drop",
       "d": "Drag in a .docx file, or click to choose one."
     },
     {
       "t": "Convert",
-      "d": "It converts in your browser — no server, no waiting."
+      "d": "It converts in your browser: no server, no waiting."
     },
     {
       "t": "Copy or save",
@@ -49,17 +58,17 @@
     "Footnotes"
   ],
   "cliHeading": "Prefer the command line?",
-  "cliBody": "Word to Markdown is free and open source. Run it as a command-line tool for scripted or batch conversions — the same converter, no browser needed.",
+  "cliBody": "Word to Markdown is free and open source. Run it as a command-line tool for scripted or batch conversions. Same converter, no browser needed.",
   "cliCta": "Get the CLI",
   "faqHeading": "Frequently asked questions",
   "faqs": [
     {
       "q": "How do I convert a Word document to Markdown?",
-      "a": "Drag a .docx file onto the page (or click to browse). Word to Markdown converts it in your browser and shows the Markdown instantly — copy it or download a .md file."
+      "a": "Drag a .docx file onto the page (or click to browse). Word to Markdown converts it in your browser and shows the Markdown instantly. Copy it or download a .md file."
     },
     {
       "q": "Is Word to Markdown free?",
-      "a": "Yes. It is completely free and open source — no sign-up, no file limits, and no ads."
+      "a": "Yes. It is completely free and open source: no sign-up, no ads, and no limit on how many documents you convert."
     },
     {
       "q": "Are my documents uploaded to a server?",
@@ -79,11 +88,11 @@
     },
     {
       "q": "How is this different from Pandoc?",
-      "a": "Pandoc is a powerful command-line converter, but it has to be installed and configured first. Word to Markdown runs instantly in your browser with nothing to install — just drop in a .docx. For scripted or batch jobs, a command-line version is available too."
+      "a": "Pandoc is a powerful command-line converter, but it has to be installed and configured first. Word to Markdown runs instantly in your browser with nothing to install. Just drop in a .docx. For scripted or batch jobs, a command-line version is available too."
     },
     {
       "q": "Can I use this to prepare documents for ChatGPT, Claude, or other AI tools?",
-      "a": "Yes. Markdown is a clean, token-efficient format for large language models and RAG pipelines. Converting a Word document to Markdown first gives AI tools well-structured text — headings, lists, and tables — without the noise of binary .docx formatting."
+      "a": "Yes. Markdown is a clean, token-efficient format for large language models and RAG pipelines. Converting a Word document to Markdown first gives AI tools well-structured text (headings, lists, and tables) without the noise of binary .docx formatting."
     }
   ],
   "footer": {
@@ -104,7 +113,7 @@
     "Convert Word (.docx) to Markdown",
     "Convert Google Docs to Markdown",
     "GitHub-flavored Markdown output",
-    "100% client-side — nothing is uploaded",
+    "100% client-side: nothing is uploaded",
     "Extract images to files"
   ],
   "errorGeneric": "An unexpected error occurred while converting the document. Please try again.",

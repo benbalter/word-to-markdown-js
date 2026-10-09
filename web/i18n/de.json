@@ -7,6 +7,7 @@
   "dropzoneTitle": "Lege deine .docx hier ab",
   "dropzoneBrowsePrefix": "oder ",
   "dropzoneBrowseLink": "klicke, um eine Datei zu wählen",
+  "dropzoneNote": "Bis 20 MB · Wird auf diesem Gerät konvertiert, nie hochgeladen",
   "googleDocHint": "Google Doc? Datei → Herunterladen → Microsoft Word (.docx)",
   "convertSectionAria": "Dokument umwandeln",
   "convertedLabel": "Umgewandelt",
@@ -17,11 +18,19 @@
   "downloadZipButton": ".zip herunterladen",
   "downloadedZipButton": "Heruntergeladen",
   "convertAnother": "Weitere Datei konvertieren",
+  "warnings": {
+    "encrypted": "Dieses Dokument scheint verschlüsselt zu sein, daher fehlen möglicherweise Inhalte.",
+    "sensitivity": "Dieses Dokument hat eine Vertraulichkeitsbezeichnung ({label}). Stellen Sie sicher, dass Sie es konvertieren und weitergeben dürfen.",
+    "confidentiality": "Dieses Dokument ist als vertraulich gekennzeichnet ({label}). Stellen Sie sicher, dass Sie es konvertieren dürfen.",
+    "protected": "Dieses Dokument hat Bearbeitungseinschränkungen, daher werden manche Inhalte möglicherweise nicht korrekt konvertiert.",
+    "contentLoss": "Einige Inhalte konnten nicht konvertiert werden und wurden weggelassen, etwa Formeln oder nicht unterstützte Objekte.",
+    "technical": "Technische Details"
+  },
   "panelMarkdown": "Markdown",
   "panelPreview": "Vorschau",
   "steps": [
     {
-      "t": "Hochladen",
+      "t": "Ablegen",
       "d": "Ziehe eine .docx-Datei hinein oder klicke zum Auswählen."
     },
     {
@@ -59,7 +68,7 @@
     },
     {
       "q": "Ist Word to Markdown kostenlos?",
-      "a": "Ja. Es ist völlig kostenlos und Open Source — ohne Anmeldung, ohne Dateigrößenbeschränkung und ohne Werbung."
+      "a": "Ja. Es ist völlig kostenlos und Open Source: ohne Anmeldung, ohne Werbung und ohne Begrenzung der Anzahl konvertierter Dokumente."
     },
     {
       "q": "Werden meine Dokumente auf einen Server hochgeladen?",
