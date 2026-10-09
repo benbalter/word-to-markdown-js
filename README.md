@@ -28,8 +28,10 @@ npx word-to-markdown input.docx > output.md
 - **Numbered lists** are kept as `1./2./3.` ordered lists. Pass `{ numberedLists: 'bullets' }` (library) or `--bullet-lists` (CLI) to convert them to bullet lists instead (matching the original word-to-markdown).
 - **Images** are inlined as base64 data URIs by default. To extract them to files with relative links instead, use `{ images: 'extract' }` (library — the bytes come back on `ConvertResult.images`) or `--image-dir <dir>` (CLI). Drop them entirely with `{ images: 'strip' }` / `--strip-images`. On the web, documents with images offer a **Download .zip** (Markdown + an `images/` folder). For full control, pass a custom [Mammoth image handler](https://github.com/mwilliamson/mammoth.js/#images) via `options.mammoth`.
 - **Underline** is dropped by default (Mammoth's default, since underlines are easily confused with links). Pass `{ underline: 'preserve' }` (library) or `--underline` (CLI) to keep it as an inline `<u>` tag.
-- **Footnotes and endnotes** become standard GFM/Pandoc footnotes — a `[^1]` reference in the body and a `[^1]: …` definition at the end — which render on GitHub and in the web preview. Pass `{ footnotes: 'preserve' }` (library) or `--preserve-footnotes` (CLI) to instead keep Mammoth's raw `<sup>` links and numbered note list (useful for CommonMark targets that lack footnote support). A note whose body spans multiple paragraphs (a rare Word construct) is left in Mammoth's raw form rather than converted, so its reference and body stay linked.
-- **Comments, text boxes, and equations are not converted** — Mammoth drops them during the `.docx` → HTML step. When content is dropped this way, `convertWithWarnings` surfaces a warning.
+- **Footnotes and endnotes** become standard GFM/Pandoc footnotes — a `[^1]` reference in the body and a `[^1]: …` definition at the end — which render on GitHub and in the web preview. Pass `{ footnotes: 'preserve' }` (library) or `--preserve-footnotes` (CLI) to instead keep Mammoth's raw `<sup>` links and numbered note list (useful for CommonMark targets that lack footnote support). Notes whose bodies span multiple paragraphs are converted with indented continuation paragraphs.
+- **Text boxes** are converted as paragraphs after the containing paragraph.
+- **Comments** are dropped without a warning during the `.docx` → HTML step.
+- **Equations are not converted** — Mammoth drops them during the `.docx` → HTML step. When content is dropped this way, `convertWithWarnings` surfaces a warning.
 - Heading levels come from Word's paragraph styles, not from font size.
 
 ## How is this different from the original?
@@ -73,6 +75,7 @@ Options:
 - `--strip-images` — remove images instead of embedding them as base64 data URIs.
 - `--image-dir <dir>` — extract images to `<dir>` and link them relatively, instead of embedding base64. Links resolve relative to where you save the Markdown, e.g. `w2m --image-dir images report.docx > report.md`, or with `-o`, `w2m -o out/report.md --image-dir images report.docx` (images land in `out/images/`).
 - `--preserve-footnotes` — keep Word footnotes as raw `<sup>` links and a numbered note list instead of GFM `[^1]` footnotes.
+- `--verbose` — On failure, also print the underlying error and stack trace.
 - `-V, --version` — print the version.
 
 ## Use as a library
