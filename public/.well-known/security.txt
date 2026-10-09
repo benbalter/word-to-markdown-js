@@ -1,0 +1,11 @@
+# Security contact for word2md.com and the word-to-markdown npm package (RFC 9116).
+# Conversion runs entirely in your browser or on your machine; no documents are uploaded.
+# See the policy for scope before reporting.
+
+Contact: https://github.com/benbalter/word-to-markdown-js/security/advisories/new
+Contact: mailto:ben@balter.com
+Expires: 2027-10-08T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://word2md.com/.well-known/security.txt
+Policy: https://github.com/benbalter/word-to-markdown-js/security/policy
+Acknowledgments: https://github.com/benbalter/word-to-markdown-js/security/advisories
