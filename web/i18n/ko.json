@@ -25,6 +25,14 @@
     "confidentiality": "이 문서는 기밀로 표시되어 있습니다({label}). 변환해도 되는지 확인하세요.",
     "protected": "이 문서에는 편집 제한이 있어 일부 내용이 제대로 변환되지 않을 수 있습니다.",
     "contentLoss": "수식이나 지원되지 않는 개체 등 일부 내용은 변환할 수 없어 제외되었습니다.",
+    "contentLossItems": "일부 내용을 변환하지 못해 누락되었을 수 있습니다: {items}.",
+    "contentKinds": {
+      "equations": "수식",
+      "images": "이미지",
+      "symbols": "특수 기호",
+      "objects": "포함된 개체",
+      "other": "기타 요소"
+    },
     "technical": "기술 세부 정보"
   },
   "panelMarkdown": "Markdown",

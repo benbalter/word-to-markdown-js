@@ -25,6 +25,14 @@
     "confidentiality": "Ten dokument jest oznaczony jako poufny ({label}). Upewnij się, że możesz go konwertować.",
     "protected": "Ten dokument ma ograniczenia edycji, więc część treści może nie zostać poprawnie przekonwertowana.",
     "contentLoss": "Część treści nie dała się przekonwertować i została pominięta, np. równania lub nieobsługiwane obiekty.",
+    "contentLossItems": "Części treści nie udało się przekonwertować i może jej brakować: {items}.",
+    "contentKinds": {
+      "equations": "równania",
+      "images": "obrazy",
+      "symbols": "symbole specjalne",
+      "objects": "osadzone obiekty",
+      "other": "inne elementy"
+    },
     "technical": "Szczegóły techniczne"
   },
   "panelMarkdown": "Markdown",

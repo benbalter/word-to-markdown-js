@@ -25,6 +25,14 @@
     "confidentiality": "Questo documento è contrassegnato come riservato ({label}). Assicurati di essere autorizzato a convertirlo.",
     "protected": "Questo documento ha restrizioni di modifica, quindi parte del contenuto potrebbe non essere convertita correttamente.",
     "contentLoss": "Parte del contenuto non è stata convertita ed è stata omessa, ad esempio equazioni o oggetti non supportati.",
+    "contentLossItems": "Parte del contenuto non è stata convertita e potrebbe mancare: {items}.",
+    "contentKinds": {
+      "equations": "equazioni",
+      "images": "immagini",
+      "symbols": "simboli speciali",
+      "objects": "oggetti incorporati",
+      "other": "altri elementi"
+    },
     "technical": "Dettagli tecnici"
   },
   "panelMarkdown": "Markdown",

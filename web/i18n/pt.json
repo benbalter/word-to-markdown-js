@@ -25,6 +25,14 @@
     "confidentiality": "Este documento está marcado como confidencial ({label}). Verifique se você tem permissão para convertê-lo.",
     "protected": "Este documento tem restrições de edição, então parte do conteúdo pode não ser convertida corretamente.",
     "contentLoss": "Parte do conteúdo não pôde ser convertida e foi omitida, como equações ou objetos sem suporte.",
+    "contentLossItems": "Parte do conteúdo não pôde ser convertida e pode estar faltando: {items}.",
+    "contentKinds": {
+      "equations": "equações",
+      "images": "imagens",
+      "symbols": "símbolos especiais",
+      "objects": "objetos incorporados",
+      "other": "outros elementos"
+    },
     "technical": "Detalhes técnicos"
   },
   "panelMarkdown": "Markdown",

@@ -25,6 +25,14 @@
     "confidentiality": "Dieses Dokument ist als vertraulich gekennzeichnet ({label}). Stellen Sie sicher, dass Sie es konvertieren dürfen.",
     "protected": "Dieses Dokument hat Bearbeitungseinschränkungen, daher werden manche Inhalte möglicherweise nicht korrekt konvertiert.",
     "contentLoss": "Einige Inhalte konnten nicht konvertiert werden und wurden weggelassen, etwa Formeln oder nicht unterstützte Objekte.",
+    "contentLossItems": "Einige Inhalte konnten nicht konvertiert werden und fehlen möglicherweise: {items}.",
+    "contentKinds": {
+      "equations": "Formeln",
+      "images": "Bilder",
+      "symbols": "Sonderzeichen",
+      "objects": "eingebettete Objekte",
+      "other": "andere Elemente"
+    },
     "technical": "Technische Details"
   },
   "panelMarkdown": "Markdown",

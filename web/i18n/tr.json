@@ -25,6 +25,14 @@
     "confidentiality": "Bu belge gizli olarak işaretlenmiş ({label}). Dönüştürme izniniz olduğundan emin olun.",
     "protected": "Bu belgede düzenleme kısıtlamaları var, bu nedenle bazı içerikler düzgün dönüştürülmeyebilir.",
     "contentLoss": "Denklemler veya desteklenmeyen nesneler gibi bazı içerikler dönüştürülemedi ve atlandı.",
+    "contentLossItems": "Bazı içerikler dönüştürülemedi ve eksik olabilir: {items}.",
+    "contentKinds": {
+      "equations": "denklemler",
+      "images": "görseller",
+      "symbols": "özel simgeler",
+      "objects": "gömülü nesneler",
+      "other": "diğer öğeler"
+    },
     "technical": "Teknik ayrıntılar"
   },
   "panelMarkdown": "Markdown",

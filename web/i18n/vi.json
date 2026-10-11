@@ -25,6 +25,14 @@
     "confidentiality": "Tài liệu này được đánh dấu là bảo mật ({label}). Hãy đảm bảo bạn được phép chuyển đổi tài liệu.",
     "protected": "Tài liệu này có hạn chế chỉnh sửa, nên một số nội dung có thể không được chuyển đổi chính xác.",
     "contentLoss": "Một số nội dung không thể chuyển đổi và đã bị bỏ qua, chẳng hạn như phương trình hoặc đối tượng không được hỗ trợ.",
+    "contentLossItems": "Một số nội dung không thể chuyển đổi và có thể bị thiếu: {items}.",
+    "contentKinds": {
+      "equations": "phương trình",
+      "images": "hình ảnh",
+      "symbols": "ký hiệu đặc biệt",
+      "objects": "đối tượng nhúng",
+      "other": "phần tử khác"
+    },
     "technical": "Chi tiết kỹ thuật"
   },
   "panelMarkdown": "Markdown",

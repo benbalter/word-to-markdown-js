@@ -64,7 +64,21 @@ export interface UIStrings {
     sensitivity: string;
     confidentiality: string;
     protected: string;
+    /** Fallback when the dropped content can't be identified. */
     contentLoss: string;
+    /**
+     * Dropped content, named by kind. `{items}` is replaced with a localized
+     * list (Intl.ListFormat) of the `contentKinds` that apply.
+     */
+    contentLossItems: string;
+    /** Plural nouns for the kinds of dropped content, used in `{items}`. */
+    contentKinds: {
+      equations: string;
+      images: string;
+      symbols: string;
+      objects: string;
+      other: string;
+    };
     /** Summary of the disclosure holding the converter's raw messages. */
     technical: string;
   };

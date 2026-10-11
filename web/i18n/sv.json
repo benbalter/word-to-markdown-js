@@ -25,6 +25,14 @@
     "confidentiality": "Dokumentet är märkt som konfidentiellt ({label}). Kontrollera att du får konvertera det.",
     "protected": "Dokumentet har redigeringsbegränsningar, så en del innehåll kanske inte konverteras korrekt.",
     "contentLoss": "En del innehåll kunde inte konverteras och utelämnades, till exempel ekvationer eller objekt som inte stöds.",
+    "contentLossItems": "En del innehåll kunde inte konverteras och kan saknas: {items}.",
+    "contentKinds": {
+      "equations": "ekvationer",
+      "images": "bilder",
+      "symbols": "specialtecken",
+      "objects": "inbäddade objekt",
+      "other": "andra element"
+    },
     "technical": "Tekniska detaljer"
   },
   "panelMarkdown": "Markdown",

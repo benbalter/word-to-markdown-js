@@ -25,6 +25,14 @@
     "confidentiality": "This document is marked confidential ({label}). Make sure you're allowed to convert it.",
     "protected": "This document has editing restrictions, so some content may not convert properly.",
     "contentLoss": "Some content couldn't be converted and was left out, such as equations or unsupported objects.",
+    "contentLossItems": "Some content couldn't be converted and may be missing: {items}.",
+    "contentKinds": {
+      "equations": "equations",
+      "images": "images",
+      "symbols": "special symbols",
+      "objects": "embedded objects",
+      "other": "other elements"
+    },
     "technical": "Technical details"
   },
   "panelMarkdown": "Markdown",

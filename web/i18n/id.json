@@ -25,6 +25,14 @@
     "confidentiality": "Dokumen ini ditandai rahasia ({label}). Pastikan Anda diizinkan untuk mengonversinya.",
     "protected": "Dokumen ini memiliki batasan pengeditan, jadi sebagian konten mungkin tidak terkonversi dengan benar.",
     "contentLoss": "Sebagian konten tidak dapat dikonversi dan dihilangkan, seperti persamaan atau objek yang tidak didukung.",
+    "contentLossItems": "Sebagian konten tidak dapat dikonversi dan mungkin hilang: {items}.",
+    "contentKinds": {
+      "equations": "persamaan",
+      "images": "gambar",
+      "symbols": "simbol khusus",
+      "objects": "objek tersemat",
+      "other": "elemen lain"
+    },
     "technical": "Detail teknis"
   },
   "panelMarkdown": "Markdown",

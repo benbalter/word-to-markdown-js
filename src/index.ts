@@ -623,6 +623,12 @@ type UIStringKey =
   | 'warningConfidentiality'
   | 'warningProtected'
   | 'warningContentLoss'
+  | 'warningContentLossItems'
+  | 'warningKindEquations'
+  | 'warningKindImages'
+  | 'warningKindSymbols'
+  | 'warningKindObjects'
+  | 'warningKindOther'
   | 'warningTechnical';
 
 // Localized UI strings are rendered into the page as data-* attributes on the
@@ -745,14 +751,73 @@ function localizeWarnings(details: readonly WarningDetail[] = []): {
     }
   }
   if (technical.length > 0) {
-    lines.push(
-      uiString(
-        'warningContentLoss',
-        "Some content couldn't be converted and was left out, such as equations or unsupported objects.",
-      ),
-    );
+    lines.push(describeContentLoss(technical));
   }
   return { lines, technical };
+}
+
+// What kind of content each of mammoth's raw messages is about, so the
+// warning can say what's missing ("equations and images") rather than only
+// that something is. The converter de-duplicates identical messages, so this
+// names kinds, not counts. Mammoth names elements by prefix for the
+// namespaces it knows (w:, v:, wp:, mc:, …) and as {namespace-uri}name for
+// the rest, Office Math among them.
+const CONTENT_KINDS = [
+  // Office Math: <m:oMath>, <m:oMathPara>.
+  ['equations', /oMath/, 'equations'],
+  // "Image of type … is unlikely to display", "Could not find image file
+  // for a:blip element", an unlinked v:imagedata.
+  ['images', /image|a:blip/i, 'images'],
+  // <w:sym> with a character mammoth can't map.
+  ['symbols', /\bw:sym\b/, 'special symbols'],
+  // An element outside Word's own w: namespace: VML shapes, DrawingML text
+  // boxes and groups, charts, embedded objects.
+  ['objects', /ignored: (?:\{|(?!w:)[\w-]+:)/, 'embedded objects'],
+] as const;
+
+const KIND_KEYS = {
+  equations: 'warningKindEquations',
+  images: 'warningKindImages',
+  symbols: 'warningKindSymbols',
+  objects: 'warningKindObjects',
+  other: 'warningKindOther',
+} as const satisfies Record<string, UIStringKey>;
+
+function describeContentLoss(details: readonly string[]): string {
+  const kinds = new Map<keyof typeof KIND_KEYS, string>();
+  for (const detail of details) {
+    const match = CONTENT_KINDS.find(([, pattern]) => pattern.test(detail));
+    const [kind, fallback] = match
+      ? [match[0], match[2]]
+      : (['other', 'other elements'] as const);
+    if (!kinds.has(kind)) kinds.set(kind, uiString(KIND_KEYS[kind], fallback));
+  }
+  // Only unrecognized elements: nothing specific to name.
+  if (kinds.size === 1 && kinds.has('other')) {
+    return uiString(
+      'warningContentLoss',
+      "Some content couldn't be converted and was left out, such as equations or unsupported objects.",
+    );
+  }
+  // "Other elements" reads best last.
+  const other = kinds.get('other');
+  kinds.delete('other');
+  const names = [...kinds.values(), ...(other ? [other] : [])];
+  return uiString(
+    'warningContentLossItems',
+    "Some content couldn't be converted and may be missing: {items}.",
+  ).replace('{items}', () => formatList(names));
+}
+
+// Join names in the page's language ("a, b, and c"; "a、b、c").
+function formatList(items: string[]): string {
+  try {
+    return new Intl.ListFormat(document.documentElement.lang || 'en', {
+      type: 'conjunction',
+    }).format(items);
+  } catch {
+    return items.join(', ');
+  }
 }
 
 function showWarnings(warnings: string[], technical: string[] = []): void {

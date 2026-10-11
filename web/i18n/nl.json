@@ -25,6 +25,14 @@
     "confidentiality": "Dit document is gemarkeerd als vertrouwelijk ({label}). Controleer of je het mag converteren.",
     "protected": "Dit document heeft bewerkingsbeperkingen, dus sommige inhoud wordt mogelijk niet goed geconverteerd.",
     "contentLoss": "Sommige inhoud kon niet worden geconverteerd en is weggelaten, zoals vergelijkingen of niet-ondersteunde objecten.",
+    "contentLossItems": "Sommige inhoud kon niet worden geconverteerd en ontbreekt mogelijk: {items}.",
+    "contentKinds": {
+      "equations": "vergelijkingen",
+      "images": "afbeeldingen",
+      "symbols": "speciale symbolen",
+      "objects": "ingesloten objecten",
+      "other": "andere elementen"
+    },
     "technical": "Technische details"
   },
   "panelMarkdown": "Markdown",

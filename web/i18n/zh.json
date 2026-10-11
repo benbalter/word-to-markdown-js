@@ -25,6 +25,14 @@
     "confidentiality": "此文档已标记为机密（{label}）。请确认您有权转换它。",
     "protected": "此文档有编辑限制，因此部分内容可能无法正确转换。",
     "contentLoss": "部分内容无法转换，已被省略，例如公式或不支持的对象。",
+    "contentLossItems": "部分内容无法转换，可能缺失：{items}。",
+    "contentKinds": {
+      "equations": "公式",
+      "images": "图片",
+      "symbols": "特殊符号",
+      "objects": "嵌入对象",
+      "other": "其他元素"
+    },
     "technical": "技术详情"
   },
   "panelMarkdown": "Markdown",

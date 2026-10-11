@@ -25,6 +25,14 @@
     "confidentiality": "這份文件已標示為機密（{label}）。請確認你有權轉換它。",
     "protected": "這份文件有編輯限制，因此部分內容可能無法正確轉換。",
     "contentLoss": "部分內容無法轉換而已略過，例如方程式或不支援的物件。",
+    "contentLossItems": "部分內容無法轉換，可能缺漏：{items}。",
+    "contentKinds": {
+      "equations": "方程式",
+      "images": "圖片",
+      "symbols": "特殊符號",
+      "objects": "內嵌物件",
+      "other": "其他元素"
+    },
     "technical": "技術細節"
   },
   "panelMarkdown": "Markdown",
