@@ -120,6 +120,25 @@ test.describe('Word to Markdown Web Interface', () => {
     expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
   });
 
+  test('hides the explainer sections under a result, and restores them', async ({
+    page,
+  }) => {
+    const table = page.getByRole('heading', { name: 'What gets converted' });
+    await expect(table).toBeVisible();
+    await page.locator('#file').setInputFiles(fixture('h1.docx'));
+    await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('#pre-result')).toBeHidden();
+    await expect(table).toBeHidden();
+    // The CLI callout and FAQ stay: they're still useful after converting.
+    await expect(
+      page.getByRole('heading', { name: 'Frequently asked questions' }),
+    ).toBeVisible();
+
+    await page.locator('#convert-another').click();
+    await expect(page.locator('#pre-result')).toBeVisible();
+    await expect(table).toBeVisible();
+  });
+
   test('hides a 1×1 spacer image in the preview, not in the Markdown', async ({
     page,
   }) => {

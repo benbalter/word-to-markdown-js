@@ -522,14 +522,11 @@ async function processFile(
     const resultsElement = document.getElementById('results');
     resultsElement.classList.remove('hidden');
 
-    // The results pane carries its own contextual Open & Async pitch, so hide
-    // the standalone promo card to avoid stacking two asks. The card stays for
-    // visitors who never convert (it lives in the page flow below How It
-    // Works).
-    // Set display inline rather than toggling `.hidden`: the card's scoped CSS
-    // sets `display: flex` at equal specificity, so a class wouldn't reliably win.
-    const promoCard = document.getElementById('promo-card');
-    if (promoCard) promoCard.style.display = 'none';
+    // Hide the pre-conversion explainer (How It Works, the conversion table)
+    // and the standalone promo card: the page is now about this result. The
+    // results pane carries its own quiet Open & Async pitch, so this also
+    // avoids stacking two asks.
+    document.getElementById('pre-result')?.classList.add('hidden');
 
     // Announce success to assistive tech (the results reveal is otherwise
     // silent) and move focus to the first result action so keyboard users
@@ -865,9 +862,8 @@ function resetConverter(): void {
   document.getElementById('results')?.classList.add('hidden');
   document.getElementById('input')?.classList.remove('hidden');
 
-  // Restore the standalone promo card that a successful conversion hid.
-  const promoCard = document.getElementById('promo-card');
-  if (promoCard) promoCard.style.display = '';
+  // Restore the explainer and promo card that a successful conversion hid.
+  document.getElementById('pre-result')?.classList.remove('hidden');
 
   // Clear the live status region so a prior success isn't re-announced.
   const status = document.getElementById('sr-status');

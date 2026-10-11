@@ -42,10 +42,8 @@ test.describe('Open & Async promo funnel', () => {
 
     await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
 
-    // The card is hidden via an inline display style (its scoped CSS sets
-    // display:flex, which a utility class wouldn't reliably override). Asserting
-    // the user-visible outcome rather than the style string also guards against
-    // a regression to a class-based toggle that loses the cascade.
+    // The card is hidden with the rest of the pre-conversion block
+    // (#pre-result). Assert the user-visible outcome, not how it's hidden.
     await expect(page.locator('#promo-card')).toBeHidden();
 
     const cta = page.locator('#results a[href*="utm_campaign=results"]');
