@@ -163,20 +163,22 @@ test.describe('Word to Markdown Web Interface', () => {
   test('hides the explainer sections under a result, and restores them', async ({
     page,
   }) => {
-    const table = page.getByRole('heading', { name: 'What gets converted' });
-    await expect(table).toBeVisible();
+    // Everything below the converter: the conversion table, the CLI callout
+    // and the FAQ. A finished result shows only the result.
+    const sections = [
+      page.getByRole('heading', { name: 'What gets converted' }),
+      page.getByRole('heading', { name: 'Prefer the command line?' }),
+      page.getByRole('heading', { name: 'Frequently asked questions' }),
+    ];
+    for (const section of sections) await expect(section).toBeVisible();
     await page.locator('#file').setInputFiles(fixture('h1.docx'));
     await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('#pre-result')).toBeHidden();
-    await expect(table).toBeHidden();
-    // The CLI callout and FAQ stay: they're still useful after converting.
-    await expect(
-      page.getByRole('heading', { name: 'Frequently asked questions' }),
-    ).toBeVisible();
+    for (const section of sections) await expect(section).toBeHidden();
 
     await page.locator('#convert-another').click();
     await expect(page.locator('#pre-result')).toBeVisible();
-    await expect(table).toBeVisible();
+    for (const section of sections) await expect(section).toBeVisible();
   });
 
   test('hides a 1×1 spacer image in the preview, not in the Markdown', async ({
