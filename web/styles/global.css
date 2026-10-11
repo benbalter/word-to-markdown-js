@@ -461,6 +461,13 @@
   --tw-prose-bold: var(--color-navy);
   --tw-prose-counters: var(--color-chartreuse-deep);
   --tw-prose-bullets: var(--color-chartreuse-deep);
+  /* Code blocks sit on the page's own paper inside the panel, ruled like every
+     other surface, instead of Typography's default dark slate slab. These are
+     unlayered, so they also beat prose-invert's mapping: the dark pair is set
+     in the media query below. */
+  --tw-prose-code: var(--color-navy);
+  --tw-prose-pre-code: var(--color-navy);
+  --tw-prose-pre-bg: var(--color-paper);
 }
 .prose :where(h1, h2, h3, h4) {
   font-family: var(--font-display);
@@ -469,6 +476,10 @@
 }
 .prose :where(code, pre) {
   font-family: var(--font-mono);
+}
+.prose :where(pre) {
+  border: 1px solid var(--color-rule-light);
+  border-radius: 0.5rem;
 }
 .prose :where(a) {
   text-decoration-color: var(--color-chartreuse);
@@ -479,5 +490,11 @@
     --tw-prose-headings: var(--color-snow);
     --tw-prose-links: var(--color-snow);
     --tw-prose-bold: var(--color-snow);
+    --tw-prose-code: var(--color-snow);
+    --tw-prose-pre-code: var(--color-snow);
+    --tw-prose-pre-bg: var(--color-ink);
+  }
+  .prose :where(pre) {
+    border-color: var(--color-rule-dark);
   }
 }
