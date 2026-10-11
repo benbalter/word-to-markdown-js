@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - word2md.com: when a document has images, Download .zip becomes the main action (the Markdown alone carries them as long base64 strings), with a note explaining where the images are.
 - word2md.com: the dropped-content warning names what was dropped (equations, images, special symbols, embedded objects) when it can tell.
 - word2md.com: errors name the file they're about, and a file that isn't a Word document (like `README.md`) is told so instead of being advised to re-save it in Word.
+- word2md.com: on touch screens the dropzone asks you to choose a .docx rather than drop one, the result buttons are 44px tall, and screen readers hear the file input as "Choose a .docx file" with the size and privacy note as its description.
 
 ## [0.5.1] - 2026-09-30
 

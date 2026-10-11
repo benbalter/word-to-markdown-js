@@ -5,6 +5,7 @@
   "flowFromAlt": "Word 文档",
   "flowToAlt": "Markdown 文件",
   "dropzoneTitle": "将 .docx 拖到这里",
+  "dropzoneTitleTouch": "选择 .docx 文件",
   "dropzoneBrowsePrefix": "或",
   "dropzoneBrowseLink": "点击选择文件",
   "dropzoneNote": "最大 20 MB · 在此设备上转换，绝不上传",

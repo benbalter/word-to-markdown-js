@@ -71,12 +71,22 @@ const t = useTranslations(Astro.currentLocale);
           <path d="m9 18 3-3-3-3" />
         </svg>
       </span>
+      {/* "Drop" is the wrong verb on a phone, where there's nothing to drag
+           from: touch screens (a coarse primary pointer) get "Choose a .docx
+           file" and lose the "or click to choose" line, which would repeat
+           it. The touch title is also the file input's accessible name on
+           every device: a screen reader user chooses rather than drops. */}
       <span
         class="font-display text-xl font-medium text-navy dark:text-snow"
       >
-        {t.dropzoneTitle}
+        <span class="pointer-coarse:hidden">{t.dropzoneTitle}</span>
+        <span id="dropzone-title" class="hidden pointer-coarse:inline"
+          >{t.dropzoneTitleTouch}</span
+        >
       </span>
-      <span class="mt-1.5 text-sm text-navy-soft dark:text-mist">
+      <span
+        class="mt-1.5 text-sm text-navy-soft pointer-coarse:hidden dark:text-mist"
+      >
         {t.dropzoneBrowsePrefix}<span
           class="font-medium text-chartreuse-deep underline decoration-2 underline-offset-2 dark:text-chartreuse"
           >{t.dropzoneBrowseLink}</span
@@ -86,6 +96,7 @@ const t = useTranslations(Astro.currentLocale);
            stays visible while converting (the dropzone does), not just in the
            hero above. Also states the browser's size limit up front. */}
       <span
+        id="dropzone-note"
         class="mt-5 block max-w-xs font-mono text-[0.72rem] tracking-wide text-balance text-navy-soft sm:max-w-none rtl:font-sans rtl:tracking-normal dark:text-mist"
       >
         <svg
@@ -106,9 +117,13 @@ const t = useTranslations(Astro.currentLocale);
         </svg>
         {t.dropzoneNote}
       </span>
+      {/* Named by the short title and described by the note, rather than
+           named by the whole <label>'s text run together. */}
       <input
         type="file"
         id="file"
+        aria-labelledby="dropzone-title"
+        aria-describedby="dropzone-note"
         accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         class="sr-only"
       />

@@ -28,6 +28,11 @@ export interface UIStrings {
 
   // Converter
   dropzoneTitle: string;
+  /**
+   * Dropzone title on touch screens, where there's nothing to drag. Also the
+   * file input's accessible name on every device.
+   */
+  dropzoneTitleTouch: string;
   dropzoneBrowsePrefix: string; // "or "
   dropzoneBrowseLink: string; // "click to browse"
   /** Line inside the dropzone: size limit + "never uploaded" reassurance. */

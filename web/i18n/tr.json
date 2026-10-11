@@ -5,6 +5,7 @@
   "flowFromAlt": "Word belgesi",
   "flowToAlt": "Markdown dosyası",
   "dropzoneTitle": ".docx dosyanızı buraya bırakın",
+  "dropzoneTitleTouch": "Bir .docx dosyası seçin",
   "dropzoneBrowsePrefix": "veya ",
   "dropzoneBrowseLink": "dosya seçmek için tıklayın",
   "dropzoneNote": "20 MB'a kadar · Bu cihazda dönüştürülür, asla yüklenmez",

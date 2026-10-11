@@ -234,7 +234,7 @@ Quiet by default, chartreuse when you interact.
 
 The main feature of the page. It's a large `<label>` that wraps a visually hidden file input, so clicking, keyboard use and dropping a file all work.
 
-- **Rest:** a 16px radius, a 2px dashed border (Brand Navy at 28% on paper, so it reads as a slot; Ink Rule in dark), translucent Fresh Sheet / Ink Well with backdrop blur, and a 56px circular chartreuse-tint icon badge (an arrow going into a document, never an upload arrow) above a Fraunces title, a "click to choose a file" link in Proof Olive, and a mono note with a lock icon giving the size limit and "never uploaded". The note stays visible while converting.
+- **Rest:** a 16px radius, a 2px dashed border (Brand Navy at 28% on paper, so it reads as a slot; Ink Rule in dark), translucent Fresh Sheet / Ink Well with backdrop blur, and a 56px circular chartreuse-tint icon badge (an arrow going into a document, never an upload arrow) above a Fraunces title, a "click to choose a file" link in Proof Olive, and a mono note with a lock icon giving the size limit and "never uploaded". The note stays visible while converting. On touch screens (a coarse primary pointer) the title reads "Choose a .docx file" and the "click to choose" line is dropped, since there's nothing to drag. The file input is named by that short title and described by the note.
 - **Hover / focus-within:** the border turns chartreuse (solid on focus) and the focus ring appears around the whole zone.
 - **Drag-over:** a solid chartreuse border, a 9% chartreuse fill, the drag glow, a 1.2% scale-up and the icon lifting. Movement is removed under reduced motion.
 - **Converting:** a progress cursor, and the icon becomes a chartreuse spinner (static under reduced motion).

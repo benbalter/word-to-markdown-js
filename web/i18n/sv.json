@@ -5,6 +5,7 @@
   "flowFromAlt": "Word-dokument",
   "flowToAlt": "Markdown-fil",
   "dropzoneTitle": "Släpp din .docx här",
+  "dropzoneTitleTouch": "Välj en .docx-fil",
   "dropzoneBrowsePrefix": "eller ",
   "dropzoneBrowseLink": "klicka för att välja en fil",
   "dropzoneNote": "Upp till 20 MB · Konverteras på den här enheten, laddas aldrig upp",

@@ -5,6 +5,7 @@
   "flowFromAlt": "Tài liệu Word",
   "flowToAlt": "Tệp Markdown",
   "dropzoneTitle": "Thả tệp .docx của bạn vào đây",
+  "dropzoneTitleTouch": "Chọn tệp .docx",
   "dropzoneBrowsePrefix": "hoặc ",
   "dropzoneBrowseLink": "nhấp để chọn tệp",
   "dropzoneNote": "Tối đa 20 MB · Chuyển đổi ngay trên thiết bị này, không bao giờ được tải lên",

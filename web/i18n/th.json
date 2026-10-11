@@ -5,6 +5,7 @@
   "flowFromAlt": "เอกสาร Word",
   "flowToAlt": "ไฟล์ Markdown",
   "dropzoneTitle": "วางไฟล์ .docx ของคุณที่นี่",
+  "dropzoneTitleTouch": "เลือกไฟล์ .docx",
   "dropzoneBrowsePrefix": "หรือ ",
   "dropzoneBrowseLink": "คลิกเพื่อเลือกไฟล์",
   "dropzoneNote": "สูงสุด 20 MB · แปลงบนอุปกรณ์นี้ ไม่มีการอัปโหลด",

@@ -5,6 +5,7 @@
   "flowFromAlt": "Word 문서",
   "flowToAlt": "Markdown 파일",
   "dropzoneTitle": ".docx 파일을 여기에 놓으세요",
+  "dropzoneTitleTouch": ".docx 파일 선택",
   "dropzoneBrowsePrefix": "또는 ",
   "dropzoneBrowseLink": "클릭해 파일을 선택하세요",
   "dropzoneNote": "최대 20 MB · 이 기기에서 변환되며 업로드되지 않습니다",

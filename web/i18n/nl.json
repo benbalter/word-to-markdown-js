@@ -5,6 +5,7 @@
   "flowFromAlt": "Word-document",
   "flowToAlt": "Markdown-bestand",
   "dropzoneTitle": "Sleep je .docx hierheen",
+  "dropzoneTitleTouch": "Kies een .docx-bestand",
   "dropzoneBrowsePrefix": "of ",
   "dropzoneBrowseLink": "klik om een bestand te kiezen",
   "dropzoneNote": "Tot 20 MB · Geconverteerd op dit apparaat, nooit geüpload",

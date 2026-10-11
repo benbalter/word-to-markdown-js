@@ -5,6 +5,7 @@
   "flowFromAlt": "Word दस्तावेज़",
   "flowToAlt": "Markdown फ़ाइल",
   "dropzoneTitle": "अपनी .docx फ़ाइल यहाँ छोड़ें",
+  "dropzoneTitleTouch": "कोई .docx फ़ाइल चुनें",
   "dropzoneBrowsePrefix": "या ",
   "dropzoneBrowseLink": "फ़ाइल चुनने के लिए क्लिक करें",
   "dropzoneNote": "20 MB तक · इसी डिवाइस पर कन्वर्ट होता है, कभी अपलोड नहीं होता",

@@ -54,6 +54,17 @@ test.describe('Word to Markdown Web Interface', () => {
     await page.goto('http://localhost:8080');
   });
 
+  test('names the file input by the short title, described by the note', async ({
+    page,
+  }) => {
+    const input = page.locator('#file');
+    await expect(input).toHaveAccessibleName('Choose a .docx file');
+    await expect(input).toHaveAccessibleDescription(/never uploaded/);
+    // With a mouse, the visible title invites a drop.
+    await expect(page.getByText('Drop your .docx here')).toBeVisible();
+    await expect(page.getByText('click to choose a file')).toBeVisible();
+  });
+
   test('should display the main page with upload form', async ({ page }) => {
     // Check page title (starts with the brand; may carry an SEO suffix)
     await expect(page).toHaveTitle(/^Word to Markdown/);
@@ -845,5 +856,23 @@ test.describe('Word to Markdown Web Interface', () => {
 
     await expect(page.locator('#output')).toBeVisible();
     await expect(page.locator('#rendered')).toBeVisible();
+  });
+});
+
+test.describe('On a touch screen', () => {
+  test.use({
+    hasTouch: true,
+    isMobile: true,
+    viewport: { width: 390, height: 844 },
+  });
+
+  test('asks to choose a file instead of dropping one', async ({ page }) => {
+    await page.goto('http://localhost:8080');
+    await expect(page.locator('#dropzone-title')).toBeVisible();
+    await expect(page.locator('#dropzone-title')).toHaveText(
+      'Choose a .docx file',
+    );
+    await expect(page.getByText('Drop your .docx here')).toBeHidden();
+    await expect(page.getByText('click to choose a file')).toBeHidden();
   });
 });

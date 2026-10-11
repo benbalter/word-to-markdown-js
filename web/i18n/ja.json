@@ -5,6 +5,7 @@
   "flowFromAlt": "Word文書",
   "flowToAlt": "Markdownファイル",
   "dropzoneTitle": ".docx をここにドロップ",
+  "dropzoneTitleTouch": ".docx ファイルを選択",
   "dropzoneBrowsePrefix": "または ",
   "dropzoneBrowseLink": "クリックしてファイルを選択",
   "dropzoneNote": "20 MB まで · このデバイス上で変換、アップロードされません",

@@ -5,6 +5,7 @@
   "flowFromAlt": "Documento de Word",
   "flowToAlt": "Archivo Markdown",
   "dropzoneTitle": "Suelta tu .docx aquí",
+  "dropzoneTitleTouch": "Elige un archivo .docx",
   "dropzoneBrowsePrefix": "o ",
   "dropzoneBrowseLink": "haz clic para elegir un archivo",
   "dropzoneNote": "Hasta 20 MB · Se convierte en este dispositivo, nunca se sube",

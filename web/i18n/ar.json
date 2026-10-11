@@ -5,6 +5,7 @@
   "flowFromAlt": "مستند Word",
   "flowToAlt": "ملف Markdown",
   "dropzoneTitle": "أفلت ملف \u2066.docx\u2069 هنا",
+  "dropzoneTitleTouch": "اختر ملف \u2066.docx\u2069",
   "dropzoneBrowsePrefix": "أو ",
   "dropzoneBrowseLink": "انقر لاختيار ملف",
   "dropzoneNote": "حتى 20 MB · يُحوَّل على هذا الجهاز ولا يُرفع أبدًا",
