@@ -326,6 +326,21 @@
     }
   }
 
+  /* Result actions. One filled accent for the next action, the rest quiet
+     (DESIGN.md, Buttons). src/index.ts swaps btn-accent and btn-secondary
+     between Copy and Download .zip when a document has images, so both looks
+     live here rather than as duplicated utility lists. 44px tall: they're
+     the touch targets of the results screen. */
+  .btn {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border px-3.5 py-2 text-sm transition-colors;
+  }
+  .btn-secondary {
+    @apply border-navy/15 bg-paper-card font-medium text-navy hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-snow dark:hover:border-chartreuse;
+  }
+  .btn-accent {
+    @apply border-chartreuse bg-chartreuse font-semibold text-navy shadow-sm hover:border-chartreuse-deep hover:bg-chartreuse-deep hover:text-white;
+  }
+
   /* Copy and Download confirm with a drawn check for as long as their label
      reads "Copied!" / "Downloaded" (src/index.ts toggles `.is-confirmed`). */
   .confirmable .confirm-icon,

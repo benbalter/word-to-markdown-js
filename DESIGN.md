@@ -224,7 +224,7 @@ Corners are softly and consistently rounded, and the radius grows with the size 
 
 Quiet by default, chartreuse when you interact.
 
-- **Shape:** gently rounded (8px), with an icon and label separated by 8px.
+- **Shape:** gently rounded (8px), with an icon and label separated by 8px. The result actions are at least 44px tall, so they're comfortable touch targets. Their looks live in `.btn`, `.btn-accent` and `.btn-secondary` in `global.css`.
 - **Secondary (default):** Fresh Sheet fill with a `navy/15` border and Brand Navy text, 14px medium. In dark mode: Ink Well fill, `white/15` border, Snow text. Used for Download .md, Download .zip, Convert another file, and the CLI copy action.
 - **Hover:** the border turns chartreuse and the fill gets a `chartreuse/10` tint, with a color transition only (no movement).
 - **Accent (one per screen at most):** solid Signal Chartreuse with Brand Navy text, 14px semibold, and a light shadow. On hover the fill becomes Proof Olive with white text. It's Copy Markdown, the next action after a conversion; promotions never get it.
