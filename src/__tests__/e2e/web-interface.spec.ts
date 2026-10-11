@@ -105,6 +105,21 @@ test.describe('Word to Markdown Web Interface', () => {
       .toContain('<h1>Heading 1</h1>');
   });
 
+  test('wraps long Markdown lines instead of scrolling sideways', async ({
+    page,
+  }) => {
+    // Inline images become one long base64 data: URI with no break points.
+    await page.locator('#file').setInputFiles(fixture('image.docx'));
+    const output = page.locator('#output');
+    await expect(output).toContainText('data:image', { timeout: 10000 });
+    const pre = output.locator('xpath=..');
+    const { scrollWidth, clientWidth } = await pre.evaluate((el) => ({
+      scrollWidth: el.scrollWidth,
+      clientWidth: el.clientWidth,
+    }));
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+  });
+
   test('Ctrl+A in an output panel selects only that panel', async ({
     page,
   }) => {
