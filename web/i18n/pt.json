@@ -129,6 +129,7 @@
   "docFileError": "Esta ferramenta lê arquivos .docx modernos, não arquivos .doc mais antigos. No Word, abra seu documento e escolha Arquivo → Salvar como → Documento do Word (.docx), depois arraste o .docx aqui.",
   "fileTooLargeError": "Este arquivo é grande demais para converter no seu navegador. Tente um .docx com menos de 20 MB.",
   "invalidFileError": "Não foi possível ler este arquivo como um documento do Word. Ele pode estar corrompido ou não ser um arquivo .docx. Tente abri-lo no Word e salvá-lo novamente como .docx.",
+  "notWordFileError": "Isto não é um documento do Word, então não pode ser convertido. Escolha um arquivo .docx.",
   "protectedFileError": "Este documento está protegido por senha ou é um arquivo .doc antigo. No Word, remova a senha ou salve-o como .docx e tente novamente.",
   "copyFailed": "Não foi possível copiar automaticamente. Selecione o Markdown e copie com Ctrl+C (⌘C no Mac).",
   "onlyFirstFile": "Apenas o primeiro arquivo foi convertido. Adicione os outros um de cada vez.",

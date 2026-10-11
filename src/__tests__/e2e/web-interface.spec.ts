@@ -635,6 +635,35 @@ test.describe('Word to Markdown Web Interface', () => {
     await expect(page.locator('#file')).toBeFocused();
   });
 
+  test('tells a non-Word file what it is, and names it', async ({ page }) => {
+    await page.locator('#file').setInputFiles({
+      name: 'README.md',
+      mimeType: 'text/markdown',
+      buffer: Buffer.from('# Hello\n'),
+    });
+    const error = page.locator('#error-message');
+    await expect(error).toBeVisible({ timeout: 10000 });
+    await expect(error).toHaveText(
+      "This isn't a Word document, so it can't be converted. Choose a .docx file instead.",
+    );
+    await expect(page.locator('#error-file')).toHaveText('README.md');
+  });
+
+  test('a damaged .docx keeps the "save it again" advice, and is named', async ({
+    page,
+  }) => {
+    await page.locator('#file').setInputFiles({
+      name: 'broken.docx',
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      buffer: Buffer.from('not a real docx'),
+    });
+    const error = page.locator('#error-message');
+    await expect(error).toBeVisible({ timeout: 10000 });
+    await expect(error).toContainText('saving it again as .docx');
+    await expect(page.locator('#error-file')).toHaveText('broken.docx');
+  });
+
   test('should reject a file larger than the size limit', async ({ page }) => {
     // 21 MB of zeros with a .docx name — rejected on size before any parsing.
     await page.locator('#file').setInputFiles({

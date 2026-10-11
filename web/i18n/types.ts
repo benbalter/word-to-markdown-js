@@ -135,6 +135,8 @@ export interface UIStrings {
   fileTooLargeError: string;
   /** Shown when the file can't be read as a .docx (corrupt, or not Word at all). */
   invalidFileError: string;
+  /** A file that isn't a Word document at all (e.g. README.md, a PDF). */
+  notWordFileError: string;
   /** Shown for password-protected documents and legacy .doc files renamed to .docx. */
   protectedFileError: string;
   /** Shown when the copy button can't write to the clipboard (e.g. permission denied). */

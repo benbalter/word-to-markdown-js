@@ -129,6 +129,7 @@
   "docFileError": "Alat ini membaca berkas .docx modern, bukan berkas .doc lama. Di Word, buka dokumen Anda dan pilih Berkas → Simpan Sebagai → Dokumen Word (.docx), lalu seret berkas .docx itu ke sini.",
   "fileTooLargeError": "Berkas ini terlalu besar untuk dikonversi di browser Anda. Coba berkas .docx yang lebih kecil dari 20 MB.",
   "invalidFileError": "Berkas ini tidak dapat dibaca sebagai dokumen Word. Berkas mungkin rusak atau bukan berkas .docx. Coba buka di Word lalu simpan ulang sebagai .docx.",
+  "notWordFileError": "Ini bukan dokumen Word, jadi tidak dapat dikonversi. Pilih berkas .docx sebagai gantinya.",
   "protectedFileError": "Dokumen ini dilindungi kata sandi atau merupakan berkas .doc lama. Di Word, hapus kata sandinya atau simpan sebagai .docx, lalu coba lagi.",
   "copyFailed": "Tidak dapat menyalin secara otomatis. Pilih Markdown-nya dan salin dengan Ctrl+C (⌘C di Mac).",
   "onlyFirstFile": "Hanya file pertama yang dikonversi. Tambahkan file lainnya satu per satu.",

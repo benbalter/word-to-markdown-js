@@ -272,13 +272,38 @@ const CONVERSION_ERROR_STRINGS = {
 } as const satisfies Record<string, readonly [UIStringKey, string]>;
 
 // `note` is appended to the message (e.g. the "only the first file" notice,
-// which would otherwise be lost when the conversion fails).
-function showConversionError(error: unknown, note = ''): void {
+// which would otherwise be lost when the conversion fails). `fileName`, when
+// the error is about a file the visitor just gave us, is shown with it.
+function showConversionError(
+  error: unknown,
+  note = '',
+  fileName?: string,
+): void {
   const name = (error as { name?: string })?.name;
+  // Something that isn't a Word file at all (README.md, a PDF, a spreadsheet)
+  // fails as unreadable or as an unsupported container. "Open it in Word and
+  // save it again" would be wrong advice for it, so say what it is instead.
+  if (
+    fileName &&
+    !/\.docx?$/i.test(fileName) &&
+    (name === 'InvalidFileError' || name === 'UnsupportedFileError')
+  ) {
+    showError(
+      withNote(
+        uiString(
+          'notWordFileError',
+          "This isn't a Word document, so it can't be converted. Choose a .docx file instead.",
+        ),
+        note,
+      ),
+      fileName,
+    );
+    return;
+  }
   if (name && Object.hasOwn(CONVERSION_ERROR_STRINGS, name)) {
     const [key, fallback] =
       CONVERSION_ERROR_STRINGS[name as keyof typeof CONVERSION_ERROR_STRINGS];
-    showError(withNote(uiString(key, fallback), note));
+    showError(withNote(uiString(key, fallback), note), fileName);
     return;
   }
   showError(
@@ -289,6 +314,7 @@ function showConversionError(error: unknown, note = ''): void {
       ),
       note,
     ),
+    fileName,
   );
   console.error(error);
 }
@@ -456,7 +482,7 @@ async function processFile(
       endBusy();
       if (srStatus) srStatus.textContent = '';
     }
-    showError(withNote(rejection, ignoredNote));
+    showError(withNote(rejection, ignoredNote), file.name);
     return;
   }
 
@@ -559,7 +585,7 @@ async function processFile(
     endBusy();
     if (srStatus) srStatus.textContent = '';
     recordConversion('error');
-    showConversionError(error, ignoredNote);
+    showConversionError(error, ignoredNote, file.name);
   }
 }
 
@@ -608,6 +634,7 @@ type UIStringKey =
   | 'errorGeneric'
   | 'docFileError'
   | 'invalidFileError'
+  | 'notWordFileError'
   | 'protectedFileError'
   | 'copyFailed'
   | 'dismiss'
@@ -641,7 +668,10 @@ function uiString(key: UIStringKey, fallback: string): string {
   return value && value.length > 0 ? value : fallback;
 }
 
-function showError(message: string): void {
+// Show an error alert. `fileName` names the file it's about, on its own line
+// above the message, so a visitor who dropped several files in turn knows
+// which one failed.
+function showError(message: string, fileName?: string): void {
   // Create or update error alert
   let errorElement = document.getElementById('error-alert');
   if (!errorElement) {
@@ -651,9 +681,20 @@ function showError(message: string): void {
     errorElement.className =
       'relative mb-4 flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-start text-sm text-red-800 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200';
 
+    const body = document.createElement('div');
+    body.className = 'flex-1';
+
+    // <bdi> so a right-to-left filename (or a Latin one on an RTL page)
+    // doesn't reorder the punctuation around it.
+    const fileLine = document.createElement('bdi');
+    fileLine.id = 'error-file';
+    fileLine.className = 'mb-0.5 block font-mono text-xs font-medium break-all';
+
     const messageSpan = document.createElement('span');
     messageSpan.id = 'error-message';
-    messageSpan.className = 'flex-1';
+    messageSpan.className = 'block';
+
+    body.append(fileLine, messageSpan);
 
     const closeButton = document.createElement('button');
     closeButton.type = 'button';
@@ -664,7 +705,7 @@ function showError(message: string): void {
       '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
     closeButton.addEventListener('click', () => dismissAlert(errorElement));
 
-    errorElement.appendChild(messageSpan);
+    errorElement.appendChild(body);
     errorElement.appendChild(closeButton);
   }
 
@@ -680,6 +721,11 @@ function showError(message: string): void {
     container.insertBefore(errorElement, container.firstChild);
   }
 
+  const fileElement = document.getElementById('error-file');
+  if (fileElement) {
+    fileElement.textContent = fileName ?? '';
+    fileElement.hidden = !fileName;
+  }
   const messageElement = document.getElementById('error-message');
   messageElement.textContent = message;
   errorElement.classList.remove('hidden');

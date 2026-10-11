@@ -129,6 +129,7 @@
   "docFileError": "Bu araç eski .doc dosyalarını değil, modern .docx dosyalarını okur. Word içinde belgenizi açın ve File → Save As → Word Document (.docx) seçeneğini seçin, ardından .docx dosyasını buraya bırakın.",
   "fileTooLargeError": "Bu dosya tarayıcınızda dönüştürmek için çok büyük. Lütfen 20 MB'tan küçük bir .docx deneyin.",
   "invalidFileError": "Bu dosya bir Word belgesi olarak okunamadı. Dosya bozuk olabilir veya bir .docx dosyası olmayabilir. Word içinde açıp yeniden .docx olarak kaydetmeyi deneyin.",
+  "notWordFileError": "Bu bir Word belgesi değil, bu yüzden dönüştürülemez. Bunun yerine bir .docx dosyası seçin.",
   "protectedFileError": "Bu belge parola korumalı veya eski bir .doc dosyası. Word içinde parolayı kaldırın ya da belgeyi .docx olarak kaydedin, ardından tekrar deneyin.",
   "copyFailed": "Otomatik olarak kopyalanamadı. Markdown'ı seçin ve Ctrl+C (Mac'te ⌘C) ile kopyalayın.",
   "onlyFirstFile": "Yalnızca ilk dosya dönüştürüldü. Diğerlerini tek tek ekleyin.",
