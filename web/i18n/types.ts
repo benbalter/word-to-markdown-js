@@ -50,6 +50,11 @@ export interface UIStrings {
   /** Resets the converter to accept another document. */
   convertAnother: string;
   /**
+   * Shown under the result actions when the document has images: they're
+   * inline (base64) in the Markdown, and the .zip has them as files.
+   */
+  imagesNote: string;
+  /**
    * Converter warnings, shown after a conversion. `sensitivity` and
    * `confidentiality` contain a literal `{label}` placeholder, replaced with
    * the document's own label/marker text.

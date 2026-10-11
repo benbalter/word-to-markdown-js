@@ -18,6 +18,7 @@
   "downloadZipButton": ".zip 다운로드",
   "downloadedZipButton": "다운로드됨",
   "convertAnother": "다른 파일 변환하기",
+  "imagesNote": "이미지는 이 Markdown에 직접 포함되어 있습니다. .zip에는 이미지가 별도 파일로 들어 있습니다.",
   "warnings": {
     "encrypted": "이 문서는 암호화된 것으로 보여 일부 내용이 누락될 수 있습니다.",
     "sensitivity": "이 문서에는 민감도 레이블({label})이 있습니다. 변환하고 공유해도 되는지 확인하세요.",

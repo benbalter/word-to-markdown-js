@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - word2md.com: Copy Markdown is now the main action after a conversion, and the result scrolls into view. Warnings appear in the page's language, with the converter's raw messages behind a "Technical details" toggle. Code in the output and preview no longer shows font ligatures, so `->` and `--` look exactly as they're copied.
+- word2md.com: when a document has images, Download .zip becomes the main action (the Markdown alone carries them as long base64 strings), with a note explaining where the images are.
 
 ## [0.5.1] - 2026-09-30
 

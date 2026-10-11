@@ -18,6 +18,7 @@
   "downloadZipButton": "Tải .zip",
   "downloadedZipButton": "Đã tải xuống",
   "convertAnother": "Chuyển đổi tệp khác",
+  "imagesNote": "Hình ảnh được nhúng trực tiếp trong Markdown này. Tệp .zip chứa chúng dưới dạng các tệp riêng.",
   "warnings": {
     "encrypted": "Tài liệu này có vẻ đã được mã hóa, nên có thể thiếu một số nội dung.",
     "sensitivity": "Tài liệu này có nhãn độ nhạy cảm ({label}). Hãy đảm bảo bạn được phép chuyển đổi và chia sẻ tài liệu.",

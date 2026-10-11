@@ -127,7 +127,7 @@ Every screen shows the product's one transformation: a document becomes Markdown
 
 The page is calm and editorial. It sits on warm document paper in light mode and deep navy-black ink in dark mode, which follows `prefers-color-scheme` automatically. A faint dot grid in light mode (a soft chartreuse glow in dark) adds texture to the top of the page without competing with the content. The layout is a single centered column with generous vertical space between sections. Density stays low because the visitor came to do one thing.
 
-The controls stay quiet so the result can stand out. Buttons, cards and the dropzone are neutral, outlined surfaces until someone interacts with them; then they pick up chartreuse. The only filled chartreuse control is Copy Markdown, the next action after a successful conversion.
+The controls stay quiet so the result can stand out. Buttons, cards and the dropzone are neutral, outlined surfaces until someone interacts with them; then they pick up chartreuse. The only filled chartreuse control is the next action after a successful conversion: Copy Markdown, or Download .zip when the document has images.
 
 **Key Characteristics:**
 
@@ -144,7 +144,7 @@ A warm paper and navy-ink palette with one electric chartreuse accent. Every col
 
 ### Primary
 
-- **Signal Chartreuse** (`chartreuse`): the accent for whatever changed or what to do next. Used for the hero arrow, the `.md` output chip, the converted filename, the Markdown panel dot, text selection, focus rings in dark mode, dropzone hover and drag-over, and the one filled button (Copy Markdown). It's legible on ink and on navy, but only about 1.4:1 on paper, so in light mode it may only fill a surface or appear as a tint (`/10`, `/40`), never as text or a focus ring.
+- **Signal Chartreuse** (`chartreuse`): the accent for whatever changed or what to do next. Used for the hero arrow, the `.md` output chip, the converted filename, the Markdown panel dot, text selection, focus rings in dark mode, dropzone hover and drag-over, and the one filled button (the next action after a conversion). It's legible on ink and on navy, but only about 1.4:1 on paper, so in light mode it may only fill a surface or appear as a tint (`/10`, `/40`), never as text or a focus ring.
 - **Proof Olive** (`chartreuse-deep`): the light-mode stand-in for chartreuse wherever the accent has to meet contrast: eyebrow text, links, step numbers, icons, list markers, and focus rings on paper. It's also the hover fill for the accent button.
 
 ### Neutral
@@ -225,9 +225,9 @@ Corners are softly and consistently rounded, and the radius grows with the size 
 Quiet by default, chartreuse when you interact.
 
 - **Shape:** gently rounded (8px), with an icon and label separated by 8px. The result actions are at least 44px tall, so they're comfortable touch targets. Their looks live in `.btn`, `.btn-accent` and `.btn-secondary` in `global.css`.
-- **Secondary (default):** Fresh Sheet fill with a `navy/15` border and Brand Navy text, 14px medium. In dark mode: Ink Well fill, `white/15` border, Snow text. Used for Download .md, Download .zip, Convert another file, and the CLI copy action.
+- **Secondary (default):** Fresh Sheet fill with a `navy/15` border and Brand Navy text, 14px medium. In dark mode: Ink Well fill, `white/15` border, Snow text. Used for Download .md, Convert another file, the CLI copy action, and whichever of Copy and Download .zip isn't the accent.
 - **Hover:** the border turns chartreuse and the fill gets a `chartreuse/10` tint, with a color transition only (no movement).
-- **Accent (one per screen at most):** solid Signal Chartreuse with Brand Navy text, 14px semibold, and a light shadow. On hover the fill becomes Proof Olive with white text. It's Copy Markdown, the next action after a conversion; promotions never get it.
+- **Accent (one per screen at most):** solid Signal Chartreuse with Brand Navy text, 14px semibold, and a light shadow. On hover the fill becomes Proof Olive with white text. It's the next action after a conversion: Copy Markdown, or Download .zip when the document has images, since then the Markdown carries each image as a long base64 string and the .zip has them as files. The accent action also leads the row and takes focus, and a short note under the row explains the images. Promotions never get it.
 - **Focus:** the global 2px outline with a 2px offset, in Proof Olive on paper and Signal Chartreuse on ink.
 
 ### Dropzone (signature)

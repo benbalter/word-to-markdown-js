@@ -18,6 +18,7 @@
   "downloadZipButton": "Ladda ner .zip",
   "downloadedZipButton": "Nedladdat",
   "convertAnother": "Konvertera en annan fil",
+  "imagesNote": "Bilderna är inbäddade direkt i den här Markdown-koden. .zip-filen innehåller dem som separata filer.",
   "warnings": {
     "encrypted": "Dokumentet verkar vara krypterat, så en del innehåll kan saknas.",
     "sensitivity": "Dokumentet har en känslighetsetikett ({label}). Kontrollera att du får konvertera och dela det.",

@@ -18,6 +18,7 @@
   "downloadZipButton": ".zip herunterladen",
   "downloadedZipButton": "Heruntergeladen",
   "convertAnother": "Weitere Datei konvertieren",
+  "imagesNote": "Bilder sind direkt in dieses Markdown eingebettet. Die .zip-Datei enthält sie als separate Dateien.",
   "warnings": {
     "encrypted": "Dieses Dokument scheint verschlüsselt zu sein, daher fehlen möglicherweise Inhalte.",
     "sensitivity": "Dieses Dokument hat eine Vertraulichkeitsbezeichnung ({label}). Stellen Sie sicher, dass Sie es konvertieren und weitergeben dürfen.",

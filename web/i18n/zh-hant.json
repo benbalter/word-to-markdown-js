@@ -18,6 +18,7 @@
   "downloadZipButton": "下載 .zip",
   "downloadedZipButton": "已下載",
   "convertAnother": "轉換另一個檔案",
+  "imagesNote": "圖片已直接嵌入此 Markdown。.zip 檔案則將它們作為個別檔案提供。",
   "warnings": {
     "encrypted": "這份文件似乎已加密，因此可能缺少部分內容。",
     "sensitivity": "這份文件帶有敏感度標籤（{label}）。請確認你有權轉換並分享它。",

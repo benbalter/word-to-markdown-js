@@ -18,6 +18,7 @@
   "downloadZipButton": "Download .zip",
   "downloadedZipButton": "Downloaded",
   "convertAnother": "Convert another file",
+  "imagesNote": "Images are embedded inline in this Markdown. The .zip has them as separate files.",
   "warnings": {
     "encrypted": "This document appears to be encrypted, so some content may be missing.",
     "sensitivity": "This document has a sensitivity label ({label}). Make sure you're allowed to convert and share it.",

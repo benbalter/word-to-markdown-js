@@ -18,6 +18,7 @@
   "downloadZipButton": "Unduh .zip",
   "downloadedZipButton": "Terunduh",
   "convertAnother": "Konversi berkas lain",
+  "imagesNote": "Gambar disematkan langsung di Markdown ini. Berkas .zip berisi gambar tersebut sebagai berkas terpisah.",
   "warnings": {
     "encrypted": "Dokumen ini tampaknya terenkripsi, jadi sebagian konten mungkin hilang.",
     "sensitivity": "Dokumen ini memiliki label sensitivitas ({label}). Pastikan Anda diizinkan untuk mengonversi dan membagikannya.",

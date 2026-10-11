@@ -18,6 +18,7 @@
   "downloadZipButton": "Scarica .zip",
   "downloadedZipButton": "Scaricato",
   "convertAnother": "Converti un altro file",
+  "imagesNote": "Le immagini sono incorporate direttamente in questo Markdown. Il file .zip le contiene come file separati.",
   "warnings": {
     "encrypted": "Questo documento sembra crittografato, quindi parte del contenuto potrebbe mancare.",
     "sensitivity": "Questo documento ha un'etichetta di riservatezza ({label}). Assicurati di essere autorizzato a convertirlo e condividerlo.",

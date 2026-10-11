@@ -18,6 +18,7 @@
   "downloadZipButton": ".zip downloaden",
   "downloadedZipButton": "Gedownload",
   "convertAnother": "Nog een bestand converteren",
+  "imagesNote": "Afbeeldingen zijn rechtstreeks in deze Markdown ingesloten. De .zip bevat ze als losse bestanden.",
   "warnings": {
     "encrypted": "Dit document lijkt versleuteld te zijn, dus er kan inhoud ontbreken.",
     "sensitivity": "Dit document heeft een vertrouwelijkheidslabel ({label}). Controleer of je het mag converteren en delen.",

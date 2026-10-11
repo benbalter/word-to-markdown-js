@@ -128,7 +128,10 @@ const t = useTranslations(Astro.currentLocale);
         ></bdi>
       </h2>
       <div class="flex flex-wrap items-center justify-center gap-2">
-        {/* Copy is the one filled accent on the page: it's the next action. */}
+        {/* One filled accent: the next action. That's Copy, unless the
+             document has images, when src/index.ts moves the accent (and
+             the leading spot) to Download .zip, since the Markdown alone
+             carries the images as long base64 strings. */}
         <button
           id="copy-button"
           type="button"
@@ -273,6 +276,12 @@ const t = useTranslations(Astro.currentLocale);
           {t.convertAnother}
         </button>
       </div>
+      <p
+        id="images-note"
+        class="hidden max-w-prose text-center text-sm leading-relaxed text-navy-soft sm:text-start dark:text-mist"
+      >
+        {t.imagesNote}
+      </p>
     </div>
 
     <div class="mt-4 grid gap-4 lg:grid-cols-2">

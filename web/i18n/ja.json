@@ -18,6 +18,7 @@
   "downloadZipButton": ".zip をダウンロード",
   "downloadedZipButton": "ダウンロード済み",
   "convertAnother": "別のファイルを変換",
+  "imagesNote": "画像はこの Markdown に直接埋め込まれています。.zip には画像が個別のファイルとして含まれます。",
   "warnings": {
     "encrypted": "このドキュメントは暗号化されているようです。一部の内容が欠けている可能性があります。",
     "sensitivity": "このドキュメントには秘密度ラベル（{label}）が付いています。変換・共有してよいか確認してください。",

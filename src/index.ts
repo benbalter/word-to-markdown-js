@@ -509,12 +509,7 @@ async function processFile(
     // actually has images (inline mode embeds them as base64 data URIs). Match
     // Markdown image syntax, not a bare "data:image" that could be document text.
     lastConvertedBuffer = buffer;
-    const zipButton = document.getElementById('download-zip-button');
-    if (zipButton) {
-      zipButton.style.display = INLINE_IMAGE.test(result.markdown)
-        ? 'inline-flex'
-        : 'none';
-    }
+    setImageMode(INLINE_IMAGE.test(result.markdown));
 
     const inputElement = document.getElementById('input');
     inputElement.classList.add('hidden');
@@ -548,7 +543,7 @@ async function processFile(
       behavior: reduceMotion ? 'auto' : 'smooth',
       block: 'start',
     });
-    document.getElementById('copy-button')?.focus({ preventScroll: true });
+    primaryAction()?.focus({ preventScroll: true });
     // The finished result lights up like an added diff hunk (decoration only;
     // nothing above waits on it).
     replayClass(document.querySelector('.md-panel'), 'is-lit');
@@ -570,6 +565,35 @@ async function processFile(
 
 // Match an inline (base64) image in Markdown image syntax.
 const INLINE_IMAGE = /!\[[^\]]*\]\(data:image\//;
+
+// When a document has images, the Markdown carries them as long base64
+// strings, so the .zip (Markdown plus an images/ folder) is the better next
+// step: it takes the filled accent and the leading spot from Copy, and a note
+// says why. Without images, Copy leads and the .zip button is hidden.
+function setImageMode(hasImages: boolean): void {
+  const copyButton = document.getElementById('copy-button');
+  const zipButton = document.getElementById('download-zip-button');
+  if (!copyButton || !zipButton) return;
+  zipButton.style.display = hasImages ? 'inline-flex' : 'none';
+  copyButton.classList.toggle('btn-accent', !hasImages);
+  copyButton.classList.toggle('btn-secondary', hasImages);
+  zipButton.classList.toggle('btn-accent', hasImages);
+  zipButton.classList.toggle('btn-secondary', !hasImages);
+  if (hasImages) copyButton.before(zipButton);
+  else document.getElementById('download-button')?.after(zipButton);
+  document
+    .getElementById('images-note')
+    ?.classList.toggle('hidden', !hasImages);
+}
+
+// The result action that carries the accent (see setImageMode), where focus
+// lands after a conversion.
+function primaryAction(): HTMLElement | null {
+  return (
+    document.querySelector<HTMLElement>('#results .btn-accent') ??
+    document.getElementById('copy-button')
+  );
+}
 
 // Incremented per processFile call; see the token check there.
 let activeConversion = 0;
@@ -664,7 +688,7 @@ function dismissAlert(alert: HTMLElement): void {
   const results = document.getElementById('results');
   const target =
     results && !results.classList.contains('hidden')
-      ? document.getElementById('copy-button')
+      ? primaryAction()
       : document.getElementById('file');
   target?.focus();
 }
@@ -850,11 +874,11 @@ function resetConverter(): void {
   const rendered = document.getElementById('rendered');
   if (rendered) rendered.innerHTML = '';
 
-  // Drop the retained bytes and re-hide the zip button for the next document.
+  // Drop the retained bytes, and hand the accent back to Copy (re-hiding the
+  // zip button and its note) for the next document.
   lastConvertedBuffer = null;
   lastMarkdown = '';
-  const zipButton = document.getElementById('download-zip-button');
-  if (zipButton) zipButton.style.display = 'none';
+  setImageMode(false);
 
   document.getElementById('error-alert')?.remove();
   document.getElementById('warning-alert')?.remove();

@@ -18,6 +18,7 @@
   "downloadZipButton": "Pobierz .zip",
   "downloadedZipButton": "Pobrano",
   "convertAnother": "Konwertuj kolejny plik",
+  "imagesNote": "Obrazy są osadzone bezpośrednio w tym Markdownie. Plik .zip zawiera je jako osobne pliki.",
   "warnings": {
     "encrypted": "Ten dokument wygląda na zaszyfrowany, więc może brakować części treści.",
     "sensitivity": "Ten dokument ma etykietę poufności ({label}). Upewnij się, że możesz go konwertować i udostępniać.",

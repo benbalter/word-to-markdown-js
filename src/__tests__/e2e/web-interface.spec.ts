@@ -120,6 +120,35 @@ test.describe('Word to Markdown Web Interface', () => {
     expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
   });
 
+  test('leads with Download .zip when the document has images', async ({
+    page,
+  }) => {
+    const copy = page.locator('#copy-button');
+    const zip = page.locator('#download-zip-button');
+    const note = page.locator('#images-note');
+
+    await page.locator('#file').setInputFiles(fixture('image.docx'));
+    await expect(zip).toBeVisible({ timeout: 10000 });
+    await expect(zip).toHaveClass(/\bbtn-accent\b/);
+    await expect(copy).toHaveClass(/\bbtn-secondary\b/);
+    await expect(note).toBeVisible();
+    await expect(zip).toBeFocused();
+    // The accent action comes first in the row (and the tab order).
+    const firstAction = page.locator('#results button').first();
+    await expect(firstAction).toHaveId('download-zip-button');
+
+    // A document without images hands the accent back to Copy.
+    await page.locator('#convert-another').click();
+    await page.locator('#file').setInputFiles(fixture('h1.docx'));
+    await expect(page.locator('#filename')).toHaveText('h1.docx', {
+      timeout: 10000,
+    });
+    await expect(copy).toHaveClass(/\bbtn-accent\b/);
+    await expect(zip).toBeHidden();
+    await expect(note).toBeHidden();
+    await expect(copy).toBeFocused();
+  });
+
   test('hides the explainer sections under a result, and restores them', async ({
     page,
   }) => {

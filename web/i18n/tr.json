@@ -18,6 +18,7 @@
   "downloadZipButton": ".zip dosyasını indir",
   "downloadedZipButton": "İndirildi",
   "convertAnother": "Başka bir dosyayı dönüştür",
+  "imagesNote": "Görseller doğrudan bu Markdown'ın içine gömülü. .zip dosyası onları ayrı dosyalar olarak içerir.",
   "warnings": {
     "encrypted": "Bu belge şifrelenmiş görünüyor, bu nedenle bazı içerikler eksik olabilir.",
     "sensitivity": "Bu belgede bir duyarlılık etiketi var ({label}). Dönüştürme ve paylaşma izniniz olduğundan emin olun.",
