@@ -117,7 +117,7 @@
   "footerTagline": "Dikonversi di peramban Anda · tidak ada yang diunggah",
   "homeAria": "Word to Markdown — beranda",
   "metaTitle": "Word to Markdown — Konverter .docx ke .md Gratis",
-  "metaDescription": "Ubah Word (.docx) dan Google Docs menjadi Markdown bergaya GitHub yang rapi — gratis, open source, dan sepenuhnya di peramban Anda.",
+  "metaDescription": "Konverter gratis dan open source yang mengubah Word (.docx) dan Google Docs menjadi Markdown bergaya GitHub yang rapi — sepenuhnya di peramban Anda. Tidak ada yang diunggah.",
   "schemaDescription": "Alat gratis dan open source yang mengonversi Word (.docx) dan Google Docs menjadi Markdown bergaya GitHub yang rapi, sepenuhnya di peramban Anda.",
   "schemaFeatureList": [
     "Konversi Word (.docx) ke Markdown",
@@ -128,7 +128,7 @@
   ],
   "errorGeneric": "Terjadi kesalahan tak terduga saat mengonversi dokumen. Silakan coba lagi.",
   "docFileError": "Alat ini membaca berkas .docx modern, bukan berkas .doc lama. Di Word, buka dokumen Anda dan pilih File → Simpan Sebagai → Dokumen Word (.docx), lalu seret berkas .docx itu ke sini.",
-  "fileTooLargeError": "Berkas ini terlalu besar untuk dikonversi di browser Anda. Coba berkas .docx yang lebih kecil dari 20 MB.",
+  "fileTooLargeError": "Berkas ini terlalu besar untuk dikonversi di peramban Anda. Coba berkas .docx yang lebih kecil dari 20 MB.",
   "invalidFileError": "Berkas ini tidak dapat dibaca sebagai dokumen Word. Berkas mungkin rusak atau bukan berkas .docx. Coba buka di Word lalu simpan ulang sebagai .docx.",
   "notWordFileError": "Ini bukan dokumen Word, jadi tidak dapat dikonversi. Pilih berkas .docx sebagai gantinya.",
   "protectedFileError": "Dokumen ini dilindungi kata sandi atau merupakan berkas .doc lama. Di Word, hapus kata sandinya atau simpan sebagai .docx, lalu coba lagi.",
