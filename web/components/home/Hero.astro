@@ -4,13 +4,25 @@
 import { useTranslations } from '../../i18n';
 
 const t = useTranslations(Astro.currentLocale);
+const eyebrowParts = t.eyebrow.split(' · ');
 ---
 
 <section class="mx-auto max-w-3xl pt-14 pb-2 text-center sm:pt-20">
+  {/* Each " · " segment stays on one line, so a narrow screen breaks between
+       claims rather than orphaning a word ("BROWSER") on a line of its own. */}
   <p
-    class="reveal font-mono text-[0.72rem] font-medium tracking-[0.22em] rtl:font-sans rtl:tracking-normal text-chartreuse-deep uppercase dark:text-chartreuse [--reveal-delay:.02s]"
+    class="reveal font-mono text-[0.72rem] font-medium tracking-[0.22em] text-balance rtl:font-sans rtl:tracking-normal text-chartreuse-deep uppercase dark:text-chartreuse [--reveal-delay:.02s]"
   >
-    {t.eyebrow}
+    {
+      eyebrowParts.map((part, i) => (
+        <>
+          {i > 0 && ' '}
+          <span class="whitespace-nowrap">
+            {i < eyebrowParts.length - 1 ? `${part}\u00a0·` : part}
+          </span>
+        </>
+      ))
+    }
   </p>
 
   <h1
