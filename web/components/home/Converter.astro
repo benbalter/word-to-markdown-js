@@ -124,7 +124,7 @@ const t = useTranslations(Astro.currentLocale);
       >
         {t.convertedLabel}{' '}<bdi
           id="filename"
-          class="font-mono text-base break-all text-chartreuse-deep dark:text-chartreuse"
+          class="fresh-mark font-mono text-base break-all text-chartreuse-deep dark:text-chartreuse"
         ></bdi>
       </h2>
       <div class="flex flex-wrap items-center justify-center gap-2">
@@ -132,7 +132,7 @@ const t = useTranslations(Astro.currentLocale);
         <button
           id="copy-button"
           type="button"
-          class="inline-flex items-center gap-2 rounded-lg border border-chartreuse bg-chartreuse px-3.5 py-2 text-sm font-semibold text-navy shadow-sm transition-colors hover:border-chartreuse-deep hover:bg-chartreuse-deep hover:text-white"
+          class="confirmable inline-flex items-center gap-2 rounded-lg border border-chartreuse bg-chartreuse px-3.5 py-2 text-sm font-semibold text-navy shadow-sm transition-colors hover:border-chartreuse-deep hover:bg-chartreuse-deep hover:text-white"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -144,17 +144,33 @@ const t = useTranslations(Astro.currentLocale);
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
+            class="idle-icon"
             aria-hidden="true"
           >
             <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
             <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+          </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.25"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="confirm-icon"
+            aria-hidden="true"
+          >
+            <path d="M20 6 9 17l-5-5" pathLength="1" />
           </svg>
           <span id="copy-label">{t.copyButton}</span>
         </button>
         <button
           id="download-button"
           type="button"
-          class="inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-snow dark:hover:border-chartreuse"
+          class="confirmable inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-snow dark:hover:border-chartreuse"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -166,18 +182,34 @@ const t = useTranslations(Astro.currentLocale);
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
+            class="idle-icon"
             aria-hidden="true"
           >
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <path d="M7 10l5 5 5-5" />
             <path d="M12 15V3" />
           </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.25"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="confirm-icon"
+            aria-hidden="true"
+          >
+            <path d="M20 6 9 17l-5-5" pathLength="1" />
+          </svg>
           <span id="download-label">{t.downloadButton}</span>
         </button>
         <button
           id="download-zip-button"
           type="button"
-          class="hidden items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 disabled:opacity-60 dark:border-white/15 dark:bg-ink-card dark:text-snow dark:hover:border-chartreuse"
+          class="confirmable hidden items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 disabled:opacity-60 dark:border-white/15 dark:bg-ink-card dark:text-snow dark:hover:border-chartreuse"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -189,6 +221,7 @@ const t = useTranslations(Astro.currentLocale);
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
+            class="idle-icon"
             aria-hidden="true"
           >
             <path
@@ -197,6 +230,21 @@ const t = useTranslations(Astro.currentLocale);
             <path d="M14 3v4a1 1 0 0 0 1 1h4" />
             <rect x="9" y="12" width="2" height="2" />
             <rect x="9" y="16" width="2" height="2" />
+          </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.25"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="confirm-icon"
+            aria-hidden="true"
+          >
+            <path d="M20 6 9 17l-5-5" pathLength="1" />
           </svg>
           <span id="download-zip-label">{t.downloadZipButton}</span>
         </button>
@@ -228,13 +276,16 @@ const t = useTranslations(Astro.currentLocale);
     </div>
 
     <div class="mt-4 grid gap-4 lg:grid-cols-2">
+      {/* The Markdown panel lights up like an added diff hunk when a document
+           converts, and again on Copy (the text that just hit the clipboard):
+           see .md-panel in global.css and highlightResult() in src/index.ts. */}
       <div
-        class="overflow-hidden rounded-xl border border-rule-light bg-paper-card dark:border-rule-dark dark:bg-ink-card"
+        class="md-panel relative overflow-hidden rounded-xl border border-rule-light bg-paper-card dark:border-rule-dark dark:bg-ink-card"
       >
         <div
           class="flex items-center gap-2 border-b border-rule-light px-4 py-2 dark:border-rule-dark"
         >
-          <span class="h-2.5 w-2.5 rounded-full bg-chartreuse"></span>
+          <span class="md-dot h-2.5 w-2.5 rounded-full bg-chartreuse"></span>
           <span
             class="font-mono text-xs font-medium tracking-wide rtl:font-sans rtl:tracking-normal text-navy-soft uppercase dark:text-mist"
             >{t.panelMarkdown}</span

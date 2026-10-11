@@ -228,6 +228,159 @@
     }
   }
 
+  /* Result highlights: the Markdown lands like an added hunk in a diff. On a
+     finished conversion (and on Copy, to show exactly what hit the clipboard)
+     src/index.ts replays `.is-lit` on the Markdown panel and the converted
+     filename. Decoration only: the text is readable from the first frame and
+     nothing waits on the animation. Reduced motion keeps the color fade but
+     drops the sweep and the dot's ping. */
+  .md-panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    background: color-mix(in srgb, var(--color-chartreuse) 16%, transparent);
+    box-shadow: inset 0 0 0 1px var(--color-chartreuse);
+  }
+  .md-panel.is-lit::after {
+    animation: diff-wash 1s cubic-bezier(0.16, 1, 0.3, 1) 0.12s backwards;
+  }
+  .md-panel.is-lit .md-dot {
+    animation: dot-ping 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.12s;
+  }
+  @keyframes diff-wash {
+    0% {
+      opacity: 1;
+      clip-path: inset(0 0 100% 0);
+    }
+    35% {
+      opacity: 1;
+      clip-path: inset(0 0 0 0);
+    }
+    100% {
+      opacity: 0;
+      clip-path: inset(0 0 0 0);
+    }
+  }
+  @keyframes dot-ping {
+    from {
+      box-shadow: 0 0 0 0
+        color-mix(in srgb, var(--color-chartreuse) 70%, transparent);
+    }
+    to {
+      box-shadow: 0 0 0 7px transparent;
+    }
+  }
+
+  /* The converted filename gets a highlighter pass in the reading direction,
+     which then fades back to plain accent text. --mark-a is registered (below)
+     so the tint's alpha can animate. */
+  .fresh-mark {
+    background-image: linear-gradient(
+      color-mix(in srgb, var(--color-chartreuse) var(--mark-a), transparent),
+      color-mix(in srgb, var(--color-chartreuse) var(--mark-a), transparent)
+    );
+    background-repeat: no-repeat;
+    background-position: left;
+    background-size: 100% 100%;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    border-radius: 3px;
+  }
+  .fresh-mark:dir(rtl) {
+    background-position: right;
+  }
+  .fresh-mark.is-lit {
+    animation: mark-sweep 1.3s cubic-bezier(0.16, 1, 0.3, 1) 0.12s backwards;
+  }
+  @keyframes mark-sweep {
+    0% {
+      --mark-a: 38%;
+      background-size: 0% 100%;
+    }
+    30% {
+      --mark-a: 38%;
+      background-size: 100% 100%;
+    }
+    100% {
+      --mark-a: 0%;
+      background-size: 100% 100%;
+    }
+  }
+  @media (prefers-color-scheme: dark) {
+    @keyframes mark-sweep {
+      0% {
+        --mark-a: 22%;
+        background-size: 0% 100%;
+      }
+      30% {
+        --mark-a: 22%;
+        background-size: 100% 100%;
+      }
+      100% {
+        --mark-a: 0%;
+        background-size: 100% 100%;
+      }
+    }
+  }
+
+  /* Copy and Download confirm with a drawn check for as long as their label
+     reads "Copied!" / "Downloaded" (src/index.ts toggles `.is-confirmed`). */
+  .confirmable .confirm-icon,
+  .confirmable.is-confirmed .idle-icon {
+    display: none;
+  }
+  .confirmable.is-confirmed .confirm-icon {
+    display: block;
+  }
+  .confirmable.is-confirmed .confirm-icon path {
+    stroke-dasharray: 1;
+    animation: check-draw 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes check-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* Ease in: hold the tint a beat, then fade (the expo ease-out above
+       would spend most of it before the eye lands). */
+    .md-panel.is-lit::after {
+      animation-name: diff-fade;
+      animation-timing-function: ease-in;
+    }
+    .md-panel.is-lit .md-dot,
+    .confirmable.is-confirmed .confirm-icon path {
+      animation: none;
+    }
+    .fresh-mark.is-lit {
+      animation-name: mark-fade;
+      animation-timing-function: ease-in;
+    }
+  }
+  @keyframes diff-fade {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes mark-fade {
+    from {
+      --mark-a: 30%;
+    }
+    to {
+      --mark-a: 0%;
+    }
+  }
+
   /* Hairline divider used between major bands */
   .rule {
     height: 1px;
@@ -291,6 +444,13 @@
       transform: none;
     }
   }
+}
+
+/* Animatable alpha for the filename highlighter (.fresh-mark). */
+@property --mark-a {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
 }
 
 /* Tailwind Typography tuning for the rendered Markdown (#rendered) and the

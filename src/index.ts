@@ -341,11 +341,26 @@ function copyMarkdown(): void {
     // captured default against rapid re-clicks by resetting the timer.
     copyLabel.textContent = uiString('copied', 'Copied!');
     announce(copyLabel.textContent);
+    const copyButton = document.getElementById('copy-button');
+    copyButton?.classList.add('is-confirmed');
+    // Light up the Markdown panel: that's exactly what's on the clipboard now.
+    replayClass(document.querySelector('.md-panel'), 'is-lit');
     window.clearTimeout(copyResetTimer);
     copyResetTimer = window.setTimeout(() => {
       copyLabel.textContent = copyLabelDefault;
+      copyButton?.classList.remove('is-confirmed');
     }, 2000);
   }, copyFailed);
+}
+
+// Restart a one-shot CSS animation keyed to a class (the result highlights in
+// global.css): drop the class, force a reflow so the browser forgets the
+// finished run, then add it back. A second conversion or Copy replays it.
+function replayClass(element: Element | null, className: string): void {
+  if (!(element instanceof HTMLElement)) return;
+  element.classList.remove(className);
+  void element.offsetWidth;
+  element.classList.add(className);
 }
 
 // Record an anonymous "a conversion happened" signal so the hosted site can
@@ -519,6 +534,10 @@ async function processFile(
       block: 'start',
     });
     document.getElementById('copy-button')?.focus({ preventScroll: true });
+    // The finished result lights up like an added diff hunk (decoration only;
+    // nothing above waits on it).
+    replayClass(document.querySelector('.md-panel'), 'is-lit');
+    replayClass(filenameElement, 'is-lit');
 
     recordConversion('success');
 
@@ -877,9 +896,12 @@ function downloadMarkdown(): void {
   if (label) {
     label.textContent = uiString('downloaded', 'Downloaded');
     announce(label.textContent);
+    const downloadButton = document.getElementById('download-button');
+    downloadButton?.classList.add('is-confirmed');
     window.clearTimeout(downloadResetTimer);
     downloadResetTimer = window.setTimeout(() => {
       label.textContent = downloadLabelDefault;
+      downloadButton?.classList.remove('is-confirmed');
     }, 2000);
   }
 }
@@ -915,9 +937,11 @@ async function downloadZip(): Promise<void> {
     if (label) {
       label.textContent = uiString('downloadedZip', 'Downloaded');
       announce(label.textContent);
+      button?.classList.add('is-confirmed');
       window.clearTimeout(downloadZipResetTimer);
       downloadZipResetTimer = window.setTimeout(() => {
         label.textContent = downloadZipLabelDefault;
+        button?.classList.remove('is-confirmed');
       }, 2000);
     }
   } catch (error) {

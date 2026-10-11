@@ -135,7 +135,7 @@ The controls stay quiet so the result can stand out. Buttons, cards and the drop
 - Navy plus a single chartreuse accent, in a light and a dark theme.
 - Flat surfaces separated by 1px rules and tone. Shadows only show state.
 - Consistent rounded corners (8px controls, 12px panels, 16px dropzone).
-- Motion is limited to one staggered page-load reveal, plus hover and drag feedback, and all of it respects reduced motion.
+- Motion is limited to one staggered page-load reveal, hover and drag feedback, and one authored moment: the result lighting up like an added diff hunk. All of it respects reduced motion.
 - Built for 21 locales, including right-to-left and CJK.
 
 ## Colors
@@ -251,6 +251,8 @@ The main feature of the page. It's a large `<label>` that wraps a visually hidde
 
 Two matching panels, "Markdown" and "Preview." Each has a header strip containing a 10px status dot (chartreuse for Markdown, slate for Preview) and an uppercase mono label, separated from the body by a 1px rule. The Markdown body is a left-to-right, scrollable `<pre>` limited to 28rem tall. The Preview renders the Markdown with Tailwind Typography, styled with the brand fonts: Fraunces headings, Proof Olive list markers, chartreuse link underlines.
 
+**The diff highlight moment.** When a conversion finishes, the Markdown panel lights up like an added hunk in a diff: a chartreuse wash with a 1px chartreuse edge sweeps down the panel and fades (about 1s), the status dot pings once, and the converted filename gets a highlighter pass in its reading direction that fades back to plain accent text. Copy replays the panel wash, because that text is what just landed on the clipboard. Copy, Download .md and Download .zip swap their icon for a drawn check while their label reads "Copied!" or "Downloaded". It's decoration only: the text is readable from the first frame and focus and scrolling never wait on it. Under reduced motion the wash and highlighter only fade, and the ping and check-draw are dropped.
+
 ### File Chips
 
 Small mono labels (`.docx`, `.md`) inside 8px-rounded chips, used in the hero's transformation strip. The input chip is neutral (rule border, Slate Note). The output chip is tinted chartreuse (`chartreuse/40` border, `chartreuse/10` fill, Proof Olive text): the diff highlight in miniature.
@@ -275,7 +277,7 @@ A navy gradient card that keeps the same colors in both themes, with a faint com
 - **Do** pair every color with its dark-mode partner (The Theme Pair Rule) and test both themes.
 - **Do** use Proof Olive (`chartreuse-deep`) for accent text, icons and focus rings on paper. Keep bright chartreuse for fills, tints and ink backgrounds.
 - **Do** separate surfaces with 1px rules and tone, and group related items in one bordered container with internal dividers.
-- **Do** keep the page's motion to the existing staggered `rise` reveal (0.7s, `cubic-bezier(0.16, 1, 0.3, 1)`) and short 0.15–0.18s state transitions, all disabled under `prefers-reduced-motion`.
+- **Do** keep the page's motion to the existing staggered `rise` reveal (0.7s, `cubic-bezier(0.16, 1, 0.3, 1)`), short 0.15–0.18s state transitions, and the diff highlight moment on the result, all reduced under `prefers-reduced-motion`. Don't add a second celebration.
 - **Do** add `rtl:font-sans rtl:tracking-normal` to tracked mono labels and `rtl:-scale-x-100` to directional icons.
 - **Do** style through classes or `element.style` from JS; the site's Content-Security-Policy blocks inline `style=""` attributes.
 
