@@ -524,7 +524,8 @@ async function processFile(
 
     // The results pane carries its own contextual Open & Async pitch, so hide
     // the standalone promo card to avoid stacking two asks. The card stays for
-    // visitors who never convert (it lives in the page flow below the input).
+    // visitors who never convert (it lives in the page flow below How It
+    // Works).
     // Set display inline rather than toggling `.hidden`: the card's scoped CSS
     // sets `display: flex` at equal specificity, so a class wouldn't reliably win.
     const promoCard = document.getElementById('promo-card');

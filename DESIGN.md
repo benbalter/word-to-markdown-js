@@ -208,7 +208,7 @@ The system is flat, and hairlines define it. Surfaces are told apart by tone (Fr
 - **Resting hairline** (`0 1px 2px rgba(20,33,60,0.04)`): the dropzone at rest, barely visible.
 - **Drag glow** (`0 14px 40px -18px rgba(208,216,32,0.55)`): the dropzone while a file is dragged over it, together with a 1.2% scale-up and the icon nudging up 4px.
 - **Floating banner** (Tailwind `shadow-lg`): the fixed language-suggestion banner, the only element floating above the page.
-- **Promo lift** (`0 6px 18px rgba(0,0,0,0.35)` on hover): the Open & Async card, which rises 2px.
+- **Promo lift** (`0 6px 18px rgba(0,0,0,0.35)` on hover): the Open & Async card, which rises 2px. It has no shadow at rest.
 
 ### Named Rules
 
@@ -267,7 +267,7 @@ The header has a mono `w2m`-style badge (chartreuse tint, 6px radius) next to a 
 
 ### Open & Async Promo
 
-A navy gradient card that keeps the same colors in both themes, with a faint commit-graph SVG motif behind the text, the book cover, a chartreuse dot label, and a chartreuse call to action. It's deliberately set apart from the converter's look and sits below it. After a successful conversion it's hidden and replaced by a quiet hairline row below the output: Slate Note text and a Proof Olive text link, with no fill and no button.
+A navy gradient card that keeps the same colors in both themes, with a faint commit-graph SVG motif behind the text, the book cover, a chartreuse dot label, and a chartreuse call to action. It's deliberately set apart from the converter's look and sits below How It Works, out of the first screen, so the dark block never competes with the dropzone. The graph fades out under the text so its lines never cross the copy, and on phones the card stays a row with a smaller cover instead of stacking into a screen-tall column. After a successful conversion it's hidden and replaced by a quiet hairline row below the output: Slate Note text and a Proof Olive text link, with no fill and no button.
 
 ## Do's and Don'ts
 
