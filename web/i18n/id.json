@@ -1,13 +1,13 @@
 {
   "eyebrow": "Gratis · Open source · 100% di peramban",
-  "tagline": "Ubah file Word (.docx) menjadi Markdown yang rapi — sepenuhnya di peramban Anda. File Anda tidak pernah diunggah.",
+  "tagline": "Ubah berkas Word (.docx) menjadi Markdown yang rapi — sepenuhnya di peramban Anda. Berkas Anda tidak pernah diunggah.",
   "trustBadge": "Mengonversi dokumen sejak 2014",
   "flowFromAlt": "Dokumen Word",
-  "flowToAlt": "File Markdown",
-  "dropzoneTitle": "Letakkan file .docx Anda di sini",
-  "dropzoneTitleTouch": "Pilih file .docx",
+  "flowToAlt": "Berkas Markdown",
+  "dropzoneTitle": "Letakkan berkas .docx Anda di sini",
+  "dropzoneTitleTouch": "Pilih berkas .docx",
   "dropzoneBrowsePrefix": "atau ",
-  "dropzoneBrowseLink": "klik untuk memilih file",
+  "dropzoneBrowseLink": "klik untuk memilih berkas",
   "dropzoneNote": "Hingga 20 MB · Dikonversi di perangkat ini, tidak pernah diunggah",
   "googleDocHint": "Punya Google Doc? File → Unduh → Microsoft Word (.docx)",
   "convertSectionAria": "Konversi dokumen",
@@ -41,7 +41,7 @@
   "steps": [
     {
       "t": "Letakkan",
-      "d": "Seret file .docx, atau klik untuk memilih."
+      "d": "Seret berkas .docx, atau klik untuk memilih."
     },
     {
       "t": "Konversi",
@@ -49,7 +49,7 @@
     },
     {
       "t": "Salin atau simpan",
-      "d": "Salin Markdown, unduh file .md, atau .zip berisi gambar Anda."
+      "d": "Salin Markdown, unduh berkas .md, atau .zip berisi gambar Anda."
     }
   ],
   "conversionHeading": "Apa yang dikonversi",
@@ -74,7 +74,7 @@
   "faqs": [
     {
       "q": "Bagaimana cara mengonversi dokumen Word ke Markdown?",
-      "a": "Seret file .docx ke halaman (atau klik untuk memilih). Word to Markdown mengonversinya di peramban Anda dan langsung menampilkan Markdown — salin atau unduh sebagai file .md."
+      "a": "Seret berkas .docx ke halaman (atau klik untuk memilih). Word to Markdown mengonversinya di peramban Anda dan langsung menampilkan Markdown — salin atau unduh sebagai berkas .md."
     },
     {
       "q": "Apakah Word to Markdown gratis?",
@@ -82,15 +82,15 @@
     },
     {
       "q": "Apakah dokumen saya diunggah ke server?",
-      "a": "Tidak. Konversi terjadi sepenuhnya di peramban Anda menggunakan JavaScript. File Anda tidak pernah meninggalkan perangkat dan tidak pernah diunggah, disimpan, atau dicatat."
+      "a": "Tidak. Konversi terjadi sepenuhnya di peramban Anda menggunakan JavaScript. Berkas Anda tidak pernah meninggalkan perangkat dan tidak pernah diunggah, disimpan, atau dicatat."
     },
     {
       "q": "Bagaimana cara mengonversi Google Doc ke Markdown?",
-      "a": "Di Google Docs, pilih File → Unduh → Microsoft Word (.docx), lalu letakkan file .docx tersebut ke Word to Markdown."
+      "a": "Di Google Docs, pilih File → Unduh → Microsoft Word (.docx), lalu letakkan berkas .docx tersebut ke Word to Markdown."
     },
     {
       "q": "Bisakah saya mengonversi berkas .doc ke Markdown?",
-      "a": "Word to Markdown membaca berkas .docx modern. Jika Anda punya berkas .doc lama, buka di Word dan simpan sebagai .docx (Berkas → Simpan Sebagai → Dokumen Word .docx), lalu seret berkas .docx itu ke sini."
+      "a": "Word to Markdown membaca berkas .docx modern. Jika Anda punya berkas .doc lama, buka di Word dan simpan sebagai .docx (File → Simpan Sebagai → Dokumen Word .docx), lalu seret berkas .docx itu ke sini."
     },
     {
       "q": "Format apa saja yang dipertahankan?",
@@ -98,7 +98,7 @@
     },
     {
       "q": "Apa bedanya dengan Pandoc?",
-      "a": "Pandoc adalah konverter baris perintah yang andal, tetapi harus dipasang dan dikonfigurasi terlebih dahulu. Word to Markdown berjalan langsung di peramban Anda tanpa perlu memasang apa pun — cukup letakkan file .docx. Untuk tugas terotomatisasi atau massal, versi baris perintah juga tersedia."
+      "a": "Pandoc adalah konverter baris perintah yang andal, tetapi harus dipasang dan dikonfigurasi terlebih dahulu. Word to Markdown berjalan langsung di peramban Anda tanpa perlu memasang apa pun — cukup letakkan berkas .docx. Untuk tugas terotomatisasi atau massal, versi baris perintah juga tersedia."
     },
     {
       "q": "Bisakah saya memakainya untuk menyiapkan dokumen bagi ChatGPT, Claude, atau alat AI lainnya?",
@@ -124,16 +124,16 @@
     "Konversi Google Docs ke Markdown",
     "Keluaran Markdown bergaya GitHub",
     "100% di sisi klien — tidak ada yang diunggah",
-    "Ekstrak gambar ke file"
+    "Ekstrak gambar ke berkas"
   ],
   "errorGeneric": "Terjadi kesalahan tak terduga saat mengonversi dokumen. Silakan coba lagi.",
-  "docFileError": "Alat ini membaca berkas .docx modern, bukan berkas .doc lama. Di Word, buka dokumen Anda dan pilih Berkas → Simpan Sebagai → Dokumen Word (.docx), lalu seret berkas .docx itu ke sini.",
+  "docFileError": "Alat ini membaca berkas .docx modern, bukan berkas .doc lama. Di Word, buka dokumen Anda dan pilih File → Simpan Sebagai → Dokumen Word (.docx), lalu seret berkas .docx itu ke sini.",
   "fileTooLargeError": "Berkas ini terlalu besar untuk dikonversi di browser Anda. Coba berkas .docx yang lebih kecil dari 20 MB.",
   "invalidFileError": "Berkas ini tidak dapat dibaca sebagai dokumen Word. Berkas mungkin rusak atau bukan berkas .docx. Coba buka di Word lalu simpan ulang sebagai .docx.",
   "notWordFileError": "Ini bukan dokumen Word, jadi tidak dapat dikonversi. Pilih berkas .docx sebagai gantinya.",
   "protectedFileError": "Dokumen ini dilindungi kata sandi atau merupakan berkas .doc lama. Di Word, hapus kata sandinya atau simpan sebagai .docx, lalu coba lagi.",
   "copyFailed": "Tidak dapat menyalin secara otomatis. Pilih Markdown-nya dan salin dengan Ctrl+C (⌘C di Mac).",
-  "onlyFirstFile": "Hanya file pertama yang dikonversi. Tambahkan file lainnya satu per satu.",
+  "onlyFirstFile": "Hanya berkas pertama yang dikonversi. Tambahkan berkas lainnya satu per satu.",
   "conversionAnnouncement": "Konversi selesai. Markdown Anda sudah siap.",
   "convertingStatus": "Mengonversi…",
   "dismiss": "Tutup",
