@@ -1,10 +1,11 @@
 {
   "eyebrow": "Gratis · Open source · 100% nel tuo browser",
   "tagline": "Converti file Word (.docx) in Markdown pulito — interamente nel tuo browser. I tuoi file non vengono mai caricati.",
-  "trustBadge": "Scelto dal 2014",
+  "trustBadge": "Convertiamo documenti dal 2014",
   "flowFromAlt": "Documento Word",
   "flowToAlt": "File Markdown",
   "dropzoneTitle": "Trascina qui il tuo .docx",
+  "dropzoneTitleTouch": "Scegli un file .docx",
   "dropzoneBrowsePrefix": "oppure ",
   "dropzoneBrowseLink": "clicca per scegliere un file",
   "dropzoneNote": "Fino a 20 MB · Convertito su questo dispositivo, mai caricato",
@@ -18,12 +19,21 @@
   "downloadZipButton": "Scarica .zip",
   "downloadedZipButton": "Scaricato",
   "convertAnother": "Converti un altro file",
+  "imagesNote": "Le immagini sono incorporate direttamente in questo Markdown. Il file .zip le contiene come file separati.",
   "warnings": {
     "encrypted": "Questo documento sembra crittografato, quindi parte del contenuto potrebbe mancare.",
     "sensitivity": "Questo documento ha un'etichetta di riservatezza ({label}). Assicurati di essere autorizzato a convertirlo e condividerlo.",
     "confidentiality": "Questo documento è contrassegnato come riservato ({label}). Assicurati di essere autorizzato a convertirlo.",
     "protected": "Questo documento ha restrizioni di modifica, quindi parte del contenuto potrebbe non essere convertita correttamente.",
     "contentLoss": "Parte del contenuto non è stata convertita ed è stata omessa, ad esempio equazioni o oggetti non supportati.",
+    "contentLossItems": "Parte del contenuto non è stata convertita ed è stata omessa: {items}.",
+    "contentKinds": {
+      "equations": "equazioni",
+      "images": "immagini",
+      "symbols": "simboli speciali",
+      "objects": "oggetti incorporati",
+      "other": "altri elementi"
+    },
     "technical": "Dettagli tecnici"
   },
   "panelMarkdown": "Markdown",
@@ -120,6 +130,7 @@
   "docFileError": "Questo strumento legge i moderni file .docx, non i vecchi file .doc. In Word, apri il documento e scegli File → Save As → Word Document (.docx), poi trascina qui il .docx.",
   "fileTooLargeError": "Questo file è troppo grande per essere convertito nel tuo browser. Prova con un .docx più piccolo di 20 MB.",
   "invalidFileError": "Impossibile leggere questo file come documento Word. Potrebbe essere danneggiato o non essere un file .docx. Prova ad aprirlo in Word e a salvarlo di nuovo come .docx.",
+  "notWordFileError": "Questo non è un documento Word, quindi non può essere convertito. Scegli invece un file .docx.",
   "protectedFileError": "Questo documento è protetto da password o è un vecchio file .doc. In Word, rimuovi la password o salvalo come .docx, poi riprova.",
   "copyFailed": "Impossibile copiare automaticamente. Seleziona il Markdown e copialo con Ctrl+C (⌘C su Mac).",
   "onlyFirstFile": "È stato convertito solo il primo file. Aggiungi gli altri uno alla volta.",

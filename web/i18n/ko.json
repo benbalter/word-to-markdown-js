@@ -1,10 +1,11 @@
 {
   "eyebrow": "무료 · 오픈 소스 · 100% 브라우저에서 실행",
   "tagline": "Word (.docx) 파일을 깔끔한 Markdown으로 변환하세요 — 전부 브라우저에서 처리됩니다. 파일은 절대 업로드되지 않습니다.",
-  "trustBadge": "2014년부터 신뢰받음",
+  "trustBadge": "2014년부터 문서 변환",
   "flowFromAlt": "Word 문서",
   "flowToAlt": "Markdown 파일",
   "dropzoneTitle": ".docx 파일을 여기에 놓으세요",
+  "dropzoneTitleTouch": ".docx 파일 선택",
   "dropzoneBrowsePrefix": "또는 ",
   "dropzoneBrowseLink": "클릭해 파일을 선택하세요",
   "dropzoneNote": "최대 20 MB · 이 기기에서 변환되며 업로드되지 않습니다",
@@ -18,12 +19,21 @@
   "downloadZipButton": ".zip 다운로드",
   "downloadedZipButton": "다운로드됨",
   "convertAnother": "다른 파일 변환하기",
+  "imagesNote": "이미지는 이 Markdown에 직접 포함되어 있습니다. .zip에는 이미지가 별도 파일로 들어 있습니다.",
   "warnings": {
     "encrypted": "이 문서는 암호화된 것으로 보여 일부 내용이 누락될 수 있습니다.",
     "sensitivity": "이 문서에는 민감도 레이블({label})이 있습니다. 변환하고 공유해도 되는지 확인하세요.",
     "confidentiality": "이 문서는 기밀로 표시되어 있습니다({label}). 변환해도 되는지 확인하세요.",
     "protected": "이 문서에는 편집 제한이 있어 일부 내용이 제대로 변환되지 않을 수 있습니다.",
     "contentLoss": "수식이나 지원되지 않는 개체 등 일부 내용은 변환할 수 없어 제외되었습니다.",
+    "contentLossItems": "일부 내용은 변환할 수 없어 제외되었습니다: {items}.",
+    "contentKinds": {
+      "equations": "수식",
+      "images": "이미지",
+      "symbols": "특수 기호",
+      "objects": "포함된 개체",
+      "other": "기타 요소"
+    },
     "technical": "기술 세부 정보"
   },
   "panelMarkdown": "Markdown",
@@ -120,6 +130,7 @@
   "docFileError": "이 도구는 오래된 .doc 파일이 아니라 최신 .docx 파일을 읽습니다. Word에서 문서를 열고 File → Save As → Word Document (.docx)를 선택한 다음, .docx를 여기에 놓으세요.",
   "fileTooLargeError": "이 파일은 브라우저에서 변환하기에 너무 큽니다. 20MB보다 작은 .docx 파일을 사용해 주세요.",
   "invalidFileError": "이 파일을 Word 문서로 읽을 수 없습니다. 파일이 손상되었거나 .docx 파일이 아닐 수 있습니다. Word에서 연 다음 .docx로 다시 저장해 보세요.",
+  "notWordFileError": "Word 문서가 아니어서 변환할 수 없습니다. 대신 .docx 파일을 선택하세요.",
   "protectedFileError": "이 문서는 암호로 보호되어 있거나 오래된 .doc 파일입니다. Word에서 암호를 제거하거나 .docx로 저장한 다음 다시 시도하세요.",
   "copyFailed": "자동으로 복사하지 못했습니다. Markdown을 선택하고 Ctrl+C(Mac에서는 ⌘C)로 복사하세요.",
   "onlyFirstFile": "첫 번째 파일만 변환했습니다. 나머지 파일은 하나씩 추가하세요.",

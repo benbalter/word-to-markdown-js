@@ -21,6 +21,7 @@ const t = useTranslations(Astro.currentLocale);
     data-doc-file-error={t.docFileError}
     data-file-too-large={t.fileTooLargeError}
     data-invalid-file-error={t.invalidFileError}
+    data-not-word-file-error={t.notWordFileError}
     data-protected-file-error={t.protectedFileError}
     data-copy-failed={t.copyFailed}
     data-only-first-file={t.onlyFirstFile}
@@ -35,12 +36,18 @@ const t = useTranslations(Astro.currentLocale);
     data-warning-confidentiality={t.warnings.confidentiality}
     data-warning-protected={t.warnings.protected}
     data-warning-content-loss={t.warnings.contentLoss}
+    data-warning-content-loss-items={t.warnings.contentLossItems}
+    data-warning-kind-equations={t.warnings.contentKinds.equations}
+    data-warning-kind-images={t.warnings.contentKinds.images}
+    data-warning-kind-symbols={t.warnings.contentKinds.symbols}
+    data-warning-kind-objects={t.warnings.contentKinds.objects}
+    data-warning-kind-other={t.warnings.contentKinds.other}
     data-warning-technical={t.warnings.technical}
   >
     <label
       for="file"
       id="dropzone"
-      class="dropzone group flex cursor-pointer flex-col items-center rounded-2xl border-2 border-dashed border-rule-light bg-paper-card/70 px-6 py-14 text-center shadow-[0_1px_2px_rgba(20,33,60,0.04)] backdrop-blur-sm dark:border-rule-dark dark:bg-ink-card/60"
+      class="dropzone group flex cursor-pointer flex-col items-center rounded-2xl px-6 py-14 text-center backdrop-blur-sm"
     >
       <span
         class="dropzone-icon mb-5 inline-flex h-14 w-14 items-center justify-center rounded-full border border-chartreuse/40 bg-chartreuse/10 text-chartreuse-deep transition-transform dark:text-chartreuse"
@@ -64,12 +71,22 @@ const t = useTranslations(Astro.currentLocale);
           <path d="m9 18 3-3-3-3" />
         </svg>
       </span>
+      {/* "Drop" is the wrong verb on a phone, where there's nothing to drag
+           from: touch screens (a coarse primary pointer) get "Choose a .docx
+           file" and lose the "or click to choose" line, which would repeat
+           it. The touch title is also the file input's accessible name on
+           every device: a screen reader user chooses rather than drops. */}
       <span
         class="font-display text-xl font-medium text-navy dark:text-snow"
       >
-        {t.dropzoneTitle}
+        <span class="pointer-coarse:hidden">{t.dropzoneTitle}</span>
+        <span id="dropzone-title" class="hidden pointer-coarse:inline"
+          >{t.dropzoneTitleTouch}</span
+        >
       </span>
-      <span class="mt-1.5 text-sm text-navy-soft dark:text-mist">
+      <span
+        class="mt-1.5 text-sm text-navy-soft pointer-coarse:hidden dark:text-mist"
+      >
         {t.dropzoneBrowsePrefix}<span
           class="font-medium text-chartreuse-deep underline decoration-2 underline-offset-2 dark:text-chartreuse"
           >{t.dropzoneBrowseLink}</span
@@ -79,6 +96,7 @@ const t = useTranslations(Astro.currentLocale);
            stays visible while converting (the dropzone does), not just in the
            hero above. Also states the browser's size limit up front. */}
       <span
+        id="dropzone-note"
         class="mt-5 block max-w-xs font-mono text-[0.72rem] tracking-wide text-balance text-navy-soft sm:max-w-none rtl:font-sans rtl:tracking-normal dark:text-mist"
       >
         <svg
@@ -99,9 +117,13 @@ const t = useTranslations(Astro.currentLocale);
         </svg>
         {t.dropzoneNote}
       </span>
+      {/* Named by the short title and described by the note, rather than
+           named by the whole <label>'s text run together. */}
       <input
         type="file"
         id="file"
+        aria-labelledby="dropzone-title"
+        aria-describedby="dropzone-note"
         accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         class="sr-only"
       />
@@ -128,11 +150,14 @@ const t = useTranslations(Astro.currentLocale);
         ></bdi>
       </h2>
       <div class="flex flex-wrap items-center justify-center gap-2">
-        {/* Copy is the one filled accent on the page: it's the next action. */}
+        {/* One filled accent: the next action. That's Copy, unless the
+             document has images, when src/index.ts moves the accent (and
+             the leading spot) to Download .zip, since the Markdown alone
+             carries the images as long base64 strings. */}
         <button
           id="copy-button"
           type="button"
-          class="confirmable inline-flex items-center gap-2 rounded-lg border border-chartreuse bg-chartreuse px-3.5 py-2 text-sm font-semibold text-navy shadow-sm transition-colors hover:border-chartreuse-deep hover:bg-chartreuse-deep hover:text-white"
+          class="btn btn-accent confirmable"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -170,7 +195,7 @@ const t = useTranslations(Astro.currentLocale);
         <button
           id="download-button"
           type="button"
-          class="confirmable inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-snow dark:hover:border-chartreuse"
+          class="btn btn-secondary confirmable"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -209,7 +234,7 @@ const t = useTranslations(Astro.currentLocale);
         <button
           id="download-zip-button"
           type="button"
-          class="confirmable hidden items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 disabled:opacity-60 dark:border-white/15 dark:bg-ink-card dark:text-snow dark:hover:border-chartreuse"
+          class="btn btn-secondary confirmable hidden disabled:opacity-60"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -251,7 +276,7 @@ const t = useTranslations(Astro.currentLocale);
         <button
           id="convert-another"
           type="button"
-          class="inline-flex items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-snow dark:hover:border-chartreuse"
+          class="btn btn-secondary"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -273,6 +298,12 @@ const t = useTranslations(Astro.currentLocale);
           {t.convertAnother}
         </button>
       </div>
+      <p
+        id="images-note"
+        class="hidden max-w-prose text-center text-sm leading-relaxed text-navy-soft sm:text-start dark:text-mist"
+      >
+        {t.imagesNote}
+      </p>
     </div>
 
     <div class="mt-4 grid gap-4 lg:grid-cols-2">
@@ -292,7 +323,7 @@ const t = useTranslations(Astro.currentLocale);
           >
         </div>
         <pre
-          class="max-h-[28rem] overflow-auto px-4 py-3 text-start" dir="ltr" tabindex="0" data-select-all><code id="output" class="font-mono text-[0.82rem] leading-relaxed text-navy dark:text-snow"></code></pre>
+          class="max-h-[28rem] overflow-auto whitespace-pre-wrap [overflow-wrap:anywhere] px-4 py-3 text-start" dir="ltr" tabindex="0" data-select-all><code id="output" class="font-mono text-[0.82rem] leading-relaxed text-navy dark:text-snow"></code></pre>
       </div>
 
       <div

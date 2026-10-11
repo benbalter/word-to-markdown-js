@@ -4,13 +4,25 @@
 import { useTranslations } from '../../i18n';
 
 const t = useTranslations(Astro.currentLocale);
+const eyebrowParts = t.eyebrow.split(' · ');
 ---
 
 <section class="mx-auto max-w-3xl pt-14 pb-2 text-center sm:pt-20">
+  {/* Each " · " segment stays on one line, so a narrow screen breaks between
+       claims rather than orphaning a word ("BROWSER") on a line of its own. */}
   <p
-    class="reveal font-mono text-[0.72rem] font-medium tracking-[0.22em] rtl:font-sans rtl:tracking-normal text-chartreuse-deep uppercase dark:text-chartreuse [--reveal-delay:.02s]"
+    class="reveal font-mono text-[0.72rem] font-medium tracking-[0.22em] text-balance rtl:font-sans rtl:tracking-normal text-chartreuse-deep uppercase dark:text-chartreuse [--reveal-delay:.02s]"
   >
-    {t.eyebrow}
+    {
+      eyebrowParts.map((part, i) => (
+        <>
+          {i > 0 && ' '}
+          <span class="whitespace-nowrap">
+            {i < eyebrowParts.length - 1 ? `${part}\u00a0·` : part}
+          </span>
+        </>
+      ))
+    }
   </p>
 
   <h1
@@ -102,9 +114,12 @@ const t = useTranslations(Astro.currentLocale);
     </span>
   </div>
 
-  {/* Longevity trust signal: the tool has existed since 2014 (the original
-       word-to-markdown / word2md.herokuapp.com), predating the word2md.com
-       domain (2019). */}
+  {/* Lineage, stated plainly: "Converting docs since 2014", not "Trusted since 2014",
+       which asks for trust the line can't evidence. The tool has existed
+       since 2014 (the original word-to-markdown / word2md.herokuapp.com),
+       predating the word2md.com domain (2019). A history icon, not a
+       shield: a shield-check reads as a security seal, which the site
+       can't claim. */}
   <p
     class="reveal mt-6 inline-flex items-center gap-1.5 font-mono text-[0.7rem] font-medium tracking-wide rtl:font-sans rtl:tracking-normal text-navy-soft dark:text-mist [--reveal-delay:.28s]"
   >
@@ -121,8 +136,9 @@ const t = useTranslations(Astro.currentLocale);
       class="text-chartreuse-deep dark:text-chartreuse"
       aria-hidden="true"
     >
-      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-      <path d="m9 12 2 2 4-4" />
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
+      <path d="M12 7v5l4 2" />
     </svg>
     {t.trustBadge}
   </p>

@@ -127,7 +127,7 @@ Every screen shows the product's one transformation: a document becomes Markdown
 
 The page is calm and editorial. It sits on warm document paper in light mode and deep navy-black ink in dark mode, which follows `prefers-color-scheme` automatically. A faint dot grid in light mode (a soft chartreuse glow in dark) adds texture to the top of the page without competing with the content. The layout is a single centered column with generous vertical space between sections. Density stays low because the visitor came to do one thing.
 
-The controls stay quiet so the result can stand out. Buttons, cards and the dropzone are neutral, outlined surfaces until someone interacts with them; then they pick up chartreuse. The only filled chartreuse control is Copy Markdown, the next action after a successful conversion.
+The controls stay quiet so the result can stand out. Buttons, cards and the dropzone are neutral, outlined surfaces until someone interacts with them; then they pick up chartreuse. The only filled chartreuse control is the next action after a successful conversion: Copy Markdown, or Download .zip when the document has images.
 
 **Key Characteristics:**
 
@@ -144,7 +144,7 @@ A warm paper and navy-ink palette with one electric chartreuse accent. Every col
 
 ### Primary
 
-- **Signal Chartreuse** (`chartreuse`): the accent for whatever changed or what to do next. Used for the hero arrow, the `.md` output chip, the converted filename, the Markdown panel dot, text selection, focus rings in dark mode, dropzone hover and drag-over, and the one filled button (Copy Markdown). It's legible on ink and on navy, but only about 1.4:1 on paper, so in light mode it may only fill a surface or appear as a tint (`/10`, `/40`), never as text or a focus ring.
+- **Signal Chartreuse** (`chartreuse`): the accent for whatever changed or what to do next. Used for the hero arrow, the `.md` output chip, the converted filename, the Markdown panel dot, text selection, focus rings in dark mode, dropzone hover and drag-over, and the one filled button (the next action after a conversion). It's legible on ink and on navy, but only about 1.4:1 on paper, so in light mode it may only fill a surface or appear as a tint (`/10`, `/40`), never as text or a focus ring.
 - **Proof Olive** (`chartreuse-deep`): the light-mode stand-in for chartreuse wherever the accent has to meet contrast: eyebrow text, links, step numbers, icons, list markers, and focus rings on paper. It's also the hover fill for the accent button.
 
 ### Neutral
@@ -197,7 +197,7 @@ A warm paper and navy-ink palette with one electric chartreuse accent. Every col
 
 There's one centered column. The page shell (header, main, footer) is at most 64rem wide with 24px side padding. Content blocks are narrower and centered: the hero, How It Works and FAQ are at most 48rem, and the converter, conversion table and CLI callout are at most 42rem. The hero is centered; other content is start-aligned.
 
-Sections are separated by large vertical gaps (64px to 80px), not by background bands. Inside a section, spacing tightens to 16px to 32px. How It Works uses a three-column grid that collapses to one column on small screens, with each cell separated by a 1px rule. The results area places the Markdown and Preview panels side by side from the `lg` breakpoint and stacks them below it. Button rows wrap. Buttons use logical properties (`start`/`end`, `ms`/`me`), and directional icons flip in right-to-left locales (`rtl:-scale-x-100`).
+Sections are separated by large vertical gaps (64px to 80px), not by background bands. Inside a section, spacing tightens to 16px to 32px. How It Works is an ordered list laid out as a three-column grid that collapses to one column on small screens, with each cell separated by a 1px rule; its step titles are styled as titles but aren't headings, so they don't compete with the section headings. Once a conversion succeeds, the pre-conversion block (How It Works, the promo card and the conversion table) is hidden so the page is about the result; the CLI callout and FAQ stay, and Convert another file restores the block. The results area places the Markdown and Preview panels side by side from the `lg` breakpoint and stacks them below it. Button rows wrap. Buttons use logical properties (`start`/`end`, `ms`/`me`), and directional icons flip in right-to-left locales (`rtl:-scale-x-100`).
 
 ## Elevation & Depth
 
@@ -208,7 +208,7 @@ The system is flat, and hairlines define it. Surfaces are told apart by tone (Fr
 - **Resting hairline** (`0 1px 2px rgba(20,33,60,0.04)`): the dropzone at rest, barely visible.
 - **Drag glow** (`0 14px 40px -18px rgba(208,216,32,0.55)`): the dropzone while a file is dragged over it, together with a 1.2% scale-up and the icon nudging up 4px.
 - **Floating banner** (Tailwind `shadow-lg`): the fixed language-suggestion banner, the only element floating above the page.
-- **Promo lift** (`0 6px 18px rgba(0,0,0,0.35)` on hover): the Open & Async card, which rises 2px.
+- **Promo lift** (`0 6px 18px rgba(0,0,0,0.35)` on hover): the Open & Async card, which rises 2px. It has no shadow at rest.
 
 ### Named Rules
 
@@ -224,17 +224,17 @@ Corners are softly and consistently rounded, and the radius grows with the size 
 
 Quiet by default, chartreuse when you interact.
 
-- **Shape:** gently rounded (8px), with an icon and label separated by 8px.
-- **Secondary (default):** Fresh Sheet fill with a `navy/15` border and Brand Navy text, 14px medium. In dark mode: Ink Well fill, `white/15` border, Snow text. Used for Download .md, Download .zip, Convert another file, and the CLI copy action.
+- **Shape:** gently rounded (8px), with an icon and label separated by 8px. The result actions are at least 44px tall, so they're comfortable touch targets. Their looks live in `.btn`, `.btn-accent` and `.btn-secondary` in `global.css`.
+- **Secondary (default):** Fresh Sheet fill with a `navy/15` border and Brand Navy text, 14px medium. In dark mode: Ink Well fill, `white/15` border, Snow text. Used for Download .md, Convert another file, the CLI copy action, and whichever of Copy and Download .zip isn't the accent.
 - **Hover:** the border turns chartreuse and the fill gets a `chartreuse/10` tint, with a color transition only (no movement).
-- **Accent (one per screen at most):** solid Signal Chartreuse with Brand Navy text, 14px semibold, and a light shadow. On hover the fill becomes Proof Olive with white text. It's Copy Markdown, the next action after a conversion; promotions never get it.
+- **Accent (one per screen at most):** solid Signal Chartreuse with Brand Navy text, 14px semibold, and a light shadow. On hover the fill becomes Proof Olive with white text. It's the next action after a conversion: Copy Markdown, or Download .zip when the document has images, since then the Markdown carries each image as a long base64 string and the .zip has them as files. The accent action also leads the row and takes focus, and a short note under the row explains the images. Promotions never get it.
 - **Focus:** the global 2px outline with a 2px offset, in Proof Olive on paper and Signal Chartreuse on ink.
 
 ### Dropzone (signature)
 
 The main feature of the page. It's a large `<label>` that wraps a visually hidden file input, so clicking, keyboard use and dropping a file all work.
 
-- **Rest:** a 16px radius, a 2px dashed rule border, translucent Fresh Sheet / Ink Well with backdrop blur, and a 56px circular chartreuse-tint icon badge (an arrow going into a document, never an upload arrow) above a Fraunces title, a "click to choose a file" link in Proof Olive, and a mono note with a lock icon giving the size limit and "never uploaded". The note stays visible while converting.
+- **Rest:** a 16px radius, a 2px dashed border (Brand Navy at 28% on paper, so it reads as a slot; Ink Rule in dark), translucent Fresh Sheet / Ink Well with backdrop blur, and a 56px circular chartreuse-tint icon badge (an arrow going into a document, never an upload arrow) above a Fraunces title, a "click to choose a file" link in Proof Olive, and a mono note with a lock icon giving the size limit and "never uploaded". The note stays visible while converting. On touch screens (a coarse primary pointer) the title reads "Choose a .docx file" and the "click to choose" line is dropped, since there's nothing to drag. The file input is named by that short title and described by the note.
 - **Hover / focus-within:** the border turns chartreuse (solid on focus) and the focus ring appears around the whole zone.
 - **Drag-over:** a solid chartreuse border, a 9% chartreuse fill, the drag glow, a 1.2% scale-up and the icon lifting. Movement is removed under reduced motion.
 - **Converting:** a progress cursor, and the icon becomes a chartreuse spinner (static under reduced motion).
@@ -249,7 +249,7 @@ The main feature of the page. It's a large `<label>` that wraps a visually hidde
 
 ### Result Panels
 
-Two matching panels, "Markdown" and "Preview." Each has a header strip containing a 10px status dot (chartreuse for Markdown, slate for Preview) and an uppercase mono label, separated from the body by a 1px rule. The Markdown body is a left-to-right, scrollable `<pre>` limited to 28rem tall. The Preview renders the Markdown with Tailwind Typography, styled with the brand fonts: Fraunces headings, Proof Olive list markers, chartreuse link underlines.
+Two matching panels, "Markdown" and "Preview." Each has a header strip containing a 10px status dot (chartreuse for Markdown, slate for Preview) and an uppercase mono label, separated from the body by a 1px rule. The Markdown body is a left-to-right, scrollable `<pre>` limited to 28rem tall. The Preview renders the Markdown with Tailwind Typography, styled with the brand fonts: Fraunces headings, Proof Olive list markers, chartreuse link underlines. Code blocks in the preview sit on Document Paper (Midnight Ink in dark) with a 1px rule and Brand Navy (Snow) text, never Typography's default dark slab.
 
 **The diff highlight moment.** When a conversion finishes, the Markdown panel lights up like an added hunk in a diff: a chartreuse wash with a 1px chartreuse edge sweeps down the panel and fades (about 1s), the status dot pings once, and the converted filename gets a highlighter pass in its reading direction that fades back to plain accent text. Copy replays the panel wash, because that text is what just landed on the clipboard. Copy, Download .md and Download .zip swap their icon for a drawn check while their label reads "Copied!" or "Downloaded". It's decoration only: the text is readable from the first frame and focus and scrolling never wait on it. Under reduced motion the wash and highlighter only fade, and the ping and check-draw are dropped.
 
@@ -267,7 +267,7 @@ The header has a mono `w2m`-style badge (chartreuse tint, 6px radius) next to a 
 
 ### Open & Async Promo
 
-A navy gradient card that keeps the same colors in both themes, with a faint commit-graph SVG motif behind the text, the book cover, a chartreuse dot label, and a chartreuse call to action. It's deliberately set apart from the converter's look and sits below it. After a successful conversion it's hidden and replaced by a quiet hairline row below the output: Slate Note text and a Proof Olive text link, with no fill and no button.
+A navy gradient card that keeps the same colors in both themes, with a faint commit-graph SVG motif behind the text, the book cover, a chartreuse dot label, and a chartreuse call to action. It's deliberately set apart from the converter's look and sits below How It Works, out of the first screen, so the dark block never competes with the dropzone. The graph fades out under the text so its lines never cross the copy, and on phones the card stays a row with a smaller cover instead of stacking into a screen-tall column. After a successful conversion it's hidden and replaced by a quiet hairline row below the output: Slate Note text and a Proof Olive text link, with no fill and no button.
 
 ## Do's and Don'ts
 

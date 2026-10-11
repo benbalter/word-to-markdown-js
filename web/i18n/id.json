@@ -1,10 +1,11 @@
 {
   "eyebrow": "Gratis · Open source · 100% di peramban",
   "tagline": "Ubah file Word (.docx) menjadi Markdown yang rapi — sepenuhnya di peramban Anda. File Anda tidak pernah diunggah.",
-  "trustBadge": "Tepercaya sejak 2014",
+  "trustBadge": "Mengonversi dokumen sejak 2014",
   "flowFromAlt": "Dokumen Word",
   "flowToAlt": "File Markdown",
   "dropzoneTitle": "Letakkan file .docx Anda di sini",
+  "dropzoneTitleTouch": "Pilih file .docx",
   "dropzoneBrowsePrefix": "atau ",
   "dropzoneBrowseLink": "klik untuk memilih file",
   "dropzoneNote": "Hingga 20 MB · Dikonversi di perangkat ini, tidak pernah diunggah",
@@ -18,12 +19,21 @@
   "downloadZipButton": "Unduh .zip",
   "downloadedZipButton": "Terunduh",
   "convertAnother": "Konversi berkas lain",
+  "imagesNote": "Gambar disematkan langsung di Markdown ini. Berkas .zip berisi gambar tersebut sebagai berkas terpisah.",
   "warnings": {
     "encrypted": "Dokumen ini tampaknya terenkripsi, jadi sebagian konten mungkin hilang.",
     "sensitivity": "Dokumen ini memiliki label sensitivitas ({label}). Pastikan Anda diizinkan untuk mengonversi dan membagikannya.",
     "confidentiality": "Dokumen ini ditandai rahasia ({label}). Pastikan Anda diizinkan untuk mengonversinya.",
     "protected": "Dokumen ini memiliki batasan pengeditan, jadi sebagian konten mungkin tidak terkonversi dengan benar.",
     "contentLoss": "Sebagian konten tidak dapat dikonversi dan dihilangkan, seperti persamaan atau objek yang tidak didukung.",
+    "contentLossItems": "Sebagian konten tidak dapat dikonversi dan dihilangkan: {items}.",
+    "contentKinds": {
+      "equations": "persamaan",
+      "images": "gambar",
+      "symbols": "simbol khusus",
+      "objects": "objek tersemat",
+      "other": "elemen lain"
+    },
     "technical": "Detail teknis"
   },
   "panelMarkdown": "Markdown",
@@ -120,6 +130,7 @@
   "docFileError": "Alat ini membaca berkas .docx modern, bukan berkas .doc lama. Di Word, buka dokumen Anda dan pilih Berkas → Simpan Sebagai → Dokumen Word (.docx), lalu seret berkas .docx itu ke sini.",
   "fileTooLargeError": "Berkas ini terlalu besar untuk dikonversi di browser Anda. Coba berkas .docx yang lebih kecil dari 20 MB.",
   "invalidFileError": "Berkas ini tidak dapat dibaca sebagai dokumen Word. Berkas mungkin rusak atau bukan berkas .docx. Coba buka di Word lalu simpan ulang sebagai .docx.",
+  "notWordFileError": "Ini bukan dokumen Word, jadi tidak dapat dikonversi. Pilih berkas .docx sebagai gantinya.",
   "protectedFileError": "Dokumen ini dilindungi kata sandi atau merupakan berkas .doc lama. Di Word, hapus kata sandinya atau simpan sebagai .docx, lalu coba lagi.",
   "copyFailed": "Tidak dapat menyalin secara otomatis. Pilih Markdown-nya dan salin dengan Ctrl+C (⌘C di Mac).",
   "onlyFirstFile": "Hanya file pertama yang dikonversi. Tambahkan file lainnya satu per satu.",

@@ -1,10 +1,11 @@
 {
   "eyebrow": "Free · Open source · 100% in your browser",
   "tagline": "Convert Word (.docx) files to clean Markdown, entirely in your browser. Your files are never uploaded.",
-  "trustBadge": "Trusted since 2014",
+  "trustBadge": "Converting docs since 2014",
   "flowFromAlt": "Word document",
   "flowToAlt": "Markdown file",
   "dropzoneTitle": "Drop your .docx here",
+  "dropzoneTitleTouch": "Choose a .docx file",
   "dropzoneBrowsePrefix": "or ",
   "dropzoneBrowseLink": "click to choose a file",
   "dropzoneNote": "Up to 20 MB · Converted on this device, never uploaded",
@@ -18,12 +19,21 @@
   "downloadZipButton": "Download .zip",
   "downloadedZipButton": "Downloaded",
   "convertAnother": "Convert another file",
+  "imagesNote": "Images are embedded inline in this Markdown. The .zip has them as separate files.",
   "warnings": {
     "encrypted": "This document appears to be encrypted, so some content may be missing.",
     "sensitivity": "This document has a sensitivity label ({label}). Make sure you're allowed to convert and share it.",
     "confidentiality": "This document is marked confidential ({label}). Make sure you're allowed to convert it.",
     "protected": "This document has editing restrictions, so some content may not convert properly.",
     "contentLoss": "Some content couldn't be converted and was left out, such as equations or unsupported objects.",
+    "contentLossItems": "Some content couldn't be converted and was left out: {items}.",
+    "contentKinds": {
+      "equations": "equations",
+      "images": "images",
+      "symbols": "special symbols",
+      "objects": "embedded objects",
+      "other": "other elements"
+    },
     "technical": "Technical details"
   },
   "panelMarkdown": "Markdown",
@@ -120,6 +130,7 @@
   "docFileError": "This tool reads modern .docx files, not older .doc files. In Word, open your document and choose File → Save As → Word Document (.docx), then drop the .docx here.",
   "fileTooLargeError": "This file is too large to convert in your browser. Please try a .docx smaller than 20 MB.",
   "invalidFileError": "This file couldn't be read as a Word document. It may be damaged or not a .docx file. Try opening it in Word and saving it again as .docx.",
+  "notWordFileError": "This isn't a Word document, so it can't be converted. Choose a .docx file instead.",
   "protectedFileError": "This document is password-protected or is an older .doc file. In Word, remove the password or save it as a .docx, then try again.",
   "copyFailed": "Couldn't copy automatically. Select the Markdown and copy it with Ctrl+C (⌘C on a Mac).",
   "onlyFirstFile": "Only the first file was converted. Add the others one at a time.",

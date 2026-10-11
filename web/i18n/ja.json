@@ -1,10 +1,11 @@
 {
   "eyebrow": "無料 · オープンソース · 100%ブラウザ内で動作",
   "tagline": "Word (.docx) ファイルをクリーンなMarkdownに変換 — すべてブラウザ内で完結します。ファイルがアップロードされることはありません。",
-  "trustBadge": "2014年から信頼されています",
+  "trustBadge": "2014年から文書を変換",
   "flowFromAlt": "Word文書",
   "flowToAlt": "Markdownファイル",
   "dropzoneTitle": ".docx をここにドロップ",
+  "dropzoneTitleTouch": ".docx ファイルを選択",
   "dropzoneBrowsePrefix": "または ",
   "dropzoneBrowseLink": "クリックしてファイルを選択",
   "dropzoneNote": "20 MB まで · このデバイス上で変換、アップロードされません",
@@ -18,12 +19,21 @@
   "downloadZipButton": ".zip をダウンロード",
   "downloadedZipButton": "ダウンロード済み",
   "convertAnother": "別のファイルを変換",
+  "imagesNote": "画像はこの Markdown に直接埋め込まれています。.zip には画像が個別のファイルとして含まれます。",
   "warnings": {
     "encrypted": "このドキュメントは暗号化されているようです。一部の内容が欠けている可能性があります。",
     "sensitivity": "このドキュメントには秘密度ラベル（{label}）が付いています。変換・共有してよいか確認してください。",
     "confidentiality": "このドキュメントは機密としてマークされています（{label}）。変換してよいか確認してください。",
     "protected": "このドキュメントには編集制限があるため、一部の内容が正しく変換されない可能性があります。",
     "contentLoss": "数式やサポートされていないオブジェクトなど、一部の内容は変換できなかったため省略されました。",
+    "contentLossItems": "一部の内容は変換できなかったため省略されました：{items}。",
+    "contentKinds": {
+      "equations": "数式",
+      "images": "画像",
+      "symbols": "特殊記号",
+      "objects": "埋め込みオブジェクト",
+      "other": "その他の要素"
+    },
     "technical": "技術的な詳細"
   },
   "panelMarkdown": "Markdown",
@@ -120,6 +130,7 @@
   "docFileError": "このツールが読み込めるのは新しい .docx ファイルで、古い .doc ファイルには対応していません。Word で文書を開き、File → Save As → Word Document (.docx) を選んで .docx として保存してから、ここにドロップしてください。",
   "fileTooLargeError": "このファイルは大きすぎるため、ブラウザ内では変換できません。20 MB 未満の .docx をお試しください。",
   "invalidFileError": "このファイルを Word 文書として読み込めませんでした。破損しているか、.docx ファイルではない可能性があります。Word で開き、.docx として保存し直してください。",
+  "notWordFileError": "これは Word 文書ではないため、変換できません。代わりに .docx ファイルを選んでください。",
   "protectedFileError": "この文書はパスワードで保護されているか、古い .doc ファイルです。Word でパスワードを解除するか .docx として保存してから、もう一度お試しください。",
   "copyFailed": "自動でコピーできませんでした。Markdown を選択し、Ctrl+C（Mac では ⌘C）でコピーしてください。",
   "onlyFirstFile": "変換したのは最初のファイルだけです。ほかのファイルは 1 つずつ追加してください。",

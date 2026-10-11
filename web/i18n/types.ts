@@ -19,7 +19,10 @@ export interface UIStrings {
   eyebrow: string;
   /** Plain-language tagline under the wordmark (kept literal so it translates cleanly). */
   tagline: string;
-  /** Longevity trust signal. The "2014" year is a literal and not translated. */
+  /**
+   * Lineage line ("Converting docs since 2014"): how long the tool has existed, stated plainly
+   * rather than as a trust claim. The "2014" year is a literal, not translated.
+   */
   trustBadge: string;
 
   // Visual flow (alt text for the .docx → .md glyph row)
@@ -28,6 +31,11 @@ export interface UIStrings {
 
   // Converter
   dropzoneTitle: string;
+  /**
+   * Dropzone title on touch screens, where there's nothing to drag. Also the
+   * file input's accessible name on every device.
+   */
+  dropzoneTitleTouch: string;
   dropzoneBrowsePrefix: string; // "or "
   dropzoneBrowseLink: string; // "click to browse"
   /** Line inside the dropzone: size limit + "never uploaded" reassurance. */
@@ -50,6 +58,11 @@ export interface UIStrings {
   /** Resets the converter to accept another document. */
   convertAnother: string;
   /**
+   * Shown under the result actions when the document has images: they're
+   * inline (base64) in the Markdown, and the .zip has them as files.
+   */
+  imagesNote: string;
+  /**
    * Converter warnings, shown after a conversion. `sensitivity` and
    * `confidentiality` contain a literal `{label}` placeholder, replaced with
    * the document's own label/marker text.
@@ -59,7 +72,21 @@ export interface UIStrings {
     sensitivity: string;
     confidentiality: string;
     protected: string;
+    /** Fallback when the dropped content can't be identified. */
     contentLoss: string;
+    /**
+     * Dropped content, named by kind. `{items}` is replaced with a localized
+     * list (Intl.ListFormat) of the `contentKinds` that apply.
+     */
+    contentLossItems: string;
+    /** Plural nouns for the kinds of dropped content, used in `{items}`. */
+    contentKinds: {
+      equations: string;
+      images: string;
+      symbols: string;
+      objects: string;
+      other: string;
+    };
     /** Summary of the disclosure holding the converter's raw messages. */
     technical: string;
   };
@@ -116,6 +143,8 @@ export interface UIStrings {
   fileTooLargeError: string;
   /** Shown when the file can't be read as a .docx (corrupt, or not Word at all). */
   invalidFileError: string;
+  /** A file that isn't a Word document at all (e.g. README.md, a PDF). */
+  notWordFileError: string;
   /** Shown for password-protected documents and legacy .doc files renamed to .docx. */
   protectedFileError: string;
   /** Shown when the copy button can't write to the clipboard (e.g. permission denied). */

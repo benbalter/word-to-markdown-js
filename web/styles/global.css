@@ -122,14 +122,36 @@
 }
 
 @layer components {
-  /* Drag-and-drop target. Base look is composed with Tailwind in the markup;
-     this carries the transition and the JS-toggled `.is-dragover` state. */
+  /* Drag-and-drop target. Layout is composed with Tailwind in the markup;
+     this carries the resting border, fill and shadow, the transition, and
+     the JS-toggled `.is-dragover` state. The resting look lives here rather
+     than as utilities because utilities outrank this layer: as utilities they
+     silently overrode the hover, focus and drag-over states below. The
+     dashed rule is navy at 28% in light mode; the paper rule it replaced was
+     too faint to read as a drop target. */
   .dropzone {
+    border: 2px dashed color-mix(in srgb, var(--color-navy) 28%, transparent);
+    background-color: color-mix(
+      in srgb,
+      var(--color-paper-card) 70%,
+      transparent
+    );
+    box-shadow: 0 1px 2px rgba(20, 33, 60, 0.04);
     transition:
       border-color 0.18s ease,
       background-color 0.18s ease,
       transform 0.18s ease,
       box-shadow 0.18s ease;
+  }
+  @media (prefers-color-scheme: dark) {
+    .dropzone {
+      border-color: var(--color-rule-dark);
+      background-color: color-mix(
+        in srgb,
+        var(--color-ink-card) 60%,
+        transparent
+      );
+    }
   }
   .dropzone:hover {
     border-color: color-mix(in srgb, var(--color-chartreuse) 70%, transparent);
@@ -326,6 +348,21 @@
     }
   }
 
+  /* Result actions. One filled accent for the next action, the rest quiet
+     (DESIGN.md, Buttons). src/index.ts swaps btn-accent and btn-secondary
+     between Copy and Download .zip when a document has images, so both looks
+     live here rather than as duplicated utility lists. 44px tall: they're
+     the touch targets of the results screen. */
+  .btn {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border px-3.5 py-2 text-sm transition-colors;
+  }
+  .btn-secondary {
+    @apply border-navy/15 bg-paper-card font-medium text-navy hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-snow dark:hover:border-chartreuse;
+  }
+  .btn-accent {
+    @apply border-chartreuse bg-chartreuse font-semibold text-navy shadow-sm hover:border-chartreuse-deep hover:bg-chartreuse-deep hover:text-white;
+  }
+
   /* Copy and Download confirm with a drawn check for as long as their label
      reads "Copied!" / "Downloaded" (src/index.ts toggles `.is-confirmed`). */
   .confirmable .confirm-icon,
@@ -461,6 +498,13 @@
   --tw-prose-bold: var(--color-navy);
   --tw-prose-counters: var(--color-chartreuse-deep);
   --tw-prose-bullets: var(--color-chartreuse-deep);
+  /* Code blocks sit on the page's own paper inside the panel, ruled like every
+     other surface, instead of Typography's default dark slate slab. These are
+     unlayered, so they also beat prose-invert's mapping: the dark pair is set
+     in the media query below. */
+  --tw-prose-code: var(--color-navy);
+  --tw-prose-pre-code: var(--color-navy);
+  --tw-prose-pre-bg: var(--color-paper);
 }
 .prose :where(h1, h2, h3, h4) {
   font-family: var(--font-display);
@@ -469,6 +513,10 @@
 }
 .prose :where(code, pre) {
   font-family: var(--font-mono);
+}
+.prose :where(pre) {
+  border: 1px solid var(--color-rule-light);
+  border-radius: 0.5rem;
 }
 .prose :where(a) {
   text-decoration-color: var(--color-chartreuse);
@@ -479,5 +527,11 @@
     --tw-prose-headings: var(--color-snow);
     --tw-prose-links: var(--color-snow);
     --tw-prose-bold: var(--color-snow);
+    --tw-prose-code: var(--color-snow);
+    --tw-prose-pre-code: var(--color-snow);
+    --tw-prose-pre-bg: var(--color-ink);
+  }
+  .prose :where(pre) {
+    border-color: var(--color-rule-dark);
   }
 }

@@ -1,10 +1,11 @@
 {
   "eyebrow": "Kostenlos · Open Source · 100% im Browser",
   "tagline": "Wandle Word-Dateien (.docx) in sauberes Markdown um — komplett in deinem Browser. Deine Dateien werden nie hochgeladen.",
-  "trustBadge": "Bewährt seit 2014",
+  "trustBadge": "Konvertiert Dokumente seit 2014",
   "flowFromAlt": "Word-Dokument",
   "flowToAlt": "Markdown-Datei",
   "dropzoneTitle": "Lege deine .docx hier ab",
+  "dropzoneTitleTouch": "Wähle eine .docx-Datei",
   "dropzoneBrowsePrefix": "oder ",
   "dropzoneBrowseLink": "klicke, um eine Datei zu wählen",
   "dropzoneNote": "Bis 20 MB · Wird auf diesem Gerät konvertiert, nie hochgeladen",
@@ -18,12 +19,21 @@
   "downloadZipButton": ".zip herunterladen",
   "downloadedZipButton": "Heruntergeladen",
   "convertAnother": "Weitere Datei konvertieren",
+  "imagesNote": "Bilder sind direkt in dieses Markdown eingebettet. Die .zip-Datei enthält sie als separate Dateien.",
   "warnings": {
     "encrypted": "Dieses Dokument scheint verschlüsselt zu sein, daher fehlen möglicherweise Inhalte.",
     "sensitivity": "Dieses Dokument hat eine Vertraulichkeitsbezeichnung ({label}). Stellen Sie sicher, dass Sie es konvertieren und weitergeben dürfen.",
     "confidentiality": "Dieses Dokument ist als vertraulich gekennzeichnet ({label}). Stellen Sie sicher, dass Sie es konvertieren dürfen.",
     "protected": "Dieses Dokument hat Bearbeitungseinschränkungen, daher werden manche Inhalte möglicherweise nicht korrekt konvertiert.",
     "contentLoss": "Einige Inhalte konnten nicht konvertiert werden und wurden weggelassen, etwa Formeln oder nicht unterstützte Objekte.",
+    "contentLossItems": "Einige Inhalte konnten nicht konvertiert werden und wurden weggelassen: {items}.",
+    "contentKinds": {
+      "equations": "Formeln",
+      "images": "Bilder",
+      "symbols": "Sonderzeichen",
+      "objects": "eingebettete Objekte",
+      "other": "andere Elemente"
+    },
     "technical": "Technische Details"
   },
   "panelMarkdown": "Markdown",
@@ -120,6 +130,7 @@
   "docFileError": "Dieses Tool liest moderne .docx-Dateien, keine älteren .doc-Dateien. Öffnen Sie Ihr Dokument in Word und wählen Sie Datei → Speichern unter → Word-Dokument (.docx), und ziehen Sie die .docx-Datei dann hierher.",
   "fileTooLargeError": "Diese Datei ist zu groß, um sie im Browser zu konvertieren. Bitte verwenden Sie eine .docx-Datei, die kleiner als 20 MB ist.",
   "invalidFileError": "Diese Datei konnte nicht als Word-Dokument gelesen werden. Sie ist möglicherweise beschädigt oder keine .docx-Datei. Öffnen Sie sie in Word und speichern Sie sie erneut als .docx.",
+  "notWordFileError": "Das ist kein Word-Dokument und kann daher nicht konvertiert werden. Wählen Sie stattdessen eine .docx-Datei.",
   "protectedFileError": "Dieses Dokument ist kennwortgeschützt oder eine ältere .doc-Datei. Entfernen Sie in Word das Kennwort oder speichern Sie es als .docx, und versuchen Sie es dann erneut.",
   "copyFailed": "Automatisches Kopieren fehlgeschlagen. Markieren Sie das Markdown und kopieren Sie es mit Strg+C (⌘C auf dem Mac).",
   "onlyFirstFile": "Nur die erste Datei wurde umgewandelt. Fügen Sie die anderen einzeln hinzu.",

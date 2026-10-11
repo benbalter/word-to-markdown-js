@@ -54,6 +54,17 @@ test.describe('Word to Markdown Web Interface', () => {
     await page.goto('http://localhost:8080');
   });
 
+  test('names the file input by the short title, described by the note', async ({
+    page,
+  }) => {
+    const input = page.locator('#file');
+    await expect(input).toHaveAccessibleName('Choose a .docx file');
+    await expect(input).toHaveAccessibleDescription(/never uploaded/);
+    // With a mouse, the visible title invites a drop.
+    await expect(page.getByText('Drop your .docx here')).toBeVisible();
+    await expect(page.getByText('click to choose a file')).toBeVisible();
+  });
+
   test('should display the main page with upload form', async ({ page }) => {
     // Check page title (starts with the brand; may carry an SEO suffix)
     await expect(page).toHaveTitle(/^Word to Markdown/);
@@ -103,6 +114,82 @@ test.describe('Word to Markdown Web Interface', () => {
     await expect
       .poll(() => renderedOutput.innerHTML())
       .toContain('<h1>Heading 1</h1>');
+  });
+
+  test('wraps long Markdown lines instead of scrolling sideways', async ({
+    page,
+  }) => {
+    // Inline images become one long base64 data: URI with no break points.
+    await page.locator('#file').setInputFiles(fixture('image.docx'));
+    const output = page.locator('#output');
+    await expect(output).toContainText('data:image', { timeout: 10000 });
+    const pre = output.locator('xpath=..');
+    const { scrollWidth, clientWidth } = await pre.evaluate((el) => ({
+      scrollWidth: el.scrollWidth,
+      clientWidth: el.clientWidth,
+    }));
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+  });
+
+  test('leads with Download .zip when the document has images', async ({
+    page,
+  }) => {
+    const copy = page.locator('#copy-button');
+    const zip = page.locator('#download-zip-button');
+    const note = page.locator('#images-note');
+
+    await page.locator('#file').setInputFiles(fixture('image.docx'));
+    await expect(zip).toBeVisible({ timeout: 10000 });
+    await expect(zip).toHaveClass(/\bbtn-accent\b/);
+    await expect(copy).toHaveClass(/\bbtn-secondary\b/);
+    await expect(note).toBeVisible();
+    await expect(zip).toBeFocused();
+    // The accent action comes first in the row (and the tab order).
+    const firstAction = page.locator('#results button').first();
+    await expect(firstAction).toHaveId('download-zip-button');
+
+    // A document without images hands the accent back to Copy.
+    await page.locator('#convert-another').click();
+    await page.locator('#file').setInputFiles(fixture('h1.docx'));
+    await expect(page.locator('#filename')).toHaveText('h1.docx', {
+      timeout: 10000,
+    });
+    await expect(copy).toHaveClass(/\bbtn-accent\b/);
+    await expect(zip).toBeHidden();
+    await expect(note).toBeHidden();
+    await expect(copy).toBeFocused();
+  });
+
+  test('hides the explainer sections under a result, and restores them', async ({
+    page,
+  }) => {
+    const table = page.getByRole('heading', { name: 'What gets converted' });
+    await expect(table).toBeVisible();
+    await page.locator('#file').setInputFiles(fixture('h1.docx'));
+    await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('#pre-result')).toBeHidden();
+    await expect(table).toBeHidden();
+    // The CLI callout and FAQ stay: they're still useful after converting.
+    await expect(
+      page.getByRole('heading', { name: 'Frequently asked questions' }),
+    ).toBeVisible();
+
+    await page.locator('#convert-another').click();
+    await expect(page.locator('#pre-result')).toBeVisible();
+    await expect(table).toBeVisible();
+  });
+
+  test('hides a 1×1 spacer image in the preview, not in the Markdown', async ({
+    page,
+  }) => {
+    // image.docx's only image is a 1×1 PNG.
+    await page.locator('#file').setInputFiles(fixture('image.docx'));
+    await expect(page.locator('#output')).toContainText('data:image', {
+      timeout: 10000,
+    });
+    const image = page.locator('#rendered img');
+    await expect(image).toHaveCount(1);
+    await expect(image).toBeHidden();
   });
 
   test('Ctrl+A in an output panel selects only that panel', async ({
@@ -457,6 +544,41 @@ test.describe('Word to Markdown Web Interface', () => {
     );
   });
 
+  test('names the kinds of content a conversion dropped', async ({ page }) => {
+    // Rewrite a fixture's body with an equation (Office Math), a chart (a
+    // namespace mammoth doesn't read), and an unknown Word element.
+    const zip = await JSZip.loadAsync(
+      readFileSync(fixture('dropped-content.docx')),
+    );
+    zip.file(
+      'word/document.xml',
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"><w:body>
+<w:p><w:r><w:t xml:space="preserve">Before.</w:t></w:r><m:oMath><m:r><m:t>x</m:t></m:r></m:oMath><c:chart/><w:someUnknownElement/><w:r><w:t xml:space="preserve"> After.</w:t></w:r></w:p>
+</w:body></w:document>`,
+    );
+    await page.locator('#file').setInputFiles({
+      name: 'math.docx',
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      buffer: await zip.generateAsync({ type: 'nodebuffer' }),
+    });
+    await expect(page.locator('#warning-alert')).toContainText(
+      "Some content couldn't be converted and was left out: equations, embedded objects, and other elements.",
+      { timeout: 10000 },
+    );
+  });
+
+  test('keeps the general dropped-content warning for unknown elements', async ({
+    page,
+  }) => {
+    await page.locator('#file').setInputFiles(fixture('dropped-content.docx'));
+    await expect(page.locator('#warning-alert')).toContainText(
+      "Some content couldn't be converted and was left out",
+      { timeout: 10000 },
+    );
+  });
+
   test('converts only the first of several dropped files, and says so', async ({
     page,
   }) => {
@@ -522,6 +644,35 @@ test.describe('Word to Markdown Web Interface', () => {
     await expect(page.locator('#error-alert')).toHaveCount(0);
     // Before any result, focus returns to the file input, not <body>.
     await expect(page.locator('#file')).toBeFocused();
+  });
+
+  test('tells a non-Word file what it is, and names it', async ({ page }) => {
+    await page.locator('#file').setInputFiles({
+      name: 'README.md',
+      mimeType: 'text/markdown',
+      buffer: Buffer.from('# Hello\n'),
+    });
+    const error = page.locator('#error-message');
+    await expect(error).toBeVisible({ timeout: 10000 });
+    await expect(error).toHaveText(
+      "This isn't a Word document, so it can't be converted. Choose a .docx file instead.",
+    );
+    await expect(page.locator('#error-file')).toHaveText('README.md');
+  });
+
+  test('a damaged .docx keeps the "save it again" advice, and is named', async ({
+    page,
+  }) => {
+    await page.locator('#file').setInputFiles({
+      name: 'broken.docx',
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      buffer: Buffer.from('not a real docx'),
+    });
+    const error = page.locator('#error-message');
+    await expect(error).toBeVisible({ timeout: 10000 });
+    await expect(error).toContainText('saving it again as .docx');
+    await expect(page.locator('#error-file')).toHaveText('broken.docx');
   });
 
   test('should reject a file larger than the size limit', async ({ page }) => {
@@ -705,5 +856,23 @@ test.describe('Word to Markdown Web Interface', () => {
 
     await expect(page.locator('#output')).toBeVisible();
     await expect(page.locator('#rendered')).toBeVisible();
+  });
+});
+
+test.describe('On a touch screen', () => {
+  test.use({
+    hasTouch: true,
+    isMobile: true,
+    viewport: { width: 390, height: 844 },
+  });
+
+  test('asks to choose a file instead of dropping one', async ({ page }) => {
+    await page.goto('http://localhost:8080');
+    await expect(page.locator('#dropzone-title')).toBeVisible();
+    await expect(page.locator('#dropzone-title')).toHaveText(
+      'Choose a .docx file',
+    );
+    await expect(page.getByText('Drop your .docx here')).toBeHidden();
+    await expect(page.getByText('click to choose a file')).toBeHidden();
   });
 });

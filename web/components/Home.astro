@@ -67,9 +67,15 @@ const structuredData = {
 >
   <Hero />
   <Converter />
-  <Promo />
-  <HowItWorks />
-  <ConversionTable />
+  {/* Explainer and promo for visitors who haven't converted yet. Once a
+       result shows, src/index.ts hides this block so the page is just the
+       output (plus the CLI and FAQ, which stay useful after converting);
+       "Convert another file" brings it back. */}
+  <div id="pre-result">
+    <HowItWorks />
+    <Promo />
+    <ConversionTable />
+  </div>
   <CliCallout />
   <Faq />
   {locale === defaultLocale && <LanguageSuggestion />}

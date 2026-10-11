@@ -1,6 +1,9 @@
 /* "Sponsored by me" promo for Open & Async (open-and-async.com).
    On-brand navy card with the book's commit-graph motif; the whole card is one link.
-   Colors are fixed (not theme variables) so the card looks the same in light and dark. */
+   Colors are fixed (not theme variables) so the card looks the same in light and dark.
+   It sits below How It Works, out of the first screen, so the dark block never
+   competes with the dropzone (PRODUCT.md: the promo must never compete with
+   converting). */
 
 .promo {
   position: relative;
@@ -9,14 +12,13 @@
   align-items: center;
   gap: 1.1rem;
   max-width: 34rem;
-  margin: 2rem auto 0.5rem;
+  margin: 3rem auto 0;
   padding: 1rem 1.25rem;
   text-align: start;
   text-decoration: none;
   border: 1px solid rgba(200, 208, 32, 0.35); /* chartreuse */
   border-radius: 0.75rem;
   background: linear-gradient(135deg, #0c1626 0%, #14213c 55%, #1c1d3e 100%);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease,
@@ -30,7 +32,8 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
-/* Commit-graph motif, behind the content */
+/* Commit-graph motif, behind the content. It shows at full strength behind
+   the cover and fades out under the text, so its lines never cross the copy. */
 .promo-graph {
   position: absolute;
   inset: 0;
@@ -38,6 +41,11 @@
   height: 100%;
   opacity: 0.3;
   pointer-events: none;
+  mask-image: linear-gradient(to right, #000 15%, rgba(0, 0, 0, 0.15) 40%);
+}
+
+[dir='rtl'] .promo-graph {
+  mask-image: linear-gradient(to left, #000 15%, rgba(0, 0, 0, 0.15) 40%);
 }
 
 .promo-cover {
@@ -106,11 +114,20 @@
   text-decoration: underline;
 }
 
+/* On a phone the card stays a row with a smaller cover, rather than stacking
+   into a screen-tall column. */
 @media (max-width: 575px) {
   .promo {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+    gap: 0.9rem;
+    padding: 0.9rem 1rem;
+  }
+
+  .promo-cover {
+    width: 64px;
+  }
+
+  .promo-body {
+    font-size: 0.85rem;
   }
 }
 

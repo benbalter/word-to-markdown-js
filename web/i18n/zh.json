@@ -1,10 +1,11 @@
 {
   "eyebrow": "免费 · 开源 · 100% 在浏览器中运行",
   "tagline": "将 Word (.docx) 文件转换为干净的 Markdown——全程在浏览器中完成。您的文件绝不会被上传。",
-  "trustBadge": "自 2014 年起值得信赖",
+  "trustBadge": "自 2014 年起转换文档",
   "flowFromAlt": "Word 文档",
   "flowToAlt": "Markdown 文件",
   "dropzoneTitle": "将 .docx 拖到这里",
+  "dropzoneTitleTouch": "选择 .docx 文件",
   "dropzoneBrowsePrefix": "或",
   "dropzoneBrowseLink": "点击选择文件",
   "dropzoneNote": "最大 20 MB · 在此设备上转换，绝不上传",
@@ -18,12 +19,21 @@
   "downloadZipButton": "下载 .zip",
   "downloadedZipButton": "已下载",
   "convertAnother": "转换另一个文件",
+  "imagesNote": "图片已直接嵌入此 Markdown。.zip 文件则将它们作为单独的文件提供。",
   "warnings": {
     "encrypted": "此文档似乎已加密，因此可能缺少部分内容。",
     "sensitivity": "此文档带有敏感度标签（{label}）。请确认您有权转换并分享它。",
     "confidentiality": "此文档已标记为机密（{label}）。请确认您有权转换它。",
     "protected": "此文档有编辑限制，因此部分内容可能无法正确转换。",
     "contentLoss": "部分内容无法转换，已被省略，例如公式或不支持的对象。",
+    "contentLossItems": "部分内容无法转换，已被省略：{items}。",
+    "contentKinds": {
+      "equations": "公式",
+      "images": "图片",
+      "symbols": "特殊符号",
+      "objects": "嵌入对象",
+      "other": "其他元素"
+    },
     "technical": "技术详情"
   },
   "panelMarkdown": "Markdown",
@@ -120,6 +130,7 @@
   "docFileError": "此工具读取现代 .docx 文件，不支持较旧的 .doc 文件。请在 Word 中打开您的文档并选择 文件 → 另存为 → Word 文档 (.docx)，然后将该 .docx 拖到这里。",
   "fileTooLargeError": "此文件过大，无法在浏览器中转换。请尝试小于 20 MB 的 .docx 文件。",
   "invalidFileError": "无法将此文件读取为 Word 文档。文件可能已损坏，或不是 .docx 文件。请尝试在 Word 中打开并重新另存为 .docx。",
+  "notWordFileError": "这不是 Word 文档，因此无法转换。请改为选择 .docx 文件。",
   "protectedFileError": "此文档受密码保护，或是较旧的 .doc 文件。请在 Word 中移除密码或另存为 .docx，然后重试。",
   "copyFailed": "无法自动复制。请选中 Markdown 并按 Ctrl+C（Mac 上为 ⌘C）复制。",
   "onlyFirstFile": "只转换了第一个文件。请逐个添加其他文件。",

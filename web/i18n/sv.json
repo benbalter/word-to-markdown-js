@@ -1,10 +1,11 @@
 {
   "eyebrow": "Gratis · Öppen källkod · 100 % i din webbläsare",
   "tagline": "Konvertera Word-filer (.docx) till ren Markdown — helt i din webbläsare. Dina filer laddas aldrig upp.",
-  "trustBadge": "Använd sedan 2014",
+  "trustBadge": "Konverterar dokument sedan 2014",
   "flowFromAlt": "Word-dokument",
   "flowToAlt": "Markdown-fil",
   "dropzoneTitle": "Släpp din .docx här",
+  "dropzoneTitleTouch": "Välj en .docx-fil",
   "dropzoneBrowsePrefix": "eller ",
   "dropzoneBrowseLink": "klicka för att välja en fil",
   "dropzoneNote": "Upp till 20 MB · Konverteras på den här enheten, laddas aldrig upp",
@@ -18,12 +19,21 @@
   "downloadZipButton": "Ladda ner .zip",
   "downloadedZipButton": "Nedladdat",
   "convertAnother": "Konvertera en annan fil",
+  "imagesNote": "Bilderna är inbäddade direkt i den här Markdown-koden. .zip-filen innehåller dem som separata filer.",
   "warnings": {
     "encrypted": "Dokumentet verkar vara krypterat, så en del innehåll kan saknas.",
     "sensitivity": "Dokumentet har en känslighetsetikett ({label}). Kontrollera att du får konvertera och dela det.",
     "confidentiality": "Dokumentet är märkt som konfidentiellt ({label}). Kontrollera att du får konvertera det.",
     "protected": "Dokumentet har redigeringsbegränsningar, så en del innehåll kanske inte konverteras korrekt.",
     "contentLoss": "En del innehåll kunde inte konverteras och utelämnades, till exempel ekvationer eller objekt som inte stöds.",
+    "contentLossItems": "En del innehåll kunde inte konverteras och utelämnades: {items}.",
+    "contentKinds": {
+      "equations": "ekvationer",
+      "images": "bilder",
+      "symbols": "specialtecken",
+      "objects": "inbäddade objekt",
+      "other": "andra element"
+    },
     "technical": "Tekniska detaljer"
   },
   "panelMarkdown": "Markdown",
@@ -120,6 +130,7 @@
   "docFileError": "Det här verktyget läser moderna .docx-filer, inte äldre .doc-filer. Öppna dokumentet i Word och välj File → Save As → Word Document (.docx), och släpp sedan .docx-filen här.",
   "fileTooLargeError": "Den här filen är för stor för att konverteras i din webbläsare. Försök med en .docx som är mindre än 20 MB.",
   "invalidFileError": "Filen kunde inte läsas som ett Word-dokument. Den kan vara skadad eller inte vara en .docx-fil. Öppna den i Word och spara den igen som .docx.",
+  "notWordFileError": "Det här är inte ett Word-dokument, så det går inte att konvertera. Välj en .docx-fil i stället.",
   "protectedFileError": "Dokumentet är lösenordsskyddat eller en äldre .doc-fil. Ta bort lösenordet i Word eller spara det som .docx och försök sedan igen.",
   "copyFailed": "Det gick inte att kopiera automatiskt. Markera Markdown-texten och kopiera den med Ctrl+C (⌘C på Mac).",
   "onlyFirstFile": "Bara den första filen konverterades. Lägg till de andra en i taget.",

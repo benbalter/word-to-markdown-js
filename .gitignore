@@ -51,3 +51,14 @@ scripts/.gen-cache/
 # Impeccable design-skill per-user settings (shared design context is committed)
 .impeccable/config.local.json
 .impeccable/live/
+
+# Impeccable per-user settings and generated state (critique snapshots are a local archive)
+.impeccable/hook.cache.json
+.impeccable/critique/
+
+# Impeccable skill files mirrored into the repo by its installer; the Claude Code plugin is the source of truth
+.claude/skills/impeccable/
+.claude/agents/impeccable-*.md
+.github/skills/impeccable/
+.github/agents/impeccable-*.md
+.github/hooks/impeccable.json

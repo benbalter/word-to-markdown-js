@@ -93,8 +93,34 @@ async function renderPreview(
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
       });
+    hideSpacerImages(target);
   } catch (error) {
     console.error(error);
+  }
+}
+
+// A 1×1 image (a spacer or tracking pixel, common in pasted web content)
+// renders as an invisible dot wrapped in Typography's image margins: a blank
+// gap in the preview. Hide those once they decode. The Markdown keeps them,
+// since that's the document's content.
+function hideSpacerImages(target: HTMLElement): void {
+  for (const image of target.querySelectorAll('img')) {
+    const check = (): void => {
+      if (image.naturalWidth > 1 || image.naturalHeight > 1) return;
+      image.hidden = true;
+      // An image alone in its paragraph leaves the paragraph's margins
+      // behind as the same blank gap, so hide that too.
+      const parent = image.parentElement;
+      if (
+        parent?.tagName === 'P' &&
+        parent.children.length === 1 &&
+        !parent.textContent?.trim()
+      ) {
+        parent.hidden = true;
+      }
+    };
+    if (image.complete && image.naturalWidth > 0) check();
+    else image.addEventListener('load', check, { once: true });
   }
 }
 
@@ -255,13 +281,38 @@ const CONVERSION_ERROR_STRINGS = {
 } as const satisfies Record<string, readonly [UIStringKey, string]>;
 
 // `note` is appended to the message (e.g. the "only the first file" notice,
-// which would otherwise be lost when the conversion fails).
-function showConversionError(error: unknown, note = ''): void {
+// which would otherwise be lost when the conversion fails). `fileName`, when
+// the error is about a file the visitor just gave us, is shown with it.
+function showConversionError(
+  error: unknown,
+  note = '',
+  fileName?: string,
+): void {
   const name = (error as { name?: string })?.name;
+  // Something that isn't a Word file at all (README.md, a PDF, a spreadsheet)
+  // fails as unreadable or as an unsupported container. "Open it in Word and
+  // save it again" would be wrong advice for it, so say what it is instead.
+  if (
+    fileName &&
+    !/\.docx?$/i.test(fileName) &&
+    (name === 'InvalidFileError' || name === 'UnsupportedFileError')
+  ) {
+    showError(
+      withNote(
+        uiString(
+          'notWordFileError',
+          "This isn't a Word document, so it can't be converted. Choose a .docx file instead.",
+        ),
+        note,
+      ),
+      fileName,
+    );
+    return;
+  }
   if (name && Object.hasOwn(CONVERSION_ERROR_STRINGS, name)) {
     const [key, fallback] =
       CONVERSION_ERROR_STRINGS[name as keyof typeof CONVERSION_ERROR_STRINGS];
-    showError(withNote(uiString(key, fallback), note));
+    showError(withNote(uiString(key, fallback), note), fileName);
     return;
   }
   showError(
@@ -272,6 +323,7 @@ function showConversionError(error: unknown, note = ''): void {
       ),
       note,
     ),
+    fileName,
   );
   console.error(error);
 }
@@ -439,7 +491,7 @@ async function processFile(
       endBusy();
       if (srStatus) srStatus.textContent = '';
     }
-    showError(withNote(rejection, ignoredNote));
+    showError(withNote(rejection, ignoredNote), file.name);
     return;
   }
 
@@ -492,12 +544,7 @@ async function processFile(
     // actually has images (inline mode embeds them as base64 data URIs). Match
     // Markdown image syntax, not a bare "data:image" that could be document text.
     lastConvertedBuffer = buffer;
-    const zipButton = document.getElementById('download-zip-button');
-    if (zipButton) {
-      zipButton.style.display = INLINE_IMAGE.test(result.markdown)
-        ? 'inline-flex'
-        : 'none';
-    }
+    setImageMode(INLINE_IMAGE.test(result.markdown));
 
     const inputElement = document.getElementById('input');
     inputElement.classList.add('hidden');
@@ -505,13 +552,11 @@ async function processFile(
     const resultsElement = document.getElementById('results');
     resultsElement.classList.remove('hidden');
 
-    // The results pane carries its own contextual Open & Async pitch, so hide
-    // the standalone promo card to avoid stacking two asks. The card stays for
-    // visitors who never convert (it lives in the page flow below the input).
-    // Set display inline rather than toggling `.hidden`: the card's scoped CSS
-    // sets `display: flex` at equal specificity, so a class wouldn't reliably win.
-    const promoCard = document.getElementById('promo-card');
-    if (promoCard) promoCard.style.display = 'none';
+    // Hide the pre-conversion explainer (How It Works, the conversion table)
+    // and the standalone promo card: the page is now about this result. The
+    // results pane carries its own quiet Open & Async pitch, so this also
+    // avoids stacking two asks.
+    document.getElementById('pre-result')?.classList.add('hidden');
 
     // Announce success to assistive tech (the results reveal is otherwise
     // silent) and move focus to the first result action so keyboard users
@@ -533,7 +578,7 @@ async function processFile(
       behavior: reduceMotion ? 'auto' : 'smooth',
       block: 'start',
     });
-    document.getElementById('copy-button')?.focus({ preventScroll: true });
+    primaryAction()?.focus({ preventScroll: true });
     // The finished result lights up like an added diff hunk (decoration only;
     // nothing above waits on it).
     replayClass(document.querySelector('.md-panel'), 'is-lit');
@@ -549,12 +594,41 @@ async function processFile(
     endBusy();
     if (srStatus) srStatus.textContent = '';
     recordConversion('error');
-    showConversionError(error, ignoredNote);
+    showConversionError(error, ignoredNote, file.name);
   }
 }
 
 // Match an inline (base64) image in Markdown image syntax.
 const INLINE_IMAGE = /!\[[^\]]*\]\(data:image\//;
+
+// When a document has images, the Markdown carries them as long base64
+// strings, so the .zip (Markdown plus an images/ folder) is the better next
+// step: it takes the filled accent and the leading spot from Copy, and a note
+// says why. Without images, Copy leads and the .zip button is hidden.
+function setImageMode(hasImages: boolean): void {
+  const copyButton = document.getElementById('copy-button');
+  const zipButton = document.getElementById('download-zip-button');
+  if (!copyButton || !zipButton) return;
+  zipButton.style.display = hasImages ? 'inline-flex' : 'none';
+  copyButton.classList.toggle('btn-accent', !hasImages);
+  copyButton.classList.toggle('btn-secondary', hasImages);
+  zipButton.classList.toggle('btn-accent', hasImages);
+  zipButton.classList.toggle('btn-secondary', !hasImages);
+  if (hasImages) copyButton.before(zipButton);
+  else document.getElementById('download-button')?.after(zipButton);
+  document
+    .getElementById('images-note')
+    ?.classList.toggle('hidden', !hasImages);
+}
+
+// The result action that carries the accent (see setImageMode), where focus
+// lands after a conversion.
+function primaryAction(): HTMLElement | null {
+  return (
+    document.querySelector<HTMLElement>('#results .btn-accent') ??
+    document.getElementById('copy-button')
+  );
+}
 
 // Incremented per processFile call; see the token check there.
 let activeConversion = 0;
@@ -569,6 +643,7 @@ type UIStringKey =
   | 'errorGeneric'
   | 'docFileError'
   | 'invalidFileError'
+  | 'notWordFileError'
   | 'protectedFileError'
   | 'copyFailed'
   | 'dismiss'
@@ -584,6 +659,12 @@ type UIStringKey =
   | 'warningConfidentiality'
   | 'warningProtected'
   | 'warningContentLoss'
+  | 'warningContentLossItems'
+  | 'warningKindEquations'
+  | 'warningKindImages'
+  | 'warningKindSymbols'
+  | 'warningKindObjects'
+  | 'warningKindOther'
   | 'warningTechnical';
 
 // Localized UI strings are rendered into the page as data-* attributes on the
@@ -596,7 +677,10 @@ function uiString(key: UIStringKey, fallback: string): string {
   return value && value.length > 0 ? value : fallback;
 }
 
-function showError(message: string): void {
+// Show an error alert. `fileName` names the file it's about, on its own line
+// above the message, so a visitor who dropped several files in turn knows
+// which one failed.
+function showError(message: string, fileName?: string): void {
   // Create or update error alert
   let errorElement = document.getElementById('error-alert');
   if (!errorElement) {
@@ -606,9 +690,20 @@ function showError(message: string): void {
     errorElement.className =
       'relative mb-4 flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-start text-sm text-red-800 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200';
 
+    const body = document.createElement('div');
+    body.className = 'flex-1';
+
+    // <bdi> so a right-to-left filename (or a Latin one on an RTL page)
+    // doesn't reorder the punctuation around it.
+    const fileLine = document.createElement('bdi');
+    fileLine.id = 'error-file';
+    fileLine.className = 'mb-0.5 block font-mono text-xs font-medium break-all';
+
     const messageSpan = document.createElement('span');
     messageSpan.id = 'error-message';
-    messageSpan.className = 'flex-1';
+    messageSpan.className = 'block';
+
+    body.append(fileLine, messageSpan);
 
     const closeButton = document.createElement('button');
     closeButton.type = 'button';
@@ -619,7 +714,7 @@ function showError(message: string): void {
       '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
     closeButton.addEventListener('click', () => dismissAlert(errorElement));
 
-    errorElement.appendChild(messageSpan);
+    errorElement.appendChild(body);
     errorElement.appendChild(closeButton);
   }
 
@@ -635,6 +730,11 @@ function showError(message: string): void {
     container.insertBefore(errorElement, container.firstChild);
   }
 
+  const fileElement = document.getElementById('error-file');
+  if (fileElement) {
+    fileElement.textContent = fileName ?? '';
+    fileElement.hidden = !fileName;
+  }
   const messageElement = document.getElementById('error-message');
   messageElement.textContent = message;
   errorElement.classList.remove('hidden');
@@ -649,7 +749,7 @@ function dismissAlert(alert: HTMLElement): void {
   const results = document.getElementById('results');
   const target =
     results && !results.classList.contains('hidden')
-      ? document.getElementById('copy-button')
+      ? primaryAction()
       : document.getElementById('file');
   target?.focus();
 }
@@ -706,14 +806,73 @@ function localizeWarnings(details: readonly WarningDetail[] = []): {
     }
   }
   if (technical.length > 0) {
-    lines.push(
-      uiString(
-        'warningContentLoss',
-        "Some content couldn't be converted and was left out, such as equations or unsupported objects.",
-      ),
-    );
+    lines.push(describeContentLoss(technical));
   }
   return { lines, technical };
+}
+
+// What kind of content each of mammoth's raw messages is about, so the
+// warning can say what's missing ("equations and images") rather than only
+// that something is. The converter de-duplicates identical messages, so this
+// names kinds, not counts. Mammoth names elements by prefix for the
+// namespaces it knows (w:, v:, wp:, mc:, …) and as {namespace-uri}name for
+// the rest, Office Math among them.
+const CONTENT_KINDS = [
+  // Office Math: <m:oMath>, <m:oMathPara>.
+  ['equations', /oMath/, 'equations'],
+  // "Image of type … is unlikely to display", "Could not find image file
+  // for a:blip element", an unlinked v:imagedata.
+  ['images', /image|a:blip/i, 'images'],
+  // <w:sym> with a character mammoth can't map.
+  ['symbols', /\bw:sym\b/, 'special symbols'],
+  // An element outside Word's own w: namespace: VML shapes, DrawingML text
+  // boxes and groups, charts, embedded objects.
+  ['objects', /ignored: (?:\{|(?!w:)[\w-]+:)/, 'embedded objects'],
+] as const;
+
+const KIND_KEYS = {
+  equations: 'warningKindEquations',
+  images: 'warningKindImages',
+  symbols: 'warningKindSymbols',
+  objects: 'warningKindObjects',
+  other: 'warningKindOther',
+} as const satisfies Record<string, UIStringKey>;
+
+function describeContentLoss(details: readonly string[]): string {
+  const kinds = new Map<keyof typeof KIND_KEYS, string>();
+  for (const detail of details) {
+    const match = CONTENT_KINDS.find(([, pattern]) => pattern.test(detail));
+    const [kind, fallback] = match
+      ? [match[0], match[2]]
+      : (['other', 'other elements'] as const);
+    if (!kinds.has(kind)) kinds.set(kind, uiString(KIND_KEYS[kind], fallback));
+  }
+  // Only unrecognized elements: nothing specific to name.
+  if (kinds.size === 1 && kinds.has('other')) {
+    return uiString(
+      'warningContentLoss',
+      "Some content couldn't be converted and was left out, such as equations or unsupported objects.",
+    );
+  }
+  // "Other elements" reads best last.
+  const other = kinds.get('other');
+  kinds.delete('other');
+  const names = [...kinds.values(), ...(other ? [other] : [])];
+  return uiString(
+    'warningContentLossItems',
+    "Some content couldn't be converted and may be missing: {items}.",
+  ).replace('{items}', () => formatList(names));
+}
+
+// Join names in the page's language ("a, b, and c"; "a、b、c").
+function formatList(items: string[]): string {
+  try {
+    return new Intl.ListFormat(document.documentElement.lang || 'en', {
+      type: 'conjunction',
+    }).format(items);
+  } catch {
+    return items.join(', ');
+  }
 }
 
 function showWarnings(warnings: string[], technical: string[] = []): void {
@@ -835,11 +994,11 @@ function resetConverter(): void {
   const rendered = document.getElementById('rendered');
   if (rendered) rendered.innerHTML = '';
 
-  // Drop the retained bytes and re-hide the zip button for the next document.
+  // Drop the retained bytes, and hand the accent back to Copy (re-hiding the
+  // zip button and its note) for the next document.
   lastConvertedBuffer = null;
   lastMarkdown = '';
-  const zipButton = document.getElementById('download-zip-button');
-  if (zipButton) zipButton.style.display = 'none';
+  setImageMode(false);
 
   document.getElementById('error-alert')?.remove();
   document.getElementById('warning-alert')?.remove();
@@ -847,9 +1006,8 @@ function resetConverter(): void {
   document.getElementById('results')?.classList.add('hidden');
   document.getElementById('input')?.classList.remove('hidden');
 
-  // Restore the standalone promo card that a successful conversion hid.
-  const promoCard = document.getElementById('promo-card');
-  if (promoCard) promoCard.style.display = '';
+  // Restore the explainer and promo card that a successful conversion hid.
+  document.getElementById('pre-result')?.classList.remove('hidden');
 
   // Clear the live status region so a prior success isn't re-announced.
   const status = document.getElementById('sr-status');

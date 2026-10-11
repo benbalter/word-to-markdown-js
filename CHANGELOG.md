@@ -13,6 +13,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - word2md.com: Copy Markdown is now the main action after a conversion, and the result scrolls into view. Warnings appear in the page's language, with the converter's raw messages behind a "Technical details" toggle. Code in the output and preview no longer shows font ligatures, so `->` and `--` look exactly as they're copied.
+- word2md.com: when a document has images, Download .zip becomes the main action (the Markdown alone carries them as long base64 strings), with a note explaining where the images are.
+- word2md.com: the dropped-content warning names what was dropped (equations, images, special symbols, embedded objects) when it can tell.
+- word2md.com: errors name the file they're about, and dropping a file that isn't a Word document (like `README.md`) now says so, instead of advising you to re-save it in Word.
+- word2md.com: on touch screens the dropzone asks you to choose a .docx rather than drop one, the result buttons are 44px tall, and screen readers hear the file input as "Choose a .docx file" with the size and privacy note as its description.
+- word2md.com: the hero's "Trusted since 2014" now reads "Converting docs since 2014": it states the tool's lineage rather than claiming trust.
+- word2md.com: the Markdown output wraps long lines instead of scrolling sideways, so long lines and inline images are readable and easy to select. (#283) Thanks to [@RegolithIII](https://github.com/RegolithIII) for the suggestion.
 
 ## [0.5.1] - 2026-09-30
 
