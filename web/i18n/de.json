@@ -1,7 +1,7 @@
 {
   "eyebrow": "Kostenlos · Open Source · 100% im Browser",
   "tagline": "Wandle Word-Dateien (.docx) in sauberes Markdown um — komplett in deinem Browser. Deine Dateien werden nie hochgeladen.",
-  "trustBadge": "Seit 2014",
+  "trustBadge": "Konvertiert Dokumente seit 2014",
   "flowFromAlt": "Word-Dokument",
   "flowToAlt": "Markdown-Datei",
   "dropzoneTitle": "Lege deine .docx hier ab",
@@ -26,7 +26,7 @@
     "confidentiality": "Dieses Dokument ist als vertraulich gekennzeichnet ({label}). Stellen Sie sicher, dass Sie es konvertieren dürfen.",
     "protected": "Dieses Dokument hat Bearbeitungseinschränkungen, daher werden manche Inhalte möglicherweise nicht korrekt konvertiert.",
     "contentLoss": "Einige Inhalte konnten nicht konvertiert werden und wurden weggelassen, etwa Formeln oder nicht unterstützte Objekte.",
-    "contentLossItems": "Einige Inhalte konnten nicht konvertiert werden und fehlen möglicherweise: {items}.",
+    "contentLossItems": "Einige Inhalte konnten nicht konvertiert werden und wurden weggelassen: {items}.",
     "contentKinds": {
       "equations": "Formeln",
       "images": "Bilder",

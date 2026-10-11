@@ -1,7 +1,7 @@
 {
   "eyebrow": "Ücretsiz · Açık kaynak · %100 tarayıcınızda",
   "tagline": "Word (.docx) dosyalarını temiz Markdown biçimine dönüştürün — tamamen tarayıcınızda. Dosyalarınız asla yüklenmez.",
-  "trustBadge": "2014'ten beri",
+  "trustBadge": "2014'ten beri belge dönüştürüyor",
   "flowFromAlt": "Word belgesi",
   "flowToAlt": "Markdown dosyası",
   "dropzoneTitle": ".docx dosyanızı buraya bırakın",
@@ -26,7 +26,7 @@
     "confidentiality": "Bu belge gizli olarak işaretlenmiş ({label}). Dönüştürme izniniz olduğundan emin olun.",
     "protected": "Bu belgede düzenleme kısıtlamaları var, bu nedenle bazı içerikler düzgün dönüştürülmeyebilir.",
     "contentLoss": "Denklemler veya desteklenmeyen nesneler gibi bazı içerikler dönüştürülemedi ve atlandı.",
-    "contentLossItems": "Bazı içerikler dönüştürülemedi ve eksik olabilir: {items}.",
+    "contentLossItems": "Bazı içerikler dönüştürülemedi ve atlandı: {items}.",
     "contentKinds": {
       "equations": "denklemler",
       "images": "görseller",

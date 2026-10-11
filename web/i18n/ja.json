@@ -1,7 +1,7 @@
 {
   "eyebrow": "無料 · オープンソース · 100%ブラウザ内で動作",
   "tagline": "Word (.docx) ファイルをクリーンなMarkdownに変換 — すべてブラウザ内で完結します。ファイルがアップロードされることはありません。",
-  "trustBadge": "2014年から",
+  "trustBadge": "2014年から文書を変換",
   "flowFromAlt": "Word文書",
   "flowToAlt": "Markdownファイル",
   "dropzoneTitle": ".docx をここにドロップ",
@@ -26,7 +26,7 @@
     "confidentiality": "このドキュメントは機密としてマークされています（{label}）。変換してよいか確認してください。",
     "protected": "このドキュメントには編集制限があるため、一部の内容が正しく変換されない可能性があります。",
     "contentLoss": "数式やサポートされていないオブジェクトなど、一部の内容は変換できなかったため省略されました。",
-    "contentLossItems": "一部の内容を変換できず、欠落している可能性があります：{items}。",
+    "contentLossItems": "一部の内容は変換できなかったため省略されました：{items}。",
     "contentKinds": {
       "equations": "数式",
       "images": "画像",

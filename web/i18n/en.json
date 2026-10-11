@@ -1,7 +1,7 @@
 {
   "eyebrow": "Free · Open source · 100% in your browser",
   "tagline": "Convert Word (.docx) files to clean Markdown, entirely in your browser. Your files are never uploaded.",
-  "trustBadge": "Since 2014",
+  "trustBadge": "Converting docs since 2014",
   "flowFromAlt": "Word document",
   "flowToAlt": "Markdown file",
   "dropzoneTitle": "Drop your .docx here",
@@ -26,7 +26,7 @@
     "confidentiality": "This document is marked confidential ({label}). Make sure you're allowed to convert it.",
     "protected": "This document has editing restrictions, so some content may not convert properly.",
     "contentLoss": "Some content couldn't be converted and was left out, such as equations or unsupported objects.",
-    "contentLossItems": "Some content couldn't be converted and may be missing: {items}.",
+    "contentLossItems": "Some content couldn't be converted and was left out: {items}.",
     "contentKinds": {
       "equations": "equations",
       "images": "images",

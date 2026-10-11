@@ -20,7 +20,7 @@ export interface UIStrings {
   /** Plain-language tagline under the wordmark (kept literal so it translates cleanly). */
   tagline: string;
   /**
-   * Lineage line ("Since 2014"): how long the tool has existed, stated plainly
+   * Lineage line ("Converting docs since 2014"): how long the tool has existed, stated plainly
    * rather than as a trust claim. The "2014" year is a literal, not translated.
    */
   trustBadge: string;

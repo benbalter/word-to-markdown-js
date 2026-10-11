@@ -1,7 +1,7 @@
 {
   "eyebrow": "Gratuit · Open source · 100% dans votre navigateur",
   "tagline": "Convertissez des fichiers Word (.docx) en Markdown propre — entièrement dans votre navigateur. Vos fichiers ne sont jamais envoyés.",
-  "trustBadge": "Depuis 2014",
+  "trustBadge": "Conversion de documents depuis 2014",
   "flowFromAlt": "Document Word",
   "flowToAlt": "Fichier Markdown",
   "dropzoneTitle": "Déposez votre .docx ici",
@@ -26,7 +26,7 @@
     "confidentiality": "Ce document est marqué comme confidentiel ({label}). Vérifiez que vous êtes autorisé à le convertir.",
     "protected": "Ce document comporte des restrictions de modification : une partie du contenu peut ne pas être convertie correctement.",
     "contentLoss": "Une partie du contenu n'a pas pu être convertie et a été omise, comme des équations ou des objets non pris en charge.",
-    "contentLossItems": "Une partie du contenu n'a pas pu être convertie et peut manquer : {items}.",
+    "contentLossItems": "Une partie du contenu n'a pas pu être convertie et a été omise : {items}.",
     "contentKinds": {
       "equations": "équations",
       "images": "images",

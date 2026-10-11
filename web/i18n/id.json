@@ -1,7 +1,7 @@
 {
   "eyebrow": "Gratis · Open source · 100% di peramban",
   "tagline": "Ubah file Word (.docx) menjadi Markdown yang rapi — sepenuhnya di peramban Anda. File Anda tidak pernah diunggah.",
-  "trustBadge": "Sejak 2014",
+  "trustBadge": "Mengonversi dokumen sejak 2014",
   "flowFromAlt": "Dokumen Word",
   "flowToAlt": "File Markdown",
   "dropzoneTitle": "Letakkan file .docx Anda di sini",
@@ -26,7 +26,7 @@
     "confidentiality": "Dokumen ini ditandai rahasia ({label}). Pastikan Anda diizinkan untuk mengonversinya.",
     "protected": "Dokumen ini memiliki batasan pengeditan, jadi sebagian konten mungkin tidak terkonversi dengan benar.",
     "contentLoss": "Sebagian konten tidak dapat dikonversi dan dihilangkan, seperti persamaan atau objek yang tidak didukung.",
-    "contentLossItems": "Sebagian konten tidak dapat dikonversi dan mungkin hilang: {items}.",
+    "contentLossItems": "Sebagian konten tidak dapat dikonversi dan dihilangkan: {items}.",
     "contentKinds": {
       "equations": "persamaan",
       "images": "gambar",

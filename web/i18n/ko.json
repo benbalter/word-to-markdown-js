@@ -1,7 +1,7 @@
 {
   "eyebrow": "무료 · 오픈 소스 · 100% 브라우저에서 실행",
   "tagline": "Word (.docx) 파일을 깔끔한 Markdown으로 변환하세요 — 전부 브라우저에서 처리됩니다. 파일은 절대 업로드되지 않습니다.",
-  "trustBadge": "2014년부터",
+  "trustBadge": "2014년부터 문서 변환",
   "flowFromAlt": "Word 문서",
   "flowToAlt": "Markdown 파일",
   "dropzoneTitle": ".docx 파일을 여기에 놓으세요",
@@ -26,7 +26,7 @@
     "confidentiality": "이 문서는 기밀로 표시되어 있습니다({label}). 변환해도 되는지 확인하세요.",
     "protected": "이 문서에는 편집 제한이 있어 일부 내용이 제대로 변환되지 않을 수 있습니다.",
     "contentLoss": "수식이나 지원되지 않는 개체 등 일부 내용은 변환할 수 없어 제외되었습니다.",
-    "contentLossItems": "일부 내용을 변환하지 못해 누락되었을 수 있습니다: {items}.",
+    "contentLossItems": "일부 내용은 변환할 수 없어 제외되었습니다: {items}.",
     "contentKinds": {
       "equations": "수식",
       "images": "이미지",

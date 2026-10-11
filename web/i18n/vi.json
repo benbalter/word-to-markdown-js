@@ -1,7 +1,7 @@
 {
   "eyebrow": "Miễn phí · Mã nguồn mở · 100% trong trình duyệt",
   "tagline": "Chuyển đổi tệp Word (.docx) sang Markdown gọn gàng — hoàn toàn trong trình duyệt của bạn. Tệp của bạn không bao giờ được tải lên.",
-  "trustBadge": "Từ năm 2014",
+  "trustBadge": "Chuyển đổi tài liệu từ năm 2014 đến nay",
   "flowFromAlt": "Tài liệu Word",
   "flowToAlt": "Tệp Markdown",
   "dropzoneTitle": "Thả tệp .docx của bạn vào đây",
@@ -26,7 +26,7 @@
     "confidentiality": "Tài liệu này được đánh dấu là bảo mật ({label}). Hãy đảm bảo bạn được phép chuyển đổi tài liệu.",
     "protected": "Tài liệu này có hạn chế chỉnh sửa, nên một số nội dung có thể không được chuyển đổi chính xác.",
     "contentLoss": "Một số nội dung không thể chuyển đổi và đã bị bỏ qua, chẳng hạn như phương trình hoặc đối tượng không được hỗ trợ.",
-    "contentLossItems": "Một số nội dung không thể chuyển đổi và có thể bị thiếu: {items}.",
+    "contentLossItems": "Một số nội dung không thể chuyển đổi và đã bị bỏ qua: {items}.",
     "contentKinds": {
       "equations": "phương trình",
       "images": "hình ảnh",

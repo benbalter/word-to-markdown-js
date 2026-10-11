@@ -1,7 +1,7 @@
 {
   "eyebrow": "免費 · 開放原始碼 · 100% 在你的瀏覽器中",
   "tagline": "將 Word (.docx) 檔案轉換為乾淨的 Markdown——全程都在你的瀏覽器中進行。你的檔案絕不會被上傳。",
-  "trustBadge": "始於 2014 年",
+  "trustBadge": "自 2014 年起轉換文件",
   "flowFromAlt": "Word 檔案",
   "flowToAlt": "Markdown 檔案",
   "dropzoneTitle": "將 .docx 拖曳到這裡",
@@ -25,8 +25,8 @@
     "sensitivity": "這份文件帶有敏感度標籤（{label}）。請確認你有權轉換並分享它。",
     "confidentiality": "這份文件已標示為機密（{label}）。請確認你有權轉換它。",
     "protected": "這份文件有編輯限制，因此部分內容可能無法正確轉換。",
-    "contentLoss": "部分內容無法轉換而已略過，例如方程式或不支援的物件。",
-    "contentLossItems": "部分內容無法轉換，可能缺漏：{items}。",
+    "contentLoss": "部分內容無法轉換，已略過，例如方程式或不支援的物件。",
+    "contentLossItems": "部分內容無法轉換，已略過：{items}。",
     "contentKinds": {
       "equations": "方程式",
       "images": "圖片",

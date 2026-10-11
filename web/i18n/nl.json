@@ -1,7 +1,7 @@
 {
   "eyebrow": "Gratis · Open source · 100% in je browser",
   "tagline": "Converteer Word (.docx)-bestanden naar schone Markdown — volledig in je browser. Je bestanden worden nooit geüpload.",
-  "trustBadge": "Sinds 2014",
+  "trustBadge": "Converteert documenten sinds 2014",
   "flowFromAlt": "Word-document",
   "flowToAlt": "Markdown-bestand",
   "dropzoneTitle": "Sleep je .docx hierheen",
@@ -26,7 +26,7 @@
     "confidentiality": "Dit document is gemarkeerd als vertrouwelijk ({label}). Controleer of je het mag converteren.",
     "protected": "Dit document heeft bewerkingsbeperkingen, dus sommige inhoud wordt mogelijk niet goed geconverteerd.",
     "contentLoss": "Sommige inhoud kon niet worden geconverteerd en is weggelaten, zoals vergelijkingen of niet-ondersteunde objecten.",
-    "contentLossItems": "Sommige inhoud kon niet worden geconverteerd en ontbreekt mogelijk: {items}.",
+    "contentLossItems": "Sommige inhoud kon niet worden geconverteerd en is weggelaten: {items}.",
     "contentKinds": {
       "equations": "vergelijkingen",
       "images": "afbeeldingen",

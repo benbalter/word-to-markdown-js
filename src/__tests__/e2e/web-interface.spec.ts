@@ -564,7 +564,7 @@ test.describe('Word to Markdown Web Interface', () => {
       buffer: await zip.generateAsync({ type: 'nodebuffer' }),
     });
     await expect(page.locator('#warning-alert')).toContainText(
-      "Some content couldn't be converted and may be missing: equations, embedded objects, and other elements.",
+      "Some content couldn't be converted and was left out: equations, embedded objects, and other elements.",
       { timeout: 10000 },
     );
   });

@@ -1,7 +1,7 @@
 {
   "eyebrow": "Gratis · Öppen källkod · 100 % i din webbläsare",
   "tagline": "Konvertera Word-filer (.docx) till ren Markdown — helt i din webbläsare. Dina filer laddas aldrig upp.",
-  "trustBadge": "Sedan 2014",
+  "trustBadge": "Konverterar dokument sedan 2014",
   "flowFromAlt": "Word-dokument",
   "flowToAlt": "Markdown-fil",
   "dropzoneTitle": "Släpp din .docx här",
@@ -26,7 +26,7 @@
     "confidentiality": "Dokumentet är märkt som konfidentiellt ({label}). Kontrollera att du får konvertera det.",
     "protected": "Dokumentet har redigeringsbegränsningar, så en del innehåll kanske inte konverteras korrekt.",
     "contentLoss": "En del innehåll kunde inte konverteras och utelämnades, till exempel ekvationer eller objekt som inte stöds.",
-    "contentLossItems": "En del innehåll kunde inte konverteras och kan saknas: {items}.",
+    "contentLossItems": "En del innehåll kunde inte konverteras och utelämnades: {items}.",
     "contentKinds": {
       "equations": "ekvationer",
       "images": "bilder",
