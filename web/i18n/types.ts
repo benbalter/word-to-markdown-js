@@ -19,7 +19,10 @@ export interface UIStrings {
   eyebrow: string;
   /** Plain-language tagline under the wordmark (kept literal so it translates cleanly). */
   tagline: string;
-  /** Longevity trust signal. The "2014" year is a literal and not translated. */
+  /**
+   * Lineage line ("Since 2014"): how long the tool has existed, stated plainly
+   * rather than as a trust claim. The "2014" year is a literal, not translated.
+   */
   trustBadge: string;
 
   // Visual flow (alt text for the .docx → .md glyph row)
