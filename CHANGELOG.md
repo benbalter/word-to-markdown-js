@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - word2md.com: on touch screens the dropzone asks you to choose a .docx rather than drop one, the result buttons are 44px tall, and screen readers hear the file input as "Choose a .docx file" with the size and privacy note as its description.
 - word2md.com: the hero's "Trusted since 2014" now reads "Converting docs since 2014": it states the tool's lineage rather than claiming trust.
 - word2md.com: the Markdown output wraps long lines instead of scrolling sideways, so long lines and inline images are readable and easy to select. (#283) Thanks to [@RegolithIII](https://github.com/RegolithIII) for the suggestion.
+- word2md.com: once a conversion finishes, the page shows only the result: How It Works, the conversion table, the command-line callout, and the FAQ step aside until you choose "Convert another file". The German page now addresses you formally ("Sie") throughout, the Indonesian page says "berkas" for "file" throughout, and the German, Indonesian, and Vietnamese search descriptions say again that nothing is uploaded.
 
 ## [0.5.1] - 2026-09-30
 

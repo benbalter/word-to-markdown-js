@@ -1,13 +1,13 @@
 {
   "eyebrow": "Kostenlos · Open Source · 100% im Browser",
-  "tagline": "Wandle Word-Dateien (.docx) in sauberes Markdown um — komplett in deinem Browser. Deine Dateien werden nie hochgeladen.",
+  "tagline": "Wandeln Sie Word-Dateien (.docx) in sauberes Markdown um — komplett in Ihrem Browser. Ihre Dateien werden nie hochgeladen.",
   "trustBadge": "Konvertiert Dokumente seit 2014",
   "flowFromAlt": "Word-Dokument",
   "flowToAlt": "Markdown-Datei",
-  "dropzoneTitle": "Lege deine .docx hier ab",
-  "dropzoneTitleTouch": "Wähle eine .docx-Datei",
+  "dropzoneTitle": "Legen Sie Ihre .docx hier ab",
+  "dropzoneTitleTouch": "Wählen Sie eine .docx-Datei",
   "dropzoneBrowsePrefix": "oder ",
-  "dropzoneBrowseLink": "klicke, um eine Datei zu wählen",
+  "dropzoneBrowseLink": "klicken Sie, um eine Datei zu wählen",
   "dropzoneNote": "Bis 20 MB · Wird auf diesem Gerät konvertiert, nie hochgeladen",
   "googleDocHint": "Google Doc? Datei → Herunterladen → Microsoft Word (.docx)",
   "convertSectionAria": "Dokument umwandeln",
@@ -41,7 +41,7 @@
   "steps": [
     {
       "t": "Ablegen",
-      "d": "Ziehe eine .docx-Datei hinein oder klicke zum Auswählen."
+      "d": "Ziehen Sie eine .docx-Datei hinein oder klicken Sie zum Auswählen."
     },
     {
       "t": "Umwandeln",
@@ -49,7 +49,7 @@
     },
     {
       "t": "Kopieren oder speichern",
-      "d": "Kopiere das Markdown, lade eine .md-Datei herunter oder ein .zip mit deinen Bildern."
+      "d": "Kopieren Sie das Markdown, laden Sie eine .md-Datei herunter oder ein .zip mit Ihren Bildern."
     }
   ],
   "conversionHeading": "Was konvertiert wird",
@@ -68,13 +68,13 @@
     "Fußnoten"
   ],
   "cliHeading": "Lieber die Kommandozeile?",
-  "cliBody": "Word to Markdown ist kostenlos und quelloffen. Nutze es als Kommandozeilen-Tool für skriptgesteuerte oder Stapel-Konvertierungen – derselbe Konverter, ganz ohne Browser.",
+  "cliBody": "Word to Markdown ist kostenlos und quelloffen. Nutzen Sie es als Kommandozeilen-Tool für skriptgesteuerte oder Stapel-Konvertierungen – derselbe Konverter, ganz ohne Browser.",
   "cliCta": "Zur CLI",
   "faqHeading": "Häufig gestellte Fragen",
   "faqs": [
     {
       "q": "Wie wandle ich ein Word-Dokument in Markdown um?",
-      "a": "Ziehe eine .docx-Datei auf die Seite (oder klicke zum Auswählen). Word to Markdown wandelt sie im Browser um und zeigt das Markdown sofort an — kopiere es oder lade eine .md-Datei herunter."
+      "a": "Ziehen Sie eine .docx-Datei auf die Seite (oder klicken Sie zum Auswählen). Word to Markdown wandelt sie im Browser um und zeigt das Markdown sofort an — kopieren Sie es oder laden Sie eine .md-Datei herunter."
     },
     {
       "q": "Ist Word to Markdown kostenlos?",
@@ -82,11 +82,11 @@
     },
     {
       "q": "Werden meine Dokumente auf einen Server hochgeladen?",
-      "a": "Nein. Die Umwandlung erfolgt vollständig in deinem Browser mit JavaScript. Deine Dateien verlassen nie dein Gerät und werden nie hochgeladen, gespeichert oder protokolliert."
+      "a": "Nein. Die Umwandlung erfolgt vollständig in Ihrem Browser mit JavaScript. Ihre Dateien verlassen nie Ihr Gerät und werden nie hochgeladen, gespeichert oder protokolliert."
     },
     {
       "q": "Wie wandle ich ein Google Doc in Markdown um?",
-      "a": "Wähle in Google Docs Datei → Herunterladen → Microsoft Word (.docx) und ziehe diese .docx in Word to Markdown."
+      "a": "Wählen Sie in Google Docs Datei → Herunterladen → Microsoft Word (.docx) und ziehen Sie diese .docx in Word to Markdown."
     },
     {
       "q": "Kann ich eine .doc-Datei in Markdown umwandeln?",
@@ -102,7 +102,7 @@
     },
     {
       "q": "Kann ich damit Dokumente für ChatGPT, Claude oder andere KI-Tools vorbereiten?",
-      "a": "Ja. Markdown ist ein sauberes, tokeneffizientes Format für große Sprachmodelle und RAG-Pipelines. Wenn du ein Word-Dokument zuerst in Markdown umwandelst, erhalten KI-Tools gut strukturierten Text – Überschriften, Listen und Tabellen – ohne den Ballast des binären .docx-Formats."
+      "a": "Ja. Markdown ist ein sauberes, tokeneffizientes Format für große Sprachmodelle und RAG-Pipelines. Wenn Sie ein Word-Dokument zuerst in Markdown umwandeln, erhalten KI-Tools gut strukturierten Text – Überschriften, Listen und Tabellen – ohne den Ballast des binären .docx-Formats."
     }
   ],
   "footer": {
@@ -117,7 +117,7 @@
   "footerTagline": "Im Browser umgewandelt · nichts wird hochgeladen",
   "homeAria": "Word to Markdown — Startseite",
   "metaTitle": "Word to Markdown — Kostenloser .docx-zu-.md-Konverter",
-  "metaDescription": "Wandle Word (.docx) und Google Docs in sauberes Markdown im GitHub-Stil um — kostenlos, Open Source und komplett im Browser.",
+  "metaDescription": "Kostenloser Open-Source-Konverter, der Word (.docx) und Google Docs in sauberes Markdown im GitHub-Stil umwandelt — komplett in Ihrem Browser. Nichts wird hochgeladen.",
   "schemaDescription": "Kostenloses Open-Source-Tool, das Word (.docx) und Google Docs vollständig im Browser in sauberes Markdown im GitHub-Stil umwandelt.",
   "schemaFeatureList": [
     "Word (.docx) in Markdown umwandeln",
@@ -126,7 +126,7 @@
     "100% clientseitig — nichts wird hochgeladen",
     "Bilder als Dateien extrahieren"
   ],
-  "errorGeneric": "Beim Umwandeln des Dokuments ist ein unerwarteter Fehler aufgetreten. Bitte versuche es erneut.",
+  "errorGeneric": "Beim Umwandeln des Dokuments ist ein unerwarteter Fehler aufgetreten. Bitte versuchen Sie es erneut.",
   "docFileError": "Dieses Tool liest moderne .docx-Dateien, keine älteren .doc-Dateien. Öffnen Sie Ihr Dokument in Word und wählen Sie Datei → Speichern unter → Word-Dokument (.docx), und ziehen Sie die .docx-Datei dann hierher.",
   "fileTooLargeError": "Diese Datei ist zu groß, um sie im Browser zu konvertieren. Bitte verwenden Sie eine .docx-Datei, die kleiner als 20 MB ist.",
   "invalidFileError": "Diese Datei konnte nicht als Word-Dokument gelesen werden. Sie ist möglicherweise beschädigt oder keine .docx-Datei. Öffnen Sie sie in Word und speichern Sie sie erneut als .docx.",

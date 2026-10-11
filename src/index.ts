@@ -552,8 +552,9 @@ async function processFile(
     const resultsElement = document.getElementById('results');
     resultsElement.classList.remove('hidden');
 
-    // Hide the pre-conversion explainer (How It Works, the conversion table)
-    // and the standalone promo card: the page is now about this result. The
+    // Hide the pre-conversion sections (How It Works, the conversion table,
+    // the CLI callout, the FAQ) and the standalone promo card: the page is now
+    // about this result. The
     // results pane carries its own quiet Open & Async pitch, so this also
     // avoids stacking two asks.
     document.getElementById('pre-result')?.classList.add('hidden');
@@ -1006,7 +1007,7 @@ function resetConverter(): void {
   document.getElementById('results')?.classList.add('hidden');
   document.getElementById('input')?.classList.remove('hidden');
 
-  // Restore the explainer and promo card that a successful conversion hid.
+  // Restore the pre-conversion sections that a successful conversion hid.
   document.getElementById('pre-result')?.classList.remove('hidden');
 
   // Clear the live status region so a prior success isn't re-announced.
