@@ -120,6 +120,19 @@ test.describe('Word to Markdown Web Interface', () => {
     expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
   });
 
+  test('hides a 1×1 spacer image in the preview, not in the Markdown', async ({
+    page,
+  }) => {
+    // image.docx's only image is a 1×1 PNG.
+    await page.locator('#file').setInputFiles(fixture('image.docx'));
+    await expect(page.locator('#output')).toContainText('data:image', {
+      timeout: 10000,
+    });
+    const image = page.locator('#rendered img');
+    await expect(image).toHaveCount(1);
+    await expect(image).toBeHidden();
+  });
+
   test('Ctrl+A in an output panel selects only that panel', async ({
     page,
   }) => {

@@ -93,8 +93,25 @@ async function renderPreview(
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
       });
+    hideSpacerImages(target);
   } catch (error) {
     console.error(error);
+  }
+}
+
+// A 1×1 image (a spacer or tracking pixel, common in pasted web content)
+// renders as an invisible dot wrapped in Typography's image margins: a blank
+// gap in the preview. Hide those once they decode. The Markdown keeps them,
+// since that's the document's content.
+function hideSpacerImages(target: HTMLElement): void {
+  for (const image of target.querySelectorAll('img')) {
+    const check = (): void => {
+      if (image.naturalWidth <= 1 && image.naturalHeight <= 1) {
+        image.hidden = true;
+      }
+    };
+    if (image.complete && image.naturalWidth > 0) check();
+    else image.addEventListener('load', check, { once: true });
   }
 }
 
