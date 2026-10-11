@@ -24,9 +24,9 @@
     "encrypted": "Dit document lijkt versleuteld te zijn, dus er kan inhoud ontbreken.",
     "sensitivity": "Dit document heeft een vertrouwelijkheidslabel ({label}). Controleer of je het mag converteren en delen.",
     "confidentiality": "Dit document is gemarkeerd als vertrouwelijk ({label}). Controleer of je het mag converteren.",
-    "protected": "Dit document heeft bewerkingsbeperkingen, dus sommige inhoud wordt mogelijk niet goed geconverteerd.",
-    "contentLoss": "Sommige inhoud kon niet worden geconverteerd en is weggelaten, zoals vergelijkingen of niet-ondersteunde objecten.",
-    "contentLossItems": "Sommige inhoud kon niet worden geconverteerd en is weggelaten: {items}.",
+    "protected": "Dit document heeft bewerkingsbeperkingen, dus een deel van de inhoud wordt mogelijk niet goed geconverteerd.",
+    "contentLoss": "Een deel van de inhoud kon niet worden geconverteerd en is weggelaten, zoals vergelijkingen of niet-ondersteunde objecten.",
+    "contentLossItems": "Een deel van de inhoud kon niet worden geconverteerd en is weggelaten: {items}.",
     "contentKinds": {
       "equations": "vergelijkingen",
       "images": "afbeeldingen",
