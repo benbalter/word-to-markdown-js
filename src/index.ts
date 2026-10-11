@@ -106,8 +106,17 @@ async function renderPreview(
 function hideSpacerImages(target: HTMLElement): void {
   for (const image of target.querySelectorAll('img')) {
     const check = (): void => {
-      if (image.naturalWidth <= 1 && image.naturalHeight <= 1) {
-        image.hidden = true;
+      if (image.naturalWidth > 1 || image.naturalHeight > 1) return;
+      image.hidden = true;
+      // An image alone in its paragraph leaves the paragraph's margins
+      // behind as the same blank gap, so hide that too.
+      const parent = image.parentElement;
+      if (
+        parent?.tagName === 'P' &&
+        parent.children.length === 1 &&
+        !parent.textContent?.trim()
+      ) {
+        parent.hidden = true;
       }
     };
     if (image.complete && image.naturalWidth > 0) check();
