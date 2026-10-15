@@ -70,6 +70,9 @@
   "cliHeading": "Prefere a linha de comando?",
   "cliBody": "O Word to Markdown é gratuito e de código aberto. Use-o como ferramenta de linha de comando para conversões automatizadas ou em lote — o mesmo conversor, sem precisar de navegador.",
   "cliCta": "Obter a CLI",
+  "reverseHeading": "Precisa do contrário?",
+  "reverseBody": "Para transformar Markdown em um documento do Word formatado, use o md2word.app. Mesmo criador, mesma promessa: tudo acontece no seu navegador.",
+  "reverseCta": "Converter Markdown em Word",
   "faqHeading": "Perguntas frequentes",
   "faqs": [
     {

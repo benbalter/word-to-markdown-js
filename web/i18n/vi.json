@@ -70,6 +70,9 @@
   "cliHeading": "Thích dùng dòng lệnh hơn?",
   "cliBody": "Word to Markdown là phần mềm miễn phí và mã nguồn mở. Hãy dùng nó như một công cụ dòng lệnh để chuyển đổi theo kịch bản hoặc hàng loạt — vẫn là trình chuyển đổi đó, không cần trình duyệt.",
   "cliCta": "Lấy CLI",
+  "reverseHeading": "Cần chuyển theo chiều ngược lại?",
+  "reverseBody": "Để chuyển Markdown thành tài liệu Word có định dạng, hãy dùng md2word.app. Cùng tác giả, cùng cam kết: mọi thứ diễn ra ngay trong trình duyệt của bạn.",
+  "reverseCta": "Chuyển Markdown sang Word",
   "faqHeading": "Câu hỏi thường gặp",
   "faqs": [
     {

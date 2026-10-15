@@ -70,6 +70,9 @@
   "cliHeading": "コマンドラインを使いますか？",
   "cliBody": "Word to Markdown は無料のオープンソースです。スクリプト実行や一括変換向けにコマンドラインツールとして使えます — 同じコンバーターを、ブラウザなしで利用できます。",
   "cliCta": "CLIを入手",
+  "reverseHeading": "逆方向に変換したいですか？",
+  "reverseBody": "Markdown を書式付きの Word 文書に変換するなら md2word.app をどうぞ。同じ作者、同じ約束：すべてブラウザ内で処理されます。",
+  "reverseCta": "Markdown を Word に変換",
   "faqHeading": "よくある質問",
   "faqs": [
     {

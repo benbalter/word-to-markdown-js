@@ -68,8 +68,11 @@
     "각주"
   ],
   "cliHeading": "명령줄을 선호하시나요?",
-  "cliBody": "Word to Markdown는 무료 오픈 소스입니다. 스크립트 또는 일괄 변환을 위해 명령줄 도구로 실행할 수 있습니다 — 같은 변환기이며, 브라우저는 필요 없습니다.",
+  "cliBody": "Word to Markdown은 무료 오픈 소스입니다. 스크립트 또는 일괄 변환을 위해 명령줄 도구로 실행할 수 있습니다 — 같은 변환기이며, 브라우저는 필요 없습니다.",
   "cliCta": "CLI 받기",
+  "reverseHeading": "반대로 변환하고 싶으신가요?",
+  "reverseBody": "Markdown을 서식이 적용된 Word 문서로 바꾸려면 md2word.app을 사용하세요. 같은 제작자, 같은 약속: 모든 작업이 브라우저에서 이루어집니다.",
+  "reverseCta": "Markdown을 Word로 변환",
   "faqHeading": "자주 묻는 질문",
   "faqs": [
     {
@@ -77,7 +80,7 @@
       "a": ".docx 파일을 페이지에 끌어다 놓으세요(또는 클릭해서 찾아보세요). Word to Markdown이 브라우저에서 변환하고 즉시 Markdown을 보여줍니다 — 복사하거나 .md 파일로 다운로드할 수 있습니다."
     },
     {
-      "q": "Word to Markdown는 무료인가요?",
+      "q": "Word to Markdown은 무료인가요?",
       "a": "네. 완전히 무료인 오픈 소스입니다. 가입도, 광고도 없고, 변환할 수 있는 문서 수에도 제한이 없습니다."
     },
     {
@@ -90,7 +93,7 @@
     },
     {
       "q": ".doc 파일도 Markdown으로 변환할 수 있나요?",
-      "a": "Word to Markdown는 최신 .docx 파일을 읽습니다. 오래된 .doc 파일이 있다면 Word에서 열고 .docx로 저장한 뒤(File → Save As → Word Document .docx), 그 .docx를 끌어다 놓으세요."
+      "a": "Word to Markdown은 최신 .docx 파일을 읽습니다. 오래된 .doc 파일이 있다면 Word에서 열고 .docx로 저장한 뒤(File → Save As → Word Document .docx), 그 .docx를 끌어다 놓으세요."
     },
     {
       "q": "어떤 서식이 유지되나요?",
@@ -98,7 +101,7 @@
     },
     {
       "q": "Pandoc과는 어떻게 다른가요?",
-      "a": "Pandoc은 강력한 명령줄 변환기이지만 먼저 설치하고 설정해야 합니다. Word to Markdown는 설치 없이 브라우저에서 즉시 실행됩니다 — .docx만 끌어다 놓으면 됩니다. 스크립트 또는 일괄 작업용 명령줄 버전도 제공됩니다."
+      "a": "Pandoc은 강력한 명령줄 변환기이지만 먼저 설치하고 설정해야 합니다. Word to Markdown은 설치 없이 브라우저에서 즉시 실행됩니다 — .docx만 끌어다 놓으면 됩니다. 스크립트 또는 일괄 작업용 명령줄 버전도 제공됩니다."
     },
     {
       "q": "이걸 ChatGPT, Claude 또는 다른 AI 도구용 문서 준비에 사용할 수 있나요?",

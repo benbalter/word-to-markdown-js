@@ -70,6 +70,9 @@
   "cliHeading": "Lieber die Kommandozeile?",
   "cliBody": "Word to Markdown ist kostenlos und quelloffen. Nutzen Sie es als Kommandozeilen-Tool für skriptgesteuerte oder Stapel-Konvertierungen – derselbe Konverter, ganz ohne Browser.",
   "cliCta": "Zur CLI",
+  "reverseHeading": "Andersherum?",
+  "reverseBody": "Um Markdown in ein formatiertes Word-Dokument umzuwandeln, nutzen Sie md2word.app. Vom selben Entwickler, mit demselben Versprechen: Alles geschieht in Ihrem Browser.",
+  "reverseCta": "Markdown in Word umwandeln",
   "faqHeading": "Häufig gestellte Fragen",
   "faqs": [
     {

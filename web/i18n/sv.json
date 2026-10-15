@@ -70,6 +70,9 @@
   "cliHeading": "Föredrar du kommandoraden?",
   "cliBody": "Word to Markdown är gratis och har öppen källkod. Kör det som ett kommandoradsverktyg för skriptade eller batchvisa konverteringar — samma konverterare, ingen webbläsare behövs.",
   "cliCta": "Hämta CLI",
+  "reverseHeading": "Åt andra hållet?",
+  "reverseBody": "Vill du göra om Markdown till ett formaterat Word-dokument? Använd md2word.app. Samma skapare, samma löfte: allt sker i din webbläsare.",
+  "reverseCta": "Konvertera Markdown till Word",
   "faqHeading": "Vanliga frågor",
   "faqs": [
     {

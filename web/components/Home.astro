@@ -11,7 +11,7 @@ import Converter from './home/Converter.astro';
 import Promo from './home/Promo.astro';
 import HowItWorks from './home/HowItWorks.astro';
 import ConversionTable from './home/ConversionTable.astro';
-import CliCallout from './home/CliCallout.astro';
+import Callout from './home/Callout.astro';
 import Faq from './home/Faq.astro';
 import LanguageSuggestion from './home/LanguageSuggestion.astro';
 
@@ -75,7 +75,18 @@ const structuredData = {
     <HowItWorks />
     <Promo />
     <ConversionTable />
-    <CliCallout />
+    <Callout
+      heading={t.reverseHeading}
+      body={t.reverseBody}
+      cta={t.reverseCta}
+      href="https://md2word.app/?utm_source=word2md&utm_medium=referral&utm_campaign=reverse"
+    />
+    <Callout
+      heading={t.cliHeading}
+      body={t.cliBody}
+      cta={t.cliCta}
+      href="https://github.com/benbalter/word-to-markdown-js#command-line"
+    />
     <Faq />
   </div>
   {locale === defaultLocale && <LanguageSuggestion />}

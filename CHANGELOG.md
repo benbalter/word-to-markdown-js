@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- word2md.com links to its sibling, [md2word.app](https://md2word.app), which converts Markdown to Word: a "Going the other way?" card on the home page and a footer link.
 - `convertWithWarnings()` now also returns `warningDetails`: one `{ kind, message, detail? }` entry per string in `warnings`, so callers can present or localize warnings without parsing the English text. `kind` is `encrypted`, `sensitivity`, `confidentiality`, `protected`, or `content-loss`. The `warnings` strings are unchanged.
 
 ### Changed
