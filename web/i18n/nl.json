@@ -70,6 +70,9 @@
   "cliHeading": "Liever de command line?",
   "cliBody": "Word to Markdown is gratis en open source. Gebruik het als command-line-tool voor gescripte of batchconversies — dezelfde converter, zonder browser.",
   "cliCta": "Download de CLI",
+  "reverseHeading": "Andersom nodig?",
+  "reverseBody": "Wil je Markdown omzetten naar een opgemaakt Word-document? Gebruik md2word.app. Dezelfde maker, dezelfde belofte: alles gebeurt in je browser.",
+  "reverseCta": "Markdown naar Word converteren",
   "faqHeading": "Veelgestelde vragen",
   "faqs": [
     {

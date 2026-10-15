@@ -70,6 +70,9 @@
   "cliHeading": "Komut satırını mı tercih ediyorsunuz?",
   "cliBody": "Word to Markdown ücretsiz ve açık kaynaklıdır. Betikli veya toplu dönüştürmeler için bunu bir komut satırı aracı olarak çalıştırın — aynı dönüştürücü, tarayıcı gerekmez.",
   "cliCta": "CLI'yi edinin",
+  "reverseHeading": "Tersini mi yapmak istiyorsunuz?",
+  "reverseBody": "Markdown'ı biçimlendirilmiş bir Word belgesine dönüştürmek için md2word.app'i kullanın. Aynı geliştirici, aynı söz: her şey tarayıcınızda gerçekleşir.",
+  "reverseCta": "Markdown'ı Word'e dönüştür",
   "faqHeading": "Sık sorulan sorular",
   "faqs": [
     {

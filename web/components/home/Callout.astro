@@ -1,10 +1,17 @@
 ---
-// Command-line callout: surfaces the open-source CLI for the developer segment.
-// The link targets the README's #command-line anchor — deliberately distinct
-// from the footer's repo-root href so the e2e strict locator stays single-match.
-import { useTranslations } from '../../i18n';
+// A callout card: a heading and a line of copy beside one outbound link.
+// Home.astro uses it for the command-line tool and for md2word.app, the
+// converter that goes the other way. Each link's href must differ from every
+// footer href (a README anchor, a UTM query) so the e2e strict locators stay
+// single-match.
+interface Props {
+  heading: string;
+  body: string;
+  cta: string;
+  href: string;
+}
 
-const t = useTranslations(Astro.currentLocale);
+const { heading, body, cta, href } = Astro.props;
 ---
 
 <section class="mx-auto mt-16 max-w-2xl">
@@ -15,17 +22,17 @@ const t = useTranslations(Astro.currentLocale);
       <h2
         class="font-display text-lg font-medium text-navy dark:text-snow"
       >
-        {t.cliHeading}
+        {heading}
       </h2>
       <p class="mt-1 text-sm leading-relaxed text-navy-soft dark:text-mist">
-        {t.cliBody}
+        {body}
       </p>
     </div>
     <a
-      href="https://github.com/benbalter/word-to-markdown-js#command-line"
+      href={href}
       class="inline-flex shrink-0 items-center gap-2 rounded-lg border border-navy/15 bg-paper-card px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-chartreuse hover:bg-chartreuse/10 dark:border-white/15 dark:bg-ink-card dark:text-snow dark:hover:border-chartreuse"
     >
-      {t.cliCta}
+      {cta}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="15"

@@ -70,6 +70,9 @@
   "cliHeading": "偏好使用命令列？",
   "cliBody": "Word to Markdown 是免費且開放原始碼的工具。你可以把它當作命令列工具執行，用於腳本化或批次轉換——同樣的轉換器，不需要瀏覽器。",
   "cliCta": "取得 CLI",
+  "reverseHeading": "需要反向轉換？",
+  "reverseBody": "要把 Markdown 轉換為排版好的 Word 文件，請使用 md2word.app。同一作者，同樣的承諾：一切都在你的瀏覽器中完成。",
+  "reverseCta": "將 Markdown 轉換為 Word",
   "faqHeading": "常見問題",
   "faqs": [
     {

@@ -70,6 +70,9 @@
   "cliHeading": "Lebih suka baris perintah?",
   "cliBody": "Word to Markdown gratis dan open source. Jalankan sebagai alat baris perintah untuk konversi terotomatisasi atau massal — konverter yang sama, tanpa perlu peramban.",
   "cliCta": "Dapatkan CLI",
+  "reverseHeading": "Perlu arah sebaliknya?",
+  "reverseBody": "Untuk mengubah Markdown menjadi dokumen Word yang terformat, gunakan md2word.app. Pembuat yang sama, janji yang sama: semuanya terjadi di peramban Anda.",
+  "reverseCta": "Ubah Markdown ke Word",
   "faqHeading": "Pertanyaan yang sering diajukan",
   "faqs": [
     {

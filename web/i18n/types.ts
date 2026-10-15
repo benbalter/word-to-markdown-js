@@ -110,6 +110,10 @@ export interface UIStrings {
   cliHeading: string;
   cliBody: string;
   cliCta: string;
+  /** Callout pointing to md2word.app, the Markdown-to-Word sibling. */
+  reverseHeading: string;
+  reverseBody: string;
+  reverseCta: string;
 
   // FAQ
   faqHeading: string;
