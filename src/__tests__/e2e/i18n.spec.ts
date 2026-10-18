@@ -14,7 +14,7 @@ test.describe('Internationalization', () => {
   test('English home advertises a self-referential hreflang cluster', async ({
     page,
   }) => {
-    await page.goto('http://localhost:8080/');
+    await page.goto('/');
 
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
@@ -37,7 +37,7 @@ test.describe('Internationalization', () => {
   test('Indonesian home renders translated content at /id/', async ({
     page,
   }) => {
-    await page.goto('http://localhost:8080/id/');
+    await page.goto('/id/');
 
     await expect(page.locator('html')).toHaveAttribute('lang', 'id');
 
@@ -62,7 +62,7 @@ test.describe('Internationalization', () => {
   });
 
   test('converter works on the Indonesian page', async ({ page }) => {
-    await page.goto('http://localhost:8080/id/');
+    await page.goto('/id/');
 
     await page
       .locator('#file')
@@ -79,7 +79,7 @@ test.describe('Internationalization', () => {
   test("conversion errors are localized, not the library's English", async ({
     page,
   }) => {
-    await page.goto('http://localhost:8080/de/');
+    await page.goto('/de/');
     // A .docx name with non-ZIP bytes: the worker throws InvalidFileError.
     await page.locator('#file').setInputFiles({
       name: 'kaputt.docx',
@@ -96,7 +96,7 @@ test.describe('Internationalization', () => {
   test('password-protected (OLE) files get the localized message', async ({
     page,
   }) => {
-    await page.goto('http://localhost:8080/de/');
+    await page.goto('/de/');
     // The OLE/CFB signature marks encrypted .docx and legacy .doc files; the
     // worker throws UnsupportedFileError for it.
     const ole = Buffer.alloc(512);
@@ -114,7 +114,7 @@ test.describe('Internationalization', () => {
   });
 
   test('footer navs carry localized accessible names', async ({ page }) => {
-    await page.goto('http://localhost:8080/de/');
+    await page.goto('/de/');
     await expect(
       page.locator(`nav[aria-label="${de.footer.languagesLabel}"]`),
     ).toBeVisible();
@@ -124,7 +124,7 @@ test.describe('Internationalization', () => {
   });
 
   test('legal pages carry no hreflang (English-only)', async ({ page }) => {
-    await page.goto('http://localhost:8080/privacy/');
+    await page.goto('/privacy/');
     await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(
       0,
     );
@@ -133,7 +133,7 @@ test.describe('Internationalization', () => {
   test('Vietnamese home renders translated content at /vi/', async ({
     page,
   }) => {
-    await page.goto('http://localhost:8080/vi/');
+    await page.goto('/vi/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'vi');
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       'href',
@@ -143,7 +143,7 @@ test.describe('Internationalization', () => {
   });
 
   test('Arabic home renders right-to-left at /ar/', async ({ page }) => {
-    await page.goto('http://localhost:8080/ar/');
+    await page.goto('/ar/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
     await expect(page.getByText('الأسئلة الشائعة')).toBeVisible();
@@ -156,7 +156,7 @@ test.describe('Internationalization', () => {
   });
 
   test('Traditional Chinese home renders at /zh-hant/', async ({ page }) => {
-    await page.goto('http://localhost:8080/zh-hant/');
+    await page.goto('/zh-hant/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hant');
     await expect(page.locator('html')).not.toHaveAttribute('dir', /.*/);
     await expect(page.getByText('常見問題')).toBeVisible();
@@ -165,7 +165,7 @@ test.describe('Internationalization', () => {
   test('language switcher lists every locale by endonym and marks the current one', async ({
     page,
   }) => {
-    await page.goto('http://localhost:8080/');
+    await page.goto('/');
     const switcher = page.locator('nav[aria-label="Language"]');
     await expect(switcher).toBeVisible();
 
@@ -186,14 +186,14 @@ test.describe('Internationalization', () => {
 
     // Switching navigates to the localized home.
     await switcher.getByRole('link', { name: 'Tiếng Việt' }).click();
-    await expect(page).toHaveURL('http://localhost:8080/vi/');
+    await expect(page).toHaveURL('/vi/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'vi');
   });
 
   test('localized pages advertise their own URL and social card', async ({
     page,
   }) => {
-    await page.goto('http://localhost:8080/de/');
+    await page.goto('/de/');
     await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
       'content',
       'https://word2md.com/og/de.png',
@@ -217,12 +217,12 @@ test.describe('Internationalization', () => {
   }) => {
     // English-only pages (legal, 404) must not pin a first-time visitor to
     // English, or the edge redirect to their language never happens.
-    await page.goto('http://localhost:8080/privacy/');
+    await page.goto('/privacy/');
     expect(
       (await context.cookies()).find((c) => c.name === 'lang'),
     ).toBeUndefined();
 
-    await page.goto('http://localhost:8080/de/');
+    await page.goto('/de/');
     expect(
       (await context.cookies()).find((c) => c.name === 'lang')?.value,
     ).toBe('de');

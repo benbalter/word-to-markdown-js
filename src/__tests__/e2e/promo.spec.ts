@@ -21,7 +21,7 @@ test.describe('Open & Async promo funnel', () => {
   test('shows the sponsor card before conversion, tagged utm_campaign=card', async ({
     page,
   }) => {
-    await page.goto('http://localhost:8080/');
+    await page.goto('/');
 
     const card = page.locator('#promo-card');
     await expect(card).toBeVisible();
@@ -37,7 +37,7 @@ test.describe('Open & Async promo funnel', () => {
   test('hides the card and reveals the results CTA after a conversion', async ({
     page,
   }) => {
-    await page.goto('http://localhost:8080/');
+    await page.goto('/');
     await page.locator('#file').setInputFiles(fixture);
 
     await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
@@ -55,12 +55,12 @@ test.describe('Open & Async promo funnel', () => {
   });
 
   test('localizes the card copy per locale', async ({ page }) => {
-    await page.goto('http://localhost:8080/');
+    await page.goto('/');
     const enLabel = (
       await page.locator('#promo-card .promo-label').textContent()
     )?.trim();
 
-    await page.goto('http://localhost:8080/de/');
+    await page.goto('/de/');
     const deLabel = (
       await page.locator('#promo-card .promo-label').textContent()
     )?.trim();
