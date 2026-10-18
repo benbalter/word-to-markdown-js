@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - word2md.com links to its sibling, [md2word.app](https://md2word.app), which converts Markdown to Word: a "Going the other way?" card on the home page and a footer link.
 - `convertWithWarnings()` now also returns `warningDetails`: one `{ kind, message, detail? }` entry per string in `warnings`, so callers can present or localize warnings without parsing the English text. `kind` is `encrypted`, `sensitivity`, `confidentiality`, `protected`, or `content-loss`. The `warnings` strings are unchanged.
+- `convertHtml(html, options?)` converts an HTML string, such as rich text copied from Word, Google Docs, or a web page, to Markdown with the same cleanup `.docx` conversion gets. It drops Word's clipboard markup (styles, `<o:p>`) and Google Docs' all-bold wrapper.
+- word2md.com: pasting rich text copied from Word, Google Docs, or a web page onto the page converts it, as pasting a `.docx` file already did.
 
 ### Changed
 
@@ -21,6 +23,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - word2md.com: the hero's "Trusted since 2014" now reads "Converting docs since 2014": it states the tool's lineage rather than claiming trust.
 - word2md.com: the Markdown output wraps long lines instead of scrolling sideways, so long lines and inline images are readable and easy to select. (#283) Thanks to [@RegolithIII](https://github.com/RegolithIII) for the suggestion.
 - word2md.com: once a conversion finishes, the page shows only the result: How It Works, the conversion table, the command-line callout, and the FAQ step aside until you choose "Convert another file". The German page now addresses you formally ("Sie") throughout, the Indonesian page says "berkas" for "file" throughout, and the German, Indonesian, and Vietnamese search descriptions say again that nothing is uploaded.
+
+### Fixed
+
+- word2md.com: a conversion that never finishes (for example, the browser runs out of memory converting a huge document) now ends with an error after a few minutes instead of spinning forever.
 
 ## [0.5.1] - 2026-09-30
 

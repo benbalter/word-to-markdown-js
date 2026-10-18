@@ -1,4 +1,22 @@
 import type { ExtractedImage, WarningDetail } from './main.js';
+// Named imports, so the bundle keeps only these of en.json's strings.
+import {
+  errorGeneric,
+  docFileError,
+  invalidFileError,
+  notWordFileError,
+  protectedFileError,
+  copyFailed,
+  dismiss,
+  copiedButton,
+  downloadedButton,
+  downloadedZipButton,
+  fileTooLargeError,
+  conversionAnnouncement,
+  convertingStatus,
+  onlyFirstFile,
+  warnings,
+} from '../web/i18n/en.json';
 
 // Upper bound on the file we'll attempt to read into memory and convert
 // client-side. Comfortably above any real Word document; guards against a
@@ -136,12 +154,21 @@ interface ConversionResult {
 
 // How long a conversion waits for the worker to signal it has loaded before
 // giving up and converting on the main thread instead. Only guards a
-// broken/hung worker load, not the conversion itself (which is unbounded — it
-// runs off-thread). The clock starts when a conversion is requested, not when
+// broken/hung worker load, not the conversion itself (see
+// conversionTimeout). The clock starts when a conversion is requested, not when
 // the worker is prefetched, and is generous because the worker downloads the
 // same heavy deps the fallback would: on a slow link, falling back only adds a
 // second download.
 const WORKER_READY_TIMEOUT = 15000;
+
+// How long the worker gets to convert one input before we give up on it. A
+// worker that runs out of memory can die without firing onerror, which would
+// otherwise leave the page spinning forever. Real documents convert in
+// seconds; this allows minutes, scaled by size (30 s + 15 s per MB, so about
+// 5.5 minutes for a 20 MB file).
+function conversionTimeout(bytes: number): number {
+  return 30000 + (bytes / (1024 * 1024)) * 15000;
+}
 
 let converterWorker: Worker | null = null;
 let workerReady: Promise<void> | null = null;
@@ -158,16 +185,29 @@ const pendingConversions = new Map<
 // thread) from a genuine conversion error (→ surface it to the user).
 class WorkerInfraError extends Error {}
 
-// Reject and clear all in-flight conversions, then stop and drop the worker so
-// the next attempt uses the main-thread fallback.
-function failWorker(reason: string): void {
+// A conversion that outlived conversionTimeout. Not a WorkerInfraError: the
+// same input would likely hang or exhaust memory on the main thread too, so
+// it's surfaced (as the generic error) rather than retried there.
+class ConversionTimeoutError extends Error {
+  name = 'ConversionTimeoutError';
+}
+
+// Reject and clear all in-flight conversions with `error`, then stop and drop
+// the worker. The next conversion starts a fresh one.
+function resetWorker(error: Error): void {
   for (const [id, pending] of pendingConversions) {
     pendingConversions.delete(id);
-    pending.reject(new WorkerInfraError(reason));
+    pending.reject(error);
   }
   converterWorker?.terminate();
   converterWorker = null;
   workerReady = null;
+}
+
+// Like resetWorker, but for a worker that can't work at all: later attempts
+// go straight to the main-thread fallback.
+function failWorker(reason: string): void {
+  resetWorker(new WorkerInfraError(reason));
   workerUnavailable = true;
 }
 
@@ -195,6 +235,11 @@ function getConverterWorker(): Worker {
       reject(new WorkerInfraError('conversion worker failed'));
       failWorker('conversion worker failed');
     };
+    // A reply that can't be deserialized never reaches onmessage, so its
+    // conversion would wait forever.
+    worker.onmessageerror = (): void => {
+      failWorker('conversion worker reply was unreadable');
+    };
   });
   // A rejected readiness promise is handled by whoever awaits it in
   // convertBuffer; attach a no-op catch so it isn't an unhandled rejection.
@@ -219,41 +264,73 @@ function waitForWorker(): Promise<void> {
   );
 }
 
+// What the worker converts: a .docx's bytes (see src/converter.worker.ts), or
+// pasted HTML.
+type WorkerRequest =
+  { buffer: ArrayBuffer; extract: boolean } | { html: string };
+
 function convertViaWorker(
-  buffer: ArrayBuffer,
-  extract = false,
+  request: WorkerRequest,
+  size: number,
 ): Promise<ConversionResult> {
   const worker = getConverterWorker();
   const id = ++workerMessageId;
+  let timer: number | undefined;
   return new Promise<ConversionResult>((resolve, reject) => {
     pendingConversions.set(id, { resolve, reject });
+    timer = window.setTimeout(() => {
+      resetWorker(new ConversionTimeoutError('conversion timed out'));
+    }, conversionTimeout(size));
     // Structured-clone (don't transfer) the buffer so it stays valid for a
     // main-thread fallback if the worker turns out to be unavailable.
-    worker.postMessage({ id, buffer, extract });
-  });
+    worker.postMessage({ id, ...request });
+  }).finally(() => window.clearTimeout(timer));
 }
 
-// Convert an ArrayBuffer to Markdown, off the main thread when possible, with a
-// transparent main-thread fallback (older browsers, or a worker that never
-// loads or hangs). A genuine conversion error propagates; only infrastructure
-// failures fall back.
-async function convertBuffer(
-  buffer: ArrayBuffer,
-  extract = false,
+// Convert in the worker when possible, with a transparent main-thread fallback
+// (older browsers, or a worker that never loads). A genuine conversion error,
+// or a timeout, propagates; only infrastructure failures fall back.
+async function convertWithFallback(
+  request: WorkerRequest,
+  size: number,
+  onMainThread: (main: typeof import('./main.js')) => Promise<ConversionResult>,
 ): Promise<ConversionResult> {
   if (typeof Worker !== 'undefined' && !workerUnavailable) {
     try {
       getConverterWorker();
       await waitForWorker(); // rejects (WorkerInfraError) on timeout/failure
-      return await convertViaWorker(buffer, extract);
+      return await convertViaWorker(request, size);
     } catch (error) {
       if (!(error instanceof WorkerInfraError)) throw error;
     }
   }
-  const { convertWithWarnings } = await import('./main.js');
-  return convertWithWarnings(
-    buffer,
-    extract ? { images: 'extract' } : undefined,
+  return onMainThread(await import('./main.js'));
+}
+
+// Convert a .docx's bytes to Markdown.
+function convertBuffer(
+  buffer: ArrayBuffer,
+  extract = false,
+): Promise<ConversionResult> {
+  return convertWithFallback(
+    { buffer, extract },
+    buffer.byteLength,
+    ({ convertWithWarnings }) =>
+      convertWithWarnings(buffer, extract ? { images: 'extract' } : undefined),
+  );
+}
+
+// Convert pasted HTML to Markdown. There's no document to inspect, so no
+// warnings.
+function convertPastedHtml(html: string): Promise<ConversionResult> {
+  return convertWithFallback(
+    { html },
+    html.length,
+    async ({ convertHtml }) => ({
+      markdown: await convertHtml(html),
+      warnings: [],
+      warningDetails: [],
+    }),
   );
 }
 
@@ -270,15 +347,9 @@ function isLegacyDocFile(name: string): boolean {
 // so map the actionable ones to localized strings by name; anything else
 // (including ConversionError, a generic "try again") gets the generic message.
 const CONVERSION_ERROR_STRINGS = {
-  InvalidFileError: [
-    'invalidFileError',
-    "This file couldn't be read as a Word document. It may be damaged or not a .docx file. Try opening it in Word and saving it again as .docx.",
-  ],
-  UnsupportedFileError: [
-    'protectedFileError',
-    'This document is password-protected or is an older .doc file. In Word, remove the password or save it as a .docx, then try again.',
-  ],
-} as const satisfies Record<string, readonly [UIStringKey, string]>;
+  InvalidFileError: 'invalidFileError',
+  UnsupportedFileError: 'protectedFileError',
+} as const satisfies Record<string, UIStringKey>;
 
 // `note` is appended to the message (e.g. the "only the first file" notice,
 // which would otherwise be lost when the conversion fails). `fileName`, when
@@ -297,34 +368,16 @@ function showConversionError(
     !/\.docx?$/i.test(fileName) &&
     (name === 'InvalidFileError' || name === 'UnsupportedFileError')
   ) {
-    showError(
-      withNote(
-        uiString(
-          'notWordFileError',
-          "This isn't a Word document, so it can't be converted. Choose a .docx file instead.",
-        ),
-        note,
-      ),
-      fileName,
-    );
+    showError(withNote(uiString('notWordFileError'), note), fileName);
     return;
   }
   if (name && Object.hasOwn(CONVERSION_ERROR_STRINGS, name)) {
-    const [key, fallback] =
+    const key =
       CONVERSION_ERROR_STRINGS[name as keyof typeof CONVERSION_ERROR_STRINGS];
-    showError(withNote(uiString(key, fallback), note), fileName);
+    showError(withNote(uiString(key), note), fileName);
     return;
   }
-  showError(
-    withNote(
-      uiString(
-        'errorGeneric',
-        'An unexpected error occurred while converting the document. Please try again.',
-      ),
-      note,
-    ),
-    fileName,
-  );
+  showError(withNote(uiString('errorGeneric'), note), fileName);
   console.error(error);
 }
 
@@ -374,12 +427,7 @@ function copyMarkdown(): void {
     // Clipboard access can be denied (permissions policy, insecure context,
     // older browsers). Say so instead of failing silently; the alert's
     // role="alert" announces it.
-    showError(
-      uiString(
-        'copyFailed',
-        "Couldn't copy automatically. Select the Markdown and copy it with Ctrl+C (⌘C on a Mac).",
-      ),
-    );
+    showError(uiString('copyFailed'));
   };
   // navigator.clipboard is undefined outside secure contexts.
   if (typeof navigator.clipboard?.writeText !== 'function') {
@@ -391,7 +439,7 @@ function copyMarkdown(): void {
     if (!copyLabel) return;
     // Flip the label to a transient confirmation, then restore it. Guard the
     // captured default against rapid re-clicks by resetting the timer.
-    copyLabel.textContent = uiString('copied', 'Copied!');
+    copyLabel.textContent = uiString('copied');
     announce(copyLabel.textContent);
     const copyButton = document.getElementById('copy-button');
     copyButton?.classList.add('is-confirmed');
@@ -458,13 +506,7 @@ async function processFile(
     inputRegion?.removeAttribute('aria-busy');
     dropzone?.classList.remove('is-converting');
   };
-  const ignoredNote =
-    ignoredFiles > 0
-      ? uiString(
-          'onlyFirstFile',
-          'Only the first file was converted. Add the others one at a time.',
-        )
-      : '';
+  const ignoredNote = ignoredFiles > 0 ? uiString('onlyFirstFile') : '';
 
   // Reject legacy .doc files up front with the friendlier localized "save as
   // .docx" guidance. Done here (not in the worker) since only the main thread
@@ -473,15 +515,9 @@ async function processFile(
   // reading a huge ArrayBuffer and running the pipeline can exhaust memory or
   // hang the tab, so fail fast with friendly guidance instead.
   const rejection = isLegacyDocFile(file.name)
-    ? uiString(
-        'docFileError',
-        'This tool reads modern .docx files, not older .doc files. In Word, open your document and choose File → Save As → Word Document (.docx), then drop the .docx here.',
-      )
+    ? uiString('docFileError')
     : file.size > MAX_FILE_SIZE
-      ? uiString(
-          'fileTooLarge',
-          'This file is too large to convert in your browser. Please try a .docx smaller than 20 MB.',
-        )
+      ? uiString('fileTooLarge')
       : null;
   if (rejection) {
     // A rejected file still supersedes a conversion in flight: otherwise that
@@ -494,6 +530,53 @@ async function processFile(
     showError(withNote(rejection, ignoredNote), file.name);
     return;
   }
+
+  await runConversion(file.name, ignoredNote, async () => {
+    const buffer = await file.arrayBuffer();
+    return { buffer, result: await convertBuffer(buffer) };
+  });
+}
+
+// Convert HTML pasted onto the page (copied from Word, Google Docs, or a web
+// page). The result is named like a file so the downloads have a name.
+function processPastedHtml(html: string): void {
+  prefetchConverter();
+  void runConversion(PASTED_NAME, '', async () => ({
+    buffer: null,
+    result: await convertPastedHtml(html),
+  }));
+}
+
+const PASTED_NAME = 'pasted.md';
+
+// A paste into a text field belongs to the field, not the converter.
+function isEditable(target: EventTarget | null): boolean {
+  return (
+    target instanceof HTMLElement &&
+    (target.isContentEditable ||
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement)
+  );
+}
+
+// Run a conversion and show its result, shared by files and pasted HTML.
+// `fileName` is shown with the result; `buffer`, a .docx's bytes, is kept for
+// "Download .zip" (null for pasted HTML, which has no file to re-convert).
+async function runConversion(
+  fileName: string,
+  ignoredNote: string,
+  convert: () => Promise<{
+    buffer: ArrayBuffer | null;
+    result: ConversionResult;
+  }>,
+): Promise<void> {
+  const inputRegion = document.getElementById('input');
+  const dropzone = document.getElementById('dropzone');
+  const srStatus = document.getElementById('sr-status');
+  const endBusy = (): void => {
+    inputRegion?.removeAttribute('aria-busy');
+    dropzone?.classList.remove('is-converting');
+  };
 
   // Only the most recent file wins: a result (or error) from a conversion that
   // was superseded by a newer drop is discarded.
@@ -508,11 +591,10 @@ async function processFile(
   inputRegion?.setAttribute('aria-busy', 'true');
   dropzone?.classList.add('is-converting');
   if (srStatus) {
-    srStatus.textContent = uiString('converting', 'Converting…');
+    srStatus.textContent = uiString('converting');
   }
   try {
-    const buffer = await file.arrayBuffer();
-    const result = await convertBuffer(buffer);
+    const { buffer, result } = await convert();
     if (token !== activeConversion) return;
     endBusy();
 
@@ -538,13 +620,13 @@ async function processFile(
     if (renderedElement) renderedElement.innerHTML = '';
 
     const filenameElement = document.getElementById('filename');
-    filenameElement.textContent = file.name;
+    filenameElement.textContent = fileName;
 
     // Retain the source bytes and offer "Download .zip" only when the document
     // actually has images (inline mode embeds them as base64 data URIs). Match
     // Markdown image syntax, not a bare "data:image" that could be document text.
     lastConvertedBuffer = buffer;
-    setImageMode(INLINE_IMAGE.test(result.markdown));
+    setImageMode(buffer !== null && INLINE_IMAGE.test(result.markdown));
 
     const inputElement = document.getElementById('input');
     inputElement.classList.add('hidden');
@@ -562,12 +644,7 @@ async function processFile(
     // Announce success to assistive tech (the results reveal is otherwise
     // silent) and move focus to the first result action so keyboard users
     // aren't stranded on the now-hidden file input.
-    announce(
-      uiString(
-        'conversionAnnouncement',
-        'Conversion complete. Your Markdown is ready.',
-      ),
-    );
+    announce(uiString('conversionAnnouncement'));
     // Bring the result into view: it lands where the dropzone was, below the
     // hero, which on a phone leaves it entirely off screen. Scroll first, then
     // focus without scrolling so the two don't fight. Both APIs are optional
@@ -595,7 +672,12 @@ async function processFile(
     endBusy();
     if (srStatus) srStatus.textContent = '';
     recordConversion('error');
-    showConversionError(error, ignoredNote, file.name);
+    // Pasted HTML has no file for the error to name.
+    showConversionError(
+      error,
+      ignoredNote,
+      fileName === PASTED_NAME ? undefined : fileName,
+    );
   }
 }
 
@@ -640,42 +722,47 @@ function announce(message: string): void {
   if (status) status.textContent = message;
 }
 
-type UIStringKey =
-  | 'errorGeneric'
-  | 'docFileError'
-  | 'invalidFileError'
-  | 'notWordFileError'
-  | 'protectedFileError'
-  | 'copyFailed'
-  | 'dismiss'
-  | 'copied'
-  | 'downloaded'
-  | 'downloadedZip'
-  | 'fileTooLarge'
-  | 'conversionAnnouncement'
-  | 'converting'
-  | 'onlyFirstFile'
-  | 'warningEncrypted'
-  | 'warningSensitivity'
-  | 'warningConfidentiality'
-  | 'warningProtected'
-  | 'warningContentLoss'
-  | 'warningContentLossItems'
-  | 'warningKindEquations'
-  | 'warningKindImages'
-  | 'warningKindSymbols'
-  | 'warningKindObjects'
-  | 'warningKindOther'
-  | 'warningTechnical';
+// English copy, the fallback for each string below. Read from en.json (the
+// source the localized pages render from) so the two can't drift apart.
+const ENGLISH_STRINGS = {
+  errorGeneric,
+  docFileError,
+  invalidFileError,
+  notWordFileError,
+  protectedFileError,
+  copyFailed,
+  dismiss,
+  copied: copiedButton,
+  downloaded: downloadedButton,
+  downloadedZip: downloadedZipButton,
+  fileTooLarge: fileTooLargeError,
+  conversionAnnouncement,
+  converting: convertingStatus,
+  onlyFirstFile,
+  warningEncrypted: warnings.encrypted,
+  warningSensitivity: warnings.sensitivity,
+  warningConfidentiality: warnings.confidentiality,
+  warningProtected: warnings.protected,
+  warningContentLoss: warnings.contentLoss,
+  warningContentLossItems: warnings.contentLossItems,
+  warningKindEquations: warnings.contentKinds.equations,
+  warningKindImages: warnings.contentKinds.images,
+  warningKindSymbols: warnings.contentKinds.symbols,
+  warningKindObjects: warnings.contentKinds.objects,
+  warningKindOther: warnings.contentKinds.other,
+  warningTechnical: warnings.technical,
+} satisfies Record<string, string>;
+
+type UIStringKey = keyof typeof ENGLISH_STRINGS;
 
 // Localized UI strings are rendered into the page as data-* attributes on the
-// #input element (see Home.astro), keeping this module framework- and
+// #input element (see Converter.astro), keeping this module framework- and
 // language-agnostic. Falls back to English when the attribute is absent (e.g.
 // in unit tests that mount a bare DOM).
-function uiString(key: UIStringKey, fallback: string): string {
+function uiString(key: UIStringKey): string {
   const input = document.getElementById('input');
   const value = input?.dataset[key];
-  return value && value.length > 0 ? value : fallback;
+  return value && value.length > 0 ? value : ENGLISH_STRINGS[key];
 }
 
 // Show an error alert. `fileName` names the file it's about, on its own line
@@ -708,7 +795,7 @@ function showError(message: string, fileName?: string): void {
 
     const closeButton = document.createElement('button');
     closeButton.type = 'button';
-    closeButton.setAttribute('aria-label', uiString('dismiss', 'Dismiss'));
+    closeButton.setAttribute('aria-label', uiString('dismiss'));
     closeButton.className =
       '-m-1 shrink-0 p-1 leading-none text-red-700 transition-colors hover:text-red-900 dark:text-red-200 dark:hover:text-red-50';
     closeButton.innerHTML =
@@ -770,36 +857,20 @@ function localizeWarnings(details: readonly WarningDetail[] = []): {
     const label = warning.detail ?? '';
     switch (warning.kind) {
       case 'encrypted':
-        lines.push(
-          uiString(
-            'warningEncrypted',
-            'This document appears to be encrypted, so some content may be missing.',
-          ),
-        );
+        lines.push(uiString('warningEncrypted'));
         break;
       case 'sensitivity':
         lines.push(
-          uiString(
-            'warningSensitivity',
-            "This document has a sensitivity label ({label}). Make sure you're allowed to convert and share it.",
-          ).replace('{label}', () => label),
+          uiString('warningSensitivity').replace('{label}', () => label),
         );
         break;
       case 'confidentiality':
         lines.push(
-          uiString(
-            'warningConfidentiality',
-            "This document is marked confidential ({label}). Make sure you're allowed to convert it.",
-          ).replace('{label}', () => label),
+          uiString('warningConfidentiality').replace('{label}', () => label),
         );
         break;
       case 'protected':
-        lines.push(
-          uiString(
-            'warningProtected',
-            'This document has editing restrictions, so some content may not convert properly.',
-          ),
-        );
+        lines.push(uiString('warningProtected'));
         break;
       case 'content-loss':
         technical.push(label);
@@ -820,15 +891,15 @@ function localizeWarnings(details: readonly WarningDetail[] = []): {
 // the rest, Office Math among them.
 const CONTENT_KINDS = [
   // Office Math: <m:oMath>, <m:oMathPara>.
-  ['equations', /oMath/, 'equations'],
+  ['equations', /oMath/],
   // "Image of type … is unlikely to display", "Could not find image file
   // for a:blip element", an unlinked v:imagedata.
-  ['images', /image|a:blip/i, 'images'],
+  ['images', /image|a:blip/i],
   // <w:sym> with a character mammoth can't map.
-  ['symbols', /\bw:sym\b/, 'special symbols'],
+  ['symbols', /\bw:sym\b/],
   // An element outside Word's own w: namespace: VML shapes, DrawingML text
   // boxes and groups, charts, embedded objects.
-  ['objects', /ignored: (?:\{|(?!w:)[\w-]+:)/, 'embedded objects'],
+  ['objects', /ignored: (?:\{|(?!w:)[\w-]+:)/],
 ] as const;
 
 const KIND_KEYS = {
@@ -843,26 +914,20 @@ function describeContentLoss(details: readonly string[]): string {
   const kinds = new Map<keyof typeof KIND_KEYS, string>();
   for (const detail of details) {
     const match = CONTENT_KINDS.find(([, pattern]) => pattern.test(detail));
-    const [kind, fallback] = match
-      ? [match[0], match[2]]
-      : (['other', 'other elements'] as const);
-    if (!kinds.has(kind)) kinds.set(kind, uiString(KIND_KEYS[kind], fallback));
+    const kind = match ? match[0] : 'other';
+    if (!kinds.has(kind)) kinds.set(kind, uiString(KIND_KEYS[kind]));
   }
   // Only unrecognized elements: nothing specific to name.
   if (kinds.size === 1 && kinds.has('other')) {
-    return uiString(
-      'warningContentLoss',
-      "Some content couldn't be converted and was left out, such as equations or unsupported objects.",
-    );
+    return uiString('warningContentLoss');
   }
   // "Other elements" reads best last.
   const other = kinds.get('other');
   kinds.delete('other');
   const names = [...kinds.values(), ...(other ? [other] : [])];
-  return uiString(
-    'warningContentLossItems',
-    "Some content couldn't be converted and may be missing: {items}.",
-  ).replace('{items}', () => formatList(names));
+  return uiString('warningContentLossItems').replace('{items}', () =>
+    formatList(names),
+  );
 }
 
 // Join names in the page's language ("a, b, and c"; "a、b、c").
@@ -901,7 +966,7 @@ function showWarnings(warnings: string[], technical: string[] = []): void {
 
   const closeButton = document.createElement('button');
   closeButton.type = 'button';
-  closeButton.setAttribute('aria-label', uiString('dismiss', 'Dismiss'));
+  closeButton.setAttribute('aria-label', uiString('dismiss'));
   closeButton.className =
     '-m-1 shrink-0 p-1 leading-none text-amber-800 transition-colors hover:text-amber-950 dark:text-amber-200 dark:hover:text-amber-50';
   closeButton.innerHTML =
@@ -917,7 +982,7 @@ function showWarnings(warnings: string[], technical: string[] = []): void {
     const summary = document.createElement('summary');
     summary.className =
       'cursor-pointer text-xs font-medium underline decoration-amber-400 underline-offset-2';
-    summary.textContent = uiString('warningTechnical', 'Technical details');
+    summary.textContent = uiString('warningTechnical');
     const technicalList = document.createElement('ul');
     technicalList.className =
       'mt-1.5 space-y-0.5 font-mono text-[0.72rem] break-words';
@@ -1037,7 +1102,8 @@ function saveBlob(blob: Blob, filename: string): void {
 function downloadBaseName(): string {
   const sourceName =
     document.getElementById('filename')?.textContent ?? 'document';
-  return sourceName.replace(/\.docx$/i, '') || 'document';
+  // .md too: pasted HTML is shown as PASTED_NAME.
+  return sourceName.replace(/\.(?:docx|md)$/i, '') || 'document';
 }
 
 // Download the converted Markdown as a .md file named after the source document.
@@ -1053,7 +1119,7 @@ function downloadMarkdown(): void {
   // Briefly confirm the download on the button label.
   const label = document.getElementById('download-label');
   if (label) {
-    label.textContent = uiString('downloaded', 'Downloaded');
+    label.textContent = uiString('downloaded');
     announce(label.textContent);
     const downloadButton = document.getElementById('download-button');
     downloadButton?.classList.add('is-confirmed');
@@ -1079,7 +1145,7 @@ async function downloadZip(): Promise<void> {
   zipInProgress = true;
   button?.setAttribute('aria-disabled', 'true');
   button?.setAttribute('aria-busy', 'true');
-  announce(uiString('converting', 'Converting…'));
+  announce(uiString('converting'));
   try {
     const [{ default: JSZip }, result] = await Promise.all([
       import('jszip'),
@@ -1094,7 +1160,7 @@ async function downloadZip(): Promise<void> {
     saveBlob(await zip.generateAsync({ type: 'blob' }), `${baseName}.zip`);
 
     if (label) {
-      label.textContent = uiString('downloadedZip', 'Downloaded');
+      label.textContent = uiString('downloadedZip');
       announce(label.textContent);
       button?.classList.add('is-confirmed');
       window.clearTimeout(downloadZipResetTimer);
@@ -1129,13 +1195,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // Pasting a copied .docx (e.g. from Finder or Explorer) converts it. Only
   // Word files count: copying from Word or Excel often puts an image rendition
   // on the clipboard too, and plain-text pastes carry no files at all.
+  // Without a .docx, pasted rich text (copied from Word, Google Docs, or a web
+  // page arrives as text/html) converts too. Plain text has no structure to
+  // convert, so it's left alone.
   document.addEventListener('paste', (event: ClipboardEvent) => {
     const files = Array.from(event.clipboardData?.files ?? []).filter((file) =>
       /\.docx?$/i.test(file.name),
     );
-    if (files.length === 0) return;
+    if (files.length > 0) {
+      event.preventDefault();
+      processFiles(files);
+      return;
+    }
+    const html = event.clipboardData?.getData('text/html') ?? '';
+    if (!html.trim() || isEditable(event.target)) return;
     event.preventDefault();
-    processFiles(files);
+    processPastedHtml(html);
   });
 
   const dropzone = document.getElementById('dropzone');

@@ -511,14 +511,15 @@ test.describe('Word to Markdown Web Interface', () => {
     await expect(page.locator('#output')).toContainText('# Heading 1');
   });
 
-  test('ignores a pasted image (Office puts one on the clipboard)', async ({
-    page,
-  }) => {
+  test('converts rich text pasted onto the page', async ({ page }) => {
     await page.evaluate(() => {
       const data = new DataTransfer();
-      data.items.add(
-        new File([new Uint8Array([137, 80, 78, 71])], 'image.png'),
+      // What copying from Google Docs puts on the clipboard, abridged.
+      data.setData(
+        'text/html',
+        '<meta charset="utf-8"><b style="font-weight:normal;" id="docs-internal-guid-1"><h1>Pasted heading</h1><ul><li><p>one</p></li><li><p>two</p></li></ul></b>',
       );
+      data.setData('text/plain', 'Pasted heading\none\ntwo');
       document.body.dispatchEvent(
         new ClipboardEvent('paste', {
           bubbles: true,
@@ -527,7 +528,37 @@ test.describe('Word to Markdown Web Interface', () => {
         }),
       );
     });
-    await page.waitForTimeout(500);
+    await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('#filename')).toHaveText('pasted.md');
+    await expect(page.locator('#output')).toHaveText(
+      '# Pasted heading\n\n- one\n- two',
+    );
+    await expect(page.locator('#download-zip-button')).toBeHidden();
+  });
+
+  test('ignores a pasted image (Office puts one on the clipboard)', async ({
+    page,
+  }) => {
+    // A paste the converter takes is cancelled and marks the input busy in the
+    // same task, so check both right after dispatching: no fixed wait needed.
+    const outcome = await page.evaluate(() => {
+      const data = new DataTransfer();
+      data.items.add(
+        new File([new Uint8Array([137, 80, 78, 71])], 'image.png'),
+      );
+      const notCancelled = document.body.dispatchEvent(
+        new ClipboardEvent('paste', {
+          bubbles: true,
+          cancelable: true,
+          clipboardData: data,
+        }),
+      );
+      return {
+        notCancelled,
+        busy: document.getElementById('input')!.hasAttribute('aria-busy'),
+      };
+    });
+    expect(outcome).toEqual({ notCancelled: true, busy: false });
     await expect(page.locator('#error-alert')).toHaveCount(0);
     await expect(page.locator('#input')).toBeVisible();
   });
@@ -600,7 +631,23 @@ test.describe('Word to Markdown Web Interface', () => {
   }) => {
     // Drop a real document, then a .doc before the first conversion finishes.
     // The .doc's error must stay put rather than be swept away when the
-    // earlier result would have landed.
+    // earlier result would have landed. Count the worker's replies (installed
+    // before the worker exists, hence the fresh load) so the test can wait for
+    // that result rather than sleep.
+    await page.addInitScript(() => {
+      const tapped = window as unknown as { __workerReplies: number };
+      tapped.__workerReplies = 0;
+      const OriginalWorker = window.Worker;
+      window.Worker = class extends OriginalWorker {
+        constructor(scriptURL: string | URL, options?: WorkerOptions) {
+          super(scriptURL, options);
+          this.addEventListener('message', (event: MessageEvent) => {
+            if (event.data?.id != null) tapped.__workerReplies++;
+          });
+        }
+      } as typeof Worker;
+    });
+    await page.goto('http://localhost:8080');
     await page.evaluate(
       ({ base64 }) => {
         const drop = (file: File): void => {
@@ -622,8 +669,11 @@ test.describe('Word to Markdown Web Interface', () => {
     );
 
     await expect(page.locator('#error-message')).toContainText('.doc');
-    // Give the superseded conversion time to finish; its result is discarded.
-    await page.waitForTimeout(1500);
+    // Wait for the superseded conversion to finish; its result is discarded.
+    await page.waitForFunction(
+      () =>
+        (window as unknown as { __workerReplies: number }).__workerReplies > 0,
+    );
     await expect(page.locator('#error-alert')).toBeVisible();
     await expect(page.locator('#results')).not.toBeVisible();
     await expect(page.locator('#input')).not.toHaveAttribute('aria-busy');
@@ -817,6 +867,52 @@ test.describe('Word to Markdown Web Interface', () => {
       timeout: 20000,
     });
     expect(mainThreadChunks).toEqual([]);
+  });
+
+  test('gives up on a conversion the worker never answers', async ({
+    page,
+  }) => {
+    // A worker that dies mid-conversion (out of memory, say) may fire no
+    // event at all. Stand in for one by swallowing conversion requests, then
+    // fast-forward past the conversion timeout.
+    await page.clock.install();
+    await page.addInitScript(() => {
+      const tapped = window as unknown as { __swallowed: number };
+      tapped.__swallowed = 0;
+      const OriginalWorker = window.Worker;
+      window.Worker = class extends OriginalWorker {
+        postMessage(message: unknown, ...rest: unknown[]): void {
+          if ((message as { id?: number })?.id != null) {
+            tapped.__swallowed++;
+            return;
+          }
+          (super.postMessage as (...args: unknown[]) => void)(message, ...rest);
+        }
+      } as typeof Worker;
+    });
+    await page.goto('/');
+
+    await page.locator('#file').setInputFiles(fixture('h1.docx'));
+    // The timeout starts once the request is sent, after the worker loads.
+    await page.waitForFunction(
+      () => (window as unknown as { __swallowed: number }).__swallowed > 0,
+    );
+    await expect(page.locator('#input')).toHaveAttribute('aria-busy', 'true');
+    await page.clock.fastForward('05:00');
+    await expect(page.locator('#error-message')).toContainText(
+      'An unexpected error occurred',
+    );
+    await expect(page.locator('#input')).not.toHaveAttribute('aria-busy');
+
+    // The hung worker is replaced, not written off: with requests flowing
+    // again, the next file converts in a fresh one.
+    await page.evaluate(() => {
+      window.Worker = Object.getPrototypeOf(window.Worker);
+    });
+    await page.locator('#file').setInputFiles(fixture('h1.docx'));
+    await expect(page.locator('#output')).toContainText('# Heading 1', {
+      timeout: 10000,
+    });
   });
 
   test('should have working navigation links', async ({ page }) => {
