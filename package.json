@@ -69,7 +69,7 @@
     "build:site": "astro check --minimumSeverity error && astro build",
     "preview": "astro preview",
     "lint": "eslint . && prettier --check .",
-    "typecheck": "tsc -p tsconfig.test.json",
+    "typecheck": "tsc -p tsconfig.test.json && tsc -p tsconfig.browser.json",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",

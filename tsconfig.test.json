@@ -5,6 +5,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": true,
+    // Resolve like a bundler: converter-ui.test.ts imports the browser UI
+    // modules, whose named imports from en.json Node16 resolution rejects.
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     // Type the tests' imports of worker/index.js (inferred; not checked).
     "allowJs": true,
@@ -15,6 +19,7 @@
   "include": ["src/**/*.ts"],
   "exclude": [
     "src/index.ts",
+    "src/worker-client.ts",
     "src/converter.worker.ts",
     "src/worker-dom-polyfill.ts"
   ]

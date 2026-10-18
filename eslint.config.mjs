@@ -68,9 +68,10 @@ export default tseslint.config(
     },
   },
 
-  // The browser converter entry point uses DOM/Web APIs.
+  // The browser converter (entry point, worker client, and UI modules) uses
+  // DOM/Web APIs.
   {
-    files: ['src/index.ts'],
+    files: ['src/index.ts', 'src/worker-client.ts', 'web/scripts/**/*.ts'],
     languageOptions: {
       globals: { ...globals.browser },
     },

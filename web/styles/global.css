@@ -349,7 +349,8 @@
   }
 
   /* Result actions. One filled accent for the next action, the rest quiet
-     (DESIGN.md, Buttons). src/index.ts swaps btn-accent and btn-secondary
+     (DESIGN.md, Buttons). setImageMode() in web/scripts/converter/dom.ts
+     swaps btn-accent and btn-secondary
      between Copy and Download .zip when a document has images, so both looks
      live here rather than as duplicated utility lists. 44px tall: they're
      the touch targets of the results screen. */
@@ -364,7 +365,8 @@
   }
 
   /* Copy and Download confirm with a drawn check for as long as their label
-     reads "Copied!" / "Downloaded" (src/index.ts toggles `.is-confirmed`). */
+     reads "Copied!" / "Downloaded" (flashConfirmed() in
+     web/scripts/converter/dom.ts toggles `.is-confirmed`). */
   .confirmable .confirm-icon,
   .confirmable.is-confirmed .idle-icon {
     display: none;

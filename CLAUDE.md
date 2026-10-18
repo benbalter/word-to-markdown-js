@@ -13,7 +13,7 @@ npm run preview      # Preview the production site build
 npm test             # Jest unit/integration tests with coverage
 npm run test:e2e     # Playwright end-to-end tests (serves dist/; run `npm run build` first)
 npm run lint         # eslint + prettier --check
-npm run typecheck    # tsc over the tests (tsconfig.test.json; ts-jest only transpiles)
+npm run typecheck    # tsc over the tests (tsconfig.test.json; ts-jest only transpiles) and the browser code (tsconfig.browser.json)
 npm run knip         # unused files, exports, and dependencies
 npm run fix          # eslint --fix + prettier --write
 npm run all          # fix + typecheck + test + build (quick loop; not everything CI runs)
@@ -30,7 +30,7 @@ Node 24.21.0 is pinned (`.nvmrc`, `.tool-versions`, Volta). The `--experimental-
 
 One repo produces **three artifacts** from two source directories, and the two directories are owned by two different build tools that must never collide:
 
-- **`src/`** — owned exclusively by `tsc`. Compiles to `build/` (the Node library `build/main.js` and the CLI `build/cli.js`, installed as `w2m` / `word-to-markdown`). `src/index.ts` is the _browser_ entry and is **excluded from tsc** (see `tsconfig.json`) because Astro/Vite bundles it instead; `astro check` type-checks it.
+- **`src/`** — owned exclusively by `tsc`. Compiles to `build/` (the Node library `build/main.js` and the CLI `build/cli.js`, installed as `w2m` / `word-to-markdown`). `src/index.ts` is the _browser_ entry and, with `src/worker-client.ts` and the worker files, is **excluded from tsc** (see `tsconfig.json`) because Astro/Vite bundles it instead. `astro check` doesn't reach `.ts` modules, so `npm run typecheck` checks the browser code through `tsconfig.browser.json`.
 - **`web/`** — owned exclusively by Astro (`srcDir: ./web`). Builds the static site to `dist/`. Astro's `publicDir` is `./public`.
 
 This split is deliberate so the two tool-chains don't fight over the same files. When adding code, put converter/CLI logic in `src/` and site/UI in `web/`.
@@ -49,7 +49,12 @@ The core converter is environment-agnostic (accepts a file path string in Node, 
 
 ### Browser entry (`src/index.ts`)
 
-Privacy is a core constraint: **all conversion happens client-side; nothing is uploaded.** The heavy deps (mammoth, turndown, jszip, unified/remark/rehype, prettier, markdownlint ~400KB gzipped) are **dynamically `import()`ed** on first file use so the landing page paints without them, and speculatively prefetched on user intent / browser idle. Keep these imports lazy.
+Privacy is a core constraint: **all conversion happens client-side; nothing is uploaded.** The heavy deps are **loaded lazily** so the landing page paints without them (its own script is ~8KB gzipped). Keep these imports lazy:
+
+- The converter (mammoth, turndown, jszip, domino, prettier, markdownlint, ~355KB gzipped) runs in a Web Worker (`src/converter.worker.ts`, driven by `src/worker-client.ts`), started on user intent or browser idle. A main-thread copy (`import('./main.js')`) loads only if the worker can't start.
+- The preview renderer (unified/remark/rehype, ~52KB gzipped) runs on the main thread and loads when a conversion starts (`web/scripts/converter/preview.ts`).
+
+`src/index.ts` wires the page's events to the conversion; the UI pieces (alerts, warnings, downloads, preview, strings, analytics) live in `web/scripts/converter/`, Astro-owned like the rest of the site and so outside tsc and the npm package.
 
 ### i18n
 
