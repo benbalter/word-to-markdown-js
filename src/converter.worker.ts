@@ -9,25 +9,41 @@
 // `window.DOMParser` at load and a worker has no `window`. See
 // ./worker-dom-polyfill.ts for why this is a separate module.
 import './worker-dom-polyfill.js';
-import { convertWithWarnings } from './main.js';
+import {
+  convertHtml,
+  convertWithWarnings,
+  type ConvertResult,
+} from './main.js';
 
-interface ConvertRequest {
-  id: number;
-  buffer: ArrayBuffer;
-  // When true, extract images to relative files (returned on result.images)
-  // instead of inlining them as base64. Used by the "Download .zip" action.
-  extract?: boolean;
-}
+type ConvertRequest =
+  | {
+      id: number;
+      buffer: ArrayBuffer;
+      // When true, extract images to relative files (returned on
+      // result.images) instead of inlining them as base64. Used by the
+      // "Download .zip" action.
+      extract?: boolean;
+    }
+  // Pasted HTML (copied from Word, Google Docs, or a web page).
+  | { id: number; html: string };
 
 const ctx = self as unknown as DedicatedWorkerGlobalScope;
 
 ctx.onmessage = async (event: MessageEvent<ConvertRequest>): Promise<void> => {
-  const { id, buffer, extract } = event.data;
+  const request = event.data;
+  const { id } = request;
   try {
-    const result = await convertWithWarnings(
-      buffer,
-      extract ? { images: 'extract' } : undefined,
-    );
+    const result: ConvertResult =
+      'html' in request
+        ? {
+            markdown: await convertHtml(request.html),
+            warnings: [],
+            warningDetails: [],
+          }
+        : await convertWithWarnings(
+            request.buffer,
+            request.extract ? { images: 'extract' } : undefined,
+          );
     // Transfer extracted image bytes rather than copying them to the page. A
     // buffer may appear in a transfer list only once, hence the Set.
     const transfer = [

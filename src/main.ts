@@ -4,7 +4,7 @@ import * as mammoth from 'mammoth';
 import * as markdownlint from 'markdownlint/sync';
 import { applyFixes } from 'markdownlint';
 import GithubSlugger from 'github-slugger';
-import { parse, HTMLElement, TextNode } from 'node-html-parser';
+import { parse, HTMLElement, TextNode, type Node } from 'node-html-parser';
 import * as prettier from 'prettier';
 import * as prettierMarkdown from 'prettier/plugins/markdown';
 import JSZip from 'jszip';
@@ -1287,8 +1287,21 @@ async function runConversionPipeline(
     mammothInput,
     mammothOptions,
   );
+  return {
+    markdown: await htmlPipeline(mammothResult.value, options),
+    messages: mammothResult.messages,
+    images: extractor?.images,
+  };
+}
+
+// Everything after mammoth: HTML fixups, Turndown, then the Markdown cleanup
+// passes. Shared by .docx conversion and convertHtml.
+async function htmlPipeline(
+  html: string,
+  options: ConvertOptions,
+): Promise<string> {
   // Numbered lists stay numbered by default; flatten to bullets on request.
-  const processedHtml = processHtml(mammothResult.value, {
+  const processedHtml = processHtml(html, {
     stripImages: options.images === 'strip',
     bulletLists: options.numberedLists === 'bullets',
   });
@@ -1296,17 +1309,63 @@ async function runConversionPipeline(
   const md = htmlToMd(
     processedHtml,
     options.turndown,
-    preserveUnderline ? ['u'] : [],
+    options.underline === 'preserve' ? ['u'] : [],
     options.footnotes !== 'preserve',
   );
   const normalizedMd = normalizeText(md);
   const cleanedMd = lint(normalizedMd);
-  const formattedMd = await prettify(cleanedMd);
-  return {
-    markdown: formattedMd,
-    messages: mammothResult.messages,
-    images: extractor?.images,
-  };
+  return prettify(cleanedMd);
+}
+
+// Markup in clipboard HTML that isn't content: Word's <style> and
+// conditional-comment blocks, <meta>/<title>/<link> head elements, and
+// Office's <o:p> paragraph placeholders and <xml> islands.
+const CLIPBOARD_NOISE_SELECTOR = 'style, script, meta, title, link, xml, o\\:p';
+
+// Converts an HTML fragment, such as text copied from Word, Google Docs, or a
+// web page, to Markdown with the same cleanup .docx conversion gets. There's no
+// .docx to read, so mammoth, its style map, and image extraction don't apply:
+// `options.mammoth`, `images: 'extract'`, and `imageDir` are ignored.
+export async function convertHtml(
+  html: string,
+  options: ConvertOptions = {},
+): Promise<string> {
+  const root = parse(html);
+  root
+    .querySelectorAll(CLIPBOARD_NOISE_SELECTOR)
+    .forEach((node: HTMLElement) => {
+      node.remove();
+    });
+  // Google Docs wraps a whole copied selection in a <b> with a
+  // docs-internal-guid id and font-weight:normal; Turndown would make all of
+  // it bold.
+  root
+    .querySelectorAll('b[id^="docs-internal-guid"]')
+    .forEach((wrapper: HTMLElement) => {
+      wrapper.replaceWith(...wrapper.childNodes);
+    });
+  // Google Docs also puts each list item's text in a <p>, which Turndown
+  // renders as a loose list (a blank line between items).
+  root.querySelectorAll('li').forEach((item: HTMLElement) => {
+    const children = item.childNodes.filter(
+      (node: Node) => node.nodeType === 1 || node.textContent.trim() !== '',
+    );
+    const only = children[0] as HTMLElement | undefined;
+    if (children.length === 1 && only?.tagName === 'P') {
+      only.replaceWith(...only.childNodes);
+    }
+  });
+  try {
+    return await htmlPipeline(root.toString(), {
+      ...options,
+      images: options.images === 'strip' ? 'strip' : 'inline',
+    });
+  } catch (error) {
+    throw new ConversionError(
+      'An error occurred while converting the HTML. Please try again.',
+      error instanceof Error ? error : undefined,
+    );
+  }
 }
 
 // Substrings (lower-cased) that, in a thrown error's message, indicate the
