@@ -22,7 +22,7 @@ npm run check        # what CI's build job runs: lint + typecheck + knip + build
 
 Run a single unit test: `NODE_OPTIONS=--experimental-vm-modules npx jest src/__tests__/smart-quotes.test.ts`
 
-Run a single e2e spec: `npx playwright test src/__tests__/e2e/i18n.spec.ts`
+Run a single e2e spec: `npx playwright test src/__tests__/e2e/i18n.spec.ts`. The preview server uses port 8080; set `E2E_PORT=<port>` to run alongside another checkout's suite (a global setup fails fast if the server on the port isn't serving this checkout's `dist/`).
 
 Node 24.21.0 is pinned (`.nvmrc`, `.tool-versions`, Volta). The `--experimental-vm-modules` flag is required because the project is pure ESM and Jest runs the TS sources via `ts-jest` ESM preset.
 

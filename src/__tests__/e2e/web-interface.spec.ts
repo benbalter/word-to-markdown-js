@@ -51,7 +51,7 @@ async function dispatchFiles(
 test.describe('Word to Markdown Web Interface', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the web interface served by test server
-    await page.goto('http://localhost:8080');
+    await page.goto('/');
   });
 
   test('names the file input by the short title, described by the note', async ({
@@ -263,7 +263,7 @@ test.describe('Word to Markdown Web Interface', () => {
 
     // Fresh load so the init script (and thus the Worker tap) is in place before
     // the app lazily creates the converter worker.
-    await page.goto('http://localhost:8080');
+    await page.goto('/');
 
     const fixturePath = path.join(__dirname, '../../__fixtures__/h1.docx');
     await page.locator('#file').setInputFiles(fixturePath);
@@ -708,7 +708,7 @@ test.describe('Word to Markdown Web Interface', () => {
         }
       } as typeof Worker;
     });
-    await page.goto('http://localhost:8080');
+    await page.goto('/');
     await page.evaluate(
       ({ base64 }) => {
         const drop = (file: File): void => {
@@ -1026,7 +1026,7 @@ test.describe('On a touch screen', () => {
   });
 
   test('asks to choose a file instead of dropping one', async ({ page }) => {
-    await page.goto('http://localhost:8080');
+    await page.goto('/');
     await expect(page.locator('#dropzone-title')).toBeVisible();
     await expect(page.locator('#dropzone-title')).toHaveText(
       'Choose a .docx file',

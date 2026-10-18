@@ -6,7 +6,7 @@ import { test, expect, type Page } from '@playwright/test';
 // way by rewriting the root HTML in flight.
 
 async function serveRootWithSuggestion(page: Page, locale: string) {
-  await page.route('http://localhost:8080/', async (route) => {
+  await page.route('/', async (route) => {
     const response = await route.fetch();
     const html = (await response.text()).replace(
       '<html ',
@@ -18,7 +18,7 @@ async function serveRootWithSuggestion(page: Page, locale: string) {
 
 test.describe('Language suggestion banner', () => {
   test('shows nothing when the Worker suggests nothing', async ({ page }) => {
-    await page.goto('http://localhost:8080/');
+    await page.goto('/');
     await expect(
       page.locator('aside[aria-labelledby="lang-suggest-link"]'),
     ).toHaveCount(0);
@@ -31,7 +31,7 @@ test.describe('Language suggestion banner', () => {
         violations.push(msg.text());
     });
     await serveRootWithSuggestion(page, 'id');
-    await page.goto('http://localhost:8080/');
+    await page.goto('/');
 
     const banner = page.locator('aside[aria-labelledby="lang-suggest-link"]');
     await expect(banner).toBeVisible();
@@ -48,7 +48,7 @@ test.describe('Language suggestion banner', () => {
 
   test('renders right-to-left for Arabic', async ({ page }) => {
     await serveRootWithSuggestion(page, 'ar');
-    await page.goto('http://localhost:8080/');
+    await page.goto('/');
     const banner = page.locator('aside[aria-labelledby="lang-suggest-link"]');
     await expect(banner).toHaveAttribute('dir', 'rtl');
     await expect(banner.getByRole('link')).toHaveAttribute('href', '/ar/');
@@ -56,7 +56,7 @@ test.describe('Language suggestion banner', () => {
 
   test('dismissing it keeps it off', async ({ page, context }) => {
     await serveRootWithSuggestion(page, 'vi');
-    await page.goto('http://localhost:8080/');
+    await page.goto('/');
 
     const banner = page.locator('aside[aria-labelledby="lang-suggest-link"]');
     await banner.getByRole('button').click();
@@ -75,13 +75,13 @@ test.describe('Language suggestion banner', () => {
     context,
   }) => {
     await serveRootWithSuggestion(page, 'id');
-    await page.goto('http://localhost:8080/');
+    await page.goto('/');
     await page
       .locator('aside[aria-labelledby="lang-suggest-link"]')
       .getByRole('link')
       .click();
 
-    await expect(page).toHaveURL('http://localhost:8080/id/');
+    await expect(page).toHaveURL('/id/');
     expect(
       (await context.cookies()).find((c) => c.name === 'hint')?.value,
     ).toBe('off');

@@ -51,19 +51,23 @@ jobs:
       # the lockfile (and npm audit) covers it.
       - name: Check Worker bundle
         run: npx wrangler deploy --dry-run --outdir "$RUNNER_TEMP/worker"
-      # Install the packed tarball the way a user would, so a module missing
-      # from package.json `files` (or a broken `exports`/`bin`) fails here
-      # instead of after `npm publish`. The tests above run the source tree,
-      # which can't catch that.
+      # Run the packed tarball on its own, so a module missing from
+      # package.json `files`, a runtime dependency listed only under
+      # devDependencies, or a broken `exports`/`bin` fails here instead of
+      # after `npm publish`. The tests above run the source tree, which can't
+      # catch that. The tarball's runtime dependencies come from the repo's
+      # lockfile (`npm ci --omit=dev`), not a fresh registry resolve, so this
+      # step installs nothing the lockfile doesn't pin.
       - name: Smoke-test the packed package
         run: |
           npm pack --pack-destination "$RUNNER_TEMP"
           mkdir "$RUNNER_TEMP/pack-test"
+          tar -xzf "$RUNNER_TEMP"/word-to-markdown-*.tgz -C "$RUNNER_TEMP/pack-test" --strip-components=1
+          cp package-lock.json "$RUNNER_TEMP/pack-test/"
           cd "$RUNNER_TEMP/pack-test"
-          npm init -y > /dev/null
-          npm install "$RUNNER_TEMP"/word-to-markdown-*.tgz
+          npm ci --omit=dev --ignore-scripts --no-audit --no-fund
           node -e "import('word-to-markdown').then((m) => { if (typeof m.default !== 'function') throw new Error('no default export'); })"
-          ./node_modules/.bin/w2m --version
+          for bin in $(node -p "Object.values(require('./package.json').bin).join(' ')"); do node "$bin" --version; done
       # Hand the built site to the e2e job so it doesn't rebuild it.
       - uses: actions/upload-artifact@v7
         with:

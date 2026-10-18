@@ -20,7 +20,9 @@ src/__tests__/e2e/
 `playwright.config.ts`:
 
 - Runs Chromium via the system Chrome (`channel: 'chrome'`).
-- Serves `dist/` with `npm run preview -- --port 8080` and reuses an already-running server outside CI.
+- Serves `dist/` with `npm run preview` on port 8080, or on `E2E_PORT` if set, and reuses an already-running server outside CI.
+- Before any test, `src/__tests__/e2e/global-setup.ts` checks that the server is serving this checkout's `dist/`: every hashed `/_astro/` file the home page references must exist locally. A reused server from another checkout or a stale build fails fast instead of quietly testing the wrong site.
+- Specs use relative URLs (`page.goto('/de/')`), resolved against `baseURL`, so they follow the port.
 - In CI, retries twice and runs workers on half the runner's cores (`workers: '50%'`).
 
 The config does **not** build the site. Build it first.
@@ -34,6 +36,7 @@ npm run test:e2e:headed
 npm run test:e2e:debug
 npx playwright test src/__tests__/e2e/i18n.spec.ts   # one spec
 npx playwright show-report                            # HTML report
+E2E_PORT=8090 npm run test:e2e                         # another port, e.g. alongside a second checkout
 ```
 
 ## Prerequisites
@@ -47,9 +50,11 @@ Tests upload Word fixtures from `src/__fixtures__/`, for example `h1.docx`, `mul
 
 ## Troubleshooting
 
-**Port 8080 in use:** stop the other process (`lsof -i :8080`), or leave a preview of the current build running and Playwright will reuse it.
+**Port 8080 in use:** stop the other process (`lsof -i :8080`), run on a free port with `E2E_PORT=<port>`, or leave a preview of the current build running and Playwright will reuse it.
 
-**`Process from config.webServer exited early`:** some environments make `astro preview` detach into the background. Start `npm run preview -- --port 8080` yourself, then rerun the tests.
+**`The server at … isn't serving this checkout's dist/`:** the server on the port is another checkout's preview, or this one's from before the last build. Stop it (`npx astro preview stop`), or pick a free port with `E2E_PORT=<port>`.
+
+**`Process from config.webServer exited early`:** some environments make `astro preview` detach into the background. Start `npm run preview -- --port 8080` yourself (use the same port as `E2E_PORT` if you set one), then rerun the tests.
 
 ## Writing New Tests
 
