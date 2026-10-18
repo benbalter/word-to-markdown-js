@@ -112,7 +112,8 @@ async function cacheFirst(event) {
   const cached = await assets.match(request, { ignoreVary: true });
   if (cached) return cached;
   const response = await fetch(request);
-  // Keep chunks loaded on demand (fonts, the main-thread fallback) too.
+  // Keep chunks loaded on demand (fonts, the preview renderer, the main-thread
+  // fallback) too, so they work offline after first use.
   if (response.ok && response.type === 'basic') {
     event.waitUntil(assets.put(request, response.clone()));
   }
