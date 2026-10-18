@@ -129,7 +129,8 @@ function waitForWorker(): Promise<void> {
 // What the worker converts: a .docx's bytes (see src/converter.worker.ts), or
 // pasted HTML.
 type WorkerRequest =
-  { buffer: ArrayBuffer; extract: boolean } | { html: string };
+  | { buffer: ArrayBuffer; extract: boolean; imageDir?: string }
+  | { html: string };
 
 function convertViaWorker(
   request: WorkerRequest,
@@ -169,16 +170,21 @@ async function convertWithFallback(
   return onMainThread(await import('./main.js'));
 }
 
-// Convert a .docx's bytes to Markdown.
+// Convert a .docx's bytes to Markdown. With `extract`, images come back as
+// files under `imageDir` (default `images`) instead of inline.
 export function convertBuffer(
   buffer: ArrayBuffer,
   extract = false,
+  imageDir?: string,
 ): Promise<ConversionResult> {
   return convertWithFallback(
-    { buffer, extract },
+    { buffer, extract, imageDir },
     buffer.byteLength,
     ({ convertWithWarnings }) =>
-      convertWithWarnings(buffer, extract ? { images: 'extract' } : undefined),
+      convertWithWarnings(
+        buffer,
+        extract ? { images: 'extract', imageDir } : undefined,
+      ),
   );
 }
 

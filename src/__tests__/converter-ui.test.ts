@@ -15,10 +15,12 @@ const enPath = path.join(
 );
 const en = JSON.parse(readFileSync(enPath, 'utf8'));
 jest.unstable_mockModule(enPath, () => ({ ...en, default: en }));
-const { uiString, withNote } =
+const { uiString, fillCounts } =
   await import('../../web/scripts/converter/strings.ts');
 const { localizeWarnings } =
   await import('../../web/scripts/converter/warnings.ts');
+const { uniqueBaseNames, zipLayout } =
+  await import('../../web/scripts/converter/batch.ts');
 
 // Mount a page whose #input carries the given data-* strings.
 function mountPage(dataset: Record<string, string> = {}, lang = 'en'): void {
@@ -50,12 +52,15 @@ describe('uiString', () => {
   });
 });
 
-describe('withNote', () => {
-  it('appends a note after a space, or leaves the message alone', () => {
-    expect(withNote('Failed.', 'Add the others one at a time.')).toBe(
-      'Failed. Add the others one at a time.',
-    );
-    expect(withNote('Failed.', '')).toBe('Failed.');
+describe('fillCounts', () => {
+  it('fills each placeholder with its number', () => {
+    expect(
+      fillCounts('Converting {current} of {total}…', { current: 2, total: 5 }),
+    ).toBe('Converting 2 of 5…');
+  });
+
+  it('leaves placeholders it has no number for', () => {
+    expect(fillCounts('{max} of {total}', { max: 20 })).toBe('20 of {total}');
   });
 });
 
@@ -132,5 +137,57 @@ describe('localizeWarnings', () => {
       },
     ]);
     expect(lines).toEqual(['Left out: text boxes.']);
+  });
+});
+
+describe('uniqueBaseNames', () => {
+  it('drops the extension', () => {
+    expect(uniqueBaseNames(['report.docx', 'notes.DOCX', 'pasted.md'])).toEqual(
+      ['report', 'notes', 'pasted'],
+    );
+  });
+
+  it('numbers repeats, ignoring case, so downloads never overwrite', () => {
+    expect(
+      uniqueBaseNames(['report.docx', 'Report.docx', 'report.docx']),
+    ).toEqual(['report', 'Report-2', 'report-3']);
+  });
+
+  it('skips a number another file already has', () => {
+    expect(uniqueBaseNames(['a-2.docx', 'a.docx', 'a.docx'])).toEqual([
+      'a-2',
+      'a',
+      'a-3',
+    ]);
+  });
+
+  it('names a file that is only an extension', () => {
+    expect(uniqueBaseNames(['.docx'])).toEqual(['document']);
+  });
+});
+
+describe('zipLayout', () => {
+  it('puts each Markdown file at the top, its images in its own folder', () => {
+    expect(zipLayout(['report', 'notes'])).toEqual([
+      { markdown: 'report.md', imageDir: 'report-images' },
+      { markdown: 'notes.md', imageDir: 'notes-images' },
+    ]);
+  });
+
+  it('keeps image folders link-safe: no spaces or parentheses', () => {
+    expect(zipLayout(['Q3 plan (final)'])).toEqual([
+      { markdown: 'Q3 plan (final).md', imageDir: 'Q3-plan-final-images' },
+    ]);
+  });
+
+  it('keeps letters from any script', () => {
+    expect(zipLayout(['تقرير'])[0].imageDir).toBe('تقرير-images');
+  });
+
+  it('separates names that would share a folder', () => {
+    expect(zipLayout(['a b', 'a-b']).map((entry) => entry.imageDir)).toEqual([
+      'a-b-images',
+      'a-b-2-images',
+    ]);
   });
 });

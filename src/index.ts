@@ -10,11 +10,20 @@ import {
   type ConversionResult,
 } from './worker-client.ts';
 import {
+  conversionErrorMessage,
   showConversionError,
   showError,
   showWarnings,
 } from '../web/scripts/converter/alerts.ts';
 import { recordConversion } from '../web/scripts/converter/analytics.ts';
+import {
+  MAX_BATCH_FILES,
+  markSelected,
+  renderBatchList,
+  setBatchMode,
+  uniqueBaseNames,
+  type BatchEntry,
+} from '../web/scripts/converter/batch.ts';
 import {
   announce,
   flashConfirmed,
@@ -24,27 +33,24 @@ import {
   setImageMode,
 } from '../web/scripts/converter/dom.ts';
 import {
+  downloadAll,
   downloadMarkdown,
   downloadZip,
 } from '../web/scripts/converter/downloads.ts';
+import { rejectionFor } from '../web/scripts/converter/files.ts';
 import {
   prefetchRenderer,
   renderPreview,
 } from '../web/scripts/converter/preview.ts';
 import { session } from '../web/scripts/converter/session.ts';
-import { uiString, withNote } from '../web/scripts/converter/strings.ts';
+import { fillCounts, uiString } from '../web/scripts/converter/strings.ts';
 import { localizeWarnings } from '../web/scripts/converter/warnings.ts';
-
-// Upper bound on the file we'll attempt to read into memory and convert
-// client-side. Comfortably above any real Word document; guards against a
-// mistaken drop of a huge file freezing the tab.
-const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 
 // Speculatively start the conversion worker so the first conversion resolves
 // from cache instead of waiting on a download. Runs at most once, only on user
 // intent or browser idle — never on initial paint, so it never competes with
 // critical resources. The preview renderer isn't part of this: it loads when a
-// conversion starts (see runConversion).
+// conversion starts (see startBusy).
 let converterWarmed = false;
 function prefetchConverter(): void {
   if (converterWarmed) return;
@@ -76,59 +82,52 @@ function copyMarkdown(): void {
   }, copyFailed);
 }
 
-// True for legacy .doc files. Checked on the main thread because the worker
-// only sees the file's bytes, not its name. Mirrors validateFileExtension.
-function isLegacyDocFile(name: string): boolean {
-  const lower = name.toLowerCase();
-  const dot = lower.lastIndexOf('.');
-  return dot !== -1 && lower.slice(dot) === '.doc';
+// Enter a busy state before reading (a large file takes a moment to read):
+// mark the input region busy, spin the dropzone icon, and announce progress,
+// so a slow conversion isn't a silent, frozen-looking wait. The dropzone stays
+// visible until the results reveal, so the spinner is the immediate visual
+// feedback for the drop. The preview renderer downloads alongside the
+// conversion, so a visitor who never converts never fetches it, and it's
+// usually ready by the result.
+function startBusy(status: string): void {
+  prefetchRenderer();
+  document.getElementById('error-alert')?.remove();
+  document.getElementById('input')?.setAttribute('aria-busy', 'true');
+  document.getElementById('dropzone')?.classList.add('is-converting');
+  announce(status);
+}
+
+// Leave the busy state (the batch progress line too). `clearStatus` also
+// clears the "Converting…" announcement, for when no result replaces it.
+function endBusy(clearStatus = false): void {
+  document.getElementById('input')?.removeAttribute('aria-busy');
+  document.getElementById('dropzone')?.classList.remove('is-converting');
+  document.getElementById('batch-progress')?.classList.add('hidden');
+  if (clearStatus) announce('');
 }
 
 // Convert a single file. Shared by the file-input change handler and the
 // drag-and-drop handler so both entry points behave identically.
-async function processFile(
-  file: File | undefined,
-  ignoredFiles = 0,
-): Promise<void> {
+async function processFile(file: File | undefined): Promise<void> {
   if (!file) return;
   // Paste and page-wide drops skip the dropzone's intent listeners, and the idle
   // prefetch is skipped on low-data connections, so warm (and bind the copy
   // button) here too. Idempotent.
   prefetchConverter();
 
-  const inputRegion = document.getElementById('input');
-  const dropzone = document.getElementById('dropzone');
-  const srStatus = document.getElementById('sr-status');
-  const endBusy = (): void => {
-    inputRegion?.removeAttribute('aria-busy');
-    dropzone?.classList.remove('is-converting');
-  };
-  const ignoredNote = ignoredFiles > 0 ? uiString('onlyFirstFile') : '';
-
-  // Reject legacy .doc files up front with the friendlier localized "save as
-  // .docx" guidance. Done here (not in the worker) since only the main thread
-  // sees the filename, and it avoids loading the converter for a doomed file.
-  // Also guard against files too large to convert comfortably in the browser —
-  // reading a huge ArrayBuffer and running the pipeline can exhaust memory or
-  // hang the tab, so fail fast with friendly guidance instead.
-  const rejection = isLegacyDocFile(file.name)
-    ? uiString('docFileError')
-    : file.size > MAX_FILE_SIZE
-      ? uiString('fileTooLarge')
-      : null;
+  const rejection = rejectionFor(file);
   if (rejection) {
     // A rejected file still supersedes a conversion in flight: otherwise that
     // result lands later, hides the input, and this error with it.
-    if (inputRegion?.hasAttribute('aria-busy')) {
+    if (document.getElementById('input')?.hasAttribute('aria-busy')) {
       session.activeConversion++;
-      endBusy();
-      if (srStatus) srStatus.textContent = '';
+      endBusy(true);
     }
-    showError(withNote(rejection, ignoredNote), file.name);
+    showError(rejection, file.name);
     return;
   }
 
-  await runConversion(file.name, ignoredNote, async () => {
+  await runConversion(file.name, async () => {
     const buffer = await file.arrayBuffer();
     return { buffer, result: await convertBuffer(buffer) };
   });
@@ -138,7 +137,7 @@ async function processFile(
 // page). The result is named like a file so the downloads have a name.
 function processPastedHtml(html: string): void {
   prefetchConverter();
-  void runConversion(PASTED_NAME, '', async () => ({
+  void runConversion(PASTED_NAME, async () => ({
     buffer: null,
     result: await convertPastedHtml(html),
   }));
@@ -156,137 +155,245 @@ function isEditable(target: EventTarget | null): boolean {
   );
 }
 
+// Put one converted document in the result panels: its warnings (dropping a
+// previous document's), name, and Markdown, with "Download .zip" offered only
+// when it has images (inline mode embeds them as base64 data URIs) and there's
+// a .docx to re-convert. The raw Markdown is the primary output, and the
+// copy/download source; the HTML preview is rendered afterwards, off the
+// critical path, so its render doesn't sit between the drop and the user
+// seeing their result. The previous document's preview is cleared first so it
+// can't linger if this render fails. textContent, not innerText: the <pre>
+// keeps the newlines, and innerText would build a <br> per line (slow on a long
+// document).
+function showDocument(
+  fileName: string,
+  markdown: string,
+  warnings: { lines: string[]; technical: string[] },
+  buffer: ArrayBuffer | null,
+): void {
+  document.getElementById('warning-alert')?.remove();
+  if (warnings.lines.length > 0) {
+    showWarnings(warnings.lines, warnings.technical);
+  }
+
+  session.lastMarkdown = markdown;
+  const outputElement = document.getElementById('output');
+  if (outputElement) outputElement.textContent = markdown;
+  const renderedElement = document.getElementById('rendered');
+  if (renderedElement) renderedElement.innerHTML = '';
+
+  const filenameElement = document.getElementById('filename');
+  if (filenameElement) filenameElement.textContent = fileName;
+
+  // In a batch, the combined .zip covers every file's images instead.
+  session.lastConvertedBuffer = buffer;
+  if (session.batch.length === 0) {
+    setImageMode(buffer !== null && hasInlineImages(markdown));
+  }
+}
+
+// Swap the input for the results, and say so.
+function revealResults(announcement: string): void {
+  document.getElementById('input')?.classList.add('hidden');
+
+  const resultsElement = document.getElementById('results');
+  resultsElement?.classList.remove('hidden');
+
+  // Hide the pre-conversion sections (How It Works, the conversion table,
+  // the CLI callout, the FAQ) and the standalone promo card: the page is now
+  // about this result. The results pane carries its own quiet Open & Async
+  // pitch, so this also avoids stacking two asks.
+  document.getElementById('pre-result')?.classList.add('hidden');
+
+  // Announce success to assistive tech (the results reveal is otherwise
+  // silent) and move focus to the first result action so keyboard users
+  // aren't stranded on the now-hidden file input.
+  announce(announcement);
+  // Bring the result into view: it lands where the dropzone was, below the
+  // hero, which on a phone leaves it entirely off screen. Scroll first, then
+  // focus without scrolling so the two don't fight. scrollIntoView and
+  // matchMedia are optional chained so a browser lacking either still shows
+  // the result.
+  const reduceMotion = window.matchMedia?.(
+    '(prefers-reduced-motion: reduce)',
+  )?.matches;
+  resultsElement?.scrollIntoView?.({
+    behavior: reduceMotion ? 'auto' : 'smooth',
+    block: 'start',
+  });
+  primaryAction()?.focus({ preventScroll: true });
+  // The finished result lights up like an added diff hunk (decoration only;
+  // nothing above waits on it).
+  replayClass(document.querySelector('.md-panel'), 'is-lit');
+  replayClass(document.getElementById('filename'), 'is-lit');
+}
+
+// Leave batch mode for a single document's result.
+function endBatch(): void {
+  session.batch = [];
+  document.getElementById('batch-list')?.replaceChildren();
+  document.getElementById('batch-note')?.classList.add('hidden');
+  setBatchMode(false);
+}
+
 // Run a conversion and show its result, shared by files and pasted HTML.
 // `fileName` is shown with the result; `buffer`, a .docx's bytes, is kept for
 // "Download .zip" (null for pasted HTML, which has no file to re-convert).
 async function runConversion(
   fileName: string,
-  ignoredNote: string,
   convert: () => Promise<{
     buffer: ArrayBuffer | null;
     result: ConversionResult;
   }>,
 ): Promise<void> {
-  const inputRegion = document.getElementById('input');
-  const dropzone = document.getElementById('dropzone');
-  const srStatus = document.getElementById('sr-status');
-  const endBusy = (): void => {
-    inputRegion?.removeAttribute('aria-busy');
-    dropzone?.classList.remove('is-converting');
-  };
-
   // Only the most recent file wins: a result (or error) from a conversion that
   // was superseded by a newer drop is discarded.
   const token = ++session.activeConversion;
   const isCurrent = (): boolean => token === session.activeConversion;
 
-  // The preview renderer downloads alongside the conversion, so a visitor who
-  // never converts never fetches it, and it's usually ready by the result.
-  prefetchRenderer();
-
-  // Enter a busy state before reading (a large file takes a moment to read):
-  // mark the input region busy, spin the dropzone icon, and announce progress,
-  // so a slow conversion isn't a silent, frozen-looking wait. The dropzone stays
-  // visible until the results reveal, so the spinner is the immediate visual
-  // feedback for the drop.
-  document.getElementById('error-alert')?.remove();
-  inputRegion?.setAttribute('aria-busy', 'true');
-  dropzone?.classList.add('is-converting');
-  if (srStatus) {
-    srStatus.textContent = uiString('converting');
-  }
+  startBusy(uiString('converting'));
   try {
     const { buffer, result } = await convert();
     if (!isCurrent()) return;
     endBusy();
-
-    // Display warnings if any (and drop a previous document's)
-    document.getElementById('warning-alert')?.remove();
-    const { lines, technical } = localizeWarnings(result.warningDetails);
-    if (ignoredNote) lines.push(ignoredNote);
-    if (lines.length > 0) {
-      showWarnings(lines, technical);
-    }
-
-    // Reveal the results with the raw Markdown (the primary output, and the
-    // copy/download source) straight away; the HTML preview is rendered
-    // afterwards via renderPreview(), off the critical path, so its render
-    // doesn't sit between the drop and the user seeing their result. Clear the
-    // previous document's preview first so it can't linger if this render fails.
-    // textContent, not innerText: the <pre> keeps the newlines, and innerText
-    // would build a <br> per line (slow on a long document).
-    session.lastMarkdown = result.markdown;
-    const outputElement = document.getElementById('output');
-    if (outputElement) outputElement.textContent = result.markdown;
-    const renderedElement = document.getElementById('rendered');
-    if (renderedElement) renderedElement.innerHTML = '';
-
-    const filenameElement = document.getElementById('filename');
-    if (filenameElement) filenameElement.textContent = fileName;
-
-    // Retain the source bytes and offer "Download .zip" only when the document
-    // actually has images (inline mode embeds them as base64 data URIs).
-    session.lastConvertedBuffer = buffer;
-    setImageMode(buffer !== null && hasInlineImages(result.markdown));
-
-    inputRegion?.classList.add('hidden');
-
-    const resultsElement = document.getElementById('results');
-    resultsElement?.classList.remove('hidden');
-
-    // Hide the pre-conversion sections (How It Works, the conversion table,
-    // the CLI callout, the FAQ) and the standalone promo card: the page is now
-    // about this result. The
-    // results pane carries its own quiet Open & Async pitch, so this also
-    // avoids stacking two asks.
-    document.getElementById('pre-result')?.classList.add('hidden');
-
-    // Announce success to assistive tech (the results reveal is otherwise
-    // silent) and move focus to the first result action so keyboard users
-    // aren't stranded on the now-hidden file input.
-    announce(uiString('conversionAnnouncement'));
-    // Bring the result into view: it lands where the dropzone was, below the
-    // hero, which on a phone leaves it entirely off screen. Scroll first, then
-    // focus without scrolling so the two don't fight. scrollIntoView and
-    // matchMedia are optional chained so a browser lacking either still shows
-    // the result.
-    const reduceMotion = window.matchMedia?.(
-      '(prefers-reduced-motion: reduce)',
-    )?.matches;
-    resultsElement?.scrollIntoView?.({
-      behavior: reduceMotion ? 'auto' : 'smooth',
-      block: 'start',
-    });
-    primaryAction()?.focus({ preventScroll: true });
-    // The finished result lights up like an added diff hunk (decoration only;
-    // nothing above waits on it).
-    replayClass(document.querySelector('.md-panel'), 'is-lit');
-    replayClass(filenameElement, 'is-lit');
-
+    endBatch();
+    showDocument(
+      fileName,
+      result.markdown,
+      localizeWarnings(result.warningDetails),
+      buffer,
+    );
+    revealResults(uiString('conversionAnnouncement'));
     recordConversion('success');
 
     // Render the HTML preview last, off the interaction's critical path.
-    void renderPreview(renderedElement, result.markdown, isCurrent);
+    void renderPreview(
+      document.getElementById('rendered'),
+      result.markdown,
+      isCurrent,
+    );
   } catch (error) {
     if (!isCurrent()) return;
-    // Leave the busy state and clear the "Converting…" announcement.
-    endBusy();
-    if (srStatus) srStatus.textContent = '';
+    endBusy(true);
     recordConversion('error');
     // Pasted HTML has no file for the error to name.
-    showConversionError(
-      error,
-      ignoredNote,
-      fileName === PASTED_NAME ? undefined : fileName,
-    );
+    showConversionError(error, fileName === PASTED_NAME ? undefined : fileName);
   }
 }
 
-// Convert the first of the given files (converting several at once isn't
-// supported), noting how many others were ignored.
+// Convert several files, one after another in the same worker (so only one
+// document's pipeline is in memory at a time), then list them all: one bad
+// file is reported in its row without stopping the rest. Up to
+// MAX_BATCH_FILES; any beyond that are left out, and the note says so.
+async function processBatch(files: File[]): Promise<void> {
+  prefetchConverter();
+  const token = ++session.activeConversion;
+  const isCurrent = (): boolean => token === session.activeConversion;
+
+  const batch = files.slice(0, MAX_BATCH_FILES);
+  const bases = uniqueBaseNames(batch.map((file) => file.name));
+  const progress = document.getElementById('batch-progress');
+  const entries: BatchEntry[] = [];
+  for (const [index, file] of batch.entries()) {
+    // Announced, and shown under the spinning dropzone (aria-hidden there, so
+    // it isn't read twice).
+    const status = fillCounts(uiString('batchProgress'), {
+      current: index + 1,
+      total: batch.length,
+    });
+    if (index === 0) startBusy(status);
+    else announce(status);
+    if (progress) {
+      progress.textContent = status;
+      progress.classList.remove('hidden');
+    }
+
+    const entry: BatchEntry = { name: file.name, base: bases[index] };
+    const rejection = rejectionFor(file);
+    if (rejection) {
+      entry.error = rejection;
+    } else {
+      try {
+        const buffer = await file.arrayBuffer();
+        const result = await convertBuffer(buffer);
+        entry.markdown = result.markdown;
+        entry.warnings = localizeWarnings(result.warningDetails);
+        // Only a document with images needs its bytes again, for the .zip.
+        entry.buffer = hasInlineImages(result.markdown) ? buffer : null;
+        recordConversion('success');
+      } catch (error) {
+        entry.error = conversionErrorMessage(error, file.name);
+        recordConversion('error');
+      }
+      // A newer drop, or Convert another, replaced this batch.
+      if (!isCurrent()) return;
+    }
+    entries.push(entry);
+  }
+  endBusy();
+  showBatch(entries, files.length > batch.length);
+}
+
+// Show a finished batch: the list, the first converted file in the panels,
+// and "Download all" as the next action.
+function showBatch(entries: BatchEntry[], leftSomeOut: boolean): void {
+  const converted = entries.filter((entry) => entry.markdown !== undefined);
+  session.batch = entries;
+  setBatchMode(true, converted.length > 0);
+
+  const list = document.getElementById('batch-list');
+  const select = (entry: BatchEntry): void => {
+    // Supersede the previous file's preview render.
+    const token = ++session.activeConversion;
+    showDocument(
+      entry.name,
+      entry.markdown ?? '',
+      entry.warnings ?? { lines: [], technical: [] },
+      entry.buffer ?? null,
+    );
+    if (list) markSelected(list, entries.indexOf(entry));
+    void renderPreview(
+      document.getElementById('rendered'),
+      entry.markdown ?? '',
+      () => token === session.activeConversion,
+    );
+  };
+  if (list) renderBatchList(list, entries, select);
+
+  const note = document.getElementById('batch-note');
+  if (note) {
+    note.textContent = leftSomeOut
+      ? fillCounts(uiString('tooManyFiles'), { max: MAX_BATCH_FILES })
+      : '';
+    note.classList.toggle('hidden', !leftSomeOut);
+  }
+
+  document.getElementById('warning-alert')?.remove();
+  if (converted.length > 0) {
+    select(converted[0]);
+  } else {
+    // Nothing to show: drop the previous document, whose panels are hidden.
+    session.lastMarkdown = '';
+    session.lastConvertedBuffer = null;
+    const rendered = document.getElementById('rendered');
+    if (rendered) rendered.innerHTML = '';
+  }
+
+  const failed = converted.length < entries.length;
+  revealResults(
+    converted.length === 0
+      ? uiString('batchSomeFailed')
+      : failed
+        ? `${uiString('conversionAnnouncement')} ${uiString('batchSomeFailed')}`
+        : uiString('conversionAnnouncement'),
+  );
+}
+
+// Convert the given files: one as a single document, several as a batch.
 function processFiles(files: ArrayLike<File> | null | undefined): void {
   if (!files || files.length === 0) return;
-  void processFile(files[0], files.length - 1);
+  if (files.length === 1) void processFile(files[0]);
+  else void processBatch(Array.from(files));
 }
 
 function initDragAndDrop(dropzone: HTMLElement): void {
@@ -337,8 +444,9 @@ function resetConverter(): void {
   const rendered = document.getElementById('rendered');
   if (rendered) rendered.innerHTML = '';
 
-  // Drop the retained bytes, and hand the accent back to Copy (re-hiding the
-  // zip button and its note) for the next document.
+  // Drop the retained bytes (and a batch's results), and hand the accent back
+  // to Copy (re-hiding the zip button and its note) for the next document.
+  endBatch();
   session.lastConvertedBuffer = null;
   session.lastMarkdown = '';
   setImageMode(false);
@@ -353,8 +461,7 @@ function resetConverter(): void {
   document.getElementById('pre-result')?.classList.remove('hidden');
 
   // Clear the live status region so a prior success isn't re-announced.
-  const status = document.getElementById('sr-status');
-  if (status) status.textContent = '';
+  announce('');
 
   // Return focus to the file input (inside the dropzone) for keyboard users.
   fileInput?.focus();
@@ -367,11 +474,12 @@ document.addEventListener('DOMContentLoaded', () => {
   inputElement?.addEventListener(
     'change',
     function (this: HTMLInputElement): void {
-      const file = this.files?.[0];
-      // Clear the input so picking the same file again (e.g. after fixing it
-      // following an error) still fires "change". The File stays readable.
+      // Copy the list before clearing the input, which empties it; the Files
+      // stay readable. Clearing means picking the same file again (e.g. after
+      // fixing it following an error) still fires "change".
+      const files = Array.from(this.files ?? []);
       this.value = '';
-      void processFile(file);
+      processFiles(files);
     },
     false,
   );
@@ -456,6 +564,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document
     .getElementById('download-zip-button')
     ?.addEventListener('click', () => void downloadZip());
+  document
+    .getElementById('download-all-button')
+    ?.addEventListener('click', () => void downloadAll());
   document
     .getElementById('convert-another')
     ?.addEventListener('click', resetConverter);

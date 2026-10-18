@@ -25,7 +25,10 @@ const t = useTranslations(Astro.currentLocale);
     data-not-word-file-error={t.notWordFileError}
     data-protected-file-error={t.protectedFileError}
     data-copy-failed={t.copyFailed}
-    data-only-first-file={t.onlyFirstFile}
+    data-batch-progress={t.batchProgress}
+    data-batch-has-warnings={t.batchHasWarnings}
+    data-batch-some-failed={t.batchSomeFailed}
+    data-too-many-files={t.tooManyFiles}
     data-conversion-announcement={t.conversionAnnouncement}
     data-converting={t.convertingStatus}
     data-copied={t.copiedButton}
@@ -123,15 +126,28 @@ const t = useTranslations(Astro.currentLocale);
       </span>
       {/* Named by the short title and described by the note, rather than
            named by the whole <label>'s text run together. */}
+      {/* `multiple`: several files convert one after another, listed
+           together (see processBatch in src/index.ts). One file converts
+           exactly as before. */}
       <input
         type="file"
         id="file"
+        multiple
         aria-labelledby="dropzone-title"
         aria-describedby="dropzone-note"
         accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         class="sr-only"
       />
     </label>
+
+    {/* "Converting 2 of 5…" while several files convert. Screen readers hear
+         it from #sr-status instead, so it's hidden from them here. */}
+    <p
+      id="batch-progress"
+      aria-hidden="true"
+      class="mt-3 hidden text-center font-mono text-[0.72rem] tracking-wide rtl:font-sans rtl:tracking-normal text-navy-soft dark:text-mist"
+    >
+    </p>
 
     <p
       class="mt-4 text-center font-mono text-[0.72rem] tracking-wide rtl:font-sans rtl:tracking-normal text-navy-soft dark:text-mist"
@@ -142,10 +158,78 @@ const t = useTranslations(Astro.currentLocale);
 
   {/* Results (revealed after a successful conversion) */}
   <div id="results" class="hidden scroll-mt-6">
+    {/* Several files converted at once: one row per file (a button that
+         shows it in the panels below, or why it failed), and one .zip of them
+         all, the next action. Hidden for a single document. See
+         web/scripts/converter/batch.ts. */}
+    <div id="batch" class="mt-4 hidden">
+      <ul
+        id="batch-list"
+        aria-label={t.batchListLabel}
+        class="divide-y divide-rule-light overflow-hidden rounded-xl border border-rule-light bg-paper-card/70 dark:divide-rule-dark dark:border-rule-dark dark:bg-ink-card/70"
+      >
+      </ul>
+      <div
+        class="mt-3 flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:gap-4"
+      >
+        <button
+          id="download-all-button"
+          type="button"
+          class="btn btn-accent confirmable hidden"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="idle-icon"
+            aria-hidden="true"
+          >
+            <path
+              d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
+            />
+            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+            <rect x="9" y="12" width="2" height="2" />
+            <rect x="9" y="16" width="2" height="2" />
+          </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.25"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="confirm-icon"
+            aria-hidden="true"
+          >
+            <path d="M20 6 9 17l-5-5" pathLength="1" />
+          </svg>
+          <span id="download-all-label">{t.downloadAllButton}</span>
+        </button>
+        <p
+          id="batch-note"
+          class="hidden max-w-prose text-center text-sm leading-relaxed text-navy-soft sm:text-start dark:text-mist"
+        >
+        </p>
+      </div>
+    </div>
+
     {/* Filename on its own line, actions below: side by side, a long name
          wrapped mid-word ("dropped-" / "content.docx") beside four buttons. */}
-    <div class="mt-4 flex flex-col items-center gap-3 sm:items-start">
+    <div
+      id="result-head"
+      class="mt-4 flex flex-col items-center gap-3 sm:items-start"
+    >
       <h2
+        id="result-heading"
         class="max-w-full text-center font-display text-lg font-medium text-navy sm:text-start dark:text-snow"
       >
         {t.convertedLabel}{' '}<bdi
@@ -310,7 +394,7 @@ const t = useTranslations(Astro.currentLocale);
       </p>
     </div>
 
-    <div class="mt-4 grid gap-4 lg:grid-cols-2">
+    <div id="result-panels" class="mt-4 grid gap-4 lg:grid-cols-2">
       {/* The Markdown panel lights up like an added diff hunk when a document
            converts, and again on Copy (the text that just hit the clipboard):
            see .md-panel in global.css and replayClass() in

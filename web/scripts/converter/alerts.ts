@@ -1,5 +1,5 @@
 import { primaryAction } from './dom.ts';
-import { uiString, withNote, type UIStringKey } from './strings.ts';
+import { uiString, type UIStringKey } from './strings.ts';
 
 // The error and warning alerts' close button: an × icon, colored to match its
 // alert.
@@ -144,10 +144,12 @@ export function showWarnings(
     ),
   );
 
+  // Just above the document they're about: below a batch's list of files,
+  // which comes first in the results.
+  const head = document.getElementById('result-head');
   const resultsElement = document.getElementById('results');
-  if (resultsElement) {
-    resultsElement.insertBefore(warningElement, resultsElement.firstChild);
-  }
+  if (head) head.before(warningElement);
+  else resultsElement?.prepend(warningElement);
 }
 
 // Conversion errors thrown in the worker arrive as { name, message } (class
@@ -159,14 +161,13 @@ const CONVERSION_ERROR_STRINGS = {
   UnsupportedFileError: 'protectedFileError',
 } as const satisfies Record<string, UIStringKey>;
 
-// `note` is appended to the message (e.g. the "only the first file" notice,
-// which would otherwise be lost when the conversion fails). `fileName`, when
-// the error is about a file the visitor just gave us, is shown with it.
-export function showConversionError(
+// The localized message for a conversion error. `fileName`, when the error is
+// about a file the visitor just gave us, decides whether it's a Word file at
+// all.
+export function conversionErrorMessage(
   error: unknown,
-  note = '',
   fileName?: string,
-): void {
+): string {
   const name = (error as { name?: string })?.name;
   // Something that isn't a Word file at all (README.md, a PDF, a spreadsheet)
   // fails as unreadable or as an unsupported container. "Open it in Word and
@@ -176,15 +177,18 @@ export function showConversionError(
     !/\.docx?$/i.test(fileName) &&
     (name === 'InvalidFileError' || name === 'UnsupportedFileError')
   ) {
-    showError(withNote(uiString('notWordFileError'), note), fileName);
-    return;
+    return uiString('notWordFileError');
   }
   if (name && Object.hasOwn(CONVERSION_ERROR_STRINGS, name)) {
-    const key =
-      CONVERSION_ERROR_STRINGS[name as keyof typeof CONVERSION_ERROR_STRINGS];
-    showError(withNote(uiString(key), note), fileName);
-    return;
+    return uiString(
+      CONVERSION_ERROR_STRINGS[name as keyof typeof CONVERSION_ERROR_STRINGS],
+    );
   }
-  showError(withNote(uiString('errorGeneric'), note), fileName);
   console.error(error);
+  return uiString('errorGeneric');
+}
+
+// Show a conversion error, naming the file it's about (when there is one).
+export function showConversionError(error: unknown, fileName?: string): void {
+  showError(conversionErrorMessage(error, fileName), fileName);
 }
