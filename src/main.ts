@@ -842,7 +842,9 @@ function hasConfidentialCustomProperty(customXml: string): boolean {
     if (!match) return false;
     const [openTag, name] = match;
     if (/confidential/i.test(name)) return true;
-    const value = property.slice(openTag.length).replace(/<[^>]*>/g, '');
+    // The value's wrapper tags (<vt:lpwstr> and the like) can't contain the
+    // word, so test the inner XML as-is rather than stripping tags.
+    const value = property.slice(openTag.length);
     return (
       CLASSIFICATION_PROPERTY_NAME.test(name) && /confidential/i.test(value)
     );
