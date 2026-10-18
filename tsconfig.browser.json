@@ -1,0 +1,25 @@
+{
+  // Type-check the browser converter, which tsconfig.json leaves out of the
+  // tsc build and astro check doesn't reach (it checks .astro files, not the
+  // .ts modules they import). Vite bundles these files, so resolve imports the
+  // way it does. Run via `npm run typecheck`.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "rootDir": ".",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": []
+  },
+  "include": [
+    "src/index.ts",
+    "src/worker-client.ts",
+    "src/converter.worker.ts",
+    "src/worker-dom-polyfill.ts",
+    "src/**/*.d.ts",
+    "web/scripts/**/*.ts"
+  ],
+  "exclude": []
+}

@@ -1,7 +1,8 @@
 ---
 // Converter: the dropzone (input) and the post-conversion results panels.
 // The element ids and data-* attributes here are the contract with the browser
-// logic in src/index.ts — keep them in sync with that module.
+// logic in src/index.ts and web/scripts/converter/ — keep them in sync with
+// those modules.
 import { useTranslations } from '../../i18n';
 
 const t = useTranslations(Astro.currentLocale);
@@ -154,7 +155,7 @@ const t = useTranslations(Astro.currentLocale);
       </h2>
       <div class="flex flex-wrap items-center justify-center gap-2">
         {/* One filled accent: the next action. That's Copy, unless the
-             document has images, when src/index.ts moves the accent (and
+             document has images, when setImageMode() moves the accent (and
              the leading spot) to Download .zip, since the Markdown alone
              carries the images as long base64 strings. */}
         <button
@@ -312,7 +313,8 @@ const t = useTranslations(Astro.currentLocale);
     <div class="mt-4 grid gap-4 lg:grid-cols-2">
       {/* The Markdown panel lights up like an added diff hunk when a document
            converts, and again on Copy (the text that just hit the clipboard):
-           see .md-panel in global.css and highlightResult() in src/index.ts. */}
+           see .md-panel in global.css and replayClass() in
+           web/scripts/converter/dom.ts. */}
       <div
         class="md-panel relative overflow-hidden rounded-xl border border-rule-light bg-paper-card dark:border-rule-dark dark:bg-ink-card"
       >
