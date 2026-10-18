@@ -30,10 +30,10 @@ Feature requests are welcome. But take a moment to find out whether your idea fi
 
 [Open an issue](https://github.com/benbalter/word-to-markdown-js/issues/new) which describes the feature you would like to see, why you want it, how it should work, etc.
 
-## What should I do if my document doesn&#39;t convert correctly
+## What should I do if my document doesn't convert correctly
 
 1. Strip the Word Document down to isolate the troublesome part (e.g., remove the parts that are converting correctly)
-2. Upload the `.doc` or `.docx` file to someplace like DropBox
+2. Upload the `.docx` file (`.doc` isn't supported; re-save it as `.docx` in Word first) to someplace like DropBox
 3. [Open a new issue](https://github.com/benbalter/word-to-markdown-js/issues/new) describing the particular problem. Be sure to include a link to the uploaded file.
 
 A few tips for reporting conversion issues:
@@ -41,7 +41,7 @@ A few tips for reporting conversion issues:
 - Explain the expected output, actual output, and steps to reproduce
 - Include screenshots of the expected and actual output
 - Issues should be limited to one conversation error and describe it in detail
-- Issues that report &quot;My document won&#39;t convert&quot; or &quot;I have these three problems&quot; are less likely to be resolved quickly
+- Issues that report "My document won't convert" or "I have these three problems" are less likely to be resolved quickly
 - Be sure to include what version of Microsoft Word was used to create the document
 
 ## Your first contribution
@@ -82,7 +82,7 @@ At a high level, [the process for proposing changes](https://guides.github.com/i
 
 ## Running tests
 
-`npm test` runs the Jest unit/integration suite; `npm run test:e2e` runs the Playwright end-to-end tests. `npm run all` (fix + typecheck + test + build) is the full gate to run before pushing.
+`npm test` runs the Jest unit/integration suite; `npm run test:e2e` runs the Playwright end-to-end tests. `npm run check` runs what CI's `build` job runs (lint, typecheck, knip, build, test, and the Worker bundle check) and is the gate to run before pushing. `npm run all` (fix + typecheck + test + build) is a quicker loop that also auto-fixes lint and formatting.
 
 ## Publishing a release
 
@@ -104,9 +104,9 @@ Because npm's UI only lets you configure a trusted publisher on a package that a
 
 Cut a release only after the owner approves it: publishing the GitHub Release is what publishes to npm.
 
-1. Bump `version` in `package.json` (e.g. `0.1.0` → `0.1.1`), add a matching entry to [`CHANGELOG.md`](CHANGELOG.md), and merge both to `main`.
+1. Run `npm version <x> --no-git-tag-version` (e.g. `npm version patch`), which bumps `package.json` and `package-lock.json` together without creating a tag, add a matching entry to [`CHANGELOG.md`](CHANGELOG.md), and merge both to `main`.
 2. Create a GitHub Release whose tag matches the new version, prefixed with `v` (e.g. `v0.1.1`), using the CHANGELOG entry as the release notes. The workflow verifies the tag matches `package.json` and fails the publish if they drift.
-3. The workflow builds, tests, and runs `npm publish`, authenticating via OIDC.
+3. The workflow runs the tests, then `npm publish` (whose `prepack` script builds the package), authenticating via OIDC.
 
 ## Code of conduct
 

@@ -21,7 +21,7 @@ src/__tests__/e2e/
 
 - Runs Chromium via the system Chrome (`channel: 'chrome'`).
 - Serves `dist/` with `npm run preview -- --port 8080` and reuses an already-running server outside CI.
-- Retries twice and runs one worker in CI.
+- In CI, retries twice and runs workers on half the runner's cores (`workers: '50%'`).
 
 The config does **not** build the site. Build it first.
 
