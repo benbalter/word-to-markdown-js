@@ -32,6 +32,9 @@
       "images": "görseller",
       "symbols": "özel simgeler",
       "objects": "gömülü nesneler",
+      "comments": "yorumlar",
+      "headersFooters": "üst ve alt bilgiler",
+      "textBoxes": "metin kutuları",
       "other": "diğer öğeler"
     },
     "technical": "Teknik ayrıntılar"

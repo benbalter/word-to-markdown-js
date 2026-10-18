@@ -32,6 +32,9 @@
       "images": "图片",
       "symbols": "特殊符号",
       "objects": "嵌入对象",
+      "comments": "批注",
+      "headersFooters": "页眉和页脚",
+      "textBoxes": "文本框",
       "other": "其他元素"
     },
     "technical": "技术详情"

@@ -32,6 +32,9 @@
       "images": "imágenes",
       "symbols": "símbolos especiales",
       "objects": "objetos incrustados",
+      "comments": "comentarios",
+      "headersFooters": "encabezados y pies de página",
+      "textBoxes": "cuadros de texto",
       "other": "otros elementos"
     },
     "technical": "Detalles técnicos"

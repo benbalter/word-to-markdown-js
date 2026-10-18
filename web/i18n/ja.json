@@ -32,6 +32,9 @@
       "images": "画像",
       "symbols": "特殊記号",
       "objects": "埋め込みオブジェクト",
+      "comments": "コメント",
+      "headersFooters": "ヘッダーとフッター",
+      "textBoxes": "テキスト ボックス",
       "other": "その他の要素"
     },
     "technical": "技術的な詳細"

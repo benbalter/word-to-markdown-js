@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `convertWithWarnings()` now also returns `warningDetails`: one `{ kind, message, detail? }` entry per string in `warnings`, so callers can present or localize warnings without parsing the English text. `kind` is `encrypted`, `sensitivity`, `confidentiality`, `protected`, or `content-loss`. The `warnings` strings are unchanged.
 - `convertHtml(html, options?)` converts an HTML string, such as rich text copied from Word, Google Docs, or a web page, to Markdown with the same cleanup `.docx` conversion gets. It drops Word's clipboard markup (styles, `<o:p>`) and Google Docs' all-bold wrapper.
 - word2md.com: pasting rich text copied from Word, Google Docs, or a web page onto the page converts it, as pasting a `.docx` file already did.
+- `convertWithWarnings()` warns about content Mammoth drops without saying so: comments (with how many had text), headers and footers with text beyond a page number, and text boxes saved without Word's VML fallback. Each is a `content-loss` warning whose `detail` is `comments (N)`, `headers and footers`, or `text boxes (N)`. Comments aren't flagged when your Mammoth style map renders them (`comment-reference => …`). `extractDocumentProperties()` returns the counts as `comments`, `headersFooters`, and `textBoxes`. word2md.com names these in its dropped-content warning, in every language.
 - word2md.com publishes a [`security.txt`](https://word2md.com/.well-known/security.txt) (RFC 9116) saying how to report a vulnerability. (#297)
 
 ### Changed

@@ -32,6 +32,9 @@
       "images": "이미지",
       "symbols": "특수 기호",
       "objects": "포함된 개체",
+      "comments": "메모",
+      "headersFooters": "머리글 및 바닥글",
+      "textBoxes": "텍스트 상자",
       "other": "기타 요소"
     },
     "technical": "기술 세부 정보"

@@ -32,6 +32,9 @@
       "images": "Bilder",
       "symbols": "Sonderzeichen",
       "objects": "eingebettete Objekte",
+      "comments": "Kommentare",
+      "headersFooters": "Kopf- und Fußzeilen",
+      "textBoxes": "Textfelder",
       "other": "andere Elemente"
     },
     "technical": "Technische Details"

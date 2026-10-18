@@ -32,6 +32,9 @@
       "images": "hình ảnh",
       "symbols": "ký hiệu đặc biệt",
       "objects": "đối tượng nhúng",
+      "comments": "bình luận",
+      "headersFooters": "đầu trang và chân trang",
+      "textBoxes": "hộp văn bản",
       "other": "phần tử khác"
     },
     "technical": "Chi tiết kỹ thuật"

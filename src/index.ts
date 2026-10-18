@@ -750,6 +750,9 @@ const ENGLISH_STRINGS = {
   warningKindSymbols: warnings.contentKinds.symbols,
   warningKindObjects: warnings.contentKinds.objects,
   warningKindOther: warnings.contentKinds.other,
+  warningKindComments: warnings.contentKinds.comments,
+  warningKindHeadersFooters: warnings.contentKinds.headersFooters,
+  warningKindTextBoxes: warnings.contentKinds.textBoxes,
   warningTechnical: warnings.technical,
 } satisfies Record<string, string>;
 
@@ -890,6 +893,13 @@ function localizeWarnings(details: readonly WarningDetail[] = []): {
 // namespaces it knows (w:, v:, wp:, mc:, …) and as {namespace-uri}name for
 // the rest, Office Math among them.
 const CONTENT_KINDS = [
+  // Content the converter finds dropped itself, named by its own detail
+  // strings ("comments (2)", "headers and footers", "text boxes (1)"). A
+  // text box mammoth reports itself ({…wordprocessingShape}txbx) is the same
+  // kind, and must match here before "objects" does.
+  ['comments', /^comments \(/],
+  ['headersFooters', /^headers and footers$/],
+  ['textBoxes', /^text boxes \(|wordprocessingShape\}txbx\b/],
   // Office Math: <m:oMath>, <m:oMathPara>.
   ['equations', /oMath/],
   // "Image of type … is unlikely to display", "Could not find image file
@@ -907,6 +917,9 @@ const KIND_KEYS = {
   images: 'warningKindImages',
   symbols: 'warningKindSymbols',
   objects: 'warningKindObjects',
+  comments: 'warningKindComments',
+  headersFooters: 'warningKindHeadersFooters',
+  textBoxes: 'warningKindTextBoxes',
   other: 'warningKindOther',
 } as const satisfies Record<string, UIStringKey>;
 

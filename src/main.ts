@@ -72,8 +72,10 @@ export interface ExtractedImage {
 
 // A machine-readable form of one entry in `ConvertResult.warnings`, so callers
 // (like the web UI) can present or localize warnings without parsing the
-// English text. `detail` carries the document's own label/marker, or
-// mammoth's raw message for `content-loss`.
+// English text. `detail` carries the document's own label/marker, or for
+// `content-loss` either mammoth's raw message or, for content the converter
+// finds dropped itself, one of `comments (N)`, `headers and footers`, or
+// `text boxes (N)`.
 export type WarningKind =
   | 'encrypted'
   | 'sensitivity'
@@ -102,6 +104,12 @@ export interface DocumentProperties {
   confidentiality?: string;
   encryption?: boolean;
   protection?: boolean;
+  /** Comments with text; mammoth doesn't convert them. */
+  comments?: number;
+  /** Whether a header or footer has text beyond page-number fields. */
+  headersFooters?: boolean;
+  /** Text boxes with text and no VML fallback, which mammoth drops. */
+  textBoxes?: number;
 }
 
 // Base class for every user-facing error the converter throws, so callers can
@@ -851,6 +859,70 @@ function hasConfidentialCustomProperty(customXml: string): boolean {
   });
 }
 
+// The visible text of a WordprocessingML part, leaving out field results (the
+// "3" a PAGE field displays) but keeping text typed around them. Fields nest,
+// so this tracks depth. Tokenizing in one pass keeps it linear on large XML.
+const TEXT_OR_FIELD =
+  /<w:fldChar\b[^>]*?w:fldCharType="(begin|separate|end)"|<w:fldSimple\b[^>]*?(\/)?>|<\/w:fldSimple>|<w:t(?:\s[^>]*)?>([^<]*)/g;
+
+function visibleText(xml: string): string {
+  let text = '';
+  // One entry per open field: whether we're past its "separate" (its result).
+  const fields: boolean[] = [];
+  let simpleDepth = 0;
+  for (const [token, fldChar, selfClosing, t] of xml.matchAll(TEXT_OR_FIELD)) {
+    if (fldChar === 'begin') fields.push(false);
+    else if (fldChar === 'separate') fields[fields.length - 1] = true;
+    else if (fldChar === 'end') fields.pop();
+    else if (token.startsWith('<w:fldSimple')) {
+      if (!selfClosing) simpleDepth++;
+    } else if (token === '</w:fldSimple>') simpleDepth--;
+    else if (t !== undefined && simpleDepth === 0 && !fields.includes(true)) {
+      text += t;
+    }
+  }
+  return text;
+}
+
+// Has a letter or digit: whitespace and punctuation alone aren't content.
+const HAS_CONTENT = /[\p{L}\p{N}]/u;
+
+// Comments with text in word/comments.xml. Splitting on the closing tag keeps
+// this linear on large or malformed XML.
+function countComments(commentsXml: string): number {
+  return commentsXml.split(/<\/w:comment>/).filter((chunk) => {
+    const start = chunk.lastIndexOf('<w:comment ');
+    return start !== -1 && HAS_CONTENT.test(visibleText(chunk.slice(start)));
+  }).length;
+}
+
+// Text boxes mammoth drops: a DrawingML text box (<wps:txbx>) outside any
+// <mc:AlternateContent>. Word writes text boxes as an AlternateContent whose
+// VML fallback mammoth does read, so only a text box without that fallback
+// (as some other tools write them) is lost.
+const TEXT_BOX_TOKEN =
+  /<mc:AlternateContent\b|<\/mc:AlternateContent>|<wps:txbx\b|<\/wps:txbx>/g;
+
+function countDroppedTextBoxes(documentXml: string): number {
+  let depth = 0;
+  let count = 0;
+  let start = -1;
+  for (const match of documentXml.matchAll(TEXT_BOX_TOKEN)) {
+    const token = match[0];
+    if (token === '<mc:AlternateContent') depth++;
+    else if (token === '</mc:AlternateContent>') depth = Math.max(0, depth - 1);
+    else if (token === '<wps:txbx') start = depth === 0 ? match.index : -1;
+    else if (start !== -1) {
+      if (HAS_CONTENT.test(visibleText(documentXml.slice(start, match.index))))
+        count++;
+      start = -1;
+    }
+  }
+  return count;
+}
+
+const HEADER_FOOTER_PART = /^word\/(?:header|footer)\d*\.xml$/;
+
 export async function extractDocumentProperties(
   input: string | ArrayBuffer,
 ): Promise<DocumentProperties> {
@@ -935,6 +1007,29 @@ export async function extractDocumentProperties(
         properties.protection = true;
       }
     }
+
+    // Content mammoth leaves out without a message of its own: comments,
+    // headers and footers, and text boxes it can't read.
+    const commentsFile = zip.file('word/comments.xml');
+    if (commentsFile) {
+      const comments = countComments(await commentsFile.async('string'));
+      if (comments > 0) properties.comments = comments;
+    }
+
+    for (const part of zip.file(HEADER_FOOTER_PART)) {
+      if (HAS_CONTENT.test(visibleText(await part.async('string')))) {
+        properties.headersFooters = true;
+        break;
+      }
+    }
+
+    const documentFile = zip.file('word/document.xml');
+    if (documentFile) {
+      const textBoxes = countDroppedTextBoxes(
+        await documentFile.async('string'),
+      );
+      if (textBoxes > 0) properties.textBoxes = textBoxes;
+    }
   } catch (error) {
     // If we can't extract properties, just continue without them
     // This might happen with encrypted, corrupted, or non-standard .docx files
@@ -990,6 +1085,20 @@ function generateWarningDetails(
       kind: 'protected',
       message:
         'Warning: This document has editing restrictions enabled. Some content may not convert properly.',
+    });
+  }
+
+  const dropped = [
+    properties.comments && `comments (${properties.comments})`,
+    properties.headersFooters && 'headers and footers',
+    properties.textBoxes && `text boxes (${properties.textBoxes})`,
+  ];
+  for (const detail of dropped) {
+    if (!detail) continue;
+    warnings.push({
+      kind: 'content-loss',
+      detail,
+      message: `Warning: Some document content was not converted and is missing from the Markdown (${detail}).`,
     });
   }
 
@@ -1492,6 +1601,18 @@ function extractMammothWarningDetails(
   return warnings;
 }
 
+// A caller's style map can have mammoth render comments
+// (`comment-reference => sup`), in which case they aren't missing.
+function mapsComments(options: ConvertOptions): boolean {
+  const styleMap = (options.mammoth as MammothOptions | undefined)?.styleMap;
+  return [styleMap]
+    .flat()
+    .some(
+      (entry) =>
+        typeof entry === 'string' && /^\s*comment-reference\b/m.test(entry),
+    );
+}
+
 // Converts a Word document to crisp, clean Markdown with warnings
 export async function convertWithWarnings(
   input: string | ArrayBuffer,
@@ -1504,6 +1625,7 @@ export async function convertWithWarnings(
 
     // Extract document properties to check for confidentiality flags
     const properties = await extractDocumentProperties(loaded.bytes);
+    if (mapsComments(options)) delete properties.comments;
     const warningDetails = generateWarningDetails(properties);
 
     const { markdown, messages, images } = await runConversionPipeline(

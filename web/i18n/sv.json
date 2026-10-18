@@ -32,6 +32,9 @@
       "images": "bilder",
       "symbols": "specialtecken",
       "objects": "inbäddade objekt",
+      "comments": "kommentarer",
+      "headersFooters": "sidhuvuden och sidfötter",
+      "textBoxes": "textrutor",
       "other": "andra element"
     },
     "technical": "Tekniska detaljer"
