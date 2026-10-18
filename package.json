@@ -76,6 +76,8 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
     "all": "npm run fix && npm run typecheck && npm run test && npm run build",
+    "check": "npm run lint && npm run typecheck && npm run knip && npm run build && npm run test && npm run check:worker",
+    "check:worker": "wrangler deploy --dry-run --outdir \"$(mktemp -d)\"",
     "gen:specs": "node scripts/gen-fixture-specs.mjs",
     "gen:fixtures": "npm run build:js && node scripts/build-fixtures.mjs",
     "gen:judge": "node scripts/judge-fixtures.mjs",
@@ -114,10 +116,9 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "build/cli.js",
-    "build/cli.js.map",
-    "build/main.js",
-    "build/main.js.map",
-    "build/main.d.ts"
+    "build/**/*.js",
+    "build/**/*.js.map",
+    "build/**/*.d.ts",
+    "!build/cli.d.ts"
   ]
 }

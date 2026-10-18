@@ -17,12 +17,14 @@ Everything below is done in the Cloudflare dashboard and your DNS — there's no
 1. Sign up at <https://dash.cloudflare.com> (free).
 2. **Workers & Pages → Create → Import a repository**, authorize GitHub, and pick `benbalter/word-to-markdown-js`.
 3. Build settings:
-   - **Build command:** `npm run build`
+   - **Build command:** `npm run build && npm test` (so a failing Jest suite stops the deploy; see Notes below)
    - **Deploy command:** `npx wrangler deploy` (the default)
    - Output is taken from `wrangler.jsonc` (`assets.directory: ./dist`).
 4. Deploy. You'll get a `https://word-to-markdown-js.<your-subdomain>.workers.dev` URL.
 
 ## 2. Verify on the workers.dev URL before touching DNS
+
+> **Historical.** `workers.dev` is now disabled (`workers_dev: false` in `wrangler.jsonc`), so this URL no longer resolves. To check a change before production, use the Worker Preview URL that Workers Builds posts on each PR (see Notes below).
 
 - Open the `*.workers.dev` URL and a few localized paths (`/id/`, `/vi/`, `/de/`). Confirm pages render and the language switcher works.
 - Test the edge redirect (it only runs on Cloudflare, not in a local static preview):

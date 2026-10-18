@@ -10,15 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - word2md.com links to its sibling, [md2word.app](https://md2word.app), which converts Markdown to Word: a "Going the other way?" card on the home page and a footer link.
 - `convertWithWarnings()` now also returns `warningDetails`: one `{ kind, message, detail? }` entry per string in `warnings`, so callers can present or localize warnings without parsing the English text. `kind` is `encrypted`, `sensitivity`, `confidentiality`, `protected`, or `content-loss`. The `warnings` strings are unchanged.
+- word2md.com publishes a [`security.txt`](https://word2md.com/.well-known/security.txt) (RFC 9116) saying how to report a vulnerability. (#297)
 
 ### Changed
 
-These change the Markdown produced for affected documents.
-
-- **Tables with lists or headings in their cells stay Markdown tables.** They came out as raw HTML wrapped in a `<div class="joplin-table-wrapper">`. Each list item now becomes its own `•`-marked (or numbered) line in the cell and a heading becomes bold, with lines joined by `<br>`. Line breaks in table cells no longer leave two stray spaces before the `<br>`.
-- **Table-of-contents links work.** Word's TOC entries and cross-references to a heading link to that heading's GitHub-style anchor (`#getting-started`) instead of a `#_Toc…` bookmark that no longer exists in the Markdown. Links to a bookmark that isn't on a heading become plain text.
-- **Typed bullet glyphs are stripped from nested list items too**, and from items that start with formatting (e.g. a bold `•`). Only top-level, unformatted items were cleaned before.
-- **Tables that start with several empty rows** use the first row with content as the header, instead of an empty one. A single-cell code box is unwrapped even when its cell also holds an empty nested table.
 - word2md.com: Copy Markdown is now the main action after a conversion, and the result scrolls into view. Warnings appear in the page's language, with the converter's raw messages behind a "Technical details" toggle. Code in the output and preview no longer shows font ligatures, so `->` and `--` look exactly as they're copied.
 - word2md.com: when a document has images, Download .zip becomes the main action (the Markdown alone carries them as long base64 strings), with a note explaining where the images are.
 - word2md.com: the dropped-content warning names what was dropped (equations, images, special symbols, embedded objects) when it can tell.
@@ -28,9 +23,22 @@ These change the Markdown produced for affected documents.
 - word2md.com: the Markdown output wraps long lines instead of scrolling sideways, so long lines and inline images are readable and easy to select. (#283) Thanks to [@RegolithIII](https://github.com/RegolithIII) for the suggestion.
 - word2md.com: once a conversion finishes, the page shows only the result: How It Works, the conversion table, the command-line callout, and the FAQ step aside until you choose "Convert another file". The German page now addresses you formally ("Sie") throughout, the Indonesian page says "berkas" for "file" throughout, and the German, Indonesian, and Vietnamese search descriptions say again that nothing is uploaded.
 
+These change the Markdown produced for affected documents.
+
+- **Tables with lists or headings in their cells stay Markdown tables.** They came out as raw HTML wrapped in a `<div class="joplin-table-wrapper">`. Each list item now becomes its own `•`-marked (or numbered) line in the cell and a heading becomes bold, with lines joined by `<br>`. Line breaks in table cells no longer leave two stray spaces before the `<br>`.
+- **Table-of-contents links work.** Word's TOC entries and cross-references to a heading link to that heading's GitHub-style anchor (`#getting-started`) instead of a `#_Toc…` bookmark that no longer exists in the Markdown. Links to a bookmark that isn't on a heading become plain text.
+- **Typed bullet glyphs are stripped from nested list items too**, and from items that start with formatting (e.g. a bold `•`). Only top-level, unformatted items were cleaned before.
+- **Tables that start with several empty rows** use the first row with content as the header, instead of an empty one. A single-cell code box is unwrapped even when its cell also holds an empty nested table.
+- **Tables with merged cells now render as GitHub tables.** Each merged cell is expanded into one cell per column it covers (its text in the first, the rest empty), so every row has as many cells as the header. Before, the delimiter row came out with the wrong number of cells, and GitHub showed the table as raw pipe text. (#282, #288) Thanks to [@victorzhong0110](https://github.com/victorzhong0110).
+
 ### Fixed
 
 - Confidentiality warnings no longer fire on "confidential" in a free-text custom property's value (e.g. a `Notes` property reading "not confidential"). A custom property named for confidentiality, or a classification or sensitivity property whose value says confidential, is still flagged.
+- word2md.com: Ctrl+A / Cmd+A in the Markdown output or preview selects just that panel, not the whole page. (#279, #280) Thanks to [@jethrothelion](https://github.com/jethrothelion).
+
+### Documentation
+
+- The README's limitations and CLI options match the converter's behavior: multi-paragraph footnotes, text boxes, dropped comments, and `--verbose`. (#289, #295) Thanks to [@w3lld1](https://github.com/w3lld1).
 
 ## [0.5.1] - 2026-09-30
 

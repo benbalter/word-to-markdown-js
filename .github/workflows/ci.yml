@@ -51,6 +51,19 @@ jobs:
       # the lockfile (and npm audit) covers it.
       - name: Check Worker bundle
         run: npx wrangler deploy --dry-run --outdir "$RUNNER_TEMP/worker"
+      # Install the packed tarball the way a user would, so a module missing
+      # from package.json `files` (or a broken `exports`/`bin`) fails here
+      # instead of after `npm publish`. The tests above run the source tree,
+      # which can't catch that.
+      - name: Smoke-test the packed package
+        run: |
+          npm pack --pack-destination "$RUNNER_TEMP"
+          mkdir "$RUNNER_TEMP/pack-test"
+          cd "$RUNNER_TEMP/pack-test"
+          npm init -y > /dev/null
+          npm install "$RUNNER_TEMP"/word-to-markdown-*.tgz
+          node -e "import('word-to-markdown').then((m) => { if (typeof m.default !== 'function') throw new Error('no default export'); })"
+          ./node_modules/.bin/w2m --version
       # Hand the built site to the e2e job so it doesn't rebuild it.
       - uses: actions/upload-artifact@v7
         with:
