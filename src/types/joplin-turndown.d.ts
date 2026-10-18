@@ -13,6 +13,9 @@ declare module '@joplin/turndown' {
     removeAttribute(name: string): void;
     firstElementChild: TurndownNode | null;
     childElementCount: number;
+    closest(selector: string): TurndownNode | null;
+    // Only on <table> nodes.
+    rows?: ArrayLike<{ childNodes: ArrayLike<unknown> }>;
   }
   interface Rule {
     filter: string | string[] | ((node: TurndownNode) => boolean);
