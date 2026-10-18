@@ -47,7 +47,17 @@ test.describe('Content-Security-Policy', () => {
     expect(csp).toContain("object-src 'none'");
   });
 
-  for (const url of ['/', '/de/', '/ja/', '/privacy/', '/terms/']) {
+  // /ar/ is the right-to-left layout; an unknown path serves the 404 page,
+  // which has its own layout.
+  for (const url of [
+    '/',
+    '/de/',
+    '/ja/',
+    '/ar/',
+    '/privacy/',
+    '/terms/',
+    '/definitely-not-a-page/',
+  ]) {
     test(`${url} loads without CSP violations`, async ({ page }) => {
       const violations = await trackViolations(page);
       await page.goto(url);

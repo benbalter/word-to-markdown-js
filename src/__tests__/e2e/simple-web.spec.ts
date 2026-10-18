@@ -4,6 +4,16 @@ test.describe('Simple Web Interface Test', () => {
   test('should load page and check JavaScript functionality', async ({
     page,
   }) => {
+    // Collect console errors and uncaught exceptions before navigating, so
+    // anything thrown while the page loads is caught too.
+    const consoleMessages: string[] = [];
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') {
+        consoleMessages.push(msg.text());
+      }
+    });
+    page.on('pageerror', (error) => consoleMessages.push(error.message));
+
     // Navigate to the web interface
     await page.goto('http://localhost:8080');
 
@@ -13,14 +23,6 @@ test.describe('Simple Web Interface Test', () => {
     // Check that the form elements are present
     await expect(page.locator('#file')).toBeVisible();
     await expect(page.locator('label[for="file"]')).toBeVisible();
-
-    // Check JavaScript console for errors
-    const consoleMessages: string[] = [];
-    page.on('console', (msg) => {
-      if (msg.type() === 'error') {
-        consoleMessages.push(msg.text());
-      }
-    });
 
     // Wait for page to fully load and JavaScript to execute
     await page.waitForLoadState('networkidle');
