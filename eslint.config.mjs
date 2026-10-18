@@ -60,6 +60,14 @@ export default tseslint.config(
     },
   },
 
+  // The site's offline service worker (template and kill switch).
+  {
+    files: ['web/pwa/*.js'],
+    languageOptions: {
+      globals: { ...globals.serviceworker },
+    },
+  },
+
   // The browser converter entry point uses DOM/Web APIs.
   {
     files: ['src/index.ts'],

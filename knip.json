@@ -1,5 +1,5 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "entry": ["scripts/*.mjs"],
+  "entry": ["scripts/*.mjs", "web/pwa/sw.js", "web/pwa/sw-kill.js"],
   "ignoreBinaries": ["mktemp", "w2m"]
 }

@@ -46,6 +46,14 @@ npm run gen:i18n              # B1 (credits): writes web/i18n/<locale>.json
 npm run build:site && npm run gen:og
 ```
 
+## App icons
+
+`gen-pwa-icons.mjs` renders the web app manifest icons (`public/icon-192.png`, `icon-512.png`, and a full-bleed `icon-maskable-512.png`) from `public/favicon.svg` in Chrome. No credits needed. Rerun it when the favicon changes; the outputs are committed.
+
+```bash
+npm run gen:icons
+```
+
 ## Other
 
 - `make-fixtures.mjs` — regenerates the hand-authored synthetic `.docx` fixtures.

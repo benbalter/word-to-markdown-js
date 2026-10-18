@@ -1,0 +1,34 @@
+---
+// Registers the offline service worker (dist/sw.js, written by
+// web/pwa/service-worker.ts). A processed script, not is:inline, because
+// Astro's CSP only hashes scripts it bundles.
+---
+
+<script>
+  import { serviceWorkerKillSwitch } from '../pwa/config';
+
+  // Production builds only: dev has no sw.js. Registration waits for load so
+  // the precache doesn't compete with the page's own requests.
+  if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+    if (serviceWorkerKillSwitch) {
+      // Don't register the kill worker on new visitors: it reloads the tabs it
+      // controls, so registering it on every load would loop. Instead, make
+      // existing installs fetch /sw.js now, so the kill worker replaces the
+      // real one, clears its caches, and unregisters. Unregistering from here
+      // would skip that: the old worker would keep its caches and keep
+      // serving this tab until it closed.
+      navigator.serviceWorker
+        .getRegistrations()
+        .then((registrations) =>
+          Promise.all(registrations.map((r) => r.update())),
+        )
+        .catch(() => {});
+    } else {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {
+          // Private modes and some browsers refuse; the site works without it.
+        });
+      });
+    }
+  }
+</script>
