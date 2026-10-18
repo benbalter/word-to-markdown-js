@@ -928,9 +928,15 @@ function normalizeText(md: string): string {
     .replace(smartQuotesRegex, (char) => smartQuoteMap[char]);
 }
 
+// Every rule but MD029 (ol-prefix), whose fix renumbers any ordered list to
+// start at 1, so `<ol start="5">` (e.g. in pasted HTML) lost its number.
+// Prettier runs next and numbers lists itself, keeping the first number and
+// counting up, so lists that start at 1 come out exactly as before.
+const lintConfig = { MD029: false };
+
 // Lint the Markdown and correct any issues
 function lint(md: string): string {
-  const lintResult = markdownlint.lint({ strings: { md } });
+  const lintResult = markdownlint.lint({ strings: { md }, config: lintConfig });
   return applyFixes(md, lintResult['md']).trim();
 }
 

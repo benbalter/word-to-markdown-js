@@ -467,6 +467,21 @@ describe('edge cases and advanced features', () => {
     }
   });
 
+  it("keeps an ordered list's start number through the full pipeline", async () => {
+    const { convertHtml } = await import('../main.js');
+    // markdownlint's MD029 fix used to renumber this to 1., 2.
+    expect(
+      await convertHtml('<ol start="5"><li>five</li><li>six</li></ol>'),
+    ).toBe('5. five\n6. six');
+    // Lists that start at 1 are numbered as before: two adjacent lists merge
+    // into one Markdown list, which is numbered straight through.
+    expect(
+      await convertHtml(
+        '<ol><li>a</li><li>b</li></ol><ol><li>c</li><li>d</li></ol>',
+      ),
+    ).toBe('1. a\n2. b\n\n3. c\n4. d');
+  });
+
   it('turns Mammoth footnote and endnote markup into GFM footnotes', async () => {
     const { htmlToMd } = await import('../main.js');
     const html =
