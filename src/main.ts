@@ -861,23 +861,48 @@ function hasConfidentialCustomProperty(customXml: string): boolean {
 
 // The visible text of a WordprocessingML part, leaving out field results (the
 // "3" a PAGE field displays) but keeping text typed around them. Fields nest,
-// so this tracks depth. Tokenizing in one pass keeps it linear on large XML.
+// so this tracks depth.
+//
+// This reads untrusted XML, so it's built to stay linear on malformed input:
+// attribute scans stop at the next `<` or `>` and are length-bounded, so a
+// failed match can't rescan the rest of the part (an unbounded `[^>]*` made
+// 256 KB of unterminated `<w:t ` take seconds); the input, nesting depth, and
+// part count are capped too.
 const TEXT_OR_FIELD =
-  /<w:fldChar\b[^>]*?w:fldCharType="(begin|separate|end)"|<w:fldSimple\b[^>]*?(\/)?>|<\/w:fldSimple>|<w:t(?:\s[^>]*)?>([^<]*)/g;
+  /<w:fldChar\b[^<>]{0,512}?w:fldCharType="(begin|separate|end)"|<w:fldSimple\b[^<>]{0,2048}?(\/)?>|<\/w:fldSimple>|<w:t(?:\s[^<>]{0,512})?>([^<]*)/g;
+
+// Enough for any real part; past it, a scan is best-effort.
+const MAX_SCAN_CHARS = 8 * 1024 * 1024;
+const MAX_FIELD_DEPTH = 64;
 
 function visibleText(xml: string): string {
   let text = '';
   // One entry per open field: whether we're past its "separate" (its result).
   const fields: boolean[] = [];
+  // How many of those are past "separate", so text checks are O(1).
+  let inResult = 0;
+  // Fields opened past MAX_FIELD_DEPTH, tracked only to stay balanced.
+  let overflow = 0;
   let simpleDepth = 0;
-  for (const [token, fldChar, selfClosing, t] of xml.matchAll(TEXT_OR_FIELD)) {
-    if (fldChar === 'begin') fields.push(false);
-    else if (fldChar === 'separate') fields[fields.length - 1] = true;
-    else if (fldChar === 'end') fields.pop();
-    else if (token.startsWith('<w:fldSimple')) {
+  for (const [token, fldChar, selfClosing, t] of xml
+    .slice(0, MAX_SCAN_CHARS)
+    .matchAll(TEXT_OR_FIELD)) {
+    if (fldChar === 'begin') {
+      if (fields.length < MAX_FIELD_DEPTH) fields.push(false);
+      else overflow++;
+    } else if (fldChar === 'separate') {
+      if (overflow === 0 && fields.length > 0 && !fields[fields.length - 1]) {
+        fields[fields.length - 1] = true;
+        inResult++;
+      }
+    } else if (fldChar === 'end') {
+      if (overflow > 0) overflow--;
+      else if (fields.pop()) inResult--;
+    } else if (token.startsWith('<w:fldSimple')) {
       if (!selfClosing) simpleDepth++;
-    } else if (token === '</w:fldSimple>') simpleDepth--;
-    else if (t !== undefined && simpleDepth === 0 && !fields.includes(true)) {
+    } else if (token === '</w:fldSimple>') {
+      simpleDepth = Math.max(0, simpleDepth - 1);
+    } else if (t !== undefined && simpleDepth === 0 && inResult === 0) {
       text += t;
     }
   }
@@ -907,7 +932,9 @@ function countDroppedTextBoxes(documentXml: string): number {
   let depth = 0;
   let count = 0;
   let start = -1;
-  for (const match of documentXml.matchAll(TEXT_BOX_TOKEN)) {
+  for (const match of documentXml
+    .slice(0, MAX_SCAN_CHARS)
+    .matchAll(TEXT_BOX_TOKEN)) {
     const token = match[0];
     if (token === '<mc:AlternateContent') depth++;
     else if (token === '</mc:AlternateContent>') depth = Math.max(0, depth - 1);
@@ -922,6 +949,9 @@ function countDroppedTextBoxes(documentXml: string): number {
 }
 
 const HEADER_FOOTER_PART = /^word\/(?:header|footer)\d*\.xml$/;
+// Word writes up to three headers and three footers per section; this covers
+// dozens of sections, and the scan stops at the first one with text anyway.
+const MAX_HEADER_FOOTER_PARTS = 64;
 
 export async function extractDocumentProperties(
   input: string | ArrayBuffer,
@@ -1016,7 +1046,9 @@ export async function extractDocumentProperties(
       if (comments > 0) properties.comments = comments;
     }
 
-    for (const part of zip.file(HEADER_FOOTER_PART)) {
+    for (const part of zip
+      .file(HEADER_FOOTER_PART)
+      .slice(0, MAX_HEADER_FOOTER_PARTS)) {
       if (HAS_CONTENT.test(visibleText(await part.async('string')))) {
         properties.headersFooters = true;
         break;

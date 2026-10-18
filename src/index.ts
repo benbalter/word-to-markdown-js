@@ -899,7 +899,10 @@ const CONTENT_KINDS = [
   // kind, and must match here before "objects" does.
   ['comments', /^comments \(/],
   ['headersFooters', /^headers and footers$/],
-  ['textBoxes', /^text boxes \(|wordprocessingShape\}txbx\b/],
+  [
+    'textBoxes',
+    /^(?:text boxes \(|An unrecognised element was ignored: \{[^}]*\/wordprocessingShape\}txbx$)/,
+  ],
   // Office Math: <m:oMath>, <m:oMathPara>.
   ['equations', /oMath/],
   // "Image of type … is unlikely to display", "Could not find image file

@@ -236,3 +236,46 @@ it('a document without any of these has no content-loss warnings', async () => {
   );
   expect(properties).toEqual({});
 });
+
+describe('malformed parts', () => {
+  // The scans read untrusted XML. An unterminated tag must not make a failed
+  // match rescan the rest of the part: with an unbounded attribute scan, these
+  // took time quadratic in their size (256 KB of `<w:t ` took seconds, 1 MB
+  // over a minute).
+  it.each(['<w:fldSimple ', '<w:fldChar ', '<w:t ', '<wps:txbx '])(
+    '1 MB of unterminated %j finishes quickly',
+    async (tag) => {
+      const junk = tag.repeat(Math.ceil((1024 * 1024) / tag.length));
+      const header = withHeader(junk);
+      const doc = await docx({
+        ...header,
+        body: p('Body') + junk,
+        parts: {
+          ...header.parts,
+          'word/comments.xml': `<w:comments ${NS}><w:comment w:id="0">${junk}</w:comment></w:comments>`,
+        },
+      });
+      const started = performance.now();
+      await extractDocumentProperties(doc);
+      expect(performance.now() - started).toBeLessThan(2000);
+    },
+  );
+
+  it('fields nested past the depth cap stay balanced', async () => {
+    const depth = 200;
+    const open =
+      '<w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r>';
+    const close = '<w:r><w:fldChar w:fldCharType="end"/></w:r>';
+    const nested = `${open.repeat(depth)}${run('9')}${close.repeat(depth)}`;
+    // Only field results: nothing visible.
+    const hidden = await extractDocumentProperties(
+      await docx(withHeader(`<w:p>${nested}</w:p>`)),
+    );
+    expect(hidden.headersFooters).toBeUndefined();
+    // Text after every field has closed is visible again.
+    const visible = await extractDocumentProperties(
+      await docx(withHeader(`<w:p>${nested}${run('Report title')}</w:p>`)),
+    );
+    expect(visible.headersFooters).toBe(true);
+  });
+});
