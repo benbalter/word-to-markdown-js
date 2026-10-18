@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- The CLI reads a `.docx` from stdin: pass `-` as the file, or leave it out and pipe the file in (`cat report.docx | w2m > report.md`). `-o -` writes to stdout.
+- CLI `--quiet` (`-q`) prints only errors to stderr, and `--strict` exits with status 2 when the document has warnings (the Markdown is still written), so scripts can tell "converted, but check it" from "failed". `w2m --help` now shows examples and points at `w2m convert --help` for every option.
 - word2md.com links to its sibling, [md2word.app](https://md2word.app), which converts Markdown to Word: a "Going the other way?" card on the home page and a footer link.
 - `convertWithWarnings()` now also returns `warningDetails`: one `{ kind, message, detail? }` entry per string in `warnings`, so callers can present or localize warnings without parsing the English text. `kind` is `encrypted`, `sensitivity`, `confidentiality`, `protected`, or `content-loss`. The `warnings` strings are unchanged.
 - `convertHtml(html, options?)` converts an HTML string, such as rich text copied from Word, Google Docs, or a web page, to Markdown with the same cleanup `.docx` conversion gets. It drops Word's clipboard markup (styles, `<o:p>`) and Google Docs' all-bold wrapper.

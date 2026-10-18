@@ -13,17 +13,51 @@ import { convertWithWarnings } from './main.js';
 const require = createRequire(import.meta.url);
 const { version } = require('../package.json') as { version: string };
 
+// --strict exits with this when the conversion succeeded but produced
+// warnings, so scripts can tell "converted with caveats" (2) from "failed" (1).
+const EXIT_WARNINGS = 2;
+
+// Read all of stdin as the .docx bytes. convertWithWarnings takes an
+// ArrayBuffer for in-memory input; slice copies just this Buffer's bytes out
+// of Node's shared pool.
+async function readStdin(): Promise<ArrayBuffer> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of process.stdin) chunks.push(chunk as Buffer);
+  const bytes = Buffer.concat(chunks);
+  return bytes.buffer.slice(
+    bytes.byteOffset,
+    bytes.byteOffset + bytes.byteLength,
+  ) as ArrayBuffer;
+}
+
+const EXAMPLES = `
+Examples:
+  $ w2m report.docx > report.md
+  $ w2m -o out/report.md --image-dir images report.docx
+  $ cat report.docx | w2m > report.md
+  $ w2m --strict --quiet report.docx > report.md || echo "check report.md"`;
+
 const program = new Command();
 program.name('w2m');
 program.description('Convert Word documents to beautiful Markdown');
 program.version(version);
+// `convert` is the default command, so `w2m --help` is what people run, but
+// commander shows only the top-level options there. Point at the full list.
+program.addHelpText(
+  'after',
+  `\nRun "w2m convert --help" for all conversion options.\n${EXAMPLES}`,
+);
 program
   .command('convert', { isDefault: true })
-  .argument('<file>', 'The Word document to convert')
+  .argument(
+    '[file]',
+    'The Word document to convert. Use - (or omit it and pipe the file in) ' +
+      'to read from stdin.',
+  )
   .option(
     '-o, --output <file>',
-    'Write the Markdown to <file> instead of stdout. Warnings still print to ' +
-      'stderr.',
+    'Write the Markdown to <file> instead of stdout (- means stdout). ' +
+      'Warnings still print to stderr.',
   )
   .option(
     '--strip-images',
@@ -48,21 +82,56 @@ program
       'of converting them to GFM [^1] footnotes',
   )
   .option(
+    '-q, --quiet',
+    'Print nothing to stderr except errors: no warnings or progress notes',
+  )
+  .option(
+    '--strict',
+    `Exit with status ${EXIT_WARNINGS} if the document has warnings ` +
+      '(the Markdown is still written)',
+  )
+  .option(
     '--verbose',
     'On failure, also print the underlying error and stack trace',
   )
-  .action(async (file, options) => {
+  .addHelpText('after', EXAMPLES)
+  .action(async (file: string | undefined, options) => {
+    // Progress notes and warnings go to stderr unless --quiet; errors always do.
+    const note = (message: string): void => {
+      if (!options.quiet) console.error(message);
+    };
+    // `-o -` is stdout, as with most CLIs.
+    const output: string | undefined =
+      options.output === '-' ? undefined : options.output;
     try {
+      // An explicit `-`, or no file with something piped in, reads stdin. No
+      // file at an interactive terminal would just hang, so ask for one.
+      const fromStdin = file === '-' || (!file && !process.stdin.isTTY);
+      if (!file && !fromStdin) {
+        program.commands[0].help({ error: true });
+      }
+      let input: string | ArrayBuffer;
+      if (fromStdin) {
+        input = await readStdin();
+        if (input.byteLength === 0) {
+          throw new Error(
+            'Nothing was piped to stdin. Pass a .docx file, or pipe one in: w2m - < report.docx',
+          );
+        }
+      } else {
+        input = file as string;
+      }
+
       // --image-dir (extract) takes precedence over --strip-images.
       if (options.imageDir && options.stripImages) {
-        console.error('Ignoring --strip-images because --image-dir is set.');
+        note('Ignoring --strip-images because --image-dir is set.');
       }
       const images = options.imageDir
         ? 'extract'
         : options.stripImages
           ? 'strip'
           : 'inline';
-      const result = await convertWithWarnings(file, {
+      const result = await convertWithWarnings(input, {
         images,
         imageDir: options.imageDir,
         numberedLists: options.bulletLists ? 'bullets' : 'ordered',
@@ -74,7 +143,7 @@ program
       // them. The links are relative to the Markdown file, so resolve them
       // against its directory (the working directory when writing to stdout).
       if (result.images && result.images.length > 0) {
-        const markdownDir = options.output ? path.dirname(options.output) : '.';
+        const markdownDir = output ? path.dirname(output) : '.';
         const imageDir = path.resolve(markdownDir, options.imageDir);
         await mkdir(imageDir, { recursive: true });
         await Promise.all(
@@ -82,7 +151,7 @@ program
             writeFile(path.resolve(markdownDir, image.path), image.bytes),
           ),
         );
-        console.error(
+        note(
           `Wrote ${result.images.length} image(s) to ${path.relative('.', imageDir) || '.'}/`,
         );
       }
@@ -90,19 +159,24 @@ program
       // Display warnings to stderr if any
       if (result.warnings.length > 0) {
         result.warnings.forEach((warning) => {
-          console.error(warning);
+          note(warning);
         });
-        console.error(''); // Empty line for separation
+        note(''); // Empty line for separation
       }
 
       // Write the Markdown to the requested file, or stdout by default.
-      if (options.output) {
-        await mkdir(path.dirname(options.output), { recursive: true });
+      if (output) {
+        await mkdir(path.dirname(output), { recursive: true });
         // End with a newline, as stdout (console.log) does (markdownlint MD047).
-        await writeFile(options.output, `${result.markdown}\n`);
-        console.error(`Wrote Markdown to ${options.output}`);
+        await writeFile(output, `${result.markdown}\n`);
+        note(`Wrote Markdown to ${output}`);
       } else {
         console.log(result.markdown);
+      }
+
+      // Set rather than call process.exit(), so stdout finishes flushing.
+      if (options.strict && result.warnings.length > 0) {
+        process.exitCode = EXIT_WARNINGS;
       }
     } catch (error) {
       // Converter errors carry user-friendly messages; print anything else as-is
