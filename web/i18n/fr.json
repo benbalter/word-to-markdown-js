@@ -32,6 +32,9 @@
       "images": "images",
       "symbols": "symboles spéciaux",
       "objects": "objets incorporés",
+      "comments": "commentaires",
+      "headersFooters": "en-têtes et pieds de page",
+      "textBoxes": "zones de texte",
       "other": "autres éléments"
     },
     "technical": "Détails techniques"

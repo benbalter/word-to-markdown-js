@@ -32,6 +32,9 @@
       "images": "obrazy",
       "symbols": "symbole specjalne",
       "objects": "osadzone obiekty",
+      "comments": "komentarze",
+      "headersFooters": "nagłówki i stopki",
+      "textBoxes": "pola tekstowe",
       "other": "inne elementy"
     },
     "technical": "Szczegóły techniczne"

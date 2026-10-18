@@ -32,6 +32,9 @@
       "images": "afbeeldingen",
       "symbols": "speciale symbolen",
       "objects": "ingesloten objecten",
+      "comments": "opmerkingen",
+      "headersFooters": "kop- en voetteksten",
+      "textBoxes": "tekstvakken",
       "other": "andere elementen"
     },
     "technical": "Technische details"

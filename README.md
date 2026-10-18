@@ -29,8 +29,9 @@ npx word-to-markdown input.docx > output.md
 - **Images** are inlined as base64 data URIs by default. To extract them to files with relative links instead, use `{ images: 'extract' }` (library — the bytes come back on `ConvertResult.images`) or `--image-dir <dir>` (CLI). Drop them entirely with `{ images: 'strip' }` / `--strip-images`. On the web, documents with images offer a **Download .zip** (Markdown + an `images/` folder). For full control, pass a custom [Mammoth image handler](https://github.com/mwilliamson/mammoth.js/#images) via `options.mammoth`.
 - **Underline** is dropped by default (Mammoth's default, since underlines are easily confused with links). Pass `{ underline: 'preserve' }` (library) or `--underline` (CLI) to keep it as an inline `<u>` tag.
 - **Footnotes and endnotes** become standard GFM/Pandoc footnotes — a `[^1]` reference in the body and a `[^1]: …` definition at the end — which render on GitHub and in the web preview. Pass `{ footnotes: 'preserve' }` (library) or `--preserve-footnotes` (CLI) to instead keep Mammoth's raw `<sup>` links and numbered note list (useful for CommonMark targets that lack footnote support). Notes whose bodies span multiple paragraphs are converted with indented continuation paragraphs.
-- **Text boxes** are converted as paragraphs after the containing paragraph.
-- **Comments** are dropped without a warning during the `.docx` → HTML step.
+- **Text boxes** are converted as paragraphs after the containing paragraph. A text box saved without Word's VML fallback (as some other tools write them) is dropped, and `convertWithWarnings` warns.
+- **Comments** are dropped during the `.docx` → HTML step, and `convertWithWarnings` warns with how many had text. To keep them, map them in a Mammoth style map, e.g. `{ mammoth: { styleMap: ['comment-reference => sup'] } }`.
+- **Headers and footers** are dropped. `convertWithWarnings` warns when one has text beyond a page number.
 - **Equations are not converted** — Mammoth drops them during the `.docx` → HTML step. When content is dropped this way, `convertWithWarnings` surfaces a warning.
 - Heading levels come from Word's paragraph styles, not from font size.
 

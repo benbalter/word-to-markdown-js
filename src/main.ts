@@ -72,8 +72,10 @@ export interface ExtractedImage {
 
 // A machine-readable form of one entry in `ConvertResult.warnings`, so callers
 // (like the web UI) can present or localize warnings without parsing the
-// English text. `detail` carries the document's own label/marker, or
-// mammoth's raw message for `content-loss`.
+// English text. `detail` carries the document's own label/marker, or for
+// `content-loss` either mammoth's raw message or, for content the converter
+// finds dropped itself, one of `comments (N)`, `headers and footers`, or
+// `text boxes (N)`.
 export type WarningKind =
   | 'encrypted'
   | 'sensitivity'
@@ -102,6 +104,12 @@ export interface DocumentProperties {
   confidentiality?: string;
   encryption?: boolean;
   protection?: boolean;
+  /** Comments with text; mammoth doesn't convert them. */
+  comments?: number;
+  /** Whether a header or footer has text beyond page-number fields. */
+  headersFooters?: boolean;
+  /** Text boxes with text and no VML fallback, which mammoth drops. */
+  textBoxes?: number;
 }
 
 // Base class for every user-facing error the converter throws, so callers can
@@ -851,6 +859,100 @@ function hasConfidentialCustomProperty(customXml: string): boolean {
   });
 }
 
+// The visible text of a WordprocessingML part, leaving out field results (the
+// "3" a PAGE field displays) but keeping text typed around them. Fields nest,
+// so this tracks depth.
+//
+// This reads untrusted XML, so it's built to stay linear on malformed input:
+// attribute scans stop at the next `<` or `>` and are length-bounded, so a
+// failed match can't rescan the rest of the part (an unbounded `[^>]*` made
+// 256 KB of unterminated `<w:t ` take seconds); the input, nesting depth, and
+// part count are capped too.
+const TEXT_OR_FIELD =
+  /<w:fldChar\b[^<>]{0,512}?w:fldCharType="(begin|separate|end)"|<w:fldSimple\b[^<>]{0,2048}?(\/)?>|<\/w:fldSimple>|<w:t(?:\s[^<>]{0,512})?>([^<]*)/g;
+
+// Enough for any real part; past it, a scan is best-effort.
+const MAX_SCAN_CHARS = 8 * 1024 * 1024;
+const MAX_FIELD_DEPTH = 64;
+
+function visibleText(xml: string): string {
+  let text = '';
+  // One entry per open field: whether we're past its "separate" (its result).
+  const fields: boolean[] = [];
+  // How many of those are past "separate", so text checks are O(1).
+  let inResult = 0;
+  // Fields opened past MAX_FIELD_DEPTH, tracked only to stay balanced.
+  let overflow = 0;
+  let simpleDepth = 0;
+  for (const [token, fldChar, selfClosing, t] of xml
+    .slice(0, MAX_SCAN_CHARS)
+    .matchAll(TEXT_OR_FIELD)) {
+    if (fldChar === 'begin') {
+      if (fields.length < MAX_FIELD_DEPTH) fields.push(false);
+      else overflow++;
+    } else if (fldChar === 'separate') {
+      if (overflow === 0 && fields.length > 0 && !fields[fields.length - 1]) {
+        fields[fields.length - 1] = true;
+        inResult++;
+      }
+    } else if (fldChar === 'end') {
+      if (overflow > 0) overflow--;
+      else if (fields.pop()) inResult--;
+    } else if (token.startsWith('<w:fldSimple')) {
+      if (!selfClosing) simpleDepth++;
+    } else if (token === '</w:fldSimple>') {
+      simpleDepth = Math.max(0, simpleDepth - 1);
+    } else if (t !== undefined && simpleDepth === 0 && inResult === 0) {
+      text += t;
+    }
+  }
+  return text;
+}
+
+// Has a letter or digit: whitespace and punctuation alone aren't content.
+const HAS_CONTENT = /[\p{L}\p{N}]/u;
+
+// Comments with text in word/comments.xml. Splitting on the closing tag keeps
+// this linear on large or malformed XML.
+function countComments(commentsXml: string): number {
+  return commentsXml.split(/<\/w:comment>/).filter((chunk) => {
+    const start = chunk.lastIndexOf('<w:comment ');
+    return start !== -1 && HAS_CONTENT.test(visibleText(chunk.slice(start)));
+  }).length;
+}
+
+// Text boxes mammoth drops: a DrawingML text box (<wps:txbx>) outside any
+// <mc:AlternateContent>. Word writes text boxes as an AlternateContent whose
+// VML fallback mammoth does read, so only a text box without that fallback
+// (as some other tools write them) is lost.
+const TEXT_BOX_TOKEN =
+  /<mc:AlternateContent\b|<\/mc:AlternateContent>|<wps:txbx\b|<\/wps:txbx>/g;
+
+function countDroppedTextBoxes(documentXml: string): number {
+  let depth = 0;
+  let count = 0;
+  let start = -1;
+  for (const match of documentXml
+    .slice(0, MAX_SCAN_CHARS)
+    .matchAll(TEXT_BOX_TOKEN)) {
+    const token = match[0];
+    if (token === '<mc:AlternateContent') depth++;
+    else if (token === '</mc:AlternateContent>') depth = Math.max(0, depth - 1);
+    else if (token === '<wps:txbx') start = depth === 0 ? match.index : -1;
+    else if (start !== -1) {
+      if (HAS_CONTENT.test(visibleText(documentXml.slice(start, match.index))))
+        count++;
+      start = -1;
+    }
+  }
+  return count;
+}
+
+const HEADER_FOOTER_PART = /^word\/(?:header|footer)\d*\.xml$/;
+// Word writes up to three headers and three footers per section; this covers
+// dozens of sections, and the scan stops at the first one with text anyway.
+const MAX_HEADER_FOOTER_PARTS = 64;
+
 export async function extractDocumentProperties(
   input: string | ArrayBuffer,
 ): Promise<DocumentProperties> {
@@ -935,6 +1037,31 @@ export async function extractDocumentProperties(
         properties.protection = true;
       }
     }
+
+    // Content mammoth leaves out without a message of its own: comments,
+    // headers and footers, and text boxes it can't read.
+    const commentsFile = zip.file('word/comments.xml');
+    if (commentsFile) {
+      const comments = countComments(await commentsFile.async('string'));
+      if (comments > 0) properties.comments = comments;
+    }
+
+    for (const part of zip
+      .file(HEADER_FOOTER_PART)
+      .slice(0, MAX_HEADER_FOOTER_PARTS)) {
+      if (HAS_CONTENT.test(visibleText(await part.async('string')))) {
+        properties.headersFooters = true;
+        break;
+      }
+    }
+
+    const documentFile = zip.file('word/document.xml');
+    if (documentFile) {
+      const textBoxes = countDroppedTextBoxes(
+        await documentFile.async('string'),
+      );
+      if (textBoxes > 0) properties.textBoxes = textBoxes;
+    }
   } catch (error) {
     // If we can't extract properties, just continue without them
     // This might happen with encrypted, corrupted, or non-standard .docx files
@@ -990,6 +1117,20 @@ function generateWarningDetails(
       kind: 'protected',
       message:
         'Warning: This document has editing restrictions enabled. Some content may not convert properly.',
+    });
+  }
+
+  const dropped = [
+    properties.comments && `comments (${properties.comments})`,
+    properties.headersFooters && 'headers and footers',
+    properties.textBoxes && `text boxes (${properties.textBoxes})`,
+  ];
+  for (const detail of dropped) {
+    if (!detail) continue;
+    warnings.push({
+      kind: 'content-loss',
+      detail,
+      message: `Warning: Some document content was not converted and is missing from the Markdown (${detail}).`,
     });
   }
 
@@ -1492,6 +1633,18 @@ function extractMammothWarningDetails(
   return warnings;
 }
 
+// A caller's style map can have mammoth render comments
+// (`comment-reference => sup`), in which case they aren't missing.
+function mapsComments(options: ConvertOptions): boolean {
+  const styleMap = (options.mammoth as MammothOptions | undefined)?.styleMap;
+  return [styleMap]
+    .flat()
+    .some(
+      (entry) =>
+        typeof entry === 'string' && /^\s*comment-reference\b/m.test(entry),
+    );
+}
+
 // Converts a Word document to crisp, clean Markdown with warnings
 export async function convertWithWarnings(
   input: string | ArrayBuffer,
@@ -1504,6 +1657,7 @@ export async function convertWithWarnings(
 
     // Extract document properties to check for confidentiality flags
     const properties = await extractDocumentProperties(loaded.bytes);
+    if (mapsComments(options)) delete properties.comments;
     const warningDetails = generateWarningDetails(properties);
 
     const { markdown, messages, images } = await runConversionPipeline(

@@ -85,6 +85,9 @@ export interface UIStrings {
       images: string;
       symbols: string;
       objects: string;
+      comments: string;
+      headersFooters: string;
+      textBoxes: string;
       other: string;
     };
     /** Summary of the disclosure holding the converter's raw messages. */

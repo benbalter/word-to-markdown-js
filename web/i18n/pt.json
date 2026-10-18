@@ -32,6 +32,9 @@
       "images": "imagens",
       "symbols": "símbolos especiais",
       "objects": "objetos incorporados",
+      "comments": "comentários",
+      "headersFooters": "cabeçalhos e rodapés",
+      "textBoxes": "caixas de texto",
       "other": "outros elementos"
     },
     "technical": "Detalhes técnicos"

@@ -32,6 +32,9 @@
       "images": "圖片",
       "symbols": "特殊符號",
       "objects": "內嵌物件",
+      "comments": "註解",
+      "headersFooters": "頁首和頁尾",
+      "textBoxes": "文字方塊",
       "other": "其他元素"
     },
     "technical": "技術細節"

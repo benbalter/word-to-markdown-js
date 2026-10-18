@@ -32,6 +32,9 @@
       "images": "gambar",
       "symbols": "simbol khusus",
       "objects": "objek tersemat",
+      "comments": "komentar",
+      "headersFooters": "header dan footer",
+      "textBoxes": "kotak teks",
       "other": "elemen lain"
     },
     "technical": "Detail teknis"

@@ -32,6 +32,9 @@
       "images": "images",
       "symbols": "special symbols",
       "objects": "embedded objects",
+      "comments": "comments",
+      "headersFooters": "headers and footers",
+      "textBoxes": "text boxes",
       "other": "other elements"
     },
     "technical": "Technical details"

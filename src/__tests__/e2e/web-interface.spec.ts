@@ -602,6 +602,67 @@ test.describe('Word to Markdown Web Interface', () => {
     );
   });
 
+  test('names comments, headers and footers, and text boxes it dropped', async ({
+    page,
+  }) => {
+    // A comment, a header with text, and a text box with no VML fallback:
+    // content mammoth leaves out without a message, which the converter
+    // detects in the .docx itself.
+    const w =
+      'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"';
+    const zip = await JSZip.loadAsync(readFileSync(fixture('h1.docx')));
+    zip.file(
+      'word/document.xml',
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document ${w} xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><w:body>
+<w:p><w:r><w:t xml:space="preserve">Body.</w:t></w:r><w:r><w:drawing><wp:anchor><wp:docPr id="1" name="Text Box 1"/><a:graphic><a:graphicData uri="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"><wps:wsp><wps:txbx><w:txbxContent><w:p><w:r><w:t>Boxed</w:t></w:r></w:p></w:txbxContent></wps:txbx></wps:wsp></a:graphicData></a:graphic></wp:anchor></w:drawing></w:r></w:p>
+</w:body></w:document>`,
+    );
+    zip.file(
+      'word/comments.xml',
+      `<w:comments ${w}><w:comment w:id="0"><w:p><w:r><w:t>A comment</w:t></w:r></w:p></w:comment></w:comments>`,
+    );
+    zip.file(
+      'word/header1.xml',
+      `<w:hdr ${w}><w:p><w:r><w:t>Report title</w:t></w:r></w:p></w:hdr>`,
+    );
+    await page.locator('#file').setInputFiles({
+      name: 'annotated.docx',
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      buffer: await zip.generateAsync({ type: 'nodebuffer' }),
+    });
+    await expect(page.locator('#warning-alert')).toContainText(
+      "Some content couldn't be converted and was left out: comments, headers and footers, and text boxes.",
+      { timeout: 10000 },
+    );
+  });
+
+  test('names a text box once when mammoth reports it too', async ({
+    page,
+  }) => {
+    // A <wps:txbx> where mammoth reaches it, so it logs the element as
+    // ignored while the converter counts the text box: one kind, not two.
+    const zip = await JSZip.loadAsync(readFileSync(fixture('h1.docx')));
+    zip.file(
+      'word/document.xml',
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"><w:body>
+<w:p><w:r><w:t xml:space="preserve">Body.</w:t></w:r><w:r><w:drawing><wps:txbx><w:txbxContent><w:p><w:r><w:t>Boxed</w:t></w:r></w:p></w:txbxContent></wps:txbx></w:drawing></w:r></w:p>
+</w:body></w:document>`,
+    );
+    await page.locator('#file').setInputFiles({
+      name: 'boxed.docx',
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      buffer: await zip.generateAsync({ type: 'nodebuffer' }),
+    });
+    await expect(page.locator('#warning-alert')).toContainText(
+      "Some content couldn't be converted and was left out: text boxes.",
+      { timeout: 10000 },
+    );
+  });
+
   test('keeps the general dropped-content warning for unknown elements', async ({
     page,
   }) => {
