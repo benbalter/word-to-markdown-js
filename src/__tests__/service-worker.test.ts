@@ -4,7 +4,11 @@ import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import vm from 'vm';
-import { buildServiceWorker } from '../../web/pwa/service-worker.ts';
+import {
+  buildServiceWorker,
+  chunksOnlyFor,
+  type BundleChunk,
+} from '../../web/pwa/service-worker.ts';
 
 // The offline service worker (web/pwa/) ships on every push to main, and a bad
 // one keeps running on visitors' devices until a fix reaches them. These tests
@@ -43,6 +47,23 @@ describe('buildServiceWorker', () => {
     expect(source).not.toContain('__SW_');
   });
 
+  it('leaves the excluded chunks (the preview renderer) to the runtime cache', () => {
+    const { precache } = buildServiceWorker(
+      fakeDist([...CHUNKS, 'unified.C4GKE9XB.js', 'lib.D6y84ipA.js']),
+      {
+        exclude: new Set([
+          '_astro/unified.C4GKE9XB.js',
+          '_astro/lib.D6y84ipA.js',
+        ]),
+      },
+    );
+    expect(precache).toEqual([
+      '/_astro/Home.astro_astro_type_script_index_0_lang.Cr_dQ0Oq.js',
+      '/_astro/converter.worker-CofKiGSC.js',
+      '/_astro/jszip.min.D2ELTzW1.js',
+    ]);
+  });
+
   it('changes version when a chunk changes', () => {
     const a = buildServiceWorker(fakeDist(CHUNKS));
     const b = buildServiceWorker(
@@ -59,6 +80,90 @@ describe('buildServiceWorker', () => {
     expect(source).toContain('registration.unregister()');
     expect(source).toContain('skipWaiting()');
     expect(source).not.toMatch(/addEventListener\(\s*'fetch'/);
+  });
+});
+
+// The preview renderer's chunks are found from the build's module graph, so
+// these model the shapes Rollup produces: shared helpers hoisted into the
+// entry chunk, libraries shared with other lazy features, and the main-thread
+// fallback with its own cycle.
+describe('chunksOnlyFor (which chunks the preview renderer alone needs)', () => {
+  const PREVIEW = '/repo/web/scripts/converter/preview.ts';
+  const chunk = (
+    fileName: string,
+    fields: Partial<BundleChunk> = {},
+  ): BundleChunk => ({
+    fileName,
+    isEntry: false,
+    facadeModuleId: null,
+    moduleIds: [],
+    imports: [],
+    dynamicImports: [],
+    ...fields,
+  });
+  // Home holds the page script, preview.ts included, and the helpers Rollup
+  // hoists; unified, jszip, and the fallback are its dynamic imports.
+  const home = chunk('_astro/Home.js', {
+    isEntry: true,
+    moduleIds: ['/repo/src/index.ts', PREVIEW],
+    dynamicImports: ['_astro/unified.js', '_astro/jszip.js', '_astro/main.js'],
+  });
+  const graph = [
+    home,
+    chunk('_astro/unified.js', {
+      facadeModuleId: '/repo/node_modules/unified/index.js',
+      imports: ['_astro/Home.js', '_astro/vfile.js', '_astro/shared.js'],
+    }),
+    chunk('_astro/vfile.js'),
+    chunk('_astro/shared.js'),
+    chunk('_astro/jszip.js', {
+      facadeModuleId: '/repo/node_modules/jszip/dist/jszip.min.js',
+      imports: ['_astro/Home.js', '_astro/shared.js'],
+    }),
+    chunk('_astro/main.js', {
+      facadeModuleId: '/repo/src/main.ts',
+      dynamicImports: ['_astro/markdownit.js'],
+    }),
+    chunk('_astro/markdownit.js', { imports: ['_astro/main.js'] }),
+  ];
+  const renderer = {
+    module: PREVIEW,
+    dynamicImports: ['/repo/node_modules/unified/index.js'],
+  };
+
+  it("takes the renderer's own chunks, not the entry its helpers live in", () => {
+    expect([...chunksOnlyFor(graph, renderer)].sort()).toEqual([
+      '_astro/unified.js',
+      '_astro/vfile.js',
+    ]);
+  });
+
+  it('keeps a chunk another precached feature also needs', () => {
+    // shared.js is imported by both unified and jszip.
+    expect(chunksOnlyFor(graph, renderer).has('_astro/shared.js')).toBe(false);
+  });
+
+  it("never wanders into the main-thread fallback's chunks", () => {
+    const excluded = chunksOnlyFor(graph, renderer);
+    expect(excluded.has('_astro/main.js')).toBe(false);
+    expect(excluded.has('_astro/markdownit.js')).toBe(false);
+  });
+
+  it('keeps a renderer library the page also imports statically', () => {
+    const staticHome = { ...home, imports: ['_astro/unified.js'] };
+    expect(chunksOnlyFor([staticHome, ...graph.slice(1)], renderer).size).toBe(
+      0,
+    );
+  });
+
+  it('keeps a renderer library another module dynamically imports', () => {
+    // A different entry chunk, not the one holding preview.ts, loads unified.
+    const other = chunk('_astro/Other.js', {
+      isEntry: true,
+      moduleIds: ['/repo/web/other.ts'],
+      dynamicImports: ['_astro/unified.js'],
+    });
+    expect(chunksOnlyFor([...graph, other], renderer).size).toBe(0);
   });
 });
 

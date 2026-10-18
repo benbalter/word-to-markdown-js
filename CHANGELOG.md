@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - word2md.com: the Markdown output wraps long lines instead of scrolling sideways, so long lines and inline images are readable and easy to select. (#283) Thanks to [@RegolithIII](https://github.com/RegolithIII) for the suggestion.
 - word2md.com: once a conversion finishes, the page shows only the result: How It Works, the conversion table, the command-line callout, and the FAQ step aside until you choose "Convert another file". The German page now addresses you formally ("Sie") throughout, the Indonesian page says "berkas" for "file" throughout, and the German, Indonesian, and Vietnamese search descriptions say again that nothing is uploaded.
 - word2md.com downloads less: the converter cleans up Mammoth's HTML with domino, the DOM Turndown already parses with, instead of a second HTML parser, so the conversion worker is about 11% smaller (398 KB to 353 KB gzipped). The Markdown produced is unchanged. The npm package no longer depends on `node-html-parser`, and depends on `@mixmark-io/domino` directly (Turndown already installed it).
+- word2md.com downloads less for visitors who don't convert anything: the Markdown preview's renderer (about 52 KB gzipped) now loads when a conversion starts, and the offline cache no longer downloads it up front (about 389 KB gzipped instead of 441 KB). Offline, a first conversion still shows its Markdown; the preview works offline too once you've converted something online.
 
 These change the Markdown produced for affected documents.
 

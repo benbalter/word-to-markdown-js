@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const H1_DOCX = path.join(__dirname, '../../__fixtures__/h1.docx');
 
 // The rest of the suite blocks service workers (playwright.config.ts) so they
 // can't bypass page.route() mocks; this spec is the one that exercises it.
@@ -48,10 +49,54 @@ test.describe('Installable, offline-capable site', () => {
       ),
     ).toBe('failed');
 
-    await page
-      .locator('#file')
-      .setInputFiles(path.join(__dirname, '../../__fixtures__/h1.docx'));
+    await page.locator('#file').setInputFiles(H1_DOCX);
     await expect(page.locator('#output')).toContainText('# Heading 1', {
+      timeout: 15000,
+    });
+    // The preview renderer isn't precached (a visitor who never converts
+    // shouldn't download it), so a first conversion offline shows the
+    // Markdown without the preview.
+    await expect(page.locator('#results')).toBeVisible();
+    await expect(page.locator('#error-alert')).toHaveCount(0);
+    await expect(page.locator('#rendered')).toBeEmpty();
+  });
+
+  test('previews offline once a conversion has loaded the renderer', async ({
+    page,
+    context,
+  }) => {
+    await page.goto('/');
+    await page.evaluate(async () => {
+      await navigator.serviceWorker.ready;
+    });
+    // The page loaded before the worker controlled it, so its requests
+    // bypassed the cache; reload under the worker's control first.
+    await page.reload();
+    await page.locator('#file').setInputFiles(H1_DOCX);
+    await expect(page.locator('#rendered h1')).toHaveText('Heading 1', {
+      timeout: 15000,
+    });
+    // The runtime cache stores the renderer's chunks as they load.
+    await expect
+      .poll(() =>
+        page.evaluate(async () => {
+          for (const key of await caches.keys()) {
+            const cache = await caches.open(key);
+            for (const request of await cache.keys()) {
+              if (/\/_astro\/unified\.[\w-]+\.js$/.test(request.url)) {
+                return true;
+              }
+            }
+          }
+          return false;
+        }),
+      )
+      .toBe(true);
+
+    await context.setOffline(true);
+    await page.reload();
+    await page.locator('#file').setInputFiles(H1_DOCX);
+    await expect(page.locator('#rendered h1')).toHaveText('Heading 1', {
       timeout: 15000,
     });
   });
