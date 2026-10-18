@@ -53,6 +53,11 @@ export interface UIStrings {
   downloadedButton: string;
   /** Label for the button that downloads a .zip of the Markdown + extracted images. */
   downloadZipButton: string;
+  /**
+   * After converting several files at once: downloads one .zip with every
+   * file's Markdown (and each one's images in its own folder).
+   */
+  downloadAllButton: string;
   /** Transient confirmation shown on the .zip download button after a download. */
   downloadedZipButton: string;
   /** Resets the converter to accept another document. */
@@ -156,8 +161,22 @@ export interface UIStrings {
   protectedFileError: string;
   /** Shown when the copy button can't write to the clipboard (e.g. permission denied). */
   copyFailed: string;
-  /** Noted with the result when several files are dropped or pasted at once. */
-  onlyFirstFile: string;
+  /**
+   * Status while several files convert one after another. `{current}` and
+   * `{total}` are numbers, e.g. "Converting 2 of 5…".
+   */
+  batchProgress: string;
+  /** Accessible name of the list of files converted together. */
+  batchListLabel: string;
+  /** Tag on a file in that list whose conversion had warnings. */
+  batchHasWarnings: string;
+  /** Announced when some of the files converted together failed. */
+  batchSomeFailed: string;
+  /**
+   * Shown when more files were given at once than the converter takes;
+   * `{max}` is that limit.
+   */
+  tooManyFiles: string;
   /** Announced to assistive tech (aria-live) when a conversion succeeds. */
   conversionAnnouncement: string;
   /** Announced to assistive tech while a conversion is in progress. */

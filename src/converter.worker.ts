@@ -23,6 +23,9 @@ type ConvertRequest =
       // result.images) instead of inlining them as base64. Used by the
       // "Download .zip" action.
       extract?: boolean;
+      // Where extracted images go (default `images`). "Download all" gives
+      // each document in a batch its own folder.
+      imageDir?: string;
     }
   // Pasted HTML (copied from Word, Google Docs, or a web page).
   | { id: number; html: string };
@@ -42,7 +45,9 @@ ctx.onmessage = async (event: MessageEvent<ConvertRequest>): Promise<void> => {
           }
         : await convertWithWarnings(
             request.buffer,
-            request.extract ? { images: 'extract' } : undefined,
+            request.extract
+              ? { images: 'extract', imageDir: request.imageDir }
+              : undefined,
           );
     // Transfer extracted image bytes rather than copying them to the page. A
     // buffer may appear in a transfer list only once, hence the Set.

@@ -77,11 +77,15 @@ export function setImageMode(hasImages: boolean): void {
     ?.classList.toggle('hidden', !hasImages);
 }
 
-// The result action that carries the accent (see setImageMode), where focus
-// lands after a conversion.
+// The result action that carries the accent (see setImageMode and
+// setBatchMode), where focus lands after a conversion. A batch in which
+// nothing converted has no accent; Convert another is all that's left.
 export function primaryAction(): HTMLElement | null {
-  return (
-    document.querySelector<HTMLElement>('#results .btn-accent') ??
-    document.getElementById('copy-button')
-  );
+  // The first accent that's rendered: the batch's "Download all" sits in a
+  // hidden block for a single document, and the single .zip button is shown
+  // by an inline display rather than by dropping its `hidden` class.
+  const accent = Array.from(
+    document.querySelectorAll<HTMLElement>('#results .btn-accent'),
+  ).find((button) => button.getClientRects().length > 0);
+  return accent ?? document.getElementById('convert-another');
 }

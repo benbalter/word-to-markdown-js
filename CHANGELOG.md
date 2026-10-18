@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-18
+
 ### Added
 
 - Word equations (Office Math) are converted to LaTeX instead of dropped: inline `$…$`, or a `$$…$$` block for an equation on its own line, which GitHub renders. Fractions, sub- and superscripts, roots, sums and integrals, brackets, functions and limits, accents, and matrices are supported. `{ equations: 'strip' }` (library) or `--strip-equations` (CLI) keeps the old behavior. (#284)
@@ -16,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `convertWithWarnings()` now also returns `warningDetails`: one `{ kind, message, detail? }` entry per string in `warnings`, so callers can present or localize warnings without parsing the English text. `kind` is `encrypted`, `sensitivity`, `confidentiality`, `protected`, or `content-loss`. The `warnings` strings are unchanged.
 - `convertHtml(html, options?)` converts an HTML string, such as rich text copied from Word, Google Docs, or a web page, to Markdown with the same cleanup `.docx` conversion gets. It drops Word's clipboard markup (styles, `<o:p>`) and Google Docs' all-bold wrapper.
 - word2md.com: pasting rich text copied from Word, Google Docs, or a web page onto the page converts it, as pasting a `.docx` file already did.
+- word2md.com converts several files at once: drop, choose, or paste up to 20 `.docx` files and each converts in turn, then appears in a list. Pick a file to see, copy, or download its Markdown, or download all of them as one `.zip` (each document's images in a folder of its own). A file that can't be converted says why in the list without stopping the rest. Before, only the first file was converted. One file converts exactly as before.
 - `convertWithWarnings()` warns about content Mammoth drops without saying so: comments (with how many had text), headers and footers with text beyond a page number, and text boxes saved without Word's VML fallback. Each is a `content-loss` warning whose `detail` is `comments (N)`, `headers and footers`, or `text boxes (N)`. Comments aren't flagged when your Mammoth style map renders them (`comment-reference => …`). `extractDocumentProperties()` returns the counts as `comments`, `headersFooters`, and `textBoxes`. word2md.com names these in its dropped-content warning, in every language.
 - word2md.com publishes a [`security.txt`](https://word2md.com/.well-known/security.txt) (RFC 9116) saying how to report a vulnerability. (#297)
 
@@ -30,6 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - word2md.com: the Markdown output wraps long lines instead of scrolling sideways, so long lines and inline images are readable and easy to select. (#283) Thanks to [@RegolithIII](https://github.com/RegolithIII) for the suggestion.
 - word2md.com: once a conversion finishes, the page shows only the result: How It Works, the conversion table, the command-line callout, and the FAQ step aside until you choose "Convert another file". The German page now addresses you formally ("Sie") throughout, the Indonesian page says "berkas" for "file" throughout, and the German, Indonesian, and Vietnamese search descriptions say again that nothing is uploaded.
 - word2md.com downloads less: the converter cleans up Mammoth's HTML with domino, the DOM Turndown already parses with, instead of a second HTML parser, so the conversion worker is about 11% smaller (398 KB to 353 KB gzipped). The Markdown produced is unchanged. The npm package no longer depends on `node-html-parser`, and depends on `@mixmark-io/domino` directly (Turndown already installed it).
+- word2md.com downloads less for visitors who don't convert anything: the Markdown preview's renderer (about 52 KB gzipped) now loads when a conversion starts, and the offline cache no longer downloads it up front (about 389 KB gzipped instead of 441 KB). Offline, a first conversion still shows its Markdown; the preview works offline too once you've converted something online.
 
 These change the Markdown produced for affected documents.
 
@@ -128,7 +132,8 @@ These change the Markdown produced for affected documents.
 - Documented the `images`, `imageDir`, `numberedLists`, and `underline` options for both the library and the CLI.
 - Corrected the docs and web UI: **superscript and subscript are preserved** as inline `<sup>`/`<sub>` tags. This was already the case in 0.2.0 — only the documentation, which previously listed them as unsupported, was wrong.
 
-[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.6.0
 [0.5.1]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.5.1
 [0.5.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.5.0
 [0.4.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.4.0
