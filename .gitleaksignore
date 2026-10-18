@@ -1,0 +1,48 @@
+# False positives from gitleaks' generic-api-key rule: minified bundles of
+# css-select in the old committed dist/main.js contain `compileToken=...`.
+# dist/ has since been gitignored, so this list is fixed; these fingerprints
+# only match those historical commits.
+073d8268be855a8a07b83f89631f722df411c48f:dist/main.js:generic-api-key:385
+1a5a031a5b86f6adf74bae7e4f2051c8df82ed0c:dist/main.js:generic-api-key:385
+831c4a9c20e4e5ebdf3c2fa72c14bfbf9edc92a7:dist/main.js:generic-api-key:385
+072e10d28b325d87c809eccca34bedad16a00eec:dist/main.js:generic-api-key:385
+6e157354e3228bc0cbb6e362dcf411a7e5aee69b:dist/main.js:generic-api-key:385
+7b45d8bce44e97b7d592b59bfc7987c6f98950b6:dist/main.js:generic-api-key:385
+c2e59ab394dbd56347db91e3db766f7a540d0c92:dist/main.js:generic-api-key:385
+014360675c3db94bf05c943d4f4212b0a9bcc40d:dist/main.js:generic-api-key:385
+df3b99aeb1e805c514f43814143cf6e28f29d5a5:dist/main.js:generic-api-key:385
+1a779111e8824d8b43ce8a4be17c5f4691f2249c:dist/main.js:generic-api-key:385
+ba85f1d294466971cc27f13a8287e3fbb257eb35:dist/main.js:generic-api-key:385
+87332a8c8f7cec68c2099bada461952db2e2e4fe:dist/main.js:generic-api-key:385
+e46d7fee573076f4d108e1d71d9bb036c590b4ca:dist/main.js:generic-api-key:385
+94a40c3763b2b4a6fa4ecc2a3d7caf31d696724b:dist/main.js:generic-api-key:2
+eba0ebe0fff033cd42d27934f052a41ae69662ba:dist/main.js:generic-api-key:2
+879a92d6509ee608d98123948a2247e6a4593d06:dist/main.js:generic-api-key:2
+8d77dccd93a96e50a47f2623f4d43c937ed2f4dc:dist/main.js:generic-api-key:2
+e12c45ab8b433112c30677236766d40967e02175:dist/main.js:generic-api-key:2
+bb4184de27e839cf1c86a1a2d9568d3dd3af0e89:dist/main.js:generic-api-key:2
+b3cbaf80b22cac718f37a5f22fb0f34ded604e02:dist/main.js:generic-api-key:2
+241350fccff8b867170bc38542760afeb3566ba5:dist/main.js:generic-api-key:2
+ffc0f931629fe99dd2dce9242bb903ffc4781220:dist/main.js:generic-api-key:2
+3c3f99f40f758f88edf5e68ff1934f34200b85a7:dist/main.js:generic-api-key:2
+09075afa9c5f85b511e29ea2c32ba46d6dce274f:dist/main.js:generic-api-key:2
+c44b40b8d90dfe677464d5ae92e6e711cabab687:dist/main.js:generic-api-key:2
+d87283d74122ee72b5a86eaee0dfeb4adec44c66:dist/main.js:generic-api-key:2
+11c75aca0f4ada30018fd9eebd0ebf27a22d2b7b:dist/main.js:generic-api-key:2
+905f37676555bbf616d20f60a07f0a46a4e03421:dist/main.js:generic-api-key:2
+4f3f82088e83dfe2a45dca41c3aaa43fd0579cb2:dist/main.js:generic-api-key:2
+d8fee94221bfb02f1335205c6cd08ee7a29d0ec0:dist/main.js:generic-api-key:2
+ae1802384b7997560bb36340165a9ecc9d9543d7:dist/main.js:generic-api-key:2
+b12b0c0f3f012a8f3805def369754ee6ee95cf26:dist/main.js:generic-api-key:2
+917c3298798e476939c637e43e984f80caba913c:dist/main.js:generic-api-key:2
+08e11cd9ef600d28563333faf6cc1d38cf93d448:dist/main.js:generic-api-key:2
+4cebf434ebb04e546fe0bc3f0845cc8ce5f5d328:dist/main.js:generic-api-key:2
+822a1ef13040862939cd3e6368c75e0eacdf0aae:dist/main.js:generic-api-key:2
+65b435e4861fc4608083a204dd963b1f65622f32:dist/main.js:generic-api-key:2
+da07ec10bdec00d9b3330327343a7dd2a7b38dac:dist/main.js:generic-api-key:2
+a00a4bd50e7b9f363f8a3ff195ba08b125b82f41:dist/main.js:generic-api-key:2
+0913881348e28298a8e0f7539f6a3871677eb56c:dist/main.js:generic-api-key:2
+e5a7d6d692cd620fd0fd6777caceeeb308b92c36:dist/main.js:generic-api-key:2
+76c05835ce4ead7cc990366175df97ad757e0947:dist/main.js:generic-api-key:2
+1c6fe7245d12a8c6a1483fe03feb60cc406547f7:dist/main.js:generic-api-key:2
+f78cc75292d9672d387bdf688354a968e6711e59:dist/main.js:generic-api-key:2

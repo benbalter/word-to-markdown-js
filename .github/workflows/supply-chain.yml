@@ -7,6 +7,8 @@ on:
   schedule:
     # Weekly, so dependency rot is caught without commits.
     - cron: '30 1 * * 0'
+  # Manual rerun, e.g. to recheck the full-history secret scan after a .gitleaksignore change.
+  workflow_dispatch:
 
 # Minimal by default; each job elevates only what it needs.
 permissions:
