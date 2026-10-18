@@ -7,6 +7,7 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import checks from '@nuasite/checks';
 import { defaultLocale, localeMeta, locales } from './web/i18n/locales.ts';
+import serviceWorker from './web/pwa/service-worker.ts';
 
 // The site is deployed to Cloudflare Workers (Static Assets), migrated from
 // GitHub Pages, at the custom domain word2md.com, which serves from the root, so
@@ -70,6 +71,9 @@ export default defineConfig({
     },
   },
   integrations: [
+    // Writes dist/sw.js for offline use after a first visit, and is where the
+    // kill switch lands (web/pwa/config.ts).
+    serviceWorker(),
     // Generate sitemap-index.xml / sitemap-0.xml for the pages (uses `site`).
     // The `i18n` block makes the sitemap emit <xhtml:link rel="alternate">
     // hreflang entries per localized page — Astro's top-level i18n config does

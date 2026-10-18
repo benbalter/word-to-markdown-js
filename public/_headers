@@ -15,3 +15,9 @@
 # Astro emits content-hashed filenames under /_astro/, so they never change.
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# The offline service worker (written at build by web/pwa/service-worker.ts).
+# Browsers already revalidate it on update checks; no-cache makes sure every
+# CDN and proxy does too, so a fix or the kill switch reaches users quickly.
+/sw.js
+  Cache-Control: no-cache
