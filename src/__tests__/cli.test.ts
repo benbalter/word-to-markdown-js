@@ -47,12 +47,14 @@ interface CliResult {
   status: number;
 }
 
-function runCli(args: string[]): CliResult {
+function runCli(args: string[], stdin?: Buffer): CliResult {
   // spawnSync (unlike execFileSync) captures stderr on success too, so
-  // assertions about warnings on a clean exit actually see the stream.
+  // assertions about warnings on a clean exit actually see the stream. Its
+  // stdin is a pipe, never a TTY, and `stdin` (if given) is written to it.
   const result = spawnSync(process.execPath, [cliPath, ...args], {
     cwd: root,
     encoding: 'utf8',
+    input: stdin,
   });
   return {
     stdout: result.stdout,
@@ -195,6 +197,64 @@ describe('w2m CLI', () => {
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+
+  it('reads the .docx from stdin with - or with no file argument', () => {
+    const docx = readFileSync(fixture('h1.docx'));
+    for (const args of [['-'], []]) {
+      const result = runCli(args, docx);
+      expect(result.status).toBe(0);
+      expect(result.stdout).toContain('# Heading 1');
+    }
+  });
+
+  it('explains an empty stdin instead of failing obscurely', () => {
+    const result = runCli(['-'], Buffer.alloc(0));
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('Nothing was piped to stdin');
+  });
+
+  it('keeps the typed errors for bad bytes on stdin', () => {
+    const result = runCli(['-'], Buffer.from('not a zip'));
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('Invalid file');
+  });
+
+  it('-o - writes to stdout rather than a file named "-"', () => {
+    const result = runCli(['-o', '-', fixture('h1.docx')]);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('# Heading 1');
+    expect(result.stderr).not.toContain('Wrote Markdown');
+    expect(existsSync(path.join(root, '-'))).toBe(false);
+  });
+
+  it('--quiet hides warnings and progress notes but not errors', () => {
+    const warned = runCli(['--quiet', fixture('dropped-content.docx')]);
+    expect(warned.status).toBe(0);
+    expect(warned.stderr.trim()).toBe('');
+    expect(warned.stdout.length).toBeGreaterThan(0);
+    const failed = runCli(['--quiet', fixture('does-not-exist.docx')]);
+    expect(failed.status).toBe(1);
+    expect(failed.stderr).toContain('Error:');
+  });
+
+  it('--strict exits 2 when there are warnings, still writing the Markdown', () => {
+    const warned = runCli(['--strict', fixture('dropped-content.docx')]);
+    expect(warned.status).toBe(2);
+    expect(warned.stdout.length).toBeGreaterThan(0);
+    expect(warned.stderr).toContain('Warning:');
+    expect(runCli(['--strict', fixture('h1.docx')]).status).toBe(0);
+  });
+
+  it('--help shows usage examples, and points at the full option list', () => {
+    for (const args of [['--help'], ['convert', '--help']]) {
+      const result = runCli(args);
+      expect(result.status).toBe(0);
+      expect(result.stdout).toContain('Examples:');
+      expect(result.stdout).toContain('cat report.docx | w2m');
+    }
+    expect(runCli(['--help']).stdout).toContain('w2m convert --help');
+    expect(runCli(['convert', '--help']).stdout).toContain('--strict');
   });
 
   it('--bullet-lists converts numbered lists to bullets', () => {

@@ -65,16 +65,25 @@ npm install -g word-to-markdown
 w2m path/to/your/file.docx > output.md
 ```
 
-The converted Markdown is written to **stdout** and any document warnings (encryption, sensitivity labels, and the like) to **stderr**, so a redirect captures only the Markdown. The command exits with a non-zero status and a friendly message if the file is missing, unreadable, or not a valid `.docx`. Only `.docx` is supported — re-save older `.doc` files as `.docx` first.
+The converted Markdown is written to **stdout** and any document warnings (encryption, sensitivity labels, and the like) to **stderr**, so a redirect captures only the Markdown. The command exits with status 1 and a friendly message if the file is missing, unreadable, or not a valid `.docx`. Only `.docx` is supported — re-save older `.doc` files as `.docx` first.
+
+To read the document from **stdin**, pass `-` as the file, or leave it out and pipe the file in:
+
+```console
+cat report.docx | w2m > report.md
+curl -sL https://example.com/report.docx | w2m - -o report.md
+```
 
 Options:
 
-- `-o, --output <file>` — write the Markdown to `<file>` instead of stdout (warnings still go to stderr).
+- `-o, --output <file>` — write the Markdown to `<file>` instead of stdout (warnings still go to stderr). `-o -` means stdout.
 - `--bullet-lists` — convert numbered lists to bullets instead of keeping `1./2./3.`.
 - `--underline` — preserve underlined text as inline `<u>` tags (dropped by default).
 - `--strip-images` — remove images instead of embedding them as base64 data URIs.
 - `--image-dir <dir>` — extract images to `<dir>` and link them relatively, instead of embedding base64. Links resolve relative to where you save the Markdown, e.g. `w2m --image-dir images report.docx > report.md`, or with `-o`, `w2m -o out/report.md --image-dir images report.docx` (images land in `out/images/`).
 - `--preserve-footnotes` — keep Word footnotes as raw `<sup>` links and a numbered note list instead of GFM `[^1]` footnotes.
+- `-q, --quiet` — print nothing to stderr except errors: no warnings and no "Wrote …" notes.
+- `--strict` — exit with status **2** if the document has warnings, so a script can tell "converted, but check it" (2) from "failed" (1). The Markdown is still written. Combine with `--quiet` to rely on the exit status alone.
 - `--verbose` — On failure, also print the underlying error and stack trace.
 - `-V, --version` — print the version.
 
