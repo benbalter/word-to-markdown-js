@@ -295,6 +295,15 @@ describe('equations in a document', () => {
     expect(md).toBe('Line one  \n$a^2+b^2=c^2$');
   });
 
+  it('keeps two equations sharing a paragraph inline', async () => {
+    const md = await convert(
+      await docx(
+        `<w:p>${math(r('x=1'))}${run(' and ')}${math(r('y=2'))}</w:p>`,
+      ),
+    );
+    expect(md).toBe('$x=1$ and $y=2$');
+  });
+
   it('writes a prime as a prime, not a raised one', () => {
     expect(
       latex('<m:sSup>' + e(r('f')) + '<m:sup>' + r('′') + '</m:sup></m:sSup>'),

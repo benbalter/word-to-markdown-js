@@ -527,24 +527,42 @@ function elementEnd(xml: string, start: number, name: string): number {
   return close === -1 ? -1 : close + name.length + 3;
 }
 
-// Whether the equation at xml[start, end) is all its paragraph holds, which
+// Returns a check for whether an equation is all its paragraph holds, which
 // Word displays on its own line. A paragraph with text, a break, a tab, an
-// image, or another equation keeps the equation inline.
-function isAloneInParagraph(xml: string, start: number, end: number): boolean {
-  const before = xml.slice(0, start);
-  const open = Math.max(
-    before.lastIndexOf('<w:p>'),
-    before.lastIndexOf('<w:p '),
-  );
-  if (open === -1 || before.indexOf('</w:p>', open) !== -1) return false;
-  const close = xml.indexOf('</w:p>', end);
-  if (close === -1) return false;
-  const rest = (xml.slice(open, start) + xml.slice(end, close))
-    .replace(/<w:pPr>[\s\S]*?<\/w:pPr>/g, '')
-    .replace(/<w:t(?:\s[^>]*)?>\s*<\/w:t>/g, '');
-  return !/<w:(?:t|br|cr|tab|drawing|pict|object|sym)[\s/>]|:oMath[\s/>]/.test(
-    rest,
-  );
+// image, or another equation keeps it inline. Calls must come in document
+// order: paragraph tags are tracked in one forward pass and each paragraph is
+// checked once, so a part with many equations stays linear.
+function paragraphTracker(
+  xml: string,
+  prefix: string,
+): (start: number, end: number) => boolean {
+  const tags = /<w:p[\s>]|<\/w:p>/g;
+  const equation = new RegExp(`<${prefix}:oMath[\\s/>]`, 'g');
+  const content = /<w:(?:t|br|cr|tab|drawing|pict|object|sym)[\s/>]/;
+  const alone = new Map<number, boolean>();
+  let open = -1;
+  let next = tags.exec(xml);
+  return (start, end) => {
+    while (next && next.index < start) {
+      open = next[0] === '</w:p>' ? -1 : next.index;
+      next = tags.exec(xml);
+    }
+    if (open === -1) return false;
+    let result = alone.get(open);
+    if (result === undefined) {
+      const close = xml.indexOf('</w:p>', end);
+      const paragraph = xml
+        .slice(open, close === -1 ? xml.length : close)
+        .replace(/<w:pPr>[\s\S]*?<\/w:pPr>/g, '')
+        .replace(/<w:t(?:\s[^>]*)?>\s*<\/w:t>/g, '');
+      result =
+        close !== -1 &&
+        !content.test(paragraph) &&
+        (paragraph.match(equation)?.length ?? 0) === 1;
+      alone.set(open, result);
+    }
+    return result;
+  };
 }
 
 // Replace each equation in one XML part with a placeholder run: `<token><id>D`
@@ -557,6 +575,7 @@ function replaceEquations(
 ): string {
   const para = `${prefix}:oMathPara`;
   const inline = `${prefix}:oMath`;
+  const isAloneInParagraph = paragraphTracker(xml, prefix);
   let out = '';
   let from = 0;
   for (;;) {
@@ -574,7 +593,7 @@ function replaceEquations(
     if (end === -1) break;
     const latex = ommlToLatex(xml.slice(start, end), prefix);
     const id = equations.push(latex) - 1;
-    const kind = isPara || isAloneInParagraph(xml, start, end) ? 'D' : 'X';
+    const kind = isPara || isAloneInParagraph(start, end) ? 'D' : 'X';
     out += `${xml.slice(from, start)}<w:r><w:t>${token}${id}${kind}</w:t></w:r>`;
     from = end;
   }
