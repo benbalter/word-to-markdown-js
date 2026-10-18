@@ -22,6 +22,7 @@ npx word-to-markdown input.docx > output.md
 - Links
 - Footnotes and endnotes — converted to GFM/Pandoc `[^1]` footnotes
 - Images — embedded inline as base64 data URIs, or extracted to files
+- Equations — converted to LaTeX: inline `$…$`, or a `$$` block for an equation on its own line
 
 ### Notes and limitations
 
@@ -32,7 +33,7 @@ npx word-to-markdown input.docx > output.md
 - **Text boxes** are converted as paragraphs after the containing paragraph. A text box saved without Word's VML fallback (as some other tools write them) is dropped, and `convertWithWarnings` warns.
 - **Comments** are dropped during the `.docx` → HTML step, and `convertWithWarnings` warns with how many had text. To keep them, map them in a Mammoth style map, e.g. `{ mammoth: { styleMap: ['comment-reference => sup'] } }`.
 - **Headers and footers** are dropped. `convertWithWarnings` warns when one has text beyond a page number.
-- **Equations are not converted** — Mammoth drops them during the `.docx` → HTML step. When content is dropped this way, `convertWithWarnings` surfaces a warning.
+- **Equations** (Office Math) become LaTeX: inline `$…$`, or a `$$…$$` block when the equation is on its own line, which GitHub and most Markdown math renderers (KaTeX, MathJax) display. Fractions, scripts, roots, sums and integrals, brackets, functions and limits, accents, and matrices are converted. Pass `{ equations: 'strip' }` (library) or `--strip-equations` (CLI) to drop them instead, with a `convertWithWarnings` warning.
 - Heading levels come from Word's paragraph styles, not from font size.
 
 ## How is this different from the original?
@@ -83,6 +84,7 @@ Options:
 - `--strip-images` — remove images instead of embedding them as base64 data URIs.
 - `--image-dir <dir>` — extract images to `<dir>` and link them relatively, instead of embedding base64. Links resolve relative to where you save the Markdown, e.g. `w2m --image-dir images report.docx > report.md`, or with `-o`, `w2m -o out/report.md --image-dir images report.docx` (images land in `out/images/`).
 - `--preserve-footnotes` — keep Word footnotes as raw `<sup>` links and a numbered note list instead of GFM `[^1]` footnotes.
+- `--strip-equations` — drop Word equations instead of converting them to LaTeX.
 - `-q, --quiet` — print nothing to stderr except errors: no warnings and no "Wrote …" notes.
 - `--strict` — exit with status **2** if the document has warnings, so a script can tell "converted, but check it" (2) from "failed" (1). The Markdown is still written. Combine with `--quiet` to rely on the exit status alone.
 - `--verbose` — On failure, also print the underlying error and stack trace.
@@ -127,6 +129,7 @@ const { markdown } = await convertWithWarnings(arrayBuffer);
 - **`numberedLists`** — `'ordered'` (default) keeps `1./2./3.`; `'bullets'` converts numbered lists to bullets.
 - **`underline`** — `'ignore'` (default) drops underlines; `'preserve'` keeps them as inline `<u>` tags.
 - **`footnotes`** — `'gfm'` (default) converts footnotes and endnotes to `[^1]` references and definitions; `'preserve'` keeps Mammoth's raw `<sup>` links and numbered note list.
+- **`equations`** — `'latex'` (default) converts Word equations to `$…$` / `$$…$$` LaTeX; `'strip'` drops them.
 - **`mammoth`** / **`turndown`** — escape hatches forwarded to [Mammoth](https://github.com/mwilliamson/mammoth.js/) and [Turndown](https://github.com/mixmark-io/turndown) respectively.
 
 ```js

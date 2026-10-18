@@ -8,6 +8,7 @@ import domino from '@mixmark-io/domino';
 import * as prettier from 'prettier';
 import * as prettierMarkdown from 'prettier/plugins/markdown';
 import JSZip from 'jszip';
+import { extractEquations, restoreEquations } from './equations.js';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -51,6 +52,13 @@ export interface ConvertOptions {
    * note list (useful for CommonMark targets that don't support `[^1]`).
    */
   footnotes?: 'gfm' | 'preserve';
+  /**
+   * How to handle Word equations (Office Math). `'latex'` (default) converts
+   * each to LaTeX: inline `$…$`, or a `$$…$$` block for an equation on its
+   * own line, which GitHub and most Markdown math renderers display.
+   * `'strip'` drops them, as Mammoth does, with a content-loss warning.
+   */
+  equations?: 'latex' | 'strip';
 }
 
 // Mammoth's options object, narrowed to the field we merge into. Mammoth appends
@@ -1297,11 +1305,13 @@ async function loadInput(input: string | ArrayBuffer): Promise<LoadedInput> {
     );
   }
 
-  const mammothInput: MammothInput =
-    typeof Buffer !== 'undefined'
-      ? { buffer: Buffer.from(bytes) }
-      : { arrayBuffer: bytes };
-  return { bytes, mammothInput };
+  return { bytes, mammothInput: toMammothInput(bytes) };
+}
+
+function toMammothInput(bytes: ArrayBuffer): MammothInput {
+  return typeof Buffer !== 'undefined'
+    ? { buffer: Buffer.from(bytes) }
+    : { arrayBuffer: bytes };
 }
 
 // A conversion message emitted by mammoth (e.g. dropped/unsupported content)
@@ -1516,7 +1526,7 @@ function createImageExtractor(imageDir: string): {
 // Returns mammoth's messages so callers can surface content-loss warnings, and
 // (in extract mode) the extracted image assets.
 async function runConversionPipeline(
-  mammothInput: MammothInput,
+  loaded: LoadedInput,
   options: ConvertOptions,
 ): Promise<{
   markdown: string;
@@ -1547,12 +1557,21 @@ async function runConversionPipeline(
     };
   }
 
+  // Mammoth drops equations, so swap them for placeholders it keeps, and put
+  // them back as LaTeX once the Markdown is formatted.
+  const math =
+    options.equations === 'strip'
+      ? undefined
+      : await extractEquations(loaded.bytes);
   const mammothResult = await mammoth.convertToHtml(
-    mammothInput,
+    math?.equations.length ? toMammothInput(math.bytes) : loaded.mammothInput,
     mammothOptions,
   );
+  const markdown = await htmlPipeline(mammothResult.value, options);
   return {
-    markdown: await htmlPipeline(mammothResult.value, options),
+    markdown: math
+      ? restoreEquations(markdown, math.token, math.equations)
+      : markdown,
     messages: mammothResult.messages,
     images: extractor?.images,
   };
@@ -1779,7 +1798,7 @@ export async function convertWithWarnings(
     const warningDetails = generateWarningDetails(properties);
 
     const { markdown, messages, images } = await runConversionPipeline(
-      loaded.mammothInput,
+      loaded,
       options,
     );
     warningDetails.push(...extractMammothWarningDetails(messages));
@@ -1805,10 +1824,7 @@ export default async function convert(
   try {
     const loaded = await loadInput(input);
 
-    const { markdown } = await runConversionPipeline(
-      loaded.mammothInput,
-      options,
-    );
+    const { markdown } = await runConversionPipeline(loaded, options);
     return markdown;
   } catch (error) {
     classifyConversionError(error, filePath);
