@@ -14,6 +14,13 @@ declare module '@joplin/turndown' {
     firstElementChild: TurndownNode | null;
     childElementCount: number;
     closest(selector: string): TurndownNode | null;
+    classList: { contains(name: string): boolean };
+    parentNode: TurndownNode | null;
+    nextSibling: unknown;
+    children: ArrayLike<unknown>;
+    style?: { listStyleType?: string };
+    // Set by Turndown on nodes inside <code>/<pre>.
+    isCode?: boolean;
     // Only on <table> nodes.
     rows?: ArrayLike<{ childNodes: ArrayLike<unknown> }>;
   }

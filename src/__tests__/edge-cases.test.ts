@@ -427,6 +427,46 @@ describe('edge cases and advanced features', () => {
     expect(html).toContain('<ol><li id="endnote-2">');
   });
 
+  it('keeps ordered-list items numbered 100 and up as list items', async () => {
+    const { htmlToMd, convertHtml } = await import('../main.js');
+    const { unified } = await import('unified');
+    const remarkParse = (await import('remark-parse')).default;
+    const remarkGfm = (await import('remark-gfm')).default;
+    const list = (count: number, start: number, extra = '') =>
+      `<ol start="${start}">` +
+      Array.from(
+        { length: count },
+        (_, i) => `<li>item ${i + 1}${extra}</li>`,
+      ).join('') +
+      '</ol>';
+
+    // Turndown padded every marker to four columns, so `100.` lost its space
+    // and from 1000 the padding was negative and conversion threw.
+    expect(htmlToMd(list(2, 99))).toBe('99. item 1\n100. item 2');
+    expect(htmlToMd(list(2, 999))).toBe('999. item 1\n1000. item 2');
+
+    // Continuation lines are indented to the marker's width, so a nested list
+    // stays inside its item.
+    expect(htmlToMd(list(1, 100, '<ul><li>sub</li></ul>'))).toBe(
+      '100. item 1\n     - sub',
+    );
+
+    // End to end, every item parses as a list item with its nested list.
+    const md = await convertHtml(list(3, 99, '<ul><li>sub</li></ul>'));
+    const tree = unified().use(remarkParse).use(remarkGfm).parse(md);
+    expect(tree.children).toHaveLength(1);
+    const [ordered] = tree.children;
+    expect(ordered.type).toBe('list');
+    if (ordered.type !== 'list') return;
+    expect(ordered.children).toHaveLength(3);
+    for (const item of ordered.children) {
+      expect(item.children.map((child) => child.type)).toEqual([
+        'paragraph',
+        'list',
+      ]);
+    }
+  });
+
   it('turns Mammoth footnote and endnote markup into GFM footnotes', async () => {
     const { htmlToMd } = await import('../main.js');
     const html =

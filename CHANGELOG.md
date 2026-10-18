@@ -36,6 +36,7 @@ These change the Markdown produced for affected documents.
 - **Table-of-contents links work.** Word's TOC entries and cross-references to a heading link to that heading's GitHub-style anchor (`#getting-started`) instead of a `#_Toc…` bookmark that no longer exists in the Markdown. Links to a bookmark that isn't on a heading become plain text.
 - **Typed bullet glyphs are stripped from nested list items too**, and from items that start with formatting (e.g. a bold `•`). Only top-level, unformatted items were cleaned before.
 - **Tables that start with several empty rows** use the first row with content as the header, instead of an empty one. A single-cell code box is unwrapped even when its cell also holds an empty nested table.
+- **Numbered lists past 99 stay lists.** Items numbered 100 and up came out as `100.item`, with no space after the number, so they rendered as plain text; from 1000, conversion failed outright. They now get a space, and their continuation lines and nested lists are indented to the number's width so they stay inside the item.
 - **Tables with merged cells now render as GitHub tables.** Each merged cell is expanded into one cell per column it covers (its text in the first, the rest empty), so every row has as many cells as the header. Before, the delimiter row came out with the wrong number of cells, and GitHub showed the table as raw pipe text. (#282, #288) Thanks to [@victorzhong0110](https://github.com/victorzhong0110).
 
 ### Fixed
