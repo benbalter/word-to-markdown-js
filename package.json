@@ -92,6 +92,7 @@
     "@joplin/turndown": "^4.0.86",
     "@joplin/turndown-plugin-gfm": "^1.0.68",
     "commander": "^15.0.0",
+    "github-slugger": "^2.0.0",
     "jszip": "^3.10.2",
     "mammoth": "^1.13.0",
     "markdownlint": "^0.41.1",
