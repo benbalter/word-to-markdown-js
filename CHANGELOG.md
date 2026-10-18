@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-18
+
 ### Added
 
 - The CLI reads a `.docx` from stdin: pass `-` as the file, or leave it out and pipe the file in (`cat report.docx | w2m > report.md`). `-o -` writes to stdout.
@@ -129,7 +131,8 @@ These change the Markdown produced for affected documents.
 - Documented the `images`, `imageDir`, `numberedLists`, and `underline` options for both the library and the CLI.
 - Corrected the docs and web UI: **superscript and subscript are preserved** as inline `<sup>`/`<sub>` tags. This was already the case in 0.2.0 — only the documentation, which previously listed them as unsupported, was wrong.
 
-[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.6.0
 [0.5.1]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.5.1
 [0.5.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.5.0
 [0.4.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.4.0
