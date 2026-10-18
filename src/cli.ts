@@ -82,6 +82,10 @@ program
       'of converting them to GFM [^1] footnotes',
   )
   .option(
+    '--strip-equations',
+    'Drop Word equations instead of converting them to LaTeX ($…$ and $$…$$)',
+  )
+  .option(
     '-q, --quiet',
     'Print nothing to stderr except errors: no warnings or progress notes',
   )
@@ -137,6 +141,7 @@ program
         numberedLists: options.bulletLists ? 'bullets' : 'ordered',
         underline: options.underline ? 'preserve' : 'ignore',
         footnotes: options.preserveFootnotes ? 'preserve' : 'gfm',
+        equations: options.stripEquations ? 'strip' : 'latex',
       });
 
       // Write extracted images to disk before emitting the Markdown that links

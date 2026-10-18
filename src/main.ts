@@ -8,6 +8,11 @@ import domino from '@mixmark-io/domino';
 import * as prettier from 'prettier';
 import * as prettierMarkdown from 'prettier/plugins/markdown';
 import JSZip from 'jszip';
+import {
+  extractEquations,
+  restoreEquations,
+  restoreInlineEquations,
+} from './equations.js';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -51,6 +56,13 @@ export interface ConvertOptions {
    * note list (useful for CommonMark targets that don't support `[^1]`).
    */
   footnotes?: 'gfm' | 'preserve';
+  /**
+   * How to handle Word equations (Office Math). `'latex'` (default) converts
+   * each to LaTeX: inline `$…$`, or a `$$…$$` block for an equation on its
+   * own line, which GitHub and most Markdown math renderers display.
+   * `'strip'` drops them, as Mammoth does, with a content-loss warning.
+   */
+  equations?: 'latex' | 'strip';
 }
 
 // Mammoth's options object, narrowed to the field we merge into. Mammoth appends
@@ -521,8 +533,13 @@ const HEADING_TAGS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
 // <a id="_Toc123"> and links to it as href="#_Toc123", but Turndown drops the
 // anchor, so the link would point nowhere. A bookmark inside a heading maps to
 // that heading's GitHub-style slug (what GitHub, and most renderers, generate);
-// links to any other bookmark are unwrapped to their text.
-function rewriteBookmarkLinks(root: Element): void {
+// links to any other bookmark are unwrapped to their text. `headingText` maps
+// a heading's text to what the Markdown will finally hold (equation
+// placeholders back to LaTeX), so the slug matches the rendered heading.
+function rewriteBookmarkLinks(
+  root: Element,
+  headingText: (text: string) => string = (text) => text,
+): void {
   const bookmarks = all(root, 'a[id]').filter(
     (anchor) => !NOTE_ANCHOR_ID.test(anchor.id),
   );
@@ -534,7 +551,10 @@ function rewriteBookmarkLinks(root: Element): void {
   const headingSlugs = new Map<Element, string>();
   for (const el of all(root, '*')) {
     if (HEADING_TAGS.has(el.tagName.toLowerCase())) {
-      headingSlugs.set(el, slugger.slug(normalizeText(el.textContent ?? '')));
+      headingSlugs.set(
+        el,
+        slugger.slug(normalizeText(headingText(el.textContent ?? ''))),
+      );
     }
   }
 
@@ -594,7 +614,11 @@ function safeHref(href: string): string | null {
 /** @internal Exported for tests only. */
 export function processHtml(
   html: string,
-  opts: { stripImages?: boolean; bulletLists?: boolean } = {},
+  opts: {
+    stripImages?: boolean;
+    bulletLists?: boolean;
+    headingText?: (text: string) => string;
+  } = {},
 ): string {
   const root = parseFragment(html);
 
@@ -640,7 +664,7 @@ export function processHtml(
     flattenCellBlocks(table);
   });
 
-  rewriteBookmarkLinks(root);
+  rewriteBookmarkLinks(root, opts.headingText);
 
   // Process tables - convert first row to table headers
   all(root, 'table').forEach((table) => {
@@ -1297,11 +1321,13 @@ async function loadInput(input: string | ArrayBuffer): Promise<LoadedInput> {
     );
   }
 
-  const mammothInput: MammothInput =
-    typeof Buffer !== 'undefined'
-      ? { buffer: Buffer.from(bytes) }
-      : { arrayBuffer: bytes };
-  return { bytes, mammothInput };
+  return { bytes, mammothInput: toMammothInput(bytes) };
+}
+
+function toMammothInput(bytes: ArrayBuffer): MammothInput {
+  return typeof Buffer !== 'undefined'
+    ? { buffer: Buffer.from(bytes) }
+    : { arrayBuffer: bytes };
 }
 
 // A conversion message emitted by mammoth (e.g. dropped/unsupported content)
@@ -1516,7 +1542,7 @@ function createImageExtractor(imageDir: string): {
 // Returns mammoth's messages so callers can surface content-loss warnings, and
 // (in extract mode) the extracted image assets.
 async function runConversionPipeline(
-  mammothInput: MammothInput,
+  loaded: LoadedInput,
   options: ConvertOptions,
 ): Promise<{
   markdown: string;
@@ -1547,12 +1573,26 @@ async function runConversionPipeline(
     };
   }
 
+  // Mammoth drops equations, so swap them for placeholders it keeps, and put
+  // them back as LaTeX once the Markdown is formatted.
+  const math =
+    options.equations === 'strip'
+      ? undefined
+      : await extractEquations(loaded.bytes);
   const mammothResult = await mammoth.convertToHtml(
-    mammothInput,
+    math?.equations.length ? toMammothInput(math.bytes) : loaded.mammothInput,
     mammothOptions,
   );
+  const markdown = await htmlPipeline(
+    mammothResult.value,
+    options,
+    math &&
+      ((text) => restoreInlineEquations(text, math.token, math.equations)),
+  );
   return {
-    markdown: await htmlPipeline(mammothResult.value, options),
+    markdown: math
+      ? restoreEquations(markdown, math.token, math.equations)
+      : markdown,
     messages: mammothResult.messages,
     images: extractor?.images,
   };
@@ -1563,11 +1603,13 @@ async function runConversionPipeline(
 async function htmlPipeline(
   html: string,
   options: ConvertOptions,
+  headingText?: (text: string) => string,
 ): Promise<string> {
   // Numbered lists stay numbered by default; flatten to bullets on request.
   const processedHtml = processHtml(html, {
     stripImages: options.images === 'strip',
     bulletLists: options.numberedLists === 'bullets',
+    headingText,
   });
   // Footnotes become GFM `[^1]` by default; keep Mammoth's markup on request.
   const md = htmlToMd(
@@ -1779,7 +1821,7 @@ export async function convertWithWarnings(
     const warningDetails = generateWarningDetails(properties);
 
     const { markdown, messages, images } = await runConversionPipeline(
-      loaded.mammothInput,
+      loaded,
       options,
     );
     warningDetails.push(...extractMammothWarningDetails(messages));
@@ -1805,10 +1847,7 @@ export default async function convert(
   try {
     const loaded = await loadInput(input);
 
-    const { markdown } = await runConversionPipeline(
-      loaded.mammothInput,
-      options,
-    );
+    const { markdown } = await runConversionPipeline(loaded, options);
     return markdown;
   } catch (error) {
     classifyConversionError(error, filePath);

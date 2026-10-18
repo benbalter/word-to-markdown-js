@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Word equations (Office Math) are converted to LaTeX instead of dropped: inline `$…$`, or a `$$…$$` block for an equation on its own line, which GitHub renders. Fractions, sub- and superscripts, roots, sums and integrals, brackets, functions and limits, accents, and matrices are supported. `{ equations: 'strip' }` (library) or `--strip-equations` (CLI) keeps the old behavior. (#284) Thanks to [@faizulr](https://github.com/faizulr).
+
 ## [0.6.0] - 2026-10-18
 
 ### Added

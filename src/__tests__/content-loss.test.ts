@@ -217,11 +217,12 @@ describe('text boxes', () => {
 });
 
 describe('equations', () => {
-  it("are left to mammoth's own warning, not warned about twice", async () => {
+  it("stripped, are left to mammoth's own warning, not warned about twice", async () => {
     const result = await convertWithWarnings(
       await docx({
         body: `<w:p>${run('Before ')}<m:oMath><m:r><m:t>x</m:t></m:r></m:oMath></w:p>`,
       }),
+      { equations: 'strip' },
     );
     expect(result.markdown).toBe('Before');
     expect(contentLoss(result)).toEqual([

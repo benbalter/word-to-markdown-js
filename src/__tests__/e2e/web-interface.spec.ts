@@ -579,16 +579,39 @@ test.describe('Word to Markdown Web Interface', () => {
   });
 
   test('names the kinds of content a conversion dropped', async ({ page }) => {
-    // Rewrite a fixture's body with an equation (Office Math), a chart (a
-    // namespace mammoth doesn't read), and an unknown Word element.
+    // Rewrite a fixture's body with a chart (a namespace mammoth doesn't
+    // read) and an unknown Word element.
     const zip = await JSZip.loadAsync(
       readFileSync(fixture('dropped-content.docx')),
     );
     zip.file(
       'word/document.xml',
       `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"><w:body>
-<w:p><w:r><w:t xml:space="preserve">Before.</w:t></w:r><m:oMath><m:r><m:t>x</m:t></m:r></m:oMath><c:chart/><w:someUnknownElement/><w:r><w:t xml:space="preserve"> After.</w:t></w:r></w:p>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"><w:body>
+<w:p><w:r><w:t xml:space="preserve">Before.</w:t></w:r><c:chart/><w:someUnknownElement/><w:r><w:t xml:space="preserve"> After.</w:t></w:r></w:p>
+</w:body></w:document>`,
+    );
+    await page.locator('#file').setInputFiles({
+      name: 'dropped.docx',
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      buffer: await zip.generateAsync({ type: 'nodebuffer' }),
+    });
+    await expect(page.locator('#warning-alert')).toContainText(
+      "Some content couldn't be converted and was left out: embedded objects and other elements.",
+      { timeout: 10000 },
+    );
+  });
+
+  test('converts an equation to LaTeX', async ({ page }) => {
+    const zip = await JSZip.loadAsync(
+      readFileSync(fixture('dropped-content.docx')),
+    );
+    zip.file(
+      'word/document.xml',
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"><w:body>
+<w:p><w:r><w:t xml:space="preserve">Energy: </w:t></w:r><m:oMath><m:r><m:t>E=m</m:t></m:r><m:sSup><m:e><m:r><m:t>c</m:t></m:r></m:e><m:sup><m:r><m:t>2</m:t></m:r></m:sup></m:sSup></m:oMath></w:p>
 </w:body></w:document>`,
     );
     await page.locator('#file').setInputFiles({
@@ -597,10 +620,10 @@ test.describe('Word to Markdown Web Interface', () => {
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       buffer: await zip.generateAsync({ type: 'nodebuffer' }),
     });
-    await expect(page.locator('#warning-alert')).toContainText(
-      "Some content couldn't be converted and was left out: equations, embedded objects, and other elements.",
-      { timeout: 10000 },
-    );
+    await expect(page.locator('#output')).toContainText('Energy: $E=mc^2$', {
+      timeout: 10000,
+    });
+    await expect(page.locator('#warning-alert')).toBeHidden();
   });
 
   test('names comments, headers and footers, and text boxes it dropped', async ({
