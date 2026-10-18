@@ -792,6 +792,54 @@ function addTableCellLineBreakRule(service: TurndownService): void {
   });
 }
 
+// An ordered-list item numbered 100 or higher. Turndown pads every marker to
+// four columns (`' '.repeat(3 - digits)`), so `100.` gets no space after it
+// and doesn't parse as a list item, and from 1000 the negative repeat throws.
+// This mirrors Turndown's listItem rule for those items only, with at least one
+// space after the marker and continuation lines indented to the marker's width
+// so nested lists and later paragraphs stay inside the item. Items in code
+// blocks and Joplin checklists (never produced by mammoth) keep Turndown's rule.
+type TurndownRule = Parameters<TurndownService['addRule']>[1];
+type TurndownNode = Parameters<TurndownRule['replacement']>[1];
+
+function addLongOrderedListItemRule(service: TurndownService): void {
+  const itemNumber = (node: TurndownNode): number | null => {
+    const parent = node.parentNode;
+    if (!parent) return null;
+    const ordered =
+      parent.nodeName === 'OL' || parent.style?.listStyleType === 'decimal';
+    if (!ordered) return null;
+    const start = parent.getAttribute('start');
+    const index = Array.prototype.indexOf.call(parent.children, node);
+    return (start ? Number(start) : 1) + index;
+  };
+  service.addRule('longOrderedListItem', {
+    filter: (node) => {
+      if (node.nodeName !== 'LI') return false;
+      if (node.isCode) return false;
+      if (
+        node.classList.contains('joplin-checkbox') ||
+        node.classList.contains('joplin-checklist-item') ||
+        node.closest('.joplin-checklist')
+      ) {
+        return false;
+      }
+      const number = itemNumber(node);
+      return number !== null && number >= 100;
+    },
+    replacement: (content, node) => {
+      const prefix = `${itemNumber(node)}. `;
+      let body = content.replace(/^\n+/, '').replace(/\n+$/, '\n');
+      body = body.replace(/\n/gm, `\n${' '.repeat(prefix.length)}`);
+      // As in Turndown: an item must not start with a blank line.
+      body = body.replace(/^[ \n]*\n[ \n]*/, '');
+      return (
+        prefix + body + (node.nextSibling && !/\n$/.test(body) ? '\n' : '')
+      );
+    },
+  });
+}
+
 function createTurndownService(
   options: object,
   keepTags: string[],
@@ -803,6 +851,7 @@ function createTurndownService(
   });
   service.use(turndownPluginGfm.gfm);
   addTableCellLineBreakRule(service);
+  addLongOrderedListItemRule(service);
   if (keepTags.length > 0) service.keep(keepTags);
   if (gfmFootnotes) addFootnoteRules(service);
   addLinkAllowlistRule(service);
@@ -879,9 +928,15 @@ function normalizeText(md: string): string {
     .replace(smartQuotesRegex, (char) => smartQuoteMap[char]);
 }
 
+// Every rule but MD029 (ol-prefix), whose fix renumbers any ordered list to
+// start at 1, so `<ol start="5">` (e.g. in pasted HTML) lost its number.
+// Prettier runs next and numbers lists itself, keeping the first number and
+// counting up, so lists that start at 1 come out exactly as before.
+const lintConfig = { MD029: false };
+
 // Lint the Markdown and correct any issues
 function lint(md: string): string {
-  const lintResult = markdownlint.lint({ strings: { md } });
+  const lintResult = markdownlint.lint({ strings: { md }, config: lintConfig });
   return applyFixes(md, lintResult['md']).trim();
 }
 
