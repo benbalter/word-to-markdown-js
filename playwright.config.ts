@@ -1,5 +1,15 @@
 import { defineConfig, devices } from '@playwright/test';
 
+/* Port for the preview server the tests run against. Override it (e.g.
+   `E2E_PORT=8090 npm run test:e2e`) to run several checkouts' suites at once
+   without one testing another's build. */
+const port = Number(process.env.E2E_PORT ?? 8080);
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
+  throw new Error(
+    `E2E_PORT must be a port number, got "${process.env.E2E_PORT}"`,
+  );
+}
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -25,7 +35,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:8080',
+    baseURL: `http://localhost:${port}`,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -62,11 +72,18 @@ export default defineConfig({
     // },
   ],
 
+  /* Before any test, check that the server on the port is serving this
+     checkout's dist/: a reused server could be another checkout's build. */
+  globalSetup: './src/__tests__/e2e/global-setup.ts',
+
   /* Serve the built Astro site (dist/) before starting the tests.
-     Assumes `npm run build` has produced dist/ (CI runs it first). */
+     Assumes `npm run build` has produced dist/ (CI runs it first). Outside CI
+     a server already on the port is reused, since `astro preview` sometimes
+     has to be started by hand (see docs/E2E_TESTING.md); globalSetup makes
+     sure it's this build. */
   webServer: {
-    command: 'npm run preview -- --port 8080',
-    port: 8080,
+    command: `npm run preview -- --port ${port}`,
+    port,
     reuseExistingServer: !process.env.CI,
     stderr: 'pipe',
     stdout: 'pipe',

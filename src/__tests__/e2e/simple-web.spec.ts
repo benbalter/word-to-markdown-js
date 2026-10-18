@@ -15,7 +15,7 @@ test.describe('Simple Web Interface Test', () => {
     page.on('pageerror', (error) => consoleMessages.push(error.message));
 
     // Navigate to the web interface
-    await page.goto('http://localhost:8080');
+    await page.goto('/');
 
     // Check page loads correctly
     await expect(page.locator('h1')).toHaveText('Word to Markdown');
@@ -48,7 +48,7 @@ test.describe('Simple Web Interface Test', () => {
   test('should not show results before a file is provided', async ({
     page,
   }) => {
-    await page.goto('http://localhost:8080');
+    await page.goto('/');
 
     // Results stay hidden and the dropzone/input stays visible until a file is chosen
     await expect(page.locator('#results')).not.toBeVisible();
@@ -61,7 +61,7 @@ test.describe('Simple Web Interface Test', () => {
       requests.push(`${request.method()} ${request.url()}`);
     });
 
-    await page.goto('http://localhost:8080');
+    await page.goto('/');
 
     // Wait for page to fully load
     await page.waitForLoadState('networkidle');
