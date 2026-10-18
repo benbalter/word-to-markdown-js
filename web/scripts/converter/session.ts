@@ -1,3 +1,5 @@
+import type { BatchEntry } from './batch.ts';
+
 // State shared by the converter UI's modules, kept on one object because an
 // imported `let` can't be reassigned by the module that imports it.
 export const session = {
@@ -14,4 +16,7 @@ export const session = {
   // images as base64; the zip needs them as separate files). Null for pasted
   // HTML, which has no file to re-convert.
   lastConvertedBuffer: null as ArrayBuffer | null,
+  // The files converted together, when two or more were given at once (empty
+  // otherwise): the source of the list and of "Download all".
+  batch: [] as BatchEntry[],
 };

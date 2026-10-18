@@ -144,8 +144,9 @@ test.describe('Word to Markdown Web Interface', () => {
     await expect(copy).toHaveClass(/\bbtn-secondary\b/);
     await expect(note).toBeVisible();
     await expect(zip).toBeFocused();
-    // The accent action comes first in the row (and the tab order).
-    const firstAction = page.locator('#results button').first();
+    // The accent action comes first in the row (and the tab order; the
+    // batch's hidden "Download all" isn't in either).
+    const firstAction = page.locator('#results button:visible').first();
     await expect(firstAction).toHaveId('download-zip-button');
 
     // A document without images hands the accent back to Copy.
@@ -673,17 +674,140 @@ test.describe('Word to Markdown Web Interface', () => {
     );
   });
 
-  test('converts only the first of several dropped files, and says so', async ({
+  test('converts several dropped files and lists each one', async ({
     page,
   }) => {
     await dispatchFiles(page, 'drop', '#dropzone', [
       'h1.docx',
       'multiple-headings.docx',
     ]);
-    await expect(page.locator('#results')).toBeVisible({ timeout: 10000 });
+    const rows = page.locator('#batch-list button');
+    await expect(rows).toHaveCount(2, { timeout: 15000 });
+    await expect(rows.nth(0)).toHaveText('h1.docx');
+    await expect(rows.nth(1)).toHaveText('multiple-headings.docx');
+
+    // The first file is in the panels, and the combined .zip is the next
+    // action: the one filled accent, with focus on it.
     await expect(page.locator('#filename')).toHaveText('h1.docx');
-    await expect(page.locator('#warning-alert')).toContainText(
-      'Only the first file was converted',
+    await expect(rows.nth(0)).toHaveAttribute('aria-pressed', 'true');
+    const all = page.locator('#download-all-button');
+    await expect(all).toHaveClass(/\bbtn-accent\b/);
+    await expect(all).toBeFocused();
+    await expect(page.locator('#results .btn-accent:visible')).toHaveCount(1);
+    await expect(page.locator('#download-zip-button')).toBeHidden();
+    await expect(page.locator('#sr-status')).toHaveText(
+      'Conversion complete. Your Markdown is ready.',
+    );
+
+    // Keyboard only: pick the second file, and Copy now copies that one.
+    await rows.nth(1).focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#filename')).toHaveText(
+      'multiple-headings.docx',
+    );
+    await expect(rows.nth(1)).toHaveAttribute('aria-pressed', 'true');
+    await expect(rows.nth(0)).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.locator('#output')).toContainText('##');
+  });
+
+  test('reports a file that fails without stopping the rest', async ({
+    page,
+  }) => {
+    // setInputFiles takes paths or in-memory files, not both at once.
+    const docx = (name: string) => ({
+      name,
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      buffer: readFileSync(fixture(name)),
+    });
+    await page.locator('#file').setInputFiles([
+      docx('h1.docx'),
+      {
+        name: 'broken.docx',
+        mimeType: 'application/octet-stream',
+        buffer: Buffer.from('not a zip'),
+      },
+      docx('multiple-headings.docx'),
+    ]);
+    const items = page.locator('#batch-list li');
+    await expect(items).toHaveCount(3, { timeout: 15000 });
+    // The two good files are buttons; the broken one says why it failed.
+    await expect(page.locator('#batch-list button')).toHaveCount(2);
+    await expect(items.nth(1)).toContainText('broken.docx');
+    await expect(items.nth(1)).toContainText(
+      "This file couldn't be read as a Word document.",
+    );
+    await expect(page.locator('#filename')).toHaveText('h1.docx');
+    await expect(page.locator('#sr-status')).toContainText(
+      "Some files couldn't be converted.",
+    );
+    await expect(page.locator('#error-alert')).toHaveCount(0);
+  });
+
+  test('Download all zips every file, with images in a folder of their own', async ({
+    page,
+  }) => {
+    await page
+      .locator('#file')
+      .setInputFiles([fixture('h1.docx'), fixture('image.docx')]);
+    const all = page.locator('#download-all-button');
+    await expect(all).toBeVisible({ timeout: 15000 });
+
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      all.click(),
+    ]);
+    expect(download.suggestedFilename()).toBe('markdown.zip');
+
+    const zip = await JSZip.loadAsync(readFileSync(await download.path()));
+    const names = Object.keys(zip.files).filter((name) => !zip.files[name].dir);
+    expect(names).toContain('h1.md');
+    expect(names).toContain('image.md');
+    const images = names.filter((name) => name.startsWith('image-images/'));
+    expect(images.length).toBeGreaterThan(0);
+    // The Markdown links to its images where they are in the zip.
+    const markdown = await zip.file('image.md')!.async('string');
+    expect(markdown).toContain(`](${images[0]})`);
+    expect(markdown).not.toContain('data:image');
+  });
+
+  test('converts at most 20 files at once, and says so', async ({ page }) => {
+    const bytes = readFileSync(fixture('h1.docx'));
+    await page.locator('#file').setInputFiles(
+      Array.from({ length: 21 }, (_, i) => ({
+        name: `doc-${i + 1}.docx`,
+        mimeType:
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        buffer: bytes,
+      })),
+    );
+    await expect(page.locator('#batch-list li')).toHaveCount(20, {
+      timeout: 30000,
+    });
+    await expect(page.locator('#batch-note')).toHaveText(
+      'Only the first 20 files were converted. Add the rest in another batch.',
+    );
+    await expect(page.locator('#batch-list')).not.toContainText('doc-21.docx');
+  });
+
+  test('a single file after a batch shows as one document again', async ({
+    page,
+  }) => {
+    await dispatchFiles(page, 'drop', '#dropzone', [
+      'h1.docx',
+      'multiple-headings.docx',
+    ]);
+    await expect(page.locator('#batch')).toBeVisible({ timeout: 15000 });
+
+    await dispatchFiles(page, 'drop', '#results', ['image.docx']);
+    await expect(page.locator('#filename')).toHaveText('image.docx', {
+      timeout: 10000,
+    });
+    await expect(page.locator('#batch')).toBeHidden();
+    await expect(page.locator('#download-all-button')).toBeHidden();
+    // Back to the single-document actions: the .zip leads for images.
+    await expect(page.locator('#download-zip-button')).toHaveClass(
+      /\bbtn-accent\b/,
     );
   });
 

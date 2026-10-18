@@ -13,7 +13,10 @@ import {
   fileTooLargeError,
   conversionAnnouncement,
   convertingStatus,
-  onlyFirstFile,
+  batchProgress,
+  batchHasWarnings,
+  batchSomeFailed,
+  tooManyFiles,
   warnings,
 } from '../../i18n/en.json';
 
@@ -33,7 +36,10 @@ const ENGLISH_STRINGS = {
   fileTooLarge: fileTooLargeError,
   conversionAnnouncement,
   converting: convertingStatus,
-  onlyFirstFile,
+  batchProgress,
+  batchHasWarnings,
+  batchSomeFailed,
+  tooManyFiles,
   warningEncrypted: warnings.encrypted,
   warningSensitivity: warnings.sensitivity,
   warningConfidentiality: warnings.confidentiality,
@@ -63,8 +69,15 @@ export function uiString(key: UIStringKey): string {
   return value && value.length > 0 ? value : ENGLISH_STRINGS[key];
 }
 
-export function withNote(message: string, note: string): string {
-  return note ? `${message} ${note}` : message;
+// Fill a string's `{name}` placeholders with numbers ("Converting 2 of 5…").
+// Plain digits, like the rest of the copy (e.g. "20 MB" on every page).
+export function fillCounts(
+  template: string,
+  counts: Record<string, number>,
+): string {
+  return template.replace(/\{(\w+)\}/g, (match, name: string) =>
+    Object.hasOwn(counts, name) ? String(counts[name]) : match,
+  );
 }
 
 // Join names in the page's language ("a, b, and c"; "a、b、c").
