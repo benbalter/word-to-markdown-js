@@ -212,15 +212,17 @@ describe('edge cases and advanced features', () => {
 
   it("should not apply an outer table's merges to a nested table", async () => {
     const { processHtml } = await import('../main.js');
-    const { parse } = await import('node-html-parser');
+    const domino = (await import('@mixmark-io/domino')).default;
 
     const html =
       '<table><tr><td>H1</td><td>H2</td></tr><tr><td rowspan="2">A<table><tr><td>x</td><td>y</td></tr><tr><td>z</td><td>w</td></tr></table></td><td>1</td></tr><tr><td>2</td></tr></table>';
 
-    const inner = parse(processHtml(html)).querySelector('td table')!;
-    const widths = inner
-      .querySelectorAll('tr')
-      .map((row) => row.querySelectorAll('td, th').length);
+    const { body } = domino.createDocument('');
+    body.innerHTML = processHtml(html);
+    const inner = body.querySelector('td table')!;
+    const widths = Array.from(inner.querySelectorAll('tr')).map(
+      (row) => row.querySelectorAll('td, th').length,
+    );
 
     expect(widths).toEqual([2, 2]);
   });

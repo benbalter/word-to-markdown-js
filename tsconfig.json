@@ -3,7 +3,9 @@
     // Node >= 22.13 (package.json engines) runs ES2022 natively.
     "target": "ES2022",
     "module": "node16",
-    "lib": ["ES2022"],
+    // DOM types for the domino document processHtml works on. Types only:
+    // Node has no DOM globals at runtime, so reach the DOM through domino.
+    "lib": ["ES2022", "DOM"],
     "moduleResolution": "node16",
     "rootDir": "./src",
     "outDir": "build",
@@ -24,9 +26,8 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
-    // node-html-parser@9 ships a .d.ts with self-referential types that
-    // TypeScript 6 rejects (TS2502); skip type-checking dependency
-    // declarations, which is standard for library/app builds anyway.
+    // Skip type-checking dependency declarations, which is standard for
+    // library/app builds.
     "skipLibCheck": true
   },
   "include": ["src/**/*"],

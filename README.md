@@ -203,7 +203,7 @@ Not only did this process require installing and shelling out to a huge binary (
 ### The new way
 
 1. Use [Mammoth.js](https://github.com/mwilliamson/mammoth.js/) to convert the Word document to HTML.
-2. Use [node-html-parser](https://github.com/taoqf/node-html-parser) to clean up the HTML (unwrap code-block tables, expand merged table cells, add a header row, strip literal bullet characters).
+2. Use [domino](https://github.com/mixmark-io/domino), the DOM Turndown parses with, to clean up the HTML (unwrap code-block tables, expand merged table cells, add a header row, strip literal bullet characters).
 3. Use [Turndown](https://github.com/mixmark-io/turndown) to convert the HTML to Markdown.
 4. Use [Markdownlint](https://github.com/DavidAnson/markdownlint) to clean up the Markdown.
 5. Use [Prettier](https://prettier.io) to format it consistently.

@@ -4,7 +4,7 @@ import * as mammoth from 'mammoth';
 import * as markdownlint from 'markdownlint/sync';
 import { applyFixes } from 'markdownlint';
 import GithubSlugger from 'github-slugger';
-import { parse, HTMLElement, TextNode, type Node } from 'node-html-parser';
+import domino from '@mixmark-io/domino';
 import * as prettier from 'prettier';
 import * as prettierMarkdown from 'prettier/plugins/markdown';
 import JSZip from 'jszip';
@@ -211,18 +211,86 @@ const bulletRegex = new RegExp(
   `^\\s*[${unicodeBullets.map((b) => b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('')}]\\s*`,
 );
 
+// Node types, spelled out: Node has no DOM globals at runtime (the DOM types
+// come from tsconfig's lib), so `Node.ELEMENT_NODE` isn't available.
+const ELEMENT_NODE = 1;
+const TEXT_NODE = 3;
+const COMMENT_NODE = 8;
+
+// Parse an HTML fragment into the body of a fresh domino document. domino is
+// the DOM Turndown parses with in Node and in the conversion worker, so these
+// fixups see the tree Turndown will. Parsing in a body context matches
+// Turndown's own wrapper, so <html>/<head>/<body> tags are dropped and <style>
+// or <title> stay in place. Comments are never content, so they're removed.
+function parseFragment(html: string): HTMLElement {
+  const { body } = domino.createDocument('');
+  body.innerHTML = html;
+  removeComments(body);
+  return body;
+}
+
+function removeComments(node: Node): void {
+  for (const child of Array.from(node.childNodes)) {
+    if (child.nodeType === COMMENT_NODE) node.removeChild(child);
+    else removeComments(child);
+  }
+}
+
+// Serialize a fragment for Turndown to re-parse. An HTML parser drops the
+// newline right after <pre>, and domino's serializer doesn't add one back, so a
+// block starting with a blank line would lose it on the second parse; restore
+// it so the round trip is lossless.
+function serializeFragment(root: Element): string {
+  for (const pre of all(root, 'pre, textarea, listing')) {
+    const first = pre.firstChild;
+    if (
+      first?.nodeType === TEXT_NODE &&
+      (first as Text).data.startsWith('\n')
+    ) {
+      (first as Text).data = `\n${(first as Text).data}`;
+    }
+  }
+  return root.innerHTML;
+}
+
+// querySelectorAll as an array, so it can be filtered and mapped
+function all(root: ParentNode, selector: string): Element[] {
+  return Array.from(root.querySelectorAll(selector));
+}
+
+// An element's child nodes as HTML: elements as their outer HTML, text with
+// `&`, `<` and `>` escaped. Non-breaking spaces stay literal (as Mammoth writes
+// them), so trimming a line still removes them.
+function serializeNode(node: ChildNode): string {
+  if (node.nodeType === ELEMENT_NODE) return (node as Element).outerHTML;
+  if (node.nodeType !== TEXT_NODE) return '';
+  return (node as Text).data
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// Swap an element for one with another tag, keeping its attributes and
+// children: the DOM can't rename an element in place.
+function renameElement(element: Element, tag: string): Element {
+  const renamed = element.ownerDocument.createElement(tag);
+  for (const { name, value } of Array.from(element.attributes)) {
+    renamed.setAttribute(name, value);
+  }
+  while (element.firstChild) renamed.appendChild(element.firstChild);
+  element.replaceWith(renamed);
+  return renamed;
+}
+
 // A table's own rows, excluding rows of any table nested in one of its cells
-function ownRows(table: HTMLElement): HTMLElement[] {
-  return table
-    .querySelectorAll('tr')
-    .filter((row: HTMLElement) => row.closest('table') === table);
+function ownRows(table: Element): Element[] {
+  return all(table, 'tr').filter((row) => row.closest('table') === table);
 }
 
 // A row's own cells, excluding cells of any table nested inside it
-function rowCells(row: HTMLElement): HTMLElement[] {
-  // Text nodes have no tagName, hence the optional chain
-  return (row.childNodes as HTMLElement[]).filter(
-    (node: HTMLElement) => node.tagName?.toLowerCase() === 'td',
+function rowCells(row: Element): Element[] {
+  return Array.from(row.children).filter(
+    (node) => node.tagName.toLowerCase() === 'td',
   );
 }
 
@@ -242,7 +310,7 @@ function rowCells(row: HTMLElement): HTMLElement[] {
 //
 // Must run after the 1×1 <pre> unwrap above (which keys on a cell count of 1)
 // and before the header promotion below.
-function expandMergedCells(table: HTMLElement): void {
+function expandMergedCells(table: Element): void {
   // Only this table's own rows: a table nested in a cell is expanded on its
   // own, and must not inherit the outer table's merges.
   const rows = ownRows(table);
@@ -257,16 +325,16 @@ function expandMergedCells(table: HTMLElement): void {
   const isCovered = (column: number, r: number) =>
     (coveredUntil[column] ?? -1) >= r;
 
-  rows.forEach((row: HTMLElement, r: number) => {
+  rows.forEach((row: Element, r: number) => {
     const cells = gridCells(row);
     let column = 0;
-    let previous: HTMLElement | null = null;
+    let previous: Element | null = null;
     // Insert an empty cell at the current column, right after the last one
     // placed (or at the front of the row), so cells stay in grid order.
-    const fill = (model: HTMLElement | null) => {
-      const filler = emptyCellLike(model);
+    const fill = (model: Element | null) => {
+      const filler = emptyCellLike(row.ownerDocument, model);
       if (previous) previous.after(filler);
-      else row.prepend(filler);
+      else row.insertBefore(filler, row.firstChild);
       previous = filler;
       column++;
     };
@@ -297,16 +365,16 @@ function expandMergedCells(table: HTMLElement): void {
 
 // A row's own cells, header cells included: Mammoth writes a Word header row
 // marked "Repeat as header row" as <th>, and its merges need expanding too.
-function gridCells(row: HTMLElement): HTMLElement[] {
-  return (row.childNodes as HTMLElement[]).filter((node: HTMLElement) =>
-    ['td', 'th'].includes(node.tagName?.toLowerCase()),
+function gridCells(row: Element): Element[] {
+  return Array.from(row.children).filter((node) =>
+    ['td', 'th'].includes(node.tagName.toLowerCase()),
   );
 }
 
 // A merge's extent. Only counts above one: `colspan="0"`/`"-1"` (which Word
 // writes for a merge running to the end of the row) and junk values mean "one
 // cell", the same as no attribute at all.
-function spanOf(cell: HTMLElement, attribute: string): number {
+function spanOf(cell: Element, attribute: string): number {
   const raw = Number.parseInt(cell.getAttribute(attribute) ?? '', 10);
   return Number.isInteger(raw) && raw > 1 ? raw : 1;
 }
@@ -315,12 +383,10 @@ function spanOf(cell: HTMLElement, attribute: string): number {
 // filler in a <th> header row is a <th> too. With no model (a row made up
 // entirely of cells merged down from above) it is a <td>, which the header
 // promotion below treats like any other cell.
-function emptyCellLike(cell: HTMLElement | null): HTMLElement {
+function emptyCellLike(doc: Document, cell: Element | null): Element {
   const tag = cell?.tagName.toLowerCase() === 'th' ? 'th' : 'td';
-  const empty = parse(
-    `<table><tr><${tag}></${tag}></tr></table>`,
-  ).querySelector(tag)!;
-  for (const [name, value] of Object.entries(cell?.attributes ?? {})) {
+  const empty = doc.createElement(tag);
+  for (const { name, value } of Array.from(cell?.attributes ?? [])) {
     if (name !== 'colspan' && name !== 'rowspan') {
       empty.setAttribute(name, value);
     }
@@ -330,10 +396,9 @@ function emptyCellLike(cell: HTMLElement | null): HTMLElement {
 
 // A row with no text and no image in any of its own cells. An image-only cell
 // isn't empty: dropping the row would drop the image.
-function isEmptyRow(row: HTMLElement): boolean {
+function isEmptyRow(row: Element): boolean {
   return rowCells(row).every(
-    (cell: HTMLElement) =>
-      !cell.textContent?.trim() && !cell.querySelector('img'),
+    (cell) => !cell.textContent?.trim() && !cell.querySelector('img'),
   );
 }
 
@@ -359,24 +424,28 @@ const CELL_BULLETS = ['•', '◦', '▪'];
 // A cell's content as lines of inline HTML, one per paragraph, heading, or list
 // item. Headings become bold; list items keep a bullet (or their number), with
 // a different bullet per nesting level, since a cell can't hold a real list.
-function cellLines(node: HTMLElement, depth = 0): string[] {
+function cellLines(node: Element, depth = 0): string[] {
   const lines: string[] = [];
   let inline = '';
   const flush = () => {
     if (inline.trim()) lines.push(inline.trim());
     inline = '';
   };
-  for (const child of node.childNodes as HTMLElement[]) {
-    const tag = child.tagName?.toLowerCase();
+  for (const childNode of Array.from(node.childNodes)) {
+    const tag =
+      childNode.nodeType === ELEMENT_NODE
+        ? (childNode as Element).tagName.toLowerCase()
+        : undefined;
     if (!tag || !CELL_BLOCKS.has(tag)) {
-      inline += child.toString();
+      inline += serializeNode(childNode);
       continue;
     }
+    const child = childNode as Element;
     flush();
     if (tag === 'ul' || tag === 'ol') {
       let number = Number.parseInt(child.getAttribute('start') ?? '', 10) || 1;
-      for (const item of child.childNodes as HTMLElement[]) {
-        if (item.tagName?.toLowerCase() !== 'li') continue;
+      for (const item of Array.from(child.children)) {
+        if (item.tagName.toLowerCase() !== 'li') continue;
         const marker =
           tag === 'ol'
             ? `${number++}.`
@@ -401,18 +470,16 @@ function cellLines(node: HTMLElement, depth = 0): string[] {
 // raw HTML. Leaves alone what the plugin handles differently anyway: a
 // one-cell table (rendered as plain content, so its blocks survive), and a
 // table holding code or a nested table (kept as HTML either way).
-function flattenCellBlocks(table: HTMLElement): void {
+function flattenCellBlocks(table: Element): void {
   const rows = ownRows(table);
   const cells = rows.flatMap(gridCells);
   if (cells.length <= 1) return;
   if (table.querySelector('pre, code, table')) return;
   for (const cell of cells) {
-    const hasFallbackBlock = cell
-      .querySelectorAll('*')
-      .some((el: HTMLElement) =>
-        CELL_FALLBACK_BLOCKS.has(el.tagName.toLowerCase()),
-      );
-    if (hasFallbackBlock) cell.set_content(cellLines(cell).join('<br>'));
+    const hasFallbackBlock = all(cell, '*').some((el) =>
+      CELL_FALLBACK_BLOCKS.has(el.tagName.toLowerCase()),
+    );
+    if (hasFallbackBlock) cell.innerHTML = cellLines(cell).join('<br>');
   }
 }
 
@@ -424,16 +491,16 @@ const NOTE_ANCHOR_ID = /^(?:foot|end)note-(?:ref-)?\d+$/;
 
 // The first non-blank text node in an element, in document order, without
 // descending into a nested list (whose items are handled on their own).
-function firstTextNode(node: HTMLElement): TextNode | null {
-  for (const child of node.childNodes) {
-    if (child instanceof TextNode) {
-      if (child.rawText.trim()) return child;
+function firstTextNode(node: Element): Text | null {
+  for (const child of Array.from(node.childNodes)) {
+    if (child.nodeType === TEXT_NODE) {
+      if ((child as Text).data.trim()) return child as Text;
       continue;
     }
-    if (!(child instanceof HTMLElement)) continue;
-    const tag = child.tagName?.toLowerCase();
+    if (child.nodeType !== ELEMENT_NODE) continue;
+    const tag = (child as Element).tagName.toLowerCase();
     if (tag === 'ul' || tag === 'ol') return null;
-    const text = firstTextNode(child);
+    const text = firstTextNode(child as Element);
     if (text) return text;
   }
   return null;
@@ -447,42 +514,44 @@ const HEADING_TAGS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
 // anchor, so the link would point nowhere. A bookmark inside a heading maps to
 // that heading's GitHub-style slug (what GitHub, and most renderers, generate);
 // links to any other bookmark are unwrapped to their text.
-function rewriteBookmarkLinks(root: HTMLElement): void {
-  const bookmarks = root
-    .querySelectorAll('a[id]')
-    .filter((anchor: HTMLElement) => !NOTE_ANCHOR_ID.test(anchor.id));
+function rewriteBookmarkLinks(root: Element): void {
+  const bookmarks = all(root, 'a[id]').filter(
+    (anchor) => !NOTE_ANCHOR_ID.test(anchor.id),
+  );
   if (bookmarks.length === 0) return;
 
   // Every heading is slugged, in document order, so repeated titles get the
   // same `-1`, `-2` suffixes the renderer will give them.
   const slugger = new GithubSlugger();
-  const headingSlugs = new Map<HTMLElement, string>();
-  for (const el of root.querySelectorAll('*')) {
+  const headingSlugs = new Map<Element, string>();
+  for (const el of all(root, '*')) {
     if (HEADING_TAGS.has(el.tagName.toLowerCase())) {
-      headingSlugs.set(el, slugger.slug(normalizeText(el.text)));
+      headingSlugs.set(el, slugger.slug(normalizeText(el.textContent ?? '')));
     }
   }
 
   const targets = new Map<string, string | null>();
   for (const anchor of bookmarks) {
-    let heading: HTMLElement | null = anchor.parentNode;
-    while (heading && !headingSlugs.has(heading)) heading = heading.parentNode;
+    let heading = anchor.parentElement;
+    while (heading && !headingSlugs.has(heading)) {
+      heading = heading.parentElement;
+    }
     targets.set(anchor.id, heading ? headingSlugs.get(heading)! : null);
   }
 
-  for (const link of root.querySelectorAll('a[href^="#"]')) {
+  for (const link of all(root, 'a[href^="#"]')) {
     const id = link.getAttribute('href')!.slice(1);
     if (!targets.has(id)) continue;
     const slug = targets.get(id);
     if (slug) link.setAttribute('href', `#${slug}`);
-    else link.replaceWith(link.innerHTML);
+    else link.replaceWith(...Array.from(link.childNodes));
   }
 }
 
-function isNoteList(list: HTMLElement): boolean {
-  return (list.childNodes as HTMLElement[]).some(
-    (node: HTMLElement) =>
-      node.tagName?.toLowerCase() === 'li' &&
+function isNoteList(list: Element): boolean {
+  return Array.from(list.children).some(
+    (node) =>
+      node.tagName.toLowerCase() === 'li' &&
       NOTE_ITEM_ID.test(node.getAttribute('id') ?? ''),
   );
 }
@@ -519,12 +588,12 @@ export function processHtml(
   html: string,
   opts: { stripImages?: boolean; bulletLists?: boolean } = {},
 ): string {
-  const root = parse(html);
+  const root = parseFragment(html);
 
   // Remove images (Mammoth inlines them as base64 data URIs by default, which
   // can bloat the output for image-heavy documents).
   if (opts.stripImages) {
-    root.querySelectorAll('img').forEach((img: HTMLElement) => img.remove());
+    all(root, 'img').forEach((img) => img.remove());
   }
 
   // Unwrap single-cell tables whose only content is a <pre> code block. Word and
@@ -532,7 +601,7 @@ export function processHtml(
   // left alone, Turndown would render the code as a one-cell Markdown table. This
   // must run before the header-promotion pass below, which would otherwise turn
   // the code cell's <td> into a <th> and mangle the block.
-  root.querySelectorAll('table').forEach((table: HTMLElement) => {
+  all(root, 'table').forEach((table) => {
     // This table's own row and cell only: a table nested in the cell would
     // otherwise add to the counts.
     const rows = ownRows(table);
@@ -540,18 +609,18 @@ export function processHtml(
     const cells = rowCells(rows[0]);
     if (cells.length !== 1) return;
     const cell = cells[0];
-    const pres = cell.querySelectorAll('pre');
+    const pres = all(cell, 'pre');
     // Only unwrap when the cell holds exactly one <pre> and nothing else of
     // substance (its text is entirely the code) — never strip a table that also
     // contains prose or other elements alongside the code.
     if (pres.length !== 1) return;
-    if (cell.textContent.trim() !== pres[0].textContent.trim()) return;
+    if (cell.textContent?.trim() !== pres[0].textContent?.trim()) return;
     table.replaceWith(pres[0]);
   });
 
   // Flatten Word's merged cells into one empty <td> per spanned grid column.
   // Runs after the 1×1 <pre> unwrap above, which keys on a cell count of one.
-  root.querySelectorAll('table').forEach((table: HTMLElement) => {
+  all(root, 'table').forEach((table) => {
     expandMergedCells(table);
   });
 
@@ -559,14 +628,14 @@ export function processHtml(
   // isn't kept as raw HTML. Runs after the merge expansion (it counts cells)
   // and before the bookmark rewrite below (a heading in a cell stops being a
   // heading, so it gets no slug).
-  root.querySelectorAll('table').forEach((table: HTMLElement) => {
+  all(root, 'table').forEach((table) => {
     flattenCellBlocks(table);
   });
 
   rewriteBookmarkLinks(root);
 
   // Process tables - convert first row to table headers
-  root.querySelectorAll('table').forEach((table: HTMLElement) => {
+  all(root, 'table').forEach((table) => {
     const rows = ownRows(table);
     if (rows.length === 0) return;
 
@@ -579,18 +648,16 @@ export function processHtml(
     const headerIndex = rows.findIndex((row) => !isEmptyRow(row));
     if (headerIndex === -1) return;
     rows.slice(0, headerIndex).forEach((row) => row.remove());
-    rowCells(rows[headerIndex]).forEach((cell: HTMLElement) => {
-      cell.tagName = 'th';
-    });
+    rowCells(rows[headerIndex]).forEach((cell) => renameElement(cell, 'th'));
   });
 
   // Process lists - remove unicode bullets from unnumbered list items. Edit
   // the item's first text node in place rather than re-setting its innerHTML,
   // which would re-parse the item and detach any nested <li> collected here,
   // leaving their bullets behind.
-  root.querySelectorAll('ul li').forEach((listItem: HTMLElement) => {
+  all(root, 'ul li').forEach((listItem) => {
     const text = firstTextNode(listItem);
-    if (text) text.rawText = text.rawText.replace(bulletRegex, '');
+    if (text) text.data = text.data.replace(bulletRegex, '');
   });
 
   // Optionally render numbered lists as bullet lists by renaming <ol> to <ul>.
@@ -601,15 +668,15 @@ export function processHtml(
   // it. Runs after the unicode-bullet strip above so formerly numbered items
   // keep their content as-is.
   if (opts.bulletLists) {
-    root.querySelectorAll('ol').forEach((list: HTMLElement) => {
+    all(root, 'ol').forEach((list) => {
       if (isNoteList(list)) return;
-      list.tagName = 'ul';
-      list.removeAttribute('start');
-      list.removeAttribute('type');
+      const bullets = renameElement(list, 'ul');
+      bullets.removeAttribute('start');
+      bullets.removeAttribute('type');
     });
   }
 
-  return root.toString();
+  return serializeFragment(root);
 }
 
 // Mammoth renders footnotes/endnotes as a superscript reference link plus a
@@ -676,8 +743,9 @@ function addFootnoteRules(service: TurndownService): void {
 // renders as its text and can't become a script link downstream.
 //
 // This runs as a rule filter rather than a separate HTML pre-pass so it sees
-// exactly the DOM Turndown builds (no parser differential; e.g. node-html-parser
-// treats <pre> and <noscript> content as raw text). Turndown asks the rules for
+// exactly the DOM Turndown builds (no parser differential: processHtml's tree is
+// serialized and re-parsed, and in the browser's main-thread fallback Turndown
+// uses the browser's own parser). Turndown asks the rules for
 // a node before converting its children, and it's added last so it's checked
 // first, so every <a> is cleaned before any rule reads its href or an ancestor
 // is kept verbatim as HTML (keepTags, GFM tables it can't convert). The filter
@@ -1330,33 +1398,28 @@ export async function convertHtml(
   html: string,
   options: ConvertOptions = {},
 ): Promise<string> {
-  const root = parse(html);
-  root
-    .querySelectorAll(CLIPBOARD_NOISE_SELECTOR)
-    .forEach((node: HTMLElement) => {
-      node.remove();
-    });
+  const root = parseFragment(html);
+  all(root, CLIPBOARD_NOISE_SELECTOR).forEach((node) => node.remove());
   // Google Docs wraps a whole copied selection in a <b> with a
   // docs-internal-guid id and font-weight:normal; Turndown would make all of
   // it bold.
-  root
-    .querySelectorAll('b[id^="docs-internal-guid"]')
-    .forEach((wrapper: HTMLElement) => {
-      wrapper.replaceWith(...wrapper.childNodes);
-    });
+  all(root, 'b[id^="docs-internal-guid"]').forEach((wrapper) => {
+    wrapper.replaceWith(...Array.from(wrapper.childNodes));
+  });
   // Google Docs also puts each list item's text in a <p>, which Turndown
   // renders as a loose list (a blank line between items).
-  root.querySelectorAll('li').forEach((item: HTMLElement) => {
-    const children = item.childNodes.filter(
-      (node: Node) => node.nodeType === 1 || node.textContent.trim() !== '',
+  all(root, 'li').forEach((item) => {
+    const children = Array.from(item.childNodes).filter(
+      (node) =>
+        node.nodeType === ELEMENT_NODE || node.textContent?.trim() !== '',
     );
-    const only = children[0] as HTMLElement | undefined;
+    const only = children[0] as Element | undefined;
     if (children.length === 1 && only?.tagName === 'P') {
-      only.replaceWith(...only.childNodes);
+      only.replaceWith(...Array.from(only.childNodes));
     }
   });
   try {
-    return await htmlPipeline(root.toString(), {
+    return await htmlPipeline(serializeFragment(root), {
       ...options,
       images: options.images === 'strip' ? 'strip' : 'inline',
     });

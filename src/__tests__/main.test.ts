@@ -122,75 +122,16 @@ describe('main', () => {
   });
 
   it('should handle empty tables without crashing', async () => {
-    // Test the autoTableHeaders function directly with edge cases
-    const { parse } = await import('node-html-parser');
+    const { processHtml } = await import('../main.js');
 
-    // This should not throw an error
-    const emptyTableHtml = '<table></table>';
-    const root = parse(emptyTableHtml);
-
-    expect(() => {
-      root.querySelectorAll('table').forEach((table) => {
-        const firstRow = table.querySelector('tr');
-        if (firstRow) {
-          firstRow.querySelectorAll('td').forEach((cell) => {
-            cell.tagName = 'th';
-          });
-        }
-      });
-    }).not.toThrow();
-
-    expect(root.toString()).toBe('<table></table>');
+    expect(processHtml('<table></table>')).toBe('<table></table>');
   });
 
   // Tests for table divider bug fix
   describe('table divider bug fix', () => {
-    // Import modules for direct testing
     const testHtmlToMd = async (html: string) => {
-      const { parse } = await import('node-html-parser');
-      const TurndownService = (await import('@joplin/turndown')).default;
-      const turndownPluginGfm = await import('@joplin/turndown-plugin-gfm');
-
-      // Apply autoTableHeaders logic
-      const root = parse(html);
-      root.querySelectorAll('table').forEach((table) => {
-        const firstRow = table.querySelector('tr');
-        if (!firstRow) return;
-
-        // If first row already has TH elements, leave it alone
-        if (firstRow.querySelector('th')) return;
-
-        // Check if first row is empty or has only empty cells
-        const cells = firstRow.querySelectorAll('td');
-        const isEmpty =
-          cells.length === 0 ||
-          cells.every((cell) => !cell.textContent?.trim());
-
-        if (isEmpty) {
-          // Remove empty first row and find the first non-empty row to convert
-          firstRow.remove();
-          const nextRow = table.querySelector('tr');
-          if (nextRow) {
-            nextRow.querySelectorAll('td').forEach((cell) => {
-              cell.tagName = 'th';
-            });
-          }
-        } else {
-          // Convert first row TD elements to TH
-          cells.forEach((cell) => {
-            cell.tagName = 'th';
-          });
-        }
-      });
-
-      const processedHtml = root.toString();
-      const turndownService = new TurndownService({
-        headingStyle: 'atx',
-        codeBlockStyle: 'fenced',
-        bulletListMarker: '-',
-      });
-      turndownService.use(turndownPluginGfm.gfm);
-      return turndownService.turndown(processedHtml);
+      const { htmlToMd, processHtml } = await import('../main.js');
+      return htmlToMd(processHtml(html));
     };
 
     it('should remove empty first row and convert next row to headers', async () => {
@@ -260,39 +201,10 @@ describe('main', () => {
 
   describe('unicode bullet removal', () => {
     it('should remove unicode bullets from unnumbered lists', async () => {
-      // Test the unicode bullet removal functionality
-      const TurndownService = (await import('@joplin/turndown')).default;
-      const turndownPluginGfm = await import('@joplin/turndown-plugin-gfm');
-      const { parse } = await import('node-html-parser');
-
-      // Replicate the removeUnicodeBullets function logic for testing
-      function removeUnicodeBullets(html: string): string {
-        const root = parse(html);
-        const unicodeBullets = ['•', '◦', '▪', '▫', '‣', '⁃', '∙', '·'];
-        const bulletRegex = new RegExp(
-          `^\\s*[${unicodeBullets.map((b) => b.replace(/[.*+?^${}()|[\\\]\\]/g, '\\$&')).join('')}]\\s*`,
-        );
-
-        root.querySelectorAll('ul li').forEach((listItem) => {
-          const textContent = listItem.innerHTML;
-          const cleanedContent = textContent.replace(bulletRegex, '');
-          if (cleanedContent !== textContent) {
-            listItem.innerHTML = cleanedContent;
-          }
-        });
-
-        return root.toString();
-      }
+      const { htmlToMd, processHtml } = await import('../main.js');
 
       function testHtmlToMd(html: string): string {
-        const cleanedHtml = removeUnicodeBullets(html);
-        const turndownService = new TurndownService({
-          headingStyle: 'atx',
-          codeBlockStyle: 'fenced',
-          bulletListMarker: '-',
-        });
-        turndownService.use(turndownPluginGfm.gfm);
-        return turndownService.turndown(cleanedHtml).trim();
+        return htmlToMd(processHtml(html)).trim();
       }
 
       // Test cases
