@@ -203,11 +203,11 @@ Not only did this process require installing and shelling out to a huge binary (
 ### The new way
 
 1. Use [Mammoth.js](https://github.com/mwilliamson/mammoth.js/) to convert the Word document to HTML.
-2. Use [Turndown](https://github.com/mixmark-io/turndown) to convert the HTML to Markdown.
-3. Use [Markdownlint](https://github.com/DavidAnson/markdownlint) to clean up the Markdown.
+2. Use [node-html-parser](https://github.com/taoqf/node-html-parser) to clean up the HTML (unwrap code-block tables, expand merged table cells, add a header row, strip literal bullet characters).
+3. Use [Turndown](https://github.com/mixmark-io/turndown) to convert the HTML to Markdown.
+4. Use [Markdownlint](https://github.com/DavidAnson/markdownlint) to clean up the Markdown.
+5. Use [Prettier](https://prettier.io) to format it consistently.
 
-All three of these projects are actively maintained and heavily used, and allows us to convert the document faster, and entirely in JavaScript. Heck, I think theoretically, this could run in the browser for added privacy.
+All of these projects are actively maintained and heavily used, and they let us convert the document faster, entirely in JavaScript. That also means it runs in the browser: [word2md.com](https://word2md.com) converts your document on your own device, without uploading it anywhere.
 
 It's still young, but so far, I've found the output to be better, with much less manual cleanup required. Notice something is off? Please [open an issue](https://github.com/benbalter/word-to-markdown-js/issues/new).
-
-One note: This project does not yet attempt to guess heading levels based on font size. It could, but it's not yet implemented.

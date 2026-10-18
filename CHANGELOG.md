@@ -12,9 +12,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `convertWithWarnings()` now also returns `warningDetails`: one `{ kind, message, detail? }` entry per string in `warnings`, so callers can present or localize warnings without parsing the English text. `kind` is `encrypted`, `sensitivity`, `confidentiality`, `protected`, or `content-loss`. The `warnings` strings are unchanged.
 - `convertHtml(html, options?)` converts an HTML string, such as rich text copied from Word, Google Docs, or a web page, to Markdown with the same cleanup `.docx` conversion gets. It drops Word's clipboard markup (styles, `<o:p>`) and Google Docs' all-bold wrapper.
 - word2md.com: pasting rich text copied from Word, Google Docs, or a web page onto the page converts it, as pasting a `.docx` file already did.
+- word2md.com publishes a [`security.txt`](https://word2md.com/.well-known/security.txt) (RFC 9116) saying how to report a vulnerability. (#297)
 
 ### Changed
 
+- **Tables with merged cells now render as GitHub tables.** This changes the Markdown produced for documents whose tables have merged cells. Each merged cell is expanded into one cell per column it covers (its text in the first, the rest empty), so every row has as many cells as the header. Before, the delimiter row came out with the wrong number of cells, and GitHub showed the table as raw pipe text. (#282, #288) Thanks to [@victorzhong0110](https://github.com/victorzhong0110).
 - word2md.com: Copy Markdown is now the main action after a conversion, and the result scrolls into view. Warnings appear in the page's language, with the converter's raw messages behind a "Technical details" toggle. Code in the output and preview no longer shows font ligatures, so `->` and `--` look exactly as they're copied.
 - word2md.com: when a document has images, Download .zip becomes the main action (the Markdown alone carries them as long base64 strings), with a note explaining where the images are.
 - word2md.com: the dropped-content warning names what was dropped (equations, images, special symbols, embedded objects) when it can tell.
@@ -27,6 +29,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Fixed
 
 - word2md.com: a conversion that never finishes (for example, the browser runs out of memory converting a huge document) now ends with an error after a few minutes instead of spinning forever.
+- word2md.com: Ctrl+A / Cmd+A in the Markdown output or preview selects just that panel, not the whole page. (#279, #280) Thanks to [@jethrothelion](https://github.com/jethrothelion).
+
+### Documentation
+
+- The README's limitations and CLI options match the converter's behavior: multi-paragraph footnotes, text boxes, dropped comments, and `--verbose`. (#289, #295) Thanks to [@w3lld1](https://github.com/w3lld1).
 
 ## [0.5.1] - 2026-09-30
 
