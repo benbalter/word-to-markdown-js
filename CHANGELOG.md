@@ -6,11 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Word equations (Office Math) are converted to LaTeX instead of dropped: inline `$…$`, or a `$$…$$` block for an equation on its own line, which GitHub renders. Fractions, sub- and superscripts, roots, sums and integrals, brackets, functions and limits, accents, and matrices are supported. `{ equations: 'strip' }` (library) or `--strip-equations` (CLI) keeps the old behavior. (#284) Thanks to [@faizulr](https://github.com/faizulr).
+
 ## [0.6.0] - 2026-10-18
 
 ### Added
 
-- Word equations (Office Math) are converted to LaTeX instead of dropped: inline `$…$`, or a `$$…$$` block for an equation on its own line, which GitHub renders. Fractions, sub- and superscripts, roots, sums and integrals, brackets, functions and limits, accents, and matrices are supported. `{ equations: 'strip' }` (library) or `--strip-equations` (CLI) keeps the old behavior. (#284)
 - The CLI reads a `.docx` from stdin: pass `-` as the file, or leave it out and pipe the file in (`cat report.docx | w2m > report.md`). `-o -` writes to stdout.
 - CLI `--quiet` (`-q`) prints only errors to stderr, and `--strict` exits with status 2 when the document has warnings (the Markdown is still written), so scripts can tell "converted, but check it" from "failed". `w2m --help` now shows examples and points at `w2m convert --help` for every option.
 - word2md.com can be installed as an app and keeps working offline after your first visit: a service worker caches the converter, so you can open the site and convert documents with no connection. Pages still load from the network whenever you're online, and documents are never cached.

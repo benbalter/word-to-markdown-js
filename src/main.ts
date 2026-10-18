@@ -8,7 +8,11 @@ import domino from '@mixmark-io/domino';
 import * as prettier from 'prettier';
 import * as prettierMarkdown from 'prettier/plugins/markdown';
 import JSZip from 'jszip';
-import { extractEquations, restoreEquations } from './equations.js';
+import {
+  extractEquations,
+  restoreEquations,
+  restoreInlineEquations,
+} from './equations.js';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -529,8 +533,13 @@ const HEADING_TAGS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
 // <a id="_Toc123"> and links to it as href="#_Toc123", but Turndown drops the
 // anchor, so the link would point nowhere. A bookmark inside a heading maps to
 // that heading's GitHub-style slug (what GitHub, and most renderers, generate);
-// links to any other bookmark are unwrapped to their text.
-function rewriteBookmarkLinks(root: Element): void {
+// links to any other bookmark are unwrapped to their text. `headingText` maps
+// a heading's text to what the Markdown will finally hold (equation
+// placeholders back to LaTeX), so the slug matches the rendered heading.
+function rewriteBookmarkLinks(
+  root: Element,
+  headingText: (text: string) => string = (text) => text,
+): void {
   const bookmarks = all(root, 'a[id]').filter(
     (anchor) => !NOTE_ANCHOR_ID.test(anchor.id),
   );
@@ -542,7 +551,10 @@ function rewriteBookmarkLinks(root: Element): void {
   const headingSlugs = new Map<Element, string>();
   for (const el of all(root, '*')) {
     if (HEADING_TAGS.has(el.tagName.toLowerCase())) {
-      headingSlugs.set(el, slugger.slug(normalizeText(el.textContent ?? '')));
+      headingSlugs.set(
+        el,
+        slugger.slug(normalizeText(headingText(el.textContent ?? ''))),
+      );
     }
   }
 
@@ -602,7 +614,11 @@ function safeHref(href: string): string | null {
 /** @internal Exported for tests only. */
 export function processHtml(
   html: string,
-  opts: { stripImages?: boolean; bulletLists?: boolean } = {},
+  opts: {
+    stripImages?: boolean;
+    bulletLists?: boolean;
+    headingText?: (text: string) => string;
+  } = {},
 ): string {
   const root = parseFragment(html);
 
@@ -648,7 +664,7 @@ export function processHtml(
     flattenCellBlocks(table);
   });
 
-  rewriteBookmarkLinks(root);
+  rewriteBookmarkLinks(root, opts.headingText);
 
   // Process tables - convert first row to table headers
   all(root, 'table').forEach((table) => {
@@ -1567,7 +1583,12 @@ async function runConversionPipeline(
     math?.equations.length ? toMammothInput(math.bytes) : loaded.mammothInput,
     mammothOptions,
   );
-  const markdown = await htmlPipeline(mammothResult.value, options);
+  const markdown = await htmlPipeline(
+    mammothResult.value,
+    options,
+    math &&
+      ((text) => restoreInlineEquations(text, math.token, math.equations)),
+  );
   return {
     markdown: math
       ? restoreEquations(markdown, math.token, math.equations)
@@ -1582,11 +1603,13 @@ async function runConversionPipeline(
 async function htmlPipeline(
   html: string,
   options: ConvertOptions,
+  headingText?: (text: string) => string,
 ): Promise<string> {
   // Numbered lists stay numbered by default; flatten to bullets on request.
   const processedHtml = processHtml(html, {
     stripImages: options.images === 'strip',
     bulletLists: options.numberedLists === 'bullets',
+    headingText,
   });
   // Footnotes become GFM `[^1]` by default; keep Mammoth's markup on request.
   const md = htmlToMd(

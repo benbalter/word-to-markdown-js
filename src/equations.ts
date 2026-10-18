@@ -375,8 +375,12 @@ function convertNode(node: XmlNode, ctx: Context): string {
       if (type === 'noBar') return `\\genfrac{}{}{0pt}{}{${num}}{${den}}`;
       return `\\frac{${num}}{${den}}`;
     }
-    case 'sSup':
-      return `${base(arg(node, 'e', ctx))}^${script(arg(node, 'sup', ctx))}`;
+    case 'sSup': {
+      // Word writes f′ as a superscript prime; LaTeX's ' is already one.
+      const sup = arg(node, 'sup', ctx);
+      const e = base(arg(node, 'e', ctx));
+      return /^'+$/.test(sup) ? `${e}${sup}` : `${e}^${script(sup)}`;
+    }
     case 'sSub':
       return `${base(arg(node, 'e', ctx))}_${script(arg(node, 'sub', ctx))}`;
     case 'sSubSup':
@@ -523,7 +527,28 @@ function elementEnd(xml: string, start: number, name: string): number {
   return close === -1 ? -1 : close + name.length + 3;
 }
 
-// Replace each equation in one XML part with a placeholder run.
+// Whether the equation at xml[start, end) is all its paragraph holds, which
+// Word displays on its own line. A paragraph with text, a break, a tab, an
+// image, or another equation keeps the equation inline.
+function isAloneInParagraph(xml: string, start: number, end: number): boolean {
+  const before = xml.slice(0, start);
+  const open = Math.max(
+    before.lastIndexOf('<w:p>'),
+    before.lastIndexOf('<w:p '),
+  );
+  if (open === -1 || before.indexOf('</w:p>', open) !== -1) return false;
+  const close = xml.indexOf('</w:p>', end);
+  if (close === -1) return false;
+  const rest = (xml.slice(open, start) + xml.slice(end, close))
+    .replace(/<w:pPr>[\s\S]*?<\/w:pPr>/g, '')
+    .replace(/<w:t(?:\s[^>]*)?>\s*<\/w:t>/g, '');
+  return !/<w:(?:t|br|cr|tab|drawing|pict|object|sym)[\s/>]|:oMath[\s/>]/.test(
+    rest,
+  );
+}
+
+// Replace each equation in one XML part with a placeholder run: `<token><id>D`
+// for a display equation, `<token><id>X` for an inline one.
 function replaceEquations(
   xml: string,
   prefix: string,
@@ -549,7 +574,8 @@ function replaceEquations(
     if (end === -1) break;
     const latex = ommlToLatex(xml.slice(start, end), prefix);
     const id = equations.push(latex) - 1;
-    out += `${xml.slice(from, start)}<w:r><w:t>${token}${id}X</w:t></w:r>`;
+    const kind = isPara || isAloneInParagraph(xml, start, end) ? 'D' : 'X';
+    out += `${xml.slice(from, start)}<w:r><w:t>${token}${id}${kind}</w:t></w:r>`;
     from = end;
   }
   return out + xml.slice(from);
@@ -580,9 +606,13 @@ export async function extractEquations(bytes: ArrayBuffer): Promise<{
     return { bytes, token: '', equations: [] };
   }
   const parts: [string, string, string][] = [];
+  // Every part mammoth reads, with or without math, so the placeholder can't
+  // match text in a footnote or comment that has no equations.
+  const texts: string[] = [];
   for (const name of Object.keys(zip.files)) {
     if (!PART.test(name)) continue;
     const xml = await zip.file(name)!.async('string');
+    texts.push(xml);
     const prefix = xml.match(
       new RegExp(`xmlns:([\\w.-]+)="${MATH_NS.replace(/[./]/g, '\\$&')}"`),
     )?.[1];
@@ -591,7 +621,7 @@ export async function extractEquations(bytes: ArrayBuffer): Promise<{
     }
   }
   const equations: string[] = [];
-  const token = pickToken(parts.map(([, xml]) => xml));
+  const token = pickToken(texts);
   if (parts.length === 0) return { bytes, token, equations };
   for (const [name, xml, prefix] of parts) {
     zip.file(name, replaceEquations(xml, prefix, token, equations));
@@ -604,8 +634,29 @@ export async function extractEquations(bytes: ArrayBuffer): Promise<{
 }
 
 /**
- * Puts the LaTeX back in place of each placeholder: an equation alone on its
- * line becomes a `$$` block, anything else inline `$…$`.
+ * Puts each equation back as inline `$…$`, for text that can't hold a block
+ * (a heading's slug, say).
+ */
+export function restoreInlineEquations(
+  text: string,
+  token: string,
+  equations: string[],
+): string {
+  if (equations.length === 0) return text;
+  return text.replace(
+    new RegExp(`${token}(\\d+)[XD]`, 'g'),
+    (match, id: string) => {
+      const latex = equations[Number(id)];
+      if (latex === undefined) return match;
+      return latex ? `$${latex}$` : '';
+    },
+  );
+}
+
+/**
+ * Puts the LaTeX back in place of each placeholder: a display equation that
+ * Markdown leaves alone on its line becomes a `$$` block; any other equation,
+ * or a display one in a table cell, list item, or heading, is inline `$…$`.
  */
 export function restoreEquations(
   markdown: string,
@@ -613,18 +664,13 @@ export function restoreEquations(
   equations: string[],
 ): string {
   if (equations.length === 0) return markdown;
-  const alone = new RegExp(`^${token}(\\d+)X$`);
-  const placeholder = new RegExp(`${token}(\\d+)X`, 'g');
+  const alone = new RegExp(`^${token}(\\d+)D$`);
   return markdown
     .split('\n')
     .map((line) => {
       const display = equations[Number(line.match(alone)?.[1])];
       if (display) return `$$\n${display}\n$$`;
-      return line.replace(placeholder, (match, id: string) => {
-        const latex = equations[Number(id)];
-        if (latex === undefined) return match;
-        return latex ? `$${latex}$` : '';
-      });
+      return restoreInlineEquations(line, token, equations);
     })
     .join('\n');
 }

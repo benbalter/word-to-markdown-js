@@ -286,6 +286,52 @@ describe('equations in a document', () => {
     ]);
   });
 
+  it('keeps an equation after a line break inline', async () => {
+    const md = await convert(
+      await docx(
+        `<w:p>${run('Line one')}<w:r><w:br/></w:r>${pythagoras}</w:p>`,
+      ),
+    );
+    expect(md).toBe('Line one  \n$a^2+b^2=c^2$');
+  });
+
+  it('writes a prime as a prime, not a raised one', () => {
+    expect(
+      latex('<m:sSup>' + e(r('f')) + '<m:sup>' + r('′') + '</m:sup></m:sSup>'),
+    ).toBe("f'");
+  });
+
+  it('links a table of contents entry to a heading with an equation', async () => {
+    const md = await convert(
+      await docx(
+        `<w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:bookmarkStart w:id="0" w:name="_Toc1"/>${run('Area ')}${math(r('πr'))}<w:bookmarkEnd w:id="0"/></w:p>` +
+          `<w:p><w:hyperlink w:anchor="_Toc1">${run('Area')}</w:hyperlink></w:p>`,
+      ),
+    );
+    expect(md).toBe('# Area $\\pi r$\n\n[Area](#area-pi-r)');
+  });
+
+  it('leaves placeholder-like text alone in a part with no equations', async () => {
+    const zip = await JSZip.loadAsync(
+      await docx(
+        `<w:p>${run('Note')}<w:r><w:footnoteReference w:id="1"/></w:r>${run(' and ')}${pythagoras}</w:p>`,
+      ),
+    );
+    zip.file(
+      'word/_rels/document.xml.rels',
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes" Target="footnotes.xml"/></Relationships>`,
+    );
+    zip.file(
+      'word/footnotes.xml',
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:footnotes ${NS}><w:footnote w:id="1"><w:p>${run('See WTMEQ0X here')}</w:p></w:footnote></w:footnotes>`,
+    );
+    const md = await convert(await zip.generateAsync({ type: 'arraybuffer' }));
+    expect(md).toContain('[^1]: See WTMEQ0X here');
+    expect(md).toContain('$a^2+b^2=c^2$');
+  });
+
   it('leaves a document whose text looks like a placeholder alone', async () => {
     const md = await convert(
       await docx(`<w:p>${run('WTMEQ0X ')}${pythagoras}</w:p>`),
