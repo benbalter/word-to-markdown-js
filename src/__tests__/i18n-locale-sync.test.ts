@@ -1,4 +1,4 @@
-import { existsSync } from 'fs';
+import { existsSync, readdirSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import {
@@ -34,6 +34,24 @@ describe('i18n locale wiring', () => {
       true,
     );
     expect(existsSync(path.join(repoRoot, `public/og/${locale}.png`))).toBe(
+      true,
+    );
+  });
+});
+
+// The guides are English-only, so they're not per-locale, but each gets its
+// own social card the same way (scripts/gen-og.mjs, `npm run gen:og -- guides`).
+const guideIds = readdirSync(path.join(repoRoot, 'web/content/guides'))
+  .filter((f) => f.endsWith('.md'))
+  .map((f) => f.replace(/\.md$/, ''));
+
+describe('guide social cards', () => {
+  it('finds the guides', () => {
+    expect(guideIds.length).toBeGreaterThan(0);
+  });
+
+  it.each(guideIds)('guide "%s" has an OG image', (id) => {
+    expect(existsSync(path.join(repoRoot, `public/og/guides/${id}.png`))).toBe(
       true,
     );
   });

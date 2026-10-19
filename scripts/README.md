@@ -40,10 +40,12 @@ npm run gen:i18n              # B1 (credits): writes web/i18n/<locale>.json
 
 ## Social cards
 
-`gen-og.mjs` renders `public/og/<locale>.png` (2400×1260) for every locale in real Chrome against the built site, using the self-hosted brand fonts and each locale's `eyebrow`/`tagline`. No credits needed. Outputs are committed: non-Latin scripts fall back to system fonts, so renders differ by machine. Eyeball the results after regenerating.
+`gen-og.mjs` renders `public/og/<locale>.png` (2400×1260) for every locale in real Chrome against the built site, using the self-hosted brand fonts and each locale's `eyebrow`/`tagline`. No credits needed. Outputs are committed: non-Latin scripts fall back to system fonts, so renders differ by machine. It also renders `public/og/guides/<id>.png` for each guide in `web/content/guides`, titled from the guide's frontmatter (`Prose.astro` uses it as the page's `og:image`). Eyeball the results after regenerating.
 
 ```bash
 npm run build:site && npm run gen:og
+npm run gen:og -- guides   # only the guide cards (after adding or retitling a guide)
+npm run gen:og -- de vi    # only these locales
 ```
 
 ## App icons

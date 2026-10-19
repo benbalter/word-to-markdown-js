@@ -44,6 +44,7 @@ const structuredData = isGuide
   title={title}
   description={description}
   markdownPath={`/${id}.md`}
+  image={isGuide ? `/og/guides/${id}.png` : undefined}
   structuredData={structuredData}
 >
   <article
