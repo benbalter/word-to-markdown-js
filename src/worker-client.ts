@@ -25,11 +25,16 @@ const WORKER_READY_TIMEOUT = 15000;
 
 // How long the worker gets to convert one input before we give up on it. A
 // worker that runs out of memory can die without firing onerror, which would
-// otherwise leave the page spinning forever. Real documents convert in
-// seconds; this allows minutes, scaled by size (30 s + 15 s per MB, so about
-// 5.5 minutes for a 20 MB file).
+// otherwise leave the page spinning forever. This only needs to catch a dead
+// worker, so it errs long: a slow conversion that would have finished is a
+// failure the visitor sees, while a dead one waiting longer costs only time.
+// A .docx's size predicts its conversion time poorly, because the XML
+// compresses so well: an 80 KB document of 40 long tables takes about 15 s on
+// a fast laptop, and conversion time grows faster than linearly with table
+// rows, so a slower phone could easily blow through the old 30 s floor. Hence
+// 3 minutes plus 30 s per MB (about 13 minutes for a 20 MB file).
 function conversionTimeout(bytes: number): number {
-  return 30000 + (bytes / (1024 * 1024)) * 15000;
+  return 180000 + (bytes / (1024 * 1024)) * 30000;
 }
 
 let converterWorker: Worker | null = null;

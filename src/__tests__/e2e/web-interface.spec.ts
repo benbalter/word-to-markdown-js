@@ -1123,6 +1123,49 @@ test.describe('Word to Markdown Web Interface', () => {
     });
   });
 
+  test('waits out a slow conversion instead of failing it', async ({
+    page,
+  }) => {
+    // Long-table documents can take tens of seconds on a slow device even
+    // when they're small on disk. Hold the worker's reply for a simulated
+    // minute: the timeout is for a dead worker, so the result still lands.
+    await page.clock.install();
+    await page.addInitScript(() => {
+      const tapped = window as unknown as {
+        __held: (() => void)[];
+        __release: () => void;
+      };
+      tapped.__held = [];
+      tapped.__release = () => tapped.__held.splice(0).forEach((f) => f());
+      const OriginalWorker = window.Worker;
+      window.Worker = class extends OriginalWorker {
+        set onmessage(handler: ((event: MessageEvent) => void) | null) {
+          super.onmessage = handler
+            ? (event: MessageEvent) => {
+                if (event.data?.id == null) return handler.call(this, event);
+                tapped.__held.push(() => handler.call(this, event));
+              }
+            : null;
+        }
+        get onmessage(): ((event: MessageEvent) => void) | null {
+          return super.onmessage;
+        }
+      } as typeof Worker;
+    });
+    await page.goto('/');
+
+    await page.locator('#file').setInputFiles(fixture('h1.docx'));
+    await page.waitForFunction(
+      () => (window as unknown as { __held: unknown[] }).__held.length > 0,
+    );
+    await page.clock.fastForward('01:00');
+    await page.evaluate(() =>
+      (window as unknown as { __release: () => void }).__release(),
+    );
+    await expect(page.locator('#output')).toContainText('# Heading 1');
+    await expect(page.locator('#error-alert')).toHaveCount(0);
+  });
+
   test('should have working navigation links', async ({ page }) => {
     // Check that navigation links are present and have correct hrefs
     await expect(page.locator('a[href*="CONTRIBUTING.md"]')).toBeVisible();
