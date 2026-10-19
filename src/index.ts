@@ -10,12 +10,14 @@ import {
   type ConversionResult,
 } from './worker-client.ts';
 import {
+  conversionErrorKind,
   conversionErrorMessage,
   showConversionError,
   showError,
   showWarnings,
 } from '../web/scripts/converter/alerts.ts';
 import { recordConversion } from '../web/scripts/converter/analytics.ts';
+import type { ConversionSource } from '../web/scripts/converter/conversion-sources.ts';
 import {
   MAX_BATCH_FILES,
   markSelected,
@@ -107,9 +109,13 @@ function endBusy(clearStatus = false): void {
   if (clearStatus) announce('');
 }
 
-// Convert a single file. Shared by the file-input change handler and the
-// drag-and-drop handler so both entry points behave identically.
-async function processFile(file: File | undefined): Promise<void> {
+// Convert a single file. Shared by the file-input change handler, the
+// drag-and-drop handler, and a pasted .docx so every entry point behaves
+// identically; `source` says which one it was, for the conversion counter.
+async function processFile(
+  file: File | undefined,
+  source: 'drop' | 'paste',
+): Promise<void> {
   if (!file) return;
   // Paste and page-wide drops skip the dropzone's intent listeners, and the idle
   // prefetch is skipped on low-data connections, so warm (and bind the copy
@@ -124,11 +130,13 @@ async function processFile(file: File | undefined): Promise<void> {
       session.activeConversion++;
       endBusy(true);
     }
+    // Refused before converting, so the anonymous counter doesn't count it:
+    // it counts conversions that were attempted.
     showError(rejection, file.name);
     return;
   }
 
-  await runConversion(file.name, async () => {
+  await runConversion(file.name, source, async () => {
     const buffer = await file.arrayBuffer();
     return { buffer, result: await convertBuffer(buffer) };
   });
@@ -138,7 +146,7 @@ async function processFile(file: File | undefined): Promise<void> {
 // page). The result is named like a file so the downloads have a name.
 function processPastedHtml(html: string): void {
   prefetchConverter();
-  void runConversion(PASTED_NAME, async () => ({
+  void runConversion(PASTED_NAME, 'paste', async () => ({
     buffer: null,
     result: await convertPastedHtml(html),
   }));
@@ -240,8 +248,10 @@ function endBatch(): void {
 // Run a conversion and show its result, shared by files and pasted HTML.
 // `fileName` is shown with the result; `buffer`, a .docx's bytes, is kept for
 // "Download .zip" (null for pasted HTML, which has no file to re-convert).
+// `source`, how the conversion started, goes to the anonymous counter.
 async function runConversion(
   fileName: string,
+  source: ConversionSource,
   convert: () => Promise<{
     buffer: ArrayBuffer | null;
     result: ConversionResult;
@@ -265,7 +275,7 @@ async function runConversion(
       buffer,
     );
     revealResults(uiString('conversionAnnouncement'));
-    recordConversion('success');
+    recordConversion('success', source);
 
     // Render the HTML preview last, off the interaction's critical path.
     void renderPreview(
@@ -276,9 +286,10 @@ async function runConversion(
   } catch (error) {
     if (!isCurrent()) return;
     endBusy(true);
-    recordConversion('error');
     // Pasted HTML has no file for the error to name.
-    showConversionError(error, fileName === PASTED_NAME ? undefined : fileName);
+    const errorFile = fileName === PASTED_NAME ? undefined : fileName;
+    recordConversion('error', source, conversionErrorKind(error, errorFile));
+    showConversionError(error, errorFile);
   }
 }
 
@@ -312,6 +323,7 @@ async function processBatch(files: File[]): Promise<void> {
     const entry: BatchEntry = { name: file.name, base: bases[index] };
     const rejection = rejectionFor(file);
     if (rejection) {
+      // Refused before converting, so not counted (as for a single file).
       entry.error = rejection;
     } else {
       try {
@@ -321,10 +333,14 @@ async function processBatch(files: File[]): Promise<void> {
         entry.warnings = localizeWarnings(result.warningDetails);
         // Only a document with images needs its bytes again, for the .zip.
         entry.buffer = hasInlineImages(result.markdown) ? buffer : null;
-        recordConversion('success');
+        recordConversion('success', 'batch');
       } catch (error) {
         entry.error = conversionErrorMessage(error, file.name);
-        recordConversion('error');
+        recordConversion(
+          'error',
+          'batch',
+          conversionErrorKind(error, file.name),
+        );
       }
       // A newer drop, or Convert another, replaced this batch.
       if (!isCurrent()) return;
@@ -391,9 +407,13 @@ function showBatch(entries: BatchEntry[], leftSomeOut: boolean): void {
 }
 
 // Convert the given files: one as a single document, several as a batch.
-function processFiles(files: ArrayLike<File> | null | undefined): void {
+// `source` is how a single file arrived; a batch always counts as 'batch'.
+function processFiles(
+  files: ArrayLike<File> | null | undefined,
+  source: 'drop' | 'paste',
+): void {
   if (!files || files.length === 0) return;
-  if (files.length === 1) void processFile(files[0]);
+  if (files.length === 1) void processFile(files[0], source);
   else void processBatch(Array.from(files));
 }
 
@@ -408,7 +428,7 @@ function initDragAndDrop(dropzone: HTMLElement): void {
   window.addEventListener('drop', (event: DragEvent) => {
     event.preventDefault();
     if (dropzone.contains(event.target as Node)) return;
-    processFiles(event.dataTransfer?.files);
+    processFiles(event.dataTransfer?.files, 'drop');
   });
 
   const activate = (event: DragEvent): void => {
@@ -429,7 +449,7 @@ function initDragAndDrop(dropzone: HTMLElement): void {
   dropzone.addEventListener('drop', (event: DragEvent) => {
     event.preventDefault();
     dropzone.classList.remove('is-dragover');
-    processFiles(event.dataTransfer?.files);
+    processFiles(event.dataTransfer?.files, 'drop');
   });
 }
 
@@ -477,7 +497,7 @@ async function convertForAgent(
 ): Promise<ConversionResult> {
   prefetchConverter();
   let outcome: { result: ConversionResult } | { error: unknown } | undefined;
-  await runConversion(fileName, async () => {
+  await runConversion(fileName, 'webmcp', async () => {
     try {
       const result = await convertBuffer(buffer);
       outcome = { result };
@@ -515,7 +535,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // fixing it following an error) still fires "change".
       const files = Array.from(this.files ?? []);
       this.value = '';
-      processFiles(files);
+      processFiles(files, 'drop');
     },
     false,
   );
@@ -532,7 +552,9 @@ document.addEventListener('DOMContentLoaded', () => {
     );
     if (files.length > 0) {
       event.preventDefault();
-      processFiles(files);
+      // Counted as a paste, the gesture the visitor made, though it converts
+      // like a drop.
+      processFiles(files, 'paste');
       return;
     }
     const html = event.clipboardData?.getData('text/html') ?? '';

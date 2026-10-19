@@ -1,4 +1,5 @@
 import { primaryAction } from './dom.ts';
+import type { ConversionErrorKind } from './conversion-errors.ts';
 import { uiString, type UIStringKey } from './strings.ts';
 
 // The error and warning alerts' close button: an × icon, colored to match its
@@ -153,39 +154,49 @@ export function showWarnings(
 }
 
 // Conversion errors thrown in the worker arrive as { name, message } (class
-// identity doesn't survive the boundary). The library's messages are English,
-// so map the actionable ones to localized strings by name; anything else
-// (including ConversionError, a generic "try again") gets the generic message.
-const CONVERSION_ERROR_STRINGS = {
-  InvalidFileError: 'invalidFileError',
-  UnsupportedFileError: 'protectedFileError',
-} as const satisfies Record<string, UIStringKey>;
+// identity doesn't survive the boundary), so they're told apart by name. The
+// kind decides both the message the visitor sees and the `error` dimension of
+// the anonymous conversion counter, so the two always agree.
+// `fileName`, when the error is about a file the visitor just gave us, decides
+// whether it's a Word file at all.
+export function conversionErrorKind(
+  error: unknown,
+  fileName?: string,
+): ConversionErrorKind {
+  const name = (error as { name?: string })?.name;
+  const unreadable =
+    name === 'InvalidFileError' || name === 'UnsupportedFileError';
+  // Something that isn't a Word file at all (README.md, a PDF, a spreadsheet)
+  // fails as unreadable or as an unsupported container. "Open it in Word and
+  // save it again" would be wrong advice for it, so say what it is instead.
+  if (fileName && !/\.docx?$/i.test(fileName) && unreadable) return 'not-docx';
+  if (name === 'InvalidFileError') return 'invalid';
+  if (name === 'UnsupportedFileError') return 'protected';
+  if (name === 'ConversionTimeoutError') return 'timeout';
+  if (name === 'ConverterLoadError') return 'load';
+  return 'conversion';
+}
 
-// The localized message for a conversion error. `fileName`, when the error is
-// about a file the visitor just gave us, decides whether it's a Word file at
-// all.
+// The library's messages are English, so the actionable kinds get localized
+// strings; the rest (including ConversionError, a generic "try again") get the
+// generic message.
+const CONVERSION_ERROR_STRINGS = {
+  'not-docx': 'notWordFileError',
+  invalid: 'invalidFileError',
+  protected: 'protectedFileError',
+  timeout: 'errorGeneric',
+  load: 'errorGeneric',
+  conversion: 'errorGeneric',
+} as const satisfies Record<ConversionErrorKind, UIStringKey>;
+
+// The localized message for a conversion error.
 export function conversionErrorMessage(
   error: unknown,
   fileName?: string,
 ): string {
-  const name = (error as { name?: string })?.name;
-  // Something that isn't a Word file at all (README.md, a PDF, a spreadsheet)
-  // fails as unreadable or as an unsupported container. "Open it in Word and
-  // save it again" would be wrong advice for it, so say what it is instead.
-  if (
-    fileName &&
-    !/\.docx?$/i.test(fileName) &&
-    (name === 'InvalidFileError' || name === 'UnsupportedFileError')
-  ) {
-    return uiString('notWordFileError');
-  }
-  if (name && Object.hasOwn(CONVERSION_ERROR_STRINGS, name)) {
-    return uiString(
-      CONVERSION_ERROR_STRINGS[name as keyof typeof CONVERSION_ERROR_STRINGS],
-    );
-  }
-  console.error(error);
-  return uiString('errorGeneric');
+  const key = CONVERSION_ERROR_STRINGS[conversionErrorKind(error, fileName)];
+  if (key === 'errorGeneric') console.error(error);
+  return uiString(key);
 }
 
 // Show a conversion error, naming the file it's about (when there is one).

@@ -47,6 +47,13 @@ const pendingConversions = new Map<
 // thread) from a genuine conversion error (→ surface it to the user).
 class WorkerInfraError extends Error {}
 
+// The main-thread converter's chunk failed to download (offline, or a deploy
+// replaced it while the tab was open). Named so the page can count it as a
+// load failure rather than a conversion error.
+class ConverterLoadError extends Error {
+  name = 'ConverterLoadError';
+}
+
 // A conversion that outlived conversionTimeout. Not a WorkerInfraError: the
 // same input would likely hang or exhaust memory on the main thread too, so
 // it's surfaced (as the generic error) rather than retried there.
@@ -167,7 +174,15 @@ async function convertWithFallback(
       if (!(error instanceof WorkerInfraError)) throw error;
     }
   }
-  return onMainThread(await import('./main.js'));
+  let main: typeof import('./main.js');
+  try {
+    main = await import('./main.js');
+  } catch (error) {
+    throw new ConverterLoadError('the converter failed to load', {
+      cause: error,
+    });
+  }
+  return onMainThread(main);
 }
 
 // Convert a .docx's bytes to Markdown. With `extract`, images come back as
