@@ -40,8 +40,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { ENTRY_POINT, ICON, mcpbManifest } from './mcpb-manifest.mjs';
 
-// The MCPB CLI, run with npx. Floats within the major version.
-const MCPB_CLI = '@anthropic-ai/mcpb@2';
+// The MCPB CLI, run with npx and pinned to an exact version: the release
+// workflow runs it, so an unreviewed upstream publish mustn't reach the
+// bundle. Bump it deliberately.
+const MCPB_CLI = '@anthropic-ai/mcpb@2.1.2';
 const ICON_SOURCE = 'public/icon-512.png';
 // Files Claude Desktop never reads. (mcpb pack already drops *.map and
 // package-lock.json.)

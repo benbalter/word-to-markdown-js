@@ -11,8 +11,9 @@ name: MCP Bundle
 # scripts/pack-mcpb.mjs, so that works for a tag that predates the script.
 #
 # Its own file, not a job in release.yml, so npm Trusted Publishing (tied to
-# release.yml) is untouched, and this job's write token never sits next to
-# an npm OIDC token.
+# release.yml) is untouched. Two jobs: `build` installs and runs npm code
+# with a read-only token; `upload` holds the only write token and runs no
+# npm code, just attaching the built artifact.
 
 on:
   release:
@@ -28,21 +29,25 @@ permissions:
   contents: read
 
 jobs:
-  bundle:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
-      contents: write # gh release upload
+      contents: read
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
     env:
       # One place to resolve the tag, whichever way the run started.
       TAG: ${{ github.event.release.tag_name || inputs.tag }}
     steps:
       - name: Check the tag
+        id: tag
         run: |
           if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Expected a release tag like v1.2.3, got '$TAG'" >&2
             exit 1
           fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
       # The packing script, from this workflow's commit.
       - uses: actions/checkout@v7
         with:
@@ -76,7 +81,25 @@ jobs:
       # Builds, validates, packs, then unpacks the bundle and converts a
       # fixture with it before anything is uploaded.
       - run: node tooling/scripts/pack-mcpb.mjs release
+      - uses: actions/upload-artifact@v7
+        with:
+          name: mcpb
+          path: release/word-to-markdown.mcpb
+          if-no-files-found: error
+
+  upload:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write # gh release upload; nothing else in this job runs npm code
+    env:
+      TAG: ${{ needs.build.outputs.tag }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: mcpb
       - name: Attach to the release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "$TAG" release/word-to-markdown.mcpb --clobber --repo "$GITHUB_REPOSITORY"
+        run: gh release upload "$TAG" word-to-markdown.mcpb --clobber --repo "$GITHUB_REPOSITORY"
