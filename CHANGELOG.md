@@ -6,9 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-19
+
 ### Added
 
 - Word equations (Office Math) are converted to LaTeX instead of dropped: inline `$…$`, or a `$$…$$` block for an equation on its own line, which GitHub renders. Fractions, sub- and superscripts, roots, sums and integrals, brackets, functions and limits, accents, and matrices are supported. `{ equations: 'strip' }` (library) or `--strip-equations` (CLI) keeps the old behavior. (#284) Thanks to [@faizulr](https://github.com/faizulr).
+- `w2m mcp` runs a local [MCP](https://modelcontextprotocol.io) server on stdio, so AI agents can convert `.docx` files on your machine: `claude mcp add word-to-markdown -- npx -y word-to-markdown mcp`. Its one tool, `convert_docx_to_markdown`, takes a file path and returns the Markdown and warnings. Images are dropped unless you pass `image_dir`. Because an agent may be acting on instructions it read in a document, it only writes `.md` files, never writes through a symlink or replaces an existing file unless you pass `overwrite: true`, and keeps extracted images inside the Markdown's folder. The MCP SDK loads only for this subcommand. (#336)
+- The package carries `mcpName` (`io.github.benbalter/word-to-markdown`), and each release now lists the server in the [official MCP Registry](https://registry.modelcontextprotocol.io). (#341)
+- word2md.com speaks to agents and crawlers. Every English page has a Markdown version (`/index.md`, `/privacy.md`, …), also served for `Accept: text/markdown`. `/llms.txt` and `/llms-full.txt` are generated from the site's own copy, and `robots.txt` states `Content-Signal: search=yes, ai-input=yes, ai-train=yes`. In browsers with WebMCP, the page registers `convert_docx_to_markdown` and `get_converted_markdown` tools that convert in the tab, like a drop. (#335, #336)
+- word2md.com has three guides, each with its own social card: [Google Docs to Markdown](https://word2md.com/google-docs-to-markdown/), [Word to Markdown for AI tools](https://word2md.com/docx-to-markdown-for-llms/) and [Developers](https://word2md.com/developers/) (CLI, library, MCP and WebMCP). (#338, #344)
+
+### Changed
+
+- word2md.com's "From the maker" card describes Open and Async the way the book's own site does, as drawing on "more than a decade of remote-first lessons from GitHub". The old "GitHub-tested" read as an endorsement. Long meta descriptions in German, Indonesian and Vietnamese were shortened to fit search results. (#340, #343)
+
+### Security
+
+- Overrode `postcss-selector-parser` to 7.1.6 under `@tailwindcss/typography` for CVE-2026-104844 (quadratic selector parsing). It's a build-time dependency of the site, not of the npm package. (#342)
 
 ## [0.6.0] - 2026-10-18
 
@@ -135,7 +149,8 @@ These change the Markdown produced for affected documents.
 - Documented the `images`, `imageDir`, `numberedLists`, and `underline` options for both the library and the CLI.
 - Corrected the docs and web UI: **superscript and subscript are preserved** as inline `<sup>`/`<sub>` tags. This was already the case in 0.2.0 — only the documentation, which previously listed them as unsupported, was wrong.
 
-[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.7.0
 [0.6.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.6.0
 [0.5.1]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.5.1
 [0.5.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.5.0
