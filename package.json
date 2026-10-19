@@ -61,6 +61,11 @@
     "unified": "^11.0.5",
     "wrangler": "^4.145.0"
   },
+  "overrides": {
+    "@tailwindcss/typography": {
+      "postcss-selector-parser": "^7.1.6"
+    }
+  },
   "scripts": {
     "fix": "eslint --fix . && prettier --write .",
     "dev": "astro dev",
