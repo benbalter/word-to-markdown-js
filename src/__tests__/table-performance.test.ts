@@ -8,7 +8,9 @@ import { htmlToMd } from '../main.js';
 // rows in a document (a linear scan per edit in its EditMap; see
 // https://github.com/micromark/micromark-extension-gfm-table/pull/17). For
 // word2md that made lint the slowest stage on table-heavy documents: 80 tables
-// of 100 rows spent over 20 s there. markdownlint 0.42 pins the fixed version.
+// of 100 rows spent over 20 s there. package.json overrides markdownlint 0.41's
+// exact pin to the fixed 2.1.2; markdownlint 0.42 ships it, so the override can
+// go once Renovate brings that in.
 // These guard against a lockfile change or downgrade bringing it back.
 
 function tableMarkdown(rows: number): string {

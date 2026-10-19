@@ -2,7 +2,7 @@
 // The docx→Markdown pipeline is CPU-bound; running it in a Web Worker
 // (src/converter.worker.ts) keeps the page responsive (no frozen tab) on large
 // or complex documents. The converter's dependencies (mammoth, turndown,
-// jszip, domino, prettier, markdownlint: ~400KB gzipped) load with the worker,
+// jszip, domino, prettier, markdownlint: ~355KB gzipped) load with the worker,
 // so the landing page paints without them. Like the worker, this module runs
 // only in the browser: Astro/Vite bundles it, and tsc leaves it out of build/.
 import type { ExtractedImage, WarningDetail } from './main.js';
