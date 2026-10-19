@@ -139,6 +139,7 @@ describe('w2m mcp', () => {
     [{ output_path: 'notes.txt' }, '.md or .markdown'],
     [{ output_path: 'x.md', image_dir: '../escape' }, 'relative folder'],
     [{ output_path: 'x.md', image_dir: '/tmp/abs' }, 'relative folder'],
+    [{ output_path: 'x.md', image_dir: 'C:x' }, 'relative folder'],
   ])('refuses unsafe paths %p', async (extra, message) => {
     const args = { path: fixture('image.docx'), ...extra };
     if (args.output_path) args.output_path = path.join(tmp, args.output_path);
@@ -164,6 +165,7 @@ describe('w2m mcp', () => {
       },
     });
     expect(result.isError).toBe(true);
+    expect((result.content as TextContent[])[0].text).toContain('symlink');
     expect(readFileSync(target, 'utf8')).toBe('keep me');
   });
 

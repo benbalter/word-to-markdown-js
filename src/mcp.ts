@@ -8,7 +8,8 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { lstat, mkdir, writeFile } from 'fs/promises';
+import { constants } from 'fs';
+import { mkdir, open } from 'fs/promises';
 import path from 'path';
 import { z } from 'zod';
 import { convertWithWarnings } from './main.js';
@@ -102,14 +103,10 @@ function createMcpServer(version: string): McpServer {
         if (output && !/\.(md|markdown)$/i.test(output)) {
           return toolError('output_path must end in .md or .markdown.');
         }
-        if (output && (await isSymlink(output))) {
-          return toolError(
-            `${output} is a symlink; refusing to write through it.`,
-          );
-        }
         if (
           args.image_dir &&
           (path.isAbsolute(args.image_dir) ||
+            args.image_dir.includes(':') || // Windows drive-relative (C:x)
             path.normalize(args.image_dir).split(path.sep).includes('..'))
         ) {
           return toolError(
@@ -123,17 +120,23 @@ function createMcpServer(version: string): McpServer {
           footnotes: args.preserve_footnotes ? 'preserve' : 'gfm',
         });
 
-        // 'wx' fails if the file exists: an agent (or a prompt-injected
-        // document steering one) can't overwrite files unless asked to.
-        const flag = args.overwrite ? 'w' : 'wx';
+        const overwrite = args.overwrite === true;
 
         // Image links are relative to the Markdown, so write images next to
         // wherever the Markdown lives: output_path's folder, else the .docx's.
         const markdownDir = path.dirname(output || input);
         for (const image of result.images ?? []) {
           const target = path.resolve(markdownDir, image.path);
+          // Belt and braces after the image_dir check: the resolved file
+          // itself must land inside the Markdown's folder.
+          const relative = path.relative(markdownDir, target);
+          if (relative.startsWith('..') || path.isAbsolute(relative)) {
+            return toolError(
+              `Refusing to write an image outside ${markdownDir}.`,
+            );
+          }
           await mkdir(path.dirname(target), { recursive: true });
-          await writeFile(target, image.bytes, { flag });
+          await writeSafely(target, image.bytes, overwrite);
         }
 
         const structured = {
@@ -142,7 +145,7 @@ function createMcpServer(version: string): McpServer {
         };
         if (output) {
           await mkdir(path.dirname(output), { recursive: true });
-          await writeFile(output, `${result.markdown}\n`, { flag });
+          await writeSafely(output, `${result.markdown}\n`, overwrite);
           const summary = { ...structured, output_path: output };
           return {
             content: [{ type: 'text', text: JSON.stringify(summary) }],
@@ -158,6 +161,11 @@ function createMcpServer(version: string): McpServer {
           structuredContent: { ...structured, markdown: result.markdown },
         };
       } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ELOOP') {
+          return toolError(
+            `${(error as NodeJS.ErrnoException).path} is a symlink; refusing to write through it.`,
+          );
+        }
         if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
           return {
             isError: true,
@@ -194,11 +202,26 @@ function toolError(text: string) {
   return { isError: true, content: [{ type: 'text' as const, text }] };
 }
 
-async function isSymlink(file: string): Promise<boolean> {
+// Write a file without following a symlink at its path (O_NOFOLLOW fails
+// with ELOOP) and, unless asked to overwrite, without replacing an existing
+// one (O_EXCL fails with EEXIST). Checked at open time, so there's no gap
+// between a check and the write. Windows has no O_NOFOLLOW; there, symlinks
+// need elevated rights to create, so the risk is small.
+async function writeSafely(
+  file: string,
+  data: string | Uint8Array,
+  overwrite: boolean,
+): Promise<void> {
+  const flags =
+    constants.O_WRONLY |
+    constants.O_CREAT |
+    (constants.O_NOFOLLOW ?? 0) |
+    (overwrite ? constants.O_TRUNC : constants.O_EXCL);
+  const handle = await open(file, flags, 0o644);
   try {
-    return (await lstat(file)).isSymbolicLink();
-  } catch {
-    return false; // doesn't exist yet
+    await handle.writeFile(data);
+  } finally {
+    await handle.close();
   }
 }
 
