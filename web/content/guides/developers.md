@@ -8,6 +8,10 @@ order: 3
 
 The converter behind [word2md.com](/) is free and open source and published to npm as [`word-to-markdown`](https://www.npmjs.com/package/word-to-markdown). Every way of running it, below, converts on your own machine; the converter uploads nothing. (With MCP or WebMCP, the agent does read the Markdown it gets back, as with any file you share with it.)
 
+## Claude Desktop (one click)
+
+[Download `word-to-markdown.mcpb`](https://github.com/benbalter/word-to-markdown-js/releases/latest/download/word-to-markdown.mcpb) and double-click it. Claude Desktop installs the [MCP server](#mcp-server-for-ai-agents) as an extension, so Claude can convert `.docx` files on your computer. You don't need Node or a terminal: Claude Desktop includes Node. To install it another way, drag the file into Claude Desktop, or open **Settings > Extensions > Advanced settings > Install Extension**.
+
 ## Command line
 
 ```console

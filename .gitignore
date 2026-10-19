@@ -63,3 +63,6 @@ scripts/.gen-cache/
 .github/agents/impeccable-*.md
 .github/hooks/impeccable.json
 server.json
+
+# MCP Bundle built by `npm run pack:mcpb` (scripts/pack-mcpb.mjs)
+*.mcpb
