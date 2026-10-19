@@ -37,13 +37,14 @@ const WORKER_READY_TIMEOUT = 15000;
 // .docx of 40 tables of 100 rows), measured in Chromium's worker on a fast
 // laptop: it grew faster than linearly with table rows, about 2 s for 20 such
 // tables, 8 s for 40, and 23 s for 80. Two minutes covered the 80-table
-// document on a device five times slower than that laptop. markdownlint 0.42
-// (micromark-extension-gfm-table 2.1.2) made its table parsing linear, so
-// lint now takes well under a second on those documents, and the worst stage
-// is Turndown, which grows linearly: about 8 s for 80 tables in Chromium. The
-// window now has far more headroom than it needs, while a dead worker still
-// fails sooner than the 3-minute floor of the size-based timeout this
-// replaces. A file's size
+// document on a device five times slower than that laptop. Since then,
+// markdownlint 0.42 (micromark-extension-gfm-table 2.1.2) made lint's table
+// parsing linear, and caching each table's rows for Turndown's GFM plugin
+// (addTableRowsCacheRule in src/main.ts) did the same for Turndown, which had
+// taken another 8 s on the 80-table document. In Node, no stage of that
+// document now takes more than about 0.6 s. The window now has far more
+// headroom than it needs, while a dead worker still fails sooner than the
+// 3-minute floor of the size-based timeout this replaces. A file's size
 // predicted its conversion time poorly anyway, since the XML compresses so
 // well.
 //

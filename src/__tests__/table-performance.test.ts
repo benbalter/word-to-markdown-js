@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 import { readFileSync } from 'node:fs';
 import * as markdownlint from 'markdownlint/sync';
+import { htmlToMd } from '../main.js';
 
 // markdownlint parses Markdown with micromark, and micromark-extension-gfm-table
 // before 2.1.2 resolved tables in time quadratic in the total number of table
@@ -46,6 +47,29 @@ describe('markdownlint table parsing performance', () => {
     const result = markdownlint.lint({ strings: { md } });
     const elapsed = performance.now() - start;
     expect(result['md']).toBeDefined();
+    expect(elapsed).toBeLessThan(5000);
+  });
+});
+
+// The GFM Turndown plugin reads `table.rows` inside loops, and domino (the DOM
+// Turndown uses in Node and in the worker) rebuilds that list on every read, so
+// a table cost Turndown time quadratic in its rows until htmlToMd cached it
+// (addTableRowsCacheRule in src/main.ts).
+describe('Turndown table performance', () => {
+  it('converts a table of 2,000 rows quickly', () => {
+    // On a fast laptop this took about 20 s before the cache (11 s in Jest)
+    // and about 0.3 s after, so the bound fails reliably without it while
+    // leaving plenty of headroom for slow CI machines.
+    const header = '<tr><th>ID</th><th>Name</th><th>Value</th></tr>';
+    const rows = Array.from(
+      { length: 2000 },
+      (_, r) => `<tr><td>${r}</td><td>Item ${r}</td><td>${r * 3}</td></tr>`,
+    ).join('');
+    const start = performance.now();
+    const md = htmlToMd(`<table>${header}${rows}</table>`);
+    const elapsed = performance.now() - start;
+    expect(md.split('\n')).toHaveLength(2002);
+    expect(md).toContain('| 1999 | Item 1999 | 5997 |');
     expect(elapsed).toBeLessThan(5000);
   });
 });
