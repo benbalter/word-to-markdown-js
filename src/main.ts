@@ -836,6 +836,34 @@ function addTableCellLineBreakRule(service: TurndownService): void {
   });
 }
 
+// Give each table a fixed `rows` list before the GFM plugin renders it. The
+// plugin reads `table.rows` inside loops: once per row to count columns, and
+// once per row for every column to vote on alignment. Browsers return the same
+// live collection from every read, but domino, the DOM Turndown parses with in
+// Node and in the worker, builds a new list on each read by walking the whole
+// table, so a table cost time quadratic in its rows (one table of 2,000 rows
+// spent about 20 s in Turndown). Caching the list the getter returns keeps the
+// plugin's results identical, since domino's list is still live: it rebuilds
+// itself if the table changes. This rule never matches: its filter runs ahead
+// of the other rules on each cell (and each <br>, which a cell's content
+// reaches first and addTableCellLineBreakRule checks), so the list is cached
+// before any table rule reads `rows`.
+function addTableRowsCacheRule(service: TurndownService): void {
+  const cached = new WeakSet<object>();
+  service.addRule('tableRowsCache', {
+    filter: (node) => {
+      if (!['TD', 'TH', 'BR'].includes(node.nodeName)) return false;
+      const table = node.closest('table');
+      if (table && !cached.has(table)) {
+        cached.add(table);
+        Object.defineProperty(table, 'rows', { value: table.rows });
+      }
+      return false;
+    },
+    replacement: () => '',
+  });
+}
+
 // An ordered-list item numbered 100 or higher. Turndown pads every marker to
 // four columns (`' '.repeat(3 - digits)`), so `100.` gets no space after it
 // and doesn't parse as a list item, and from 1000 the negative repeat throws.
@@ -899,6 +927,8 @@ function createTurndownService(
   if (keepTags.length > 0) service.keep(keepTags);
   if (gfmFootnotes) addFootnoteRules(service);
   addLinkAllowlistRule(service);
+  // Added last so its filter runs first: Turndown checks the newest rule first.
+  addTableRowsCacheRule(service);
   return service;
 }
 
