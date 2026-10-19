@@ -1,6 +1,6 @@
 {
   "name": "word-to-markdown",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "mcpName": "io.github.benbalter/word-to-markdown",
   "description": "Convert Word (.docx) documents to Markdown via CLI, Node.js, or browser",
   "type": "module",
@@ -61,6 +61,11 @@
     "typescript-eslint": "^8.71.0",
     "unified": "^11.0.5",
     "wrangler": "^4.145.0"
+  },
+  "overrides": {
+    "@tailwindcss/typography": {
+      "postcss-selector-parser": "^7.1.6"
+    }
   },
   "scripts": {
     "fix": "eslint --fix . && prettier --write .",
