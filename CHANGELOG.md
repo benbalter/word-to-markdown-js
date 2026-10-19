@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- Table-heavy documents convert much faster. markdownlint's table parsing grew quadratically with the number of table rows in a document, so a document of 80 tables of 100 rows spent over 20 seconds in that step alone; upgrading to markdownlint 0.42, which brings the fix from [micromark-extension-gfm-table#17](https://github.com/micromark/micromark-extension-gfm-table/pull/17), makes it linear and brings that step under a second. Output is unchanged.
+
 ## [0.7.0] - 2026-10-19
 
 ### Added

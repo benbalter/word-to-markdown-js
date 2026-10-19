@@ -2,7 +2,7 @@
 // The docx→Markdown pipeline is CPU-bound; running it in a Web Worker
 // (src/converter.worker.ts) keeps the page responsive (no frozen tab) on large
 // or complex documents. The converter's dependencies (mammoth, turndown,
-// jszip, domino, prettier, markdownlint: ~355KB gzipped) load with the worker,
+// jszip, domino, prettier, markdownlint: ~400KB gzipped) load with the worker,
 // so the landing page paints without them. Like the worker, this module runs
 // only in the browser: Astro/Vite bundles it, and tsc leaves it out of build/.
 import type { ExtractedImage, WarningDetail } from './main.js';
@@ -32,15 +32,18 @@ const WORKER_READY_TIMEOUT = 15000;
 // message resets the clock. A slow conversion keeps talking and gets its
 // result however long it takes; a dead worker goes quiet and fails after this
 // window. The slow stages are synchronous CPU work, so the window has to
-// outlast the longest single stage, not the conversion. Measured in
-// Chromium's worker on a fast laptop, the worst stage is markdownlint on
-// table-heavy documents (an 80 KB .docx of 40 tables of 100 rows), and it
-// grows faster than linearly with table rows: about 2 s for 20 such tables,
-// 8 s for 40, and 23 s for 80 (where Turndown takes another 8 s; the same
-// stage takes 43 s in Node). Two minutes covers the 80-table document on a
-// device five times slower than that laptop, and the 40-table one on a device
-// fourteen times slower, while a dead worker still fails sooner than the
-// 3-minute floor of the size-based timeout this replaces. A file's size
+// outlast the longest single stage, not the conversion. The window was sized
+// when the worst stage was markdownlint on table-heavy documents (an 80 KB
+// .docx of 40 tables of 100 rows), measured in Chromium's worker on a fast
+// laptop: it grew faster than linearly with table rows, about 2 s for 20 such
+// tables, 8 s for 40, and 23 s for 80. Two minutes covered the 80-table
+// document on a device five times slower than that laptop. markdownlint 0.42
+// (micromark-extension-gfm-table 2.1.2) made its table parsing linear, so
+// lint now takes well under a second on those documents, and the worst stage
+// is Turndown, which grows linearly: about 8 s for 80 tables in Chromium. The
+// window now has far more headroom than it needs, while a dead worker still
+// fails sooner than the 3-minute floor of the size-based timeout this
+// replaces. A file's size
 // predicted its conversion time poorly anyway, since the XML compresses so
 // well.
 //
