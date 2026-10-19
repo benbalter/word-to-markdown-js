@@ -27,6 +27,16 @@ describe('convertHtml', () => {
     expect(md).toBe('Not bold');
   });
 
+  it('keeps a Google Docs selection copied in Chrome, which adds its own <meta>', async () => {
+    // Chrome prefixes the clipboard HTML with a <meta charset>, ahead of the
+    // one Google Docs writes. Removing both left domino's cached child index
+    // stale, and unwrapping the docs-internal-guid <b> then dropped all of it.
+    const md = await convertHtml(
+      `<meta charset='utf-8'><meta charset="utf-8"><b style="font-weight:normal;" id="docs-internal-guid-abc"><h1 dir="ltr"><span>Title</span></h1><ul><li dir="ltr"><p dir="ltr" role="presentation"><span>one</span></p></li></ul><p dir="ltr"><span>Body</span></p></b>`,
+    );
+    expect(md).toBe('# Title\n\n- one\n\nBody');
+  });
+
   it('keeps a list tight when each item wraps its text in a <p>', async () => {
     const md = await convertHtml(
       '<ul><li><p>one</p></li><li><p>two</p></li></ul>',

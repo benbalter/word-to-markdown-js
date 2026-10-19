@@ -273,6 +273,25 @@ function serializeFragment(root: Element): string {
   return root.innerHTML;
 }
 
+// Replace `target` with `nodes` (an empty list just removes it), one
+// insertBefore at a time. Not Element.replaceWith: domino builds a document
+// fragment for it and splices the fragment in at the target's cached child
+// index, which goes stale once earlier siblings are removed, so the nodes land
+// in the wrong place or vanish. Chrome's clipboard copy of a Google Docs
+// selection (two <meta> tags, both removed, before the wrapper unwrapped
+// below) lost the whole selection that way.
+function replaceNode(target: Node, nodes: readonly Node[]): void {
+  const parent = target.parentNode;
+  if (!parent) return;
+  for (const node of nodes) parent.insertBefore(node, target);
+  parent.removeChild(target);
+}
+
+// Move an element's children up into its place, dropping the element.
+function unwrap(element: Element): void {
+  replaceNode(element, Array.from(element.childNodes));
+}
+
 // querySelectorAll as an array, so it can be filtered and mapped
 function all(root: ParentNode, selector: string): Element[] {
   return Array.from(root.querySelectorAll(selector));
@@ -298,7 +317,7 @@ function renameElement(element: Element, tag: string): Element {
     renamed.setAttribute(name, value);
   }
   while (element.firstChild) renamed.appendChild(element.firstChild);
-  element.replaceWith(renamed);
+  replaceNode(element, [renamed]);
   return renamed;
 }
 
@@ -572,7 +591,7 @@ function rewriteBookmarkLinks(
     if (!targets.has(id)) continue;
     const slug = targets.get(id);
     if (slug) link.setAttribute('href', `#${slug}`);
-    else link.replaceWith(...Array.from(link.childNodes));
+    else unwrap(link);
   }
 }
 
@@ -647,7 +666,7 @@ export function processHtml(
     // contains prose or other elements alongside the code.
     if (pres.length !== 1) return;
     if (cell.textContent?.trim() !== pres[0].textContent?.trim()) return;
-    table.replaceWith(pres[0]);
+    replaceNode(table, [pres[0]]);
   });
 
   // Flatten Word's merged cells into one empty <td> per spanned grid column.
@@ -1654,7 +1673,7 @@ export async function convertHtml(
   // docs-internal-guid id and font-weight:normal; Turndown would make all of
   // it bold.
   all(root, 'b[id^="docs-internal-guid"]').forEach((wrapper) => {
-    wrapper.replaceWith(...Array.from(wrapper.childNodes));
+    unwrap(wrapper);
   });
   // Google Docs also puts each list item's text in a <p>, which Turndown
   // renders as a loose list (a blank line between items).
@@ -1665,7 +1684,7 @@ export async function convertHtml(
     );
     const only = children[0] as Element | undefined;
     if (children.length === 1 && only?.tagName === 'P') {
-      only.replaceWith(...Array.from(only.childNodes));
+      unwrap(only);
     }
   });
   try {
