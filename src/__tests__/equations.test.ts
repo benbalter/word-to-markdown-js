@@ -286,6 +286,30 @@ describe('equations in a document', () => {
     ]);
   });
 
+  it('leaves out an equation it cannot convert, and warns, instead of failing the document', async () => {
+    // Nested deeply enough to exhaust the stack in the recursive converter.
+    // Before equations were converted, Mammoth just dropped them, so a
+    // document like this must still convert.
+    let nested = r('x');
+    for (let depth = 0; depth < 20000; depth++) {
+      nested = `<m:f><m:num>${nested}</m:num><m:den>${r('y')}</m:den></m:f>`;
+    }
+    const result = await convertWithWarnings(
+      await docx(
+        `<w:p>${run('Before ')}${math(nested)}${run(' after, and ')}${pythagoras}</w:p>`,
+      ),
+    );
+    // The rest of the document, other equations included, still converts.
+    expect(result.markdown).toMatch(/^Before +after, and \$a\^2\+b\^2=c\^2\$$/);
+    expect(result.warningDetails).toEqual([
+      expect.objectContaining({
+        kind: 'content-loss',
+        // Matches the web UI's /oMath/ pattern, so it names "equations".
+        detail: expect.stringMatching(/oMath \(1\)$/),
+      }),
+    ]);
+  });
+
   it('keeps an equation after a line break inline', async () => {
     const md = await convert(
       await docx(

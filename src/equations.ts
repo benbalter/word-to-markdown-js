@@ -572,6 +572,7 @@ function replaceEquations(
   prefix: string,
   token: string,
   equations: string[],
+  failures: { count: number },
 ): string {
   const para = `${prefix}:oMathPara`;
   const inline = `${prefix}:oMath`;
@@ -591,7 +592,16 @@ function replaceEquations(
     }
     const end = elementEnd(xml, start, isPara ? para : inline);
     if (end === -1) break;
-    const latex = ommlToLatex(xml.slice(start, end), prefix);
+    // One equation the converter can't handle (an unexpected structure, or
+    // nesting deep enough to exhaust the stack) is left out, not allowed to
+    // fail the whole document: before equations were converted at all,
+    // Mammoth just dropped them. The caller warns about it.
+    let latex = '';
+    try {
+      latex = ommlToLatex(xml.slice(start, end), prefix);
+    } catch {
+      failures.count++;
+    }
     const id = equations.push(latex) - 1;
     const kind = isPara || isAloneInParagraph(start, end) ? 'D' : 'X';
     out += `${xml.slice(from, start)}<w:r><w:t>${token}${id}${kind}</w:t></w:r>`;
@@ -610,19 +620,21 @@ function pickToken(texts: string[]): string {
 
 /**
  * Rewrites a .docx so each equation is a placeholder mammoth keeps. Returns
- * the original bytes untouched when the document has no equations.
+ * the original bytes untouched when the document has no equations. `failed`
+ * counts equations that couldn't be converted and were left out.
  */
 export async function extractEquations(bytes: ArrayBuffer): Promise<{
   bytes: ArrayBuffer;
   token: string;
   equations: string[];
+  failed: number;
 }> {
   // An unreadable .docx is mammoth's to report, with the error it always has.
   let zip: JSZip;
   try {
     zip = await JSZip.loadAsync(bytes);
   } catch {
-    return { bytes, token: '', equations: [] };
+    return { bytes, token: '', equations: [], failed: 0 };
   }
   const parts: [string, string, string][] = [];
   // Every part mammoth reads, with or without math, so the placeholder can't
@@ -641,14 +653,16 @@ export async function extractEquations(bytes: ArrayBuffer): Promise<{
   }
   const equations: string[] = [];
   const token = pickToken(texts);
-  if (parts.length === 0) return { bytes, token, equations };
+  if (parts.length === 0) return { bytes, token, equations, failed: 0 };
+  const failures = { count: 0 };
   for (const [name, xml, prefix] of parts) {
-    zip.file(name, replaceEquations(xml, prefix, token, equations));
+    zip.file(name, replaceEquations(xml, prefix, token, equations, failures));
   }
   return {
     bytes: await zip.generateAsync({ type: 'arraybuffer' }),
     token,
     equations,
+    failed: failures.count,
   };
 }
 

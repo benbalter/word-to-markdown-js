@@ -1575,14 +1575,26 @@ async function runConversionPipeline(
 
   // Mammoth drops equations, so swap them for placeholders it keeps, and put
   // them back as LaTeX once the Markdown is formatted.
+  // Equations are a best-effort extra: if extracting them fails outright,
+  // convert the document without them (Mammoth drops them and says so)
+  // rather than failing a document that converted fine before.
   const math =
     options.equations === 'strip'
       ? undefined
-      : await extractEquations(loaded.bytes);
+      : await extractEquations(loaded.bytes).catch(() => undefined);
   const mammothResult = await mammoth.convertToHtml(
     math?.equations.length ? toMammothInput(math.bytes) : loaded.mammothInput,
     mammothOptions,
   );
+  const messages: MammothMessage[] = [...mammothResult.messages];
+  if (math?.failed) {
+    // Worded like Mammoth's own messages, so extractMammothWarningDetails
+    // surfaces it and the web UI names it as equations (it matches /oMath/).
+    messages.push({
+      type: 'warning',
+      message: `Equations that could not be converted were left out: m:oMath (${math.failed})`,
+    });
+  }
   const markdown = await htmlPipeline(
     mammothResult.value,
     options,
@@ -1593,7 +1605,7 @@ async function runConversionPipeline(
     markdown: math
       ? restoreEquations(markdown, math.token, math.equations)
       : markdown,
-    messages: mammothResult.messages,
+    messages,
     images: extractor?.images,
   };
 }
