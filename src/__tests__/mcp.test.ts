@@ -1,5 +1,12 @@
 import { execFileSync } from 'child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'fs';
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'fs';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -102,6 +109,29 @@ describe('w2m mcp', () => {
     const link = /!\[[^\]]*\]\((img\/[^)]+)\)/.exec(markdown);
     expect(link).not.toBeNull();
     expect(existsSync(path.join(tmp, 'out', link![1]))).toBe(true);
+  });
+
+  it('refuses to overwrite a file unless asked', async () => {
+    const output = path.join(tmp, 'existing.md');
+    writeFileSync(output, 'keep me');
+    const args = { path: fixture('h1.docx'), output_path: output };
+
+    const refused = await client.callTool({
+      name: 'convert_docx_to_markdown',
+      arguments: args,
+    });
+    expect(refused.isError).toBe(true);
+    expect((refused.content as TextContent[])[0].text).toContain(
+      'overwrite: true',
+    );
+    expect(readFileSync(output, 'utf8')).toBe('keep me');
+
+    const replaced = await client.callTool({
+      name: 'convert_docx_to_markdown',
+      arguments: { ...args, overwrite: true },
+    });
+    expect(replaced.isError).toBeFalsy();
+    expect(readFileSync(output, 'utf8')).toMatch(/^# /);
   });
 
   it('reports bad input as a tool error, not a crash', async () => {

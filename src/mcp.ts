@@ -61,6 +61,13 @@ function createMcpServer(version: string): McpServer {
           .boolean()
           .optional()
           .describe('Turn numbered lists into bullets.'),
+        overwrite: z
+          .boolean()
+          .optional()
+          .describe(
+            'Replace output_path or image files that already exist. Off by ' +
+              'default, so a conversion never clobbers a file by accident.',
+          ),
         preserve_footnotes: z
           .boolean()
           .optional()
@@ -79,8 +86,9 @@ function createMcpServer(version: string): McpServer {
       },
       annotations: {
         readOnlyHint: false,
-        destructiveHint: false,
-        idempotentHint: true,
+        // With overwrite: true it can replace existing files.
+        destructiveHint: true,
+        idempotentHint: false,
         openWorldHint: false,
       },
     },
@@ -95,13 +103,17 @@ function createMcpServer(version: string): McpServer {
           footnotes: args.preserve_footnotes ? 'preserve' : 'gfm',
         });
 
+        // 'wx' fails if the file exists: an agent (or a prompt-injected
+        // document steering one) can't overwrite files unless asked to.
+        const flag = args.overwrite ? 'w' : 'wx';
+
         // Image links are relative to the Markdown, so write images next to
         // wherever the Markdown lives: output_path's folder, else the .docx's.
         const markdownDir = path.dirname(output || input);
         for (const image of result.images ?? []) {
           const target = path.resolve(markdownDir, image.path);
           await mkdir(path.dirname(target), { recursive: true });
-          await writeFile(target, image.bytes);
+          await writeFile(target, image.bytes, { flag });
         }
 
         const structured = {
@@ -110,7 +122,7 @@ function createMcpServer(version: string): McpServer {
         };
         if (output) {
           await mkdir(path.dirname(output), { recursive: true });
-          await writeFile(output, `${result.markdown}\n`);
+          await writeFile(output, `${result.markdown}\n`, { flag });
           const summary = { ...structured, output_path: output };
           return {
             content: [{ type: 'text', text: JSON.stringify(summary) }],
@@ -126,6 +138,20 @@ function createMcpServer(version: string): McpServer {
           structuredContent: { ...structured, markdown: result.markdown },
         };
       } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
+          return {
+            isError: true,
+            content: [
+              {
+                type: 'text',
+                text:
+                  `${(error as NodeJS.ErrnoException).path} already exists. ` +
+                  'Pick another output_path or image_dir, or pass ' +
+                  'overwrite: true to replace it.',
+              },
+            ],
+          };
+        }
         // The converter's typed errors carry messages meant for people
         // ("not a .docx", "file not found"), which suit an agent too.
         return {

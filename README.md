@@ -118,6 +118,7 @@ It has one tool, `convert_docx_to_markdown`:
 - `path` (required): the `.docx` to convert. Prefer an absolute path; relative paths resolve against the server's working directory.
 - `output_path`: write the Markdown to this file instead of returning it, which is handy for long documents.
 - `image_dir`: extract images into this directory (relative to `output_path`, or to the `.docx`) and link them. By default images are dropped, because base64 images would flood the agent's context.
+- `overwrite`: replace `output_path` or image files that already exist. Off by default, so the tool refuses rather than clobbering a file. That matters when an agent is acting on instructions it read in a document.
 - `bullet_lists`, `preserve_footnotes`: same as the CLI flags.
 
 It returns the Markdown and any document warnings, also as structured content.
