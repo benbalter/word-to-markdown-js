@@ -13,6 +13,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { mcpbManifest } from '../../scripts/mcpb-manifest.mjs';
 
 // The local MCP server (`w2m mcp`, src/mcp.ts), driven the way an agent would:
 // spawn the built CLI and talk to it over stdio with the SDK's client.
@@ -180,5 +181,48 @@ describe('w2m mcp', () => {
     });
     expect(result.isError).toBe(true);
     expect((result.content as TextContent[])[0].text).toMatch(/not found/i);
+  });
+});
+
+// The Claude Desktop bundle's manifest (scripts/mcpb-manifest.mjs).
+// pack-mcpb.mjs fills its tools from the server and runs the full
+// `mcpb validate`; this keeps the parts it can't catch until release time.
+describe('MCPB manifest', () => {
+  const pkg = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+
+  it('lists exactly the tools the server advertises', async () => {
+    const { tools } = await client.listTools();
+    const manifest = mcpbManifest(pkg, tools);
+    expect(manifest.tools).toEqual(
+      tools.map(({ name, description }) => ({ name, description })),
+    );
+    expect(manifest.tools.map((t: { name: string }) => t.name)).toEqual([
+      'convert_docx_to_markdown',
+    ]);
+  });
+
+  it("has the spec's required fields and starts the mcp subcommand", () => {
+    const manifest = mcpbManifest(pkg, []);
+    expect(manifest).toMatchObject({
+      manifest_version: '0.3',
+      name: pkg.name,
+      version: pkg.version,
+      description: pkg.description,
+      author: { name: 'Ben Balter' },
+      server: {
+        type: 'node',
+        entry_point: 'build/cli.js',
+        mcp_config: {
+          command: 'node',
+          args: ['${__dirname}/build/cli.js', 'mcp'],
+        },
+      },
+    });
+    // The bundle ships the built CLI the manifest points at.
+    expect(pkg.bin.w2m).toBe(manifest.server.entry_point);
+    expect(manifest.compatibility.platforms).toEqual(
+      expect.arrayContaining(['darwin', 'win32']),
+    );
+    expect(existsSync(path.join(root, 'public/icon-512.png'))).toBe(true);
   });
 });

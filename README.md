@@ -94,6 +94,8 @@ Options:
 
 `w2m mcp` runs a local [Model Context Protocol](https://modelcontextprotocol.io) server on stdio, so AI agents can convert `.docx` files on your machine. Like the website, it never uploads anything: the agent passes a file path, and the server reads and converts the file locally.
 
+In Claude Desktop, it's one click: [download `word-to-markdown.mcpb`](https://github.com/benbalter/word-to-markdown-js/releases/latest/download/word-to-markdown.mcpb) and double-click it. Claude Desktop installs it as an extension. You don't need Node or a terminal, since Claude Desktop includes Node.
+
 Add it to Claude Code:
 
 ```console

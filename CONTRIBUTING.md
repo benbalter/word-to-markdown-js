@@ -107,6 +107,7 @@ Cut a release only after the owner approves it: publishing the GitHub Release is
 1. Run `npm version <x> --no-git-tag-version` (e.g. `npm version patch`), which bumps `package.json` and `package-lock.json` together without creating a tag, add a matching entry to [`CHANGELOG.md`](CHANGELOG.md), and merge both to `main`.
 2. Create a GitHub Release whose tag matches the new version, prefixed with `v` (e.g. `v0.1.1`), using the CHANGELOG entry as the release notes. The workflow verifies the tag matches `package.json` and fails the publish if they drift.
 3. The workflow runs the tests, then `npm publish` (whose `prepack` script builds the package), authenticating via OIDC.
+4. [`mcpb.yml`](.github/workflows/mcpb.yml) builds `word-to-markdown.mcpb`, the one-click Claude Desktop install, and attaches it to the release. To attach one to a release cut before that workflow was on `main`, or to rebuild it, run `gh workflow run mcpb.yml -f tag=v1.2.3` (once the workflow is on the default branch). `npm run pack:mcpb` builds the same bundle locally.
 
 ## Code of conduct
 

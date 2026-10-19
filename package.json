@@ -90,6 +90,7 @@
     "gen:icons": "node scripts/gen-pwa-icons.mjs",
     "gen:og": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/gen-og.mjs",
     "prepack": "rm -rf build && npm run build:js",
+    "pack:mcpb": "node scripts/pack-mcpb.mjs",
     "knip": "knip"
   },
   "author": "Ben Balter <ben@balter.com>",
