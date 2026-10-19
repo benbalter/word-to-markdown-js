@@ -10,6 +10,7 @@ import {
   type ConversionResult,
 } from './worker-client.ts';
 import {
+  conversionErrorKind,
   conversionErrorMessage,
   showConversionError,
   showError,
@@ -129,6 +130,8 @@ async function processFile(
       session.activeConversion++;
       endBusy(true);
     }
+    // Refused before converting, so the anonymous counter doesn't count it:
+    // it counts conversions that were attempted.
     showError(rejection, file.name);
     return;
   }
@@ -283,9 +286,10 @@ async function runConversion(
   } catch (error) {
     if (!isCurrent()) return;
     endBusy(true);
-    recordConversion('error', source);
     // Pasted HTML has no file for the error to name.
-    showConversionError(error, fileName === PASTED_NAME ? undefined : fileName);
+    const errorFile = fileName === PASTED_NAME ? undefined : fileName;
+    recordConversion('error', source, conversionErrorKind(error, errorFile));
+    showConversionError(error, errorFile);
   }
 }
 
@@ -319,6 +323,7 @@ async function processBatch(files: File[]): Promise<void> {
     const entry: BatchEntry = { name: file.name, base: bases[index] };
     const rejection = rejectionFor(file);
     if (rejection) {
+      // Refused before converting, so not counted (as for a single file).
       entry.error = rejection;
     } else {
       try {
@@ -331,7 +336,11 @@ async function processBatch(files: File[]): Promise<void> {
         recordConversion('success', 'batch');
       } catch (error) {
         entry.error = conversionErrorMessage(error, file.name);
-        recordConversion('error', 'batch');
+        recordConversion(
+          'error',
+          'batch',
+          conversionErrorKind(error, file.name),
+        );
       }
       // A newer drop, or Convert another, replaced this batch.
       if (!isCurrent()) return;

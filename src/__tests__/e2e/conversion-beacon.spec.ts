@@ -22,11 +22,24 @@ test.use({
 
 // Serve the local build as word2md.com, record beacons, and stub WebMCP so
 // the agent tool can be called.
-async function openAsProduction(page: Page, baseURL: string): Promise<void> {
+// `failConverter` makes both the Web Worker and the main-thread fallback
+// chunk fail to download, as after a deploy replaces them mid-session.
+async function openAsProduction(
+  page: Page,
+  baseURL: string,
+  { failConverter = false } = {},
+): Promise<void> {
   await page.context().route(`${PROD}/**`, async (route) => {
     const url = new URL(route.request().url());
     if (url.pathname === '/api/event') {
       await route.fulfill({ status: 204 });
+      return;
+    }
+    if (
+      failConverter &&
+      /^\/_astro\/(converter\.worker-|main\.)/.test(url.pathname)
+    ) {
+      await route.abort();
       return;
     }
     const response = await route.fetch({
@@ -177,21 +190,96 @@ test.describe('conversion beacon', () => {
       .toEqual([{ o: 'success', l: 'en', s: 'webmcp' }]);
   });
 
-  test('a failed conversion sends o=error with its source', async ({
+  // Each kind the page can tell apart, with the file that causes it and the
+  // message the visitor sees, which the kind must match.
+  const DOCX =
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  // The OLE compound-file signature: a legacy .doc (or a password-protected
+  // .docx) renamed to .docx.
+  const OLE = Buffer.concat([
+    Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]),
+    Buffer.alloc(504),
+  ]);
+  for (const { kind, name, buffer, message } of [
+    {
+      kind: 'invalid',
+      name: 'broken.docx',
+      buffer: Buffer.from('not a docx'),
+      message: /couldn.t be read as a Word document/i,
+    },
+    {
+      kind: 'protected',
+      name: 'renamed.docx',
+      buffer: OLE,
+      message: /password/i,
+    },
+    {
+      kind: 'not-docx',
+      name: 'notes.pdf',
+      buffer: Buffer.from('%PDF-1.7'),
+      message: /isn.t a Word document/i,
+    },
+  ]) {
+    test(`a failed conversion sends o=error, its source, and e=${kind}`, async ({
+      page,
+      baseURL,
+    }) => {
+      await openAsProduction(page, baseURL!);
+      await page
+        .locator('#file')
+        .setInputFiles({ name, mimeType: DOCX, buffer });
+      await expect(page.locator('#error-alert')).toContainText(message);
+      await expect
+        .poll(() => beacons(page))
+        .toEqual([{ o: 'error', l: 'en', s: 'drop', e: kind }]);
+    });
+  }
+
+  test('a converter that fails to load sends e=load', async ({
     page,
     baseURL,
   }) => {
-    await openAsProduction(page, baseURL!);
-    await page.locator('#file').setInputFiles({
-      name: 'broken.docx',
-      mimeType:
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      buffer: Buffer.from('not a docx'),
-    });
-    await expect(page.locator('#error-alert')).toBeVisible();
+    await openAsProduction(page, baseURL!, { failConverter: true });
+    await page.locator('#file').setInputFiles(path.join(fixtures, 'h1.docx'));
+    await expect(page.locator('#error-alert')).toBeVisible({ timeout: 15000 });
     await expect
       .poll(() => beacons(page))
-      .toEqual([{ o: 'error', l: 'en', s: 'drop' }]);
+      .toEqual([{ o: 'error', l: 'en', s: 'drop', e: 'load' }]);
+  });
+
+  test('a failed file in a batch sends its kind', async ({ page, baseURL }) => {
+    await openAsProduction(page, baseURL!);
+    await page.locator('#file').setInputFiles([
+      {
+        name: 'h1.docx',
+        mimeType: DOCX,
+        buffer: readFileSync(path.join(fixtures, 'h1.docx')),
+      },
+      { name: 'broken.docx', mimeType: DOCX, buffer: Buffer.from('nope') },
+    ]);
+    await expect(page.locator('#batch-list li')).toHaveCount(2);
+    await expect
+      .poll(() => beacons(page))
+      .toEqual([
+        { o: 'success', l: 'en', s: 'batch' },
+        { o: 'error', l: 'en', s: 'batch', e: 'invalid' },
+      ]);
+  });
+
+  test('a file refused before converting sends nothing', async ({
+    page,
+    baseURL,
+  }) => {
+    // Only attempted conversions count, so a legacy .doc, which the page
+    // turns away up front, isn't one.
+    await openAsProduction(page, baseURL!);
+    await page.locator('#file').setInputFiles({
+      name: 'old.doc',
+      mimeType: 'application/msword',
+      buffer: OLE,
+    });
+    await expect(page.locator('#error-alert')).toBeVisible();
+    expect(await beacons(page)).toEqual([]);
   });
 
   test('sends nothing off word2md.com', async ({ page }) => {
