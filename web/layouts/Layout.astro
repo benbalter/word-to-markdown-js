@@ -33,6 +33,12 @@ interface Props {
   i18nPath?: string;
   /** Keep the page out of search results (e.g. the 404 page). */
   noindex?: boolean;
+  /**
+   * Path of this page's Markdown twin (e.g. "/index.md", served by
+   * web/pages/[page].md.ts), advertised to agents as a text/markdown
+   * alternate. Omit for pages without one (localized pages, the 404).
+   */
+  markdownPath?: string;
 }
 
 const {
@@ -42,6 +48,7 @@ const {
   structuredData,
   i18nPath,
   noindex = false,
+  markdownPath,
 } = Astro.props;
 
 // Current locale drives the <html lang>, og:locale, and localized chrome.
@@ -129,6 +136,11 @@ const footerLinks = [
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
     {!noindex && <link rel="canonical" href={canonical} />}
+    {
+      markdownPath && (
+        <link rel="alternate" type="text/markdown" href={markdownPath} />
+      )
+    }
     {
       hreflangs.map((alt) => (
         <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />
