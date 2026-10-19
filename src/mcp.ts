@@ -8,7 +8,7 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { mkdir, writeFile } from 'fs/promises';
+import { lstat, mkdir, writeFile } from 'fs/promises';
 import path from 'path';
 import { z } from 'zod';
 import { convertWithWarnings } from './main.js';
@@ -46,16 +46,16 @@ function createMcpServer(version: string): McpServer {
           .string()
           .optional()
           .describe(
-            'Write the Markdown to this file instead of returning it. Useful ' +
-              'for long documents.',
+            'Write the Markdown to this .md file instead of returning it. ' +
+              'Useful for long documents.',
           ),
         image_dir: z
           .string()
           .optional()
           .describe(
-            'Extract images into this directory and link them from the ' +
-              'Markdown. Relative to output_path when set, else to the .docx. ' +
-              'Omit to drop images.',
+            'Extract images into this folder and link them from the ' +
+              "Markdown. A relative folder inside output_path's folder when " +
+              "set, else the .docx's. Omit to drop images.",
           ),
         bullet_lists: z
           .boolean()
@@ -96,6 +96,26 @@ function createMcpServer(version: string): McpServer {
       try {
         const input = path.resolve(args.path);
         const output = args.output_path && path.resolve(args.output_path);
+        // Instructions planted in a document can steer an agent, so keep
+        // what this tool writes narrow: Markdown files only, never through a
+        // symlink, and images only beneath the Markdown's folder.
+        if (output && !/\.(md|markdown)$/i.test(output)) {
+          return toolError('output_path must end in .md or .markdown.');
+        }
+        if (output && (await isSymlink(output))) {
+          return toolError(
+            `${output} is a symlink; refusing to write through it.`,
+          );
+        }
+        if (
+          args.image_dir &&
+          (path.isAbsolute(args.image_dir) ||
+            path.normalize(args.image_dir).split(path.sep).includes('..'))
+        ) {
+          return toolError(
+            "image_dir must be a relative folder inside the Markdown file's folder.",
+          );
+        }
         const result = await convertWithWarnings(input, {
           images: args.image_dir ? 'extract' : 'strip',
           imageDir: args.image_dir,
@@ -168,6 +188,18 @@ function createMcpServer(version: string): McpServer {
   );
 
   return server;
+}
+
+function toolError(text: string) {
+  return { isError: true, content: [{ type: 'text' as const, text }] };
+}
+
+async function isSymlink(file: string): Promise<boolean> {
+  try {
+    return (await lstat(file)).isSymbolicLink();
+  } catch {
+    return false; // doesn't exist yet
+  }
 }
 
 export async function startMcpServer(version: string): Promise<void> {
