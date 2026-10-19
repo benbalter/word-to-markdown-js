@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { serverJson } from '../../scripts/mcp-server-json.mjs';
 
-// The MCP Registry record that release.yml generates and publishes. The
+// The MCP Registry record that mcp-registry.yml generates and publishes. The
 // registry rejects a publish whose name doesn't match the npm package's
 // mcpName or breaks its schema limits, and a broken record would surface only
 // after an npm release had already shipped, so check it on every test run.
