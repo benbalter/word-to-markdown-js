@@ -55,6 +55,14 @@ Its tool, `convert_docx_to_markdown`, takes the path to a `.docx` and returns th
 
 In a browser with [WebMCP](https://webmachinelearning.github.io/webmcp/), word2md.com registers two tools for agents working in the tab: `convert_docx_to_markdown`, which takes a `.docx` as base64 and shows the result on the page, and `get_converted_markdown`, which returns what the person last converted. As with dropping a file, the conversion runs in the tab and nothing is uploaded. Images come back as `image-omitted` placeholders unless the agent passes `include_images: true`.
 
+## Related MCP server
+
+[Open and Async MCP](https://github.com/open-and-async/mcp), from the same author, gives an agent async-first writing tools: draft a decision doc, swap a planned meeting for an async alternative, or score a status update. Once a team's docs are in Markdown, it can draft new ones the same way.
+
+```console
+claude mcp add open-async -- npx -y @open-and-async/mcp
+```
+
 ## For crawlers and LLMs
 
 - [`/llms.txt`](/llms.txt) indexes the site, and [`/llms-full.txt`](/llms-full.txt) has all of it in one file.
