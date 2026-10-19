@@ -45,12 +45,14 @@ function codeCell(text: string): string {
   return `${fence}${pad}${text.replaceAll('|', '\\|')}${pad}${fence}`;
 }
 
-/** How to convert without a browser: the CLI and the npm library. */
+/** How to convert without the page: MCP, WebMCP, the CLI, and the library. */
 function developerMarkdown(): string {
   return `## Use it from code or an agent
 
-The web page converts files you drop into it, which an agent without a browser can't do. The same converter is published to npm, so run it locally instead. Nothing is uploaded either way.
+The web page converts files you drop into it. Agents and scripts can use the same converter on their own machine. Nothing is uploaded either way.
 
+- **MCP server (local):** \`npx -y word-to-markdown mcp\` runs a stdio MCP server with one tool, \`convert_docx_to_markdown\`, which takes a path to a .docx and returns Markdown and warnings. Add it to Claude Code with \`claude mcp add word-to-markdown -- npx -y word-to-markdown mcp\`, or to any MCP client as the command \`npx\` with args \`["-y", "word-to-markdown", "mcp"]\`. [MCP docs](${SOURCE_URL}#mcp-server)
+- **WebMCP (in the browser):** in a browser with WebMCP, the converter page registers \`convert_docx_to_markdown\` (takes the .docx as base64) and \`get_converted_markdown\` (what the user last converted). They run in the tab, like a drop.
 - **Command line:** \`npx word-to-markdown report.docx > report.md\`, or pipe the file in: \`cat report.docx | npx word-to-markdown - > report.md\`. Install it globally (\`npm install -g word-to-markdown\`) to get the \`w2m\` command. Warnings go to stderr; \`--strict\` exits 2 when the document has them. [CLI docs](${SOURCE_URL}#command-line)
 - **Node library:** \`npm install word-to-markdown\`, then \`await convertWithWarnings('report.docx')\` returns \`{ markdown, warnings }\`. It also accepts an \`ArrayBuffer\`. [API docs](${SOURCE_URL}#use-as-a-library) · [npm](${NPM_URL})
 `;
