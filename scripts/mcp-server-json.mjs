@@ -1,8 +1,8 @@
 // Writes server.json, the MCP Registry's record for `w2m mcp`
 // (https://modelcontextprotocol.io/registry), from package.json. Generated at
 // release time rather than committed, so the name, description, and version
-// have one source and can't drift. release.yml runs this right after
-// `npm publish`, then `mcp-publisher publish` reads ./server.json.
+// have one source and can't drift. .github/workflows/mcp-registry.yml runs
+// this after each release, then `mcp-publisher publish` reads ./server.json.
 //
 // The registry checks that package.json's `mcpName` matches `name` here,
 // and that the published npm package carries the same `mcpName`.
