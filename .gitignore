@@ -62,3 +62,4 @@ scripts/.gen-cache/
 .github/skills/impeccable/
 .github/agents/impeccable-*.md
 .github/hooks/impeccable.json
+server.json

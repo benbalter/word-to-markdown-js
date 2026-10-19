@@ -1,6 +1,7 @@
 name: Release
 
-# Publishes the package to npm when a GitHub Release is published.
+# Publishes the package to npm when a GitHub Release is published, then
+# lists its MCP server in the MCP Registry (the mcp-registry job).
 # The release tag (e.g. v0.1.0) must match the version in package.json.
 #
 # Authentication uses npm Trusted Publishing (OIDC) — no long-lived token.
@@ -55,3 +56,43 @@ jobs:
       - run: npm test
       # No token: OIDC authenticates via id-token, and provenance is automatic.
       - run: npm publish
+
+  # Lists the new version's MCP server (`w2m mcp`) in the official MCP
+  # Registry (https://modelcontextprotocol.io/registry), which MCP clients and
+  # directories read from. A separate job so a registry hiccup can be re-run
+  # without republishing to npm. The registry stores only metadata and
+  # validates it against the npm package just published, whose package.json
+  # carries `mcpName`.
+  mcp-registry:
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write # GitHub OIDC login to the registry; no stored secret
+    env:
+      # A release tag, not latest: this job holds an OIDC token.
+      MCP_PUBLISHER_VERSION: v1.8.1
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Install mcp-publisher
+        run: |
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER_VERSION}/mcp-publisher_linux_amd64.tar.gz" \
+            | tar xz mcp-publisher
+      # Generated from package.json, so name and version have one source.
+      - name: Generate server.json
+        run: node scripts/mcp-server-json.mjs
+      - run: ./mcp-publisher validate
+      - run: ./mcp-publisher login github-oidc
+      # The registry looks the version up on npm, which can take a minute to
+      # show a fresh publish, so retry for a while before failing.
+      - name: Publish to the MCP Registry
+        run: |
+          for attempt in 1 2 3 4 5 6; do
+            ./mcp-publisher publish && exit 0
+            echo "Attempt $attempt failed; retrying in 20s" >&2
+            sleep 20
+          done
+          exit 1
