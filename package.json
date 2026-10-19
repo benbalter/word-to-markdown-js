@@ -34,7 +34,7 @@
     "@astrojs/sitemap": "^3.7.4",
     "@eslint/js": "^10.0.1",
     "@jest/globals": "~30.5.2",
-    "@nuasite/checks": "^0.56.4",
+    "@nuasite/checks": "^0.58.0",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.3",
