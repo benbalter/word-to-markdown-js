@@ -22,6 +22,7 @@ interface WorkerResponse {
   result?: { markdown: string; warnings: string[]; images?: unknown[] };
   error?: { name: string; message: string };
   type?: string;
+  stage?: string;
 }
 type MessageHandler = (event: {
   data: { id: number; buffer: ArrayBuffer; extract?: boolean };
@@ -37,6 +38,15 @@ function fixtureBuffer(name: string): ArrayBuffer {
 }
 
 const postMessage = jest.fn<(msg: WorkerResponse) => void>();
+// The worker's replies to requests, leaving out its progress heartbeats.
+function replies(): WorkerResponse[] {
+  return postMessage.mock.calls
+    .map((c) => c[0])
+    .filter((m) => m.type !== 'progress');
+}
+function reply(): WorkerResponse {
+  return replies()[0];
+}
 let onmessage: MessageHandler;
 let readyMessages: WorkerResponse[];
 
@@ -78,8 +88,8 @@ describe('converter worker', () => {
   it('converts a valid buffer and posts { id, ok: true, result } with markdown', async () => {
     await onmessage({ data: { id: 7, buffer: fixtureBuffer('h1.docx') } });
 
-    expect(postMessage).toHaveBeenCalledTimes(1);
-    const msg = postMessage.mock.calls[0][0];
+    expect(replies()).toHaveLength(1);
+    const msg = reply();
     expect(msg.id).toBe(7);
     expect(msg.ok).toBe(true);
     // Real conversion, not just a truthy flag: the heading survives the round trip.
@@ -92,7 +102,7 @@ describe('converter worker', () => {
       data: { id: 8, buffer: fixtureBuffer('image.docx'), extract: true },
     });
 
-    const msg = postMessage.mock.calls[0][0];
+    const msg = reply();
     expect(msg.ok).toBe(true);
     // extract → images returned as files instead of inlined base64 data URIs.
     expect(Array.isArray(msg.result?.images)).toBe(true);
@@ -103,9 +113,32 @@ describe('converter worker', () => {
   it('inlines images as base64 when extract is not set', async () => {
     await onmessage({ data: { id: 9, buffer: fixtureBuffer('image.docx') } });
 
-    const msg = postMessage.mock.calls[0][0];
+    const msg = reply();
     expect(msg.ok).toBe(true);
     expect(msg.result?.markdown).toContain('data:image');
+  });
+
+  it('posts a heartbeat as each pipeline stage starts, before the reply', async () => {
+    await onmessage({ data: { id: 10, buffer: fixtureBuffer('h1.docx') } });
+
+    const messages = postMessage.mock.calls.map((c) => c[0]);
+    const stages = messages
+      .filter((m) => m.type === 'progress')
+      .map((m) => m.stage);
+    // The page restarts its silence clock on each of these (src/worker-client.ts).
+    expect(stages).toEqual([
+      'start',
+      'load',
+      'properties',
+      'equations',
+      'mammoth',
+      'process-html',
+      'turndown',
+      'normalize',
+      'lint',
+      'prettier',
+    ]);
+    expect(messages.at(-1)?.id).toBe(10);
   });
 
   it('serializes a failed conversion as { id, ok: false, error: { name, message } }', async () => {
@@ -114,8 +147,8 @@ describe('converter worker', () => {
     const notADocx = new TextEncoder().encode('this is not a docx').buffer;
     await onmessage({ data: { id: 42, buffer: notADocx } });
 
-    expect(postMessage).toHaveBeenCalledTimes(1);
-    const msg = postMessage.mock.calls[0][0];
+    expect(replies()).toHaveLength(1);
+    const msg = reply();
     expect(msg.id).toBe(42);
     expect(msg.ok).toBe(false);
     expect(typeof msg.error?.name).toBe('string');

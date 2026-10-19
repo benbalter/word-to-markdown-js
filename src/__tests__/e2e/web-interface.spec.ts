@@ -1077,12 +1077,17 @@ test.describe('Word to Markdown Web Interface', () => {
     expect(mainThreadChunks).toEqual([]);
   });
 
-  test('gives up on a conversion the worker never answers', async ({
+  test('declares a silent worker dead after the silence window', async ({
     page,
   }) => {
     // A worker that dies mid-conversion (out of memory, say) may fire no
-    // event at all. Stand in for one by swallowing conversion requests, then
-    // fast-forward past the conversion timeout.
+    // event at all. Stand in for one by swallowing conversion requests (it
+    // still loads and says it's ready, so there's no main-thread fallback),
+    // then fast-forward through the two-minute silence window.
+    const warnings: string[] = [];
+    page.on('console', (message) => {
+      if (message.type() === 'warning') warnings.push(message.text());
+    });
     await page.clock.install();
     await page.addInitScript(() => {
       const tapped = window as unknown as { __swallowed: number };
@@ -1101,16 +1106,23 @@ test.describe('Word to Markdown Web Interface', () => {
     await page.goto('/');
 
     await page.locator('#file').setInputFiles(fixture('h1.docx'));
-    // The timeout starts once the request is sent, after the worker loads.
+    // The silence starts once the request is sent, after the worker loads.
     await page.waitForFunction(
       () => (window as unknown as { __swallowed: number }).__swallowed > 0,
     );
     await expect(page.locator('#input')).toHaveAttribute('aria-busy', 'true');
-    await page.clock.fastForward('05:00');
+    // Not yet: silence just short of the window is still patience.
+    await page.clock.fastForward('01:59');
+    await expect(page.locator('#input')).toHaveAttribute('aria-busy', 'true');
+    await expect(page.locator('#error-alert')).toHaveCount(0);
+    await page.clock.fastForward('00:02');
     await expect(page.locator('#error-message')).toContainText(
       'An unexpected error occurred',
     );
     await expect(page.locator('#input')).not.toHaveAttribute('aria-busy');
+    // The console says what the worker last reported (here, nothing since
+    // the request), to help tell a slow stage from a dead worker.
+    expect(warnings.join('\n')).toContain('silent for 120 s after "request"');
 
     // The hung worker is replaced, not written off: with requests flowing
     // again, the next file converts in a fresh one.
@@ -1126,20 +1138,33 @@ test.describe('Word to Markdown Web Interface', () => {
   test('waits out a slow conversion instead of failing it', async ({
     page,
   }) => {
-    // Long-table documents can take tens of seconds on a slow device even
-    // when they're small on disk. Hold the worker's reply for a simulated
-    // minute: the timeout is for a dead worker, so the result still lands.
+    // Long-table documents can take minutes on a slow device even when
+    // they're small on disk. Hold the worker's reply, and stand in for a
+    // conversion that keeps reporting progress for four and a half simulated
+    // minutes: longer than the silence window, and than the old 3-minute
+    // timeout, but never silent for a whole window, so the result still lands.
     await page.clock.install();
     await page.addInitScript(() => {
       const tapped = window as unknown as {
         __held: (() => void)[];
         __release: () => void;
+        __heartbeat: () => void;
       };
       tapped.__held = [];
       tapped.__release = () => tapped.__held.splice(0).forEach((f) => f());
+      tapped.__heartbeat = () => {};
       const OriginalWorker = window.Worker;
       window.Worker = class extends OriginalWorker {
         set onmessage(handler: ((event: MessageEvent) => void) | null) {
+          if (handler) {
+            tapped.__heartbeat = () =>
+              handler.call(
+                this,
+                new MessageEvent('message', {
+                  data: { type: 'progress', stage: 'lint' },
+                }),
+              );
+          }
           super.onmessage = handler
             ? (event: MessageEvent) => {
                 if (event.data?.id == null) return handler.call(this, event);
@@ -1158,7 +1183,13 @@ test.describe('Word to Markdown Web Interface', () => {
     await page.waitForFunction(
       () => (window as unknown as { __held: unknown[] }).__held.length > 0,
     );
-    await page.clock.fastForward('01:00');
+    for (let beat = 0; beat < 3; beat++) {
+      await page.clock.fastForward('01:30');
+      await expect(page.locator('#error-alert')).toHaveCount(0);
+      await page.evaluate(() =>
+        (window as unknown as { __heartbeat: () => void }).__heartbeat(),
+      );
+    }
     await page.evaluate(() =>
       (window as unknown as { __release: () => void }).__release(),
     );
