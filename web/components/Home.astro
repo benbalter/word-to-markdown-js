@@ -27,8 +27,11 @@ const t = useTranslations(locale);
 // URLs derive from `site` so the localized page describes its own URL and card.
 const image = `/og/${locale}.png`;
 const siteUrl = new URL('/', Astro.site).href;
+// The same @id ben.balter.com and open-and-async.com use, so knowledge
+// graphs and LLMs connect the maker of this tool with the author of the book.
 const author = {
   '@type': 'Person',
+  '@id': 'https://ben.balter.com/#person',
   name: 'Ben Balter',
   url: 'https://ben.balter.com',
 };
@@ -72,6 +75,14 @@ const structuredData = {
       license: 'https://www.apache.org/licenses/LICENSE-2.0',
       url: 'https://www.npmjs.com/package/word-to-markdown',
       author,
+    },
+    {
+      // Defined in full on open-and-async.com; referenced by @id here.
+      '@type': 'Book',
+      '@id': 'https://open-and-async.com/#book',
+      name: 'Open and Async',
+      url: 'https://open-and-async.com/',
+      author: { '@id': author['@id'] },
     },
     {
       '@type': 'HowTo',

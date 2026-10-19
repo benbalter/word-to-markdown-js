@@ -1,0 +1,61 @@
+name: MCP Registry
+
+# Lists the released version's MCP server (`w2m mcp`) in the official MCP
+# Registry (https://modelcontextprotocol.io/registry), which MCP clients and
+# directories read from. The registry stores only metadata and checks it
+# against the npm package release.yml publishes, whose package.json carries
+# `mcpName`, so this waits for that version to appear on npm first.
+#
+# Its own workflow file, not a job in release.yml: npm Trusted Publishing is
+# tied to release.yml's filename, so this job's OIDC token can never publish
+# to npm.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write # GitHub OIDC login to the registry; no stored secret
+    env:
+      MCP_PUBLISHER_VERSION: v1.8.1
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: sigstore/cosign-installer@v3
+      # This job holds an OIDC token, so run only a binary that Sigstore
+      # proves was built by the registry's own release workflow at this tag.
+      # Unlike a pinned checksum, the check doesn't change on upgrades.
+      - name: Install and verify mcp-publisher
+        run: |
+          base="https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER_VERSION}"
+          file=mcp-publisher_linux_amd64.tar.gz
+          curl -fsSLO "$base/$file"
+          curl -fsSLO "$base/$file.sigstore.json"
+          cosign verify-blob "$file" --bundle "$file.sigstore.json" \
+            --certificate-identity "https://github.com/modelcontextprotocol/registry/.github/workflows/release.yml@refs/tags/${MCP_PUBLISHER_VERSION}" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com
+          tar xzf "$file" mcp-publisher
+      # Generated from package.json, so name and version have one source.
+      - name: Generate server.json
+        run: node scripts/mcp-server-json.mjs
+      - run: ./mcp-publisher validate
+      - name: Wait for the release on npm
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          for _ in $(seq 1 60); do
+            npm view "word-to-markdown@$version" version >/dev/null 2>&1 && exit 0
+            sleep 15
+          done
+          echo "word-to-markdown@$version never appeared on npm" >&2
+          exit 1
+      - run: ./mcp-publisher login github-oidc
+      - run: ./mcp-publisher publish
