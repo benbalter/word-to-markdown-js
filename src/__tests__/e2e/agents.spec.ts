@@ -34,7 +34,14 @@ test.describe('Agent-readable surfaces', () => {
     const twins = [
       ...llms.matchAll(/\(https:\/\/word2md\.com(\/[^)]+\.md)\)/g),
     ].map((m) => m[1]);
-    expect(twins).toEqual(['/index.md', '/privacy.md', '/terms.md']);
+    expect(twins).toEqual([
+      '/index.md',
+      '/google-docs-to-markdown.md',
+      '/docx-to-markdown-for-llms.md',
+      '/developers.md',
+      '/privacy.md',
+      '/terms.md',
+    ]);
     for (const path of twins) {
       const res = await request.get(path);
       expect(res.status(), path).toBe(200);
@@ -60,6 +67,31 @@ test.describe('Agent-readable surfaces', () => {
     expect(full).toContain('# Your privacy');
     expect(full).toContain('# Terms of Use');
   });
+
+  for (const path of [
+    '/google-docs-to-markdown/',
+    '/docx-to-markdown-for-llms/',
+    '/developers/',
+  ]) {
+    test(`guide ${path} is English-only, linked, and described`, async ({
+      page,
+    }) => {
+      await page.goto(path);
+      await expect(page.locator('h1')).toHaveCount(1);
+      // No hreflang cluster: these pages exist only in English.
+      await expect(page.locator('link[hreflang]')).toHaveCount(0);
+      await expect(
+        page.locator('link[rel="alternate"][type="text/markdown"]'),
+      ).toHaveAttribute('href', `${path.slice(0, -1)}.md`);
+      const json = await page
+        .locator('script[type="application/ld+json"]')
+        .textContent();
+      expect(JSON.parse(json!)['@type']).toBe('TechArticle');
+      // Every guide is one click from any page's footer.
+      await page.goto('/de/');
+      await expect(page.locator(`footer a[href="${path}"]`)).toHaveCount(1);
+    });
+  }
 
   test('English pages advertise their twin; localized ones do not', async ({
     page,
