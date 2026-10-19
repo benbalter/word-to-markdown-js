@@ -45,16 +45,19 @@ function codeCell(text: string): string {
   return `${fence}${pad}${text.replaceAll('|', '\\|')}${pad}${fence}`;
 }
 
-/** How to convert without the page: MCP, WebMCP, the CLI, and the library. */
-function developerMarkdown(): string {
+/**
+ * llms.txt's quick start for agents. Deliberately brief: the full reference
+ * is the /developers/ guide (web/content/guides/developers.md), linked here.
+ */
+function developerMarkdown(site: URL): string {
   return `## Use it from code or an agent
 
-The web page converts files you drop into it. Agents and scripts can use the same converter on their own machine. Nothing is uploaded either way.
+Agents and scripts can run the same converter on their own machine. Nothing is uploaded either way. Full reference: ${new URL('/developers.md', site).href}
 
-- **MCP server (local):** \`npx -y word-to-markdown mcp\` runs a stdio MCP server with one tool, \`convert_docx_to_markdown\`, which takes a path to a .docx and returns Markdown and warnings. Add it to Claude Code with \`claude mcp add word-to-markdown -- npx -y word-to-markdown mcp\`, or to any MCP client as the command \`npx\` with args \`["-y", "word-to-markdown", "mcp"]\`. [MCP docs](${SOURCE_URL}#mcp-server)
-- **WebMCP (in the browser):** in a browser with WebMCP, the converter page registers \`convert_docx_to_markdown\` (takes the .docx as base64) and \`get_converted_markdown\` (what the user last converted). They run in the tab, like a drop.
-- **Command line:** \`npx word-to-markdown report.docx > report.md\`, or pipe the file in: \`cat report.docx | npx word-to-markdown - > report.md\`. Install it globally (\`npm install -g word-to-markdown\`) to get the \`w2m\` command. Warnings go to stderr; \`--strict\` exits 2 when the document has them. [CLI docs](${SOURCE_URL}#command-line)
-- **Node library:** \`npm install word-to-markdown\`, then \`await convertWithWarnings('report.docx')\` returns \`{ markdown, warnings }\`. It also accepts an \`ArrayBuffer\`. [API docs](${SOURCE_URL}#use-as-a-library) · [npm](${NPM_URL})
+- **MCP server (local):** \`claude mcp add word-to-markdown -- npx -y word-to-markdown mcp\`, or in any MCP client the command \`npx\` with args \`["-y", "word-to-markdown", "mcp"]\`. Its tool \`convert_docx_to_markdown\` takes a path to a .docx and returns Markdown and warnings.
+- **Command line:** \`npx word-to-markdown report.docx > report.md\`
+- **Node library:** \`convertWithWarnings('report.docx')\` from the [\`word-to-markdown\`](${NPM_URL}) package returns \`{ markdown, warnings }\`.
+- **WebMCP:** in a browser with WebMCP, the converter page registers \`convert_docx_to_markdown\` (takes the .docx as base64) and \`get_converted_markdown\`.
 `;
 }
 
@@ -90,7 +93,10 @@ ${rows}
 
 ${t.reverseBody} [${t.reverseCta}](${SIBLING_URL})
 
-${developerMarkdown()}
+## ${t.cliHeading}
+
+${t.cliBody} [${t.cliCta}](${new URL('/developers/', site).href})
+
 ## ${t.faqHeading}
 
 ${faqs}
@@ -101,6 +107,17 @@ ${faqs}
 export async function agentPages(site: URL): Promise<AgentPage[]> {
   const t = useTranslations('en');
   const legal = await getCollection('legal');
+  const guides = await getCollection('guides');
+  // Both collections render the same way: their Markdown source is the twin.
+  const fromEntry = (
+    entry: (typeof legal)[number] | (typeof guides)[number],
+  ) => ({
+    path: `/${entry.id}/`,
+    slug: entry.id,
+    title: entry.data.title,
+    description: entry.data.description,
+    markdown: `${(entry.body ?? '').trim()}\n`,
+  });
   return [
     {
       path: '/',
@@ -109,15 +126,8 @@ export async function agentPages(site: URL): Promise<AgentPage[]> {
       description: t.metaDescription,
       markdown: homeMarkdown(site),
     },
-    ...legal
-      .sort((a, b) => a.id.localeCompare(b.id))
-      .map((entry) => ({
-        path: `/${entry.id}/`,
-        slug: entry.id,
-        title: entry.data.title,
-        description: entry.data.description,
-        markdown: `${(entry.body ?? '').trim()}\n`,
-      })),
+    ...guides.sort((a, b) => a.data.order - b.data.order).map(fromEntry),
+    ...legal.sort((a, b) => a.id.localeCompare(b.id)).map(fromEntry),
   ];
 }
 
@@ -141,7 +151,7 @@ Word to Markdown runs entirely client-side: the web page converts documents in t
 
 ${links}
 
-${developerMarkdown()}
+${developerMarkdown(site)}
 ## Optional
 
 - [Markdown to Word](${SIBLING_URL}): The sibling converter, Markdown to formatted Word (.docx), by the same maker.

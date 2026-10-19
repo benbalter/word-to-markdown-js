@@ -28,7 +28,15 @@
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
-    "run_worker_first": ["/", "/privacy/", "/terms/", "/api/event"],
+    "run_worker_first": [
+      "/",
+      "/google-docs-to-markdown/",
+      "/docx-to-markdown-for-llms/",
+      "/developers/",
+      "/privacy/",
+      "/terms/",
+      "/api/event",
+    ],
     // Unknown paths get dist/404.html with a 404 status instead of a bare
     // Cloudflare error page.
     "not_found_handling": "404-page",

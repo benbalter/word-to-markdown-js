@@ -1,30 +1,61 @@
 ---
-// Layout for the Markdown legal pages (the `legal` content collection). Wraps
+// Layout for the English-only Markdown pages: the `legal` collection
+// (/privacy/, /terms/) and the `guides` collection (/developers/, …). Wraps
 // the shared base Layout and renders an entry inside a Tailwind Typography
 // `prose` container so the raw <h1>/<h2>/<p>/<ul> get styled (and themed for
-// dark mode).
+// dark mode). Guides also get TechArticle structured data and a link back to
+// the converter.
 import { getEntry, render } from 'astro:content';
 import Layout from './Layout.astro';
 
 interface Props {
-  /** Entry id in the `legal` collection (its filename without .md). */
+  collection: 'legal' | 'guides';
+  /** Entry id in the collection (its filename without .md). */
   id: string;
 }
 
-const entry = await getEntry('legal', Astro.props.id);
-if (!entry) throw new Error(`No legal page "${Astro.props.id}"`);
+const { collection, id } = Astro.props;
+const entry = await getEntry(collection, id);
+if (!entry) throw new Error(`No ${collection} page "${id}"`);
 const { Content } = await render(entry);
 const { title, description } = entry.data;
+const isGuide = collection === 'guides';
+
+const structuredData = isGuide
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'TechArticle',
+      headline: title,
+      description,
+      url: new URL(Astro.url.pathname, Astro.site).href,
+      inLanguage: 'en',
+      isPartOf: { '@type': 'WebSite', url: new URL('/', Astro.site).href },
+      author: {
+        '@type': 'Person',
+        name: 'Ben Balter',
+        url: 'https://ben.balter.com',
+      },
+    }
+  : undefined;
 ---
 
 <Layout
   title={title}
   description={description}
-  markdownPath={`/${Astro.props.id}.md`}
+  markdownPath={`/${id}.md`}
+  structuredData={structuredData}
 >
   <article
     class="prose dark:prose-invert mx-auto max-w-2xl px-1 py-12 sm:py-16"
   >
     <Content />
+    {
+      isGuide && (
+        <p>
+          <a href="/">Convert a Word document to Markdown now</a>. It's free,
+          and nothing is uploaded.
+        </p>
+      )
+    }
   </article>
 </Layout>

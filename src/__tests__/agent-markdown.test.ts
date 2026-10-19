@@ -3,7 +3,7 @@ import { markdownTwin, prefersMarkdown } from '../../worker/index.js';
 
 // Markdown for agents: the Worker's content negotiation helpers, and the
 // route list it depends on. web/agent/markdown.ts (which needs astro:content,
-// so Jest can't import it) gives the home page and every legal page a
+// so Jest can't import it) gives the home page and every guide and legal page a
 // Markdown twin; each of those URLs must be in wrangler.jsonc's
 // run_worker_first, or the Worker never sees the request to negotiate it.
 // The generated files themselves are checked in e2e/agents.spec.ts.
@@ -14,15 +14,18 @@ function runWorkerFirst(): string[] {
   const wrangler = readFileSync(new URL('wrangler.jsonc', root), 'utf8');
   const match = /"run_worker_first":\s*(\[[^\]]*\])/.exec(wrangler);
   if (!match) throw new Error('run_worker_first not found in wrangler.jsonc');
-  return JSON.parse(match[1]) as string[];
+  // JSONC allows a trailing comma, which JSON.parse doesn't; just take the
+  // quoted strings.
+  return [...match[1].matchAll(/"([^"]*)"/g)].map((m) => m[1]);
 }
 
 describe('Markdown twins', () => {
-  const legalPages = readdirSync(new URL('web/content/legal/', root))
-    .filter((f) => f.endsWith('.md'))
-    .map((f) => `/${f.replace(/\.md$/, '')}/`);
+  const pagesIn = (dir: string): string[] =>
+    readdirSync(new URL(`web/content/${dir}/`, root))
+      .filter((f) => f.endsWith('.md'))
+      .map((f) => `/${f.replace(/\.md$/, '')}/`);
 
-  it.each(['/', ...legalPages])(
+  it.each(['/', ...pagesIn('guides'), ...pagesIn('legal')])(
     'routes %s through the Worker so it can serve Markdown',
     (path) => {
       expect(runWorkerFirst()).toContain(path);
