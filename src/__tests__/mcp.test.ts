@@ -5,6 +5,7 @@ import {
   readFileSync,
   rmSync,
   statSync,
+  symlinkSync,
   writeFileSync,
 } from 'fs';
 import os from 'os';
@@ -132,6 +133,38 @@ describe('w2m mcp', () => {
     });
     expect(replaced.isError).toBeFalsy();
     expect(readFileSync(output, 'utf8')).toMatch(/^# /);
+  });
+
+  it.each([
+    [{ output_path: 'notes.txt' }, '.md or .markdown'],
+    [{ output_path: 'x.md', image_dir: '../escape' }, 'relative folder'],
+    [{ output_path: 'x.md', image_dir: '/tmp/abs' }, 'relative folder'],
+  ])('refuses unsafe paths %p', async (extra, message) => {
+    const args = { path: fixture('image.docx'), ...extra };
+    if (args.output_path) args.output_path = path.join(tmp, args.output_path);
+    const result = await client.callTool({
+      name: 'convert_docx_to_markdown',
+      arguments: args,
+    });
+    expect(result.isError).toBe(true);
+    expect((result.content as TextContent[])[0].text).toContain(message);
+  });
+
+  it('refuses to write through a symlink, even with overwrite', async () => {
+    const target = path.join(tmp, 'target.md');
+    const link = path.join(tmp, 'link.md');
+    writeFileSync(target, 'keep me');
+    symlinkSync(target, link);
+    const result = await client.callTool({
+      name: 'convert_docx_to_markdown',
+      arguments: {
+        path: fixture('h1.docx'),
+        output_path: link,
+        overwrite: true,
+      },
+    });
+    expect(result.isError).toBe(true);
+    expect(readFileSync(target, 'utf8')).toBe('keep me');
   });
 
   it('reports bad input as a tool error, not a crash', async () => {
