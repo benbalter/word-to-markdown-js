@@ -17,25 +17,38 @@ export interface ConversionResult {
 // How long a conversion waits for the worker to signal it has loaded before
 // giving up and converting on the main thread instead. Only guards a
 // broken/hung worker load, not the conversion itself (see
-// conversionTimeout). The clock starts when a conversion is requested, not when
+// WORKER_SILENCE_TIMEOUT). The clock starts when a conversion is requested, not when
 // the worker is prefetched, and is generous because the worker downloads the
 // same heavy deps the fallback would: on a slow link, falling back only adds a
 // second download.
 const WORKER_READY_TIMEOUT = 15000;
 
-// How long the worker gets to convert one input before we give up on it. A
-// worker that runs out of memory can die without firing onerror, which would
-// otherwise leave the page spinning forever. This only needs to catch a dead
-// worker, so it errs long: a slow conversion that would have finished is a
-// failure the visitor sees, while a dead one waiting longer costs only time.
-// A .docx's size predicts its conversion time poorly, because the XML
-// compresses so well: an 80 KB document of 40 long tables takes about 15 s on
-// a fast laptop, and conversion time grows faster than linearly with table
-// rows, so a slower phone could easily blow through the old 30 s floor. Hence
-// 3 minutes plus 30 s per MB (about 13 minutes for a 20 MB file).
-function conversionTimeout(bytes: number): number {
-  return 180000 + (bytes / (1024 * 1024)) * 30000;
-}
+// How long the worker may stay silent, while a conversion is pending, before
+// we declare it dead. A worker that runs out of memory can die without firing
+// onerror, which would otherwise leave the page spinning forever.
+//
+// Silence, not total time: the worker reports each pipeline stage as it
+// starts (src/progress.ts) and each document of a batch as it arrives, and any
+// message resets the clock. A slow conversion keeps talking and gets its
+// result however long it takes; a dead worker goes quiet and fails after this
+// window. The slow stages are synchronous CPU work, so the window has to
+// outlast the longest single stage, not the conversion. Measured in
+// Chromium's worker on a fast laptop, the worst stage is markdownlint on
+// table-heavy documents (an 80 KB .docx of 40 tables of 100 rows), and it
+// grows faster than linearly with table rows: about 2 s for 20 such tables,
+// 8 s for 40, and 23 s for 80 (where Turndown takes another 8 s; the same
+// stage takes 43 s in Node). Two minutes covers the 80-table document on a
+// device five times slower than that laptop, and the 40-table one on a device
+// fourteen times slower, while a dead worker still fails sooner than the
+// 3-minute floor of the size-based timeout this replaces. A file's size
+// predicted its conversion time poorly anyway, since the XML compresses so
+// well.
+//
+// There's deliberately no overall cap. Every stage is finite and reports when
+// the next one starts, so a cap could only catch a worker that keeps
+// reporting progress forever, which this pipeline can't do; a hang inside a
+// stage is silence, and this catches it.
+const WORKER_SILENCE_TIMEOUT = 120000;
 
 let converterWorker: Worker | null = null;
 let workerReady: Promise<void> | null = null;
@@ -48,6 +61,41 @@ const pendingConversions = new Map<
   { resolve: (r: ConversionResult) => void; reject: (e: unknown) => void }
 >();
 
+// One silence timer for the worker, not one per conversion: the worker
+// handles requests in turn, so a queued document hears nothing of its own
+// while the one ahead of it is busy, yet the worker is plainly alive. Armed
+// while any conversion is pending; every message from the worker restarts it.
+let silenceTimer: number | undefined;
+// What the worker last reported (a pipeline stage that started, `start` for a
+// request it picked up, `reply`, or `request` if it hasn't spoken since the
+// page sent one), logged if it then goes silent. Not sent anywhere: kept to
+// help tell a stage that's merely slow from a worker that died, should
+// timeouts need a closer look.
+let lastHeard: string | undefined;
+
+function stopSilenceTimer(): void {
+  window.clearTimeout(silenceTimer);
+  silenceTimer = undefined;
+}
+
+function startSilenceTimer(): void {
+  stopSilenceTimer();
+  if (pendingConversions.size === 0) return;
+  silenceTimer = window.setTimeout(() => {
+    const seconds = Math.round(WORKER_SILENCE_TIMEOUT / 1000);
+    console.warn(
+      `The conversion worker went silent for ${seconds} s after "${lastHeard ?? 'unknown'}", so it's treated as dead.`,
+    );
+    resetWorker(new ConversionTimeoutError('conversion worker went silent'));
+  }, WORKER_SILENCE_TIMEOUT);
+}
+
+// The worker said something, so it's alive: restart the silence clock.
+function heardFromWorker(stage: string): void {
+  lastHeard = stage;
+  startSilenceTimer();
+}
+
 // Distinguishes a worker that failed to load/run (→ fall back to the main
 // thread) from a genuine conversion error (→ surface it to the user).
 class WorkerInfraError extends Error {}
@@ -59,7 +107,7 @@ class ConverterLoadError extends Error {
   name = 'ConverterLoadError';
 }
 
-// A conversion that outlived conversionTimeout. Not a WorkerInfraError: the
+// A worker that went silent for WORKER_SILENCE_TIMEOUT mid-conversion. Not a WorkerInfraError: the
 // same input would likely hang or exhaust memory on the main thread too, so
 // it's surfaced (as the generic error) rather than retried there.
 class ConversionTimeoutError extends Error {
@@ -73,6 +121,8 @@ function resetWorker(error: Error): void {
     pendingConversions.delete(id);
     pending.reject(error);
   }
+  stopSilenceTimer();
+  lastHeard = undefined;
   converterWorker?.terminate();
   converterWorker = null;
   workerReady = null;
@@ -98,10 +148,17 @@ function getConverterWorker(): Worker {
         resolve();
         return;
       }
+      if (data?.type === 'progress') {
+        heardFromWorker(String(data.stage));
+        return;
+      }
       const { id, ok, result, error } = data;
       const pending = pendingConversions.get(id);
       if (!pending) return;
       pendingConversions.delete(id);
+      // A reply is a sign of life too: the next queued conversion, if any,
+      // gets a full window.
+      heardFromWorker('reply');
       if (ok) pending.resolve(result as ConversionResult);
       else pending.reject(error);
     };
@@ -144,22 +201,18 @@ type WorkerRequest =
   | { buffer: ArrayBuffer; extract: boolean; imageDir?: string }
   | { html: string };
 
-function convertViaWorker(
-  request: WorkerRequest,
-  size: number,
-): Promise<ConversionResult> {
+function convertViaWorker(request: WorkerRequest): Promise<ConversionResult> {
   const worker = getConverterWorker();
   const id = ++workerMessageId;
-  let timer: number | undefined;
   return new Promise<ConversionResult>((resolve, reject) => {
     pendingConversions.set(id, { resolve, reject });
-    timer = window.setTimeout(() => {
-      resetWorker(new ConversionTimeoutError('conversion timed out'));
-    }, conversionTimeout(size));
+    // Start the clock if the worker was idle. If it's already busy, don't
+    // restart it: a new request is no sign of life from the worker.
+    if (silenceTimer === undefined) heardFromWorker('request');
     // Structured-clone (don't transfer) the buffer so it stays valid for a
     // main-thread fallback if the worker turns out to be unavailable.
     worker.postMessage({ id, ...request });
-  }).finally(() => window.clearTimeout(timer));
+  });
 }
 
 // Convert in the worker when possible, with a transparent main-thread fallback
@@ -167,14 +220,13 @@ function convertViaWorker(
 // or a timeout, propagates; only infrastructure failures fall back.
 async function convertWithFallback(
   request: WorkerRequest,
-  size: number,
   onMainThread: (main: typeof import('./main.js')) => Promise<ConversionResult>,
 ): Promise<ConversionResult> {
   if (typeof Worker !== 'undefined' && !workerUnavailable) {
     try {
       getConverterWorker();
       await waitForWorker(); // rejects (WorkerInfraError) on timeout/failure
-      return await convertViaWorker(request, size);
+      return await convertViaWorker(request);
     } catch (error) {
       if (!(error instanceof WorkerInfraError)) throw error;
     }
@@ -199,7 +251,6 @@ export function convertBuffer(
 ): Promise<ConversionResult> {
   return convertWithFallback(
     { buffer, extract, imageDir },
-    buffer.byteLength,
     ({ convertWithWarnings }) =>
       convertWithWarnings(
         buffer,
@@ -211,15 +262,11 @@ export function convertBuffer(
 // Convert pasted HTML to Markdown. There's no document to inspect, so no
 // warnings.
 export function convertPastedHtml(html: string): Promise<ConversionResult> {
-  return convertWithFallback(
-    { html },
-    html.length,
-    async ({ convertHtml }) => ({
-      markdown: await convertHtml(html),
-      warnings: [],
-      warningDetails: [],
-    }),
-  );
+  return convertWithFallback({ html }, async ({ convertHtml }) => ({
+    markdown: await convertHtml(html),
+    warnings: [],
+    warningDetails: [],
+  }));
 }
 
 // Start the worker (which loads mammoth/turndown/jszip/etc. off-thread) so the

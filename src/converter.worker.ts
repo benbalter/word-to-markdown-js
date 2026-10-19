@@ -14,6 +14,7 @@ import {
   convertWithWarnings,
   type ConvertResult,
 } from './main.js';
+import { setProgressReporter } from './progress.js';
 
 type ConvertRequest =
   | {
@@ -32,9 +33,17 @@ type ConvertRequest =
 
 const ctx = self as unknown as DedicatedWorkerGlobalScope;
 
+// Heartbeats: tell the page each time a pipeline stage starts, so it can tell
+// a slow conversion (still reporting) from a dead worker (silent). See
+// src/worker-client.ts.
+setProgressReporter((stage) => ctx.postMessage({ type: 'progress', stage }));
+
 ctx.onmessage = async (event: MessageEvent<ConvertRequest>): Promise<void> => {
   const request = event.data;
   const { id } = request;
+  // A heartbeat as soon as a request arrives, before any work, so the page
+  // hears from a worker that picks up a queued document.
+  ctx.postMessage({ type: 'progress', stage: 'start' });
   try {
     const result: ConvertResult =
       'html' in request

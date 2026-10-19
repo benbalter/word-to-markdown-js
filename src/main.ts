@@ -13,6 +13,7 @@ import {
   restoreEquations,
   restoreInlineEquations,
 } from './equations.js';
+import { reportProgress } from './progress.js';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -1597,10 +1598,12 @@ async function runConversionPipeline(
   // Equations are a best-effort extra: if extracting them fails outright,
   // convert the document without them (Mammoth drops them and says so)
   // rather than failing a document that converted fine before.
+  if (options.equations !== 'strip') reportProgress('equations');
   const math =
     options.equations === 'strip'
       ? undefined
       : await extractEquations(loaded.bytes).catch(() => undefined);
+  reportProgress('mammoth');
   const mammothResult = await mammoth.convertToHtml(
     math?.equations.length ? toMammothInput(math.bytes) : loaded.mammothInput,
     mammothOptions,
@@ -1620,6 +1623,7 @@ async function runConversionPipeline(
     math &&
       ((text) => restoreInlineEquations(text, math.token, math.equations)),
   );
+  if (math?.equations.length) reportProgress('restore-equations');
   return {
     markdown: math
       ? restoreEquations(markdown, math.token, math.equations)
@@ -1636,6 +1640,9 @@ async function htmlPipeline(
   options: ConvertOptions,
   headingText?: (text: string) => string,
 ): Promise<string> {
+  // Each stage reports as it starts, so the web worker can tell the page it's
+  // alive (see src/progress.ts).
+  reportProgress('process-html');
   // Numbered lists stay numbered by default; flatten to bullets on request.
   const processedHtml = processHtml(html, {
     stripImages: options.images === 'strip',
@@ -1643,14 +1650,18 @@ async function htmlPipeline(
     headingText,
   });
   // Footnotes become GFM `[^1]` by default; keep Mammoth's markup on request.
+  reportProgress('turndown');
   const md = htmlToMd(
     processedHtml,
     options.turndown,
     options.underline === 'preserve' ? ['u'] : [],
     options.footnotes !== 'preserve',
   );
+  reportProgress('normalize');
   const normalizedMd = normalizeText(md);
+  reportProgress('lint');
   const cleanedMd = lint(normalizedMd);
+  reportProgress('prettier');
   return prettify(cleanedMd);
 }
 
@@ -1667,6 +1678,7 @@ export async function convertHtml(
   html: string,
   options: ConvertOptions = {},
 ): Promise<string> {
+  reportProgress('load');
   const root = parseFragment(html);
   all(root, CLIPBOARD_NOISE_SELECTOR).forEach((node) => node.remove());
   // Google Docs wraps a whole copied selection in a <b> with a
@@ -1844,9 +1856,11 @@ export async function convertWithWarnings(
   const filePath = typeof input === 'string' ? input : undefined;
 
   try {
+    reportProgress('load');
     const loaded = await loadInput(input);
 
     // Extract document properties to check for confidentiality flags
+    reportProgress('properties');
     const properties = await extractDocumentProperties(loaded.bytes);
     if (mapsComments(options)) delete properties.comments;
     const warningDetails = generateWarningDetails(properties);
@@ -1876,6 +1890,7 @@ export default async function convert(
   const filePath = typeof input === 'string' ? input : undefined;
 
   try {
+    reportProgress('load');
     const loaded = await loadInput(input);
 
     const { markdown } = await runConversionPipeline(loaded, options);
