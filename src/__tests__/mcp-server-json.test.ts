@@ -1,5 +1,4 @@
 import { readFileSync } from 'fs';
-// @ts-expect-error -- a plain .mjs script with no type declarations
 import { serverJson } from '../../scripts/mcp-server-json.mjs';
 
 // The MCP Registry record that release.yml generates and publishes. The
