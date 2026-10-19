@@ -9,7 +9,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { constants } from 'fs';
-import { mkdir, open } from 'fs/promises';
+import { lstat, mkdir, open } from 'fs/promises';
 import path from 'path';
 import { z } from 'zod';
 import { convertWithWarnings } from './main.js';
@@ -205,17 +205,28 @@ function toolError(text: string) {
 // Write a file without following a symlink at its path (O_NOFOLLOW fails
 // with ELOOP) and, unless asked to overwrite, without replacing an existing
 // one (O_EXCL fails with EEXIST). Checked at open time, so there's no gap
-// between a check and the write. Windows has no O_NOFOLLOW; there, symlinks
-// need elevated rights to create, so the risk is small.
+// between a check and the write. Windows has no O_NOFOLLOW, so there fall
+// back to checking with lstat first: racy, but symlinks there need elevated
+// rights to create, and it keeps the protection rather than dropping it.
 async function writeSafely(
   file: string,
   data: string | Uint8Array,
   overwrite: boolean,
 ): Promise<void> {
+  const noFollow = constants.O_NOFOLLOW;
+  if (noFollow === undefined) {
+    const stat = await lstat(file).catch((error: NodeJS.ErrnoException) => {
+      if (error.code === 'ENOENT') return undefined; // a new file
+      throw error; // fail closed on anything else
+    });
+    if (stat?.isSymbolicLink()) {
+      throw Object.assign(new Error('symlink'), { code: 'ELOOP', path: file });
+    }
+  }
   const flags =
     constants.O_WRONLY |
     constants.O_CREAT |
-    (constants.O_NOFOLLOW ?? 0) |
+    (noFollow ?? 0) |
     (overwrite ? constants.O_TRUNC : constants.O_EXCL);
   const handle = await open(file, flags, 0o644);
   try {
