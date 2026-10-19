@@ -92,12 +92,14 @@
     "@joplin/turndown": "^4.0.86",
     "@joplin/turndown-plugin-gfm": "^1.0.68",
     "@mixmark-io/domino": "^2.2.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "commander": "^15.0.0",
     "github-slugger": "^2.0.0",
     "jszip": "^3.10.2",
     "mammoth": "^1.13.0",
     "markdownlint": "^0.41.1",
-    "prettier": "~3.9"
+    "prettier": "~3.9",
+    "zod": "^4.6.7"
   },
   "volta": {
     "node": "24.21.0"
@@ -119,6 +121,7 @@
     "build/**/*.js",
     "build/**/*.js.map",
     "build/**/*.d.ts",
-    "!build/cli.d.ts"
+    "!build/cli.d.ts",
+    "!build/mcp.d.ts"
   ]
 }

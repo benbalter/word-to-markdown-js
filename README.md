@@ -90,6 +90,41 @@ Options:
 - `--verbose` — On failure, also print the underlying error and stack trace.
 - `-V, --version` — print the version.
 
+## MCP server
+
+`w2m mcp` runs a local [Model Context Protocol](https://modelcontextprotocol.io) server on stdio, so AI agents can convert `.docx` files on your machine. Like the website, it never uploads anything: the agent passes a file path, and the server reads and converts the file locally.
+
+Add it to Claude Code:
+
+```console
+claude mcp add word-to-markdown -- npx -y word-to-markdown mcp
+```
+
+Or to any MCP client that takes a JSON config:
+
+```json
+{
+  "mcpServers": {
+    "word-to-markdown": {
+      "command": "npx",
+      "args": ["-y", "word-to-markdown", "mcp"]
+    }
+  }
+}
+```
+
+It has one tool, `convert_docx_to_markdown`:
+
+- `path` (required): the `.docx` to convert. Prefer an absolute path; relative paths resolve against the server's working directory.
+- `output_path`: write the Markdown to this `.md` (or `.markdown`) file instead of returning it, which is handy for long documents. The tool won't write through a symlink.
+- `image_dir`: extract images into this folder and link them. It must be a relative folder inside `output_path`'s folder (or the `.docx`'s). By default images are dropped, because base64 images would flood the agent's context.
+- `overwrite`: replace `output_path` or image files that already exist. Off by default, so the tool refuses rather than clobbering a file. That matters when an agent is acting on instructions it read in a document.
+- `bullet_lists`, `preserve_footnotes`: same as the CLI flags.
+
+It returns the Markdown and any document warnings, also as structured content.
+
+In the browser, word2md.com registers the same conversion as [WebMCP](https://webmachinelearning.github.io/webmcp/) tools (`convert_docx_to_markdown`, taking the file as base64, and `get_converted_markdown`) for agents in browsers that support it. They run in the tab, just like dropping a file.
+
 ## Use as a library
 
 Published to npm as [`word-to-markdown`](https://www.npmjs.com/package/word-to-markdown). It ships as an ES module with TypeScript declarations and requires Node 22.13 or later.

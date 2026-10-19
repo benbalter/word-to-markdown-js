@@ -45,6 +45,7 @@ import {
 import { session } from '../web/scripts/converter/session.ts';
 import { fillCounts, uiString } from '../web/scripts/converter/strings.ts';
 import { localizeWarnings } from '../web/scripts/converter/warnings.ts';
+import { registerWebMcpTools } from '../web/scripts/converter/webmcp.ts';
 
 // Speculatively start the conversion worker so the first conversion resolves
 // from cache instead of waiting on a download. Runs at most once, only on user
@@ -467,7 +468,42 @@ function resetConverter(): void {
   fileInput?.focus();
 }
 
+// Convert a .docx for an agent (WebMCP) and show it on the page like a drop,
+// so the person sees what the agent did. Resolves with the result, or
+// rejects with the error the page shows.
+async function convertForAgent(
+  fileName: string,
+  buffer: ArrayBuffer,
+): Promise<ConversionResult> {
+  prefetchConverter();
+  let outcome: { result: ConversionResult } | { error: unknown } | undefined;
+  await runConversion(fileName, async () => {
+    try {
+      const result = await convertBuffer(buffer);
+      outcome = { result };
+      return { buffer, result };
+    } catch (error) {
+      outcome = { error };
+      throw error;
+    }
+  });
+  if (outcome && 'result' in outcome) return outcome.result;
+  throw outcome?.error ?? new Error('The conversion was superseded.');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  registerWebMcpTools({
+    convert: convertForAgent,
+    current: () =>
+      session.lastMarkdown
+        ? {
+            fileName:
+              document.getElementById('filename')?.textContent ?? 'document',
+            markdown: session.lastMarkdown,
+          }
+        : null,
+  });
+
   const inputElement = document.getElementById(
     'file',
   ) as HTMLInputElement | null;

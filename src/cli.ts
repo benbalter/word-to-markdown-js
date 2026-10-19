@@ -48,6 +48,18 @@ program.addHelpText(
   `\nRun "w2m convert --help" for all conversion options.\n${EXAMPLES}`,
 );
 program
+  .command('mcp')
+  .description(
+    'Run a local MCP server on stdio so AI agents can convert .docx files ' +
+      'on this machine (e.g. claude mcp add word-to-markdown -- npx -y ' +
+      'word-to-markdown mcp)',
+  )
+  .action(async () => {
+    // Loaded only here, so conversions never pay for the MCP SDK.
+    const { startMcpServer } = await import('./mcp.js');
+    await startMcpServer(version);
+  });
+program
   .command('convert', { isDefault: true })
   .argument(
     '[file]',

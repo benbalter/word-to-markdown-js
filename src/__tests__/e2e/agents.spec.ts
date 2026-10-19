@@ -28,6 +28,7 @@ test.describe('Agent-readable surfaces', () => {
     const llms = await (await request.get('/llms.txt')).text();
     expect(llms).toMatch(/^# Word to Markdown$/m);
     expect(llms).toContain('npx word-to-markdown');
+    expect(llms).toContain('npx -y word-to-markdown mcp');
     expect(llms).toContain('https://md2word.app/');
 
     const twins = [
