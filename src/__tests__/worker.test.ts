@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
-import worker from '../../worker/index.js';
+import worker, { SOURCES } from '../../worker/index.js';
+import { CONVERSION_SOURCES } from '../../web/scripts/converter/conversion-sources.ts';
 
 // Tests for the Cloudflare Worker fetch handler (worker/index.js): the anonymous
 // conversion counter at /api/event, asset passthrough, and the (unchanged) root
@@ -30,11 +31,11 @@ const SAME_ORIGIN_POST = {
 
 describe('worker fetch handler', () => {
   describe('POST /api/event (conversion counter)', () => {
-    it('records one data point with outcome + locale and returns 204', async () => {
+    it('records one data point with outcome + locale + source and returns 204', async () => {
       const env = makeEnv();
       const res = await worker.fetch(
         new Request(
-          'https://word2md.com/api/event?o=success&l=de',
+          'https://word2md.com/api/event?o=success&l=de&s=drop',
           SAME_ORIGIN_POST,
         ),
         env,
@@ -42,9 +43,10 @@ describe('worker fetch handler', () => {
 
       expect(res.status).toBe(204);
       expect(env.EVENTS!.writeDataPoint).toHaveBeenCalledTimes(1);
-      // No content, filename, size, or identifier — just outcome + page language.
+      // No content, filename, size, or identifier — just outcome, page language,
+      // and how the conversion started, with the source appended as blob4.
       expect(env.EVENTS!.writeDataPoint).toHaveBeenCalledWith({
-        blobs: ['convert', 'success', 'de'],
+        blobs: ['convert', 'success', 'de', 'drop'],
         doubles: [1],
       });
       // The counter must not fall through to asset serving.
@@ -55,28 +57,28 @@ describe('worker fetch handler', () => {
       const env = makeEnv();
       await worker.fetch(
         new Request(
-          'https://word2md.com/api/event?o=error&l=en',
+          'https://word2md.com/api/event?o=error&l=en&s=webmcp',
           SAME_ORIGIN_POST,
         ),
         env,
       );
       expect(env.EVENTS!.writeDataPoint).toHaveBeenCalledWith({
-        blobs: ['convert', 'error', 'en'],
+        blobs: ['convert', 'error', 'en', 'webmcp'],
         doubles: [1],
       });
     });
 
-    it('bounds caller-supplied dimensions: bad outcome → success, unknown locale → other', async () => {
+    it('bounds caller-supplied dimensions: bad outcome → success, unknown locale and source → other', async () => {
       const env = makeEnv();
       await worker.fetch(
         new Request(
-          'https://word2md.com/api/event?o=garbage&l=zz',
+          'https://word2md.com/api/event?o=garbage&l=zz&s=upload',
           SAME_ORIGIN_POST,
         ),
         env,
       );
       expect(env.EVENTS!.writeDataPoint).toHaveBeenCalledWith({
-        blobs: ['convert', 'success', 'other'],
+        blobs: ['convert', 'success', 'other', 'other'],
         doubles: [1],
       });
     });
@@ -88,9 +90,53 @@ describe('worker fetch handler', () => {
         env,
       );
       expect(env.EVENTS!.writeDataPoint).toHaveBeenCalledWith({
-        blobs: ['convert', 'success', 'other'],
+        blobs: ['convert', 'success', 'other', 'other'],
         doubles: [1],
       });
+    });
+
+    it.each(['drop', 'paste', 'batch', 'webmcp'])(
+      'records source %s as blob4, after the existing dimensions',
+      async (source) => {
+        const env = makeEnv();
+        await worker.fetch(
+          new Request(
+            `https://word2md.com/api/event?o=success&l=en&s=${source}`,
+            SAME_ORIGIN_POST,
+          ),
+          env,
+        );
+        expect(env.EVENTS!.writeDataPoint).toHaveBeenCalledWith({
+          blobs: ['convert', 'success', 'en', source],
+          doubles: [1],
+        });
+      },
+    );
+
+    it.each([
+      ['an unknown source', 'other'],
+      ['a source in the wrong case', 'WebMCP'],
+      ['a long caller-supplied string', 'x'.repeat(500)],
+    ])('records %s as other', async (_, source) => {
+      const env = makeEnv();
+      await worker.fetch(
+        new Request(
+          `https://word2md.com/api/event?o=success&l=en&s=${encodeURIComponent(source)}`,
+          SAME_ORIGIN_POST,
+        ),
+        env,
+      );
+      expect(env.EVENTS!.writeDataPoint).toHaveBeenCalledWith({
+        blobs: ['convert', 'success', 'en', 'other'],
+        doubles: [1],
+      });
+    });
+
+    it('bounds sources to the list the browser beacon sends', () => {
+      // One source of truth: the Worker bounds to the same list the client
+      // types its beacon against.
+      expect(SOURCES).toBe(CONVERSION_SOURCES);
+      expect([...SOURCES]).toEqual(['drop', 'paste', 'batch', 'webmcp']);
     });
 
     it('rejects non-POST methods without recording anything', async () => {

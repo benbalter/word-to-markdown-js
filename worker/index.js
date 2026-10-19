@@ -29,6 +29,7 @@
 // only ever suggests; it never redirects.
 
 import { localeMeta, locales, prefixedLocales } from '../web/i18n/locales.ts';
+import { CONVERSION_SOURCES } from '../web/scripts/converter/conversion-sources.ts';
 
 // Non-default locales we can redirect to. English is the default and lives at
 // the root, so it is intentionally absent (a match for English means "stay").
@@ -37,6 +38,10 @@ export const SUPPORTED_LOCALES = prefixedLocales;
 // All site locales including the default, used to bound the analytics `locale`
 // dimension (a superset of SUPPORTED_LOCALES, which excludes the default).
 export const LOCALES = locales;
+
+// How a conversion started (drop, paste, batch, webmcp), shared with the
+// browser beacon; bounds the analytics `source` dimension.
+export const SOURCES = CONVERSION_SOURCES;
 
 // Parse an Accept-Language header into lowercased tags, highest q first.
 function rankTags(acceptLanguage) {
@@ -150,12 +155,15 @@ async function handle(request, env) {
 
   // Anonymous conversion counter. The browser fires a content-free beacon here
   // when a conversion finishes (see src/index.ts). We record only THAT a
-  // conversion happened, its outcome, and the page language — no document
-  // content, filename, size, IP, or per-user identifier — as a single
-  // Analytics Engine data point. Example queries (SQL API):
+  // conversion happened, its outcome, the page language, and how it started
+  // (a dropped file, a paste, a batch, or an agent's WebMCP call) — no
+  // document content, filename, size, IP, or per-user identifier — as a
+  // single Analytics Engine data point. New dimensions go at the end so
+  // existing queries keep working. Example queries (SQL API):
   //   total:      SELECT SUM(double1) FROM word2md_events WHERE blob1='convert'
   //   by outcome: SELECT blob2, SUM(double1) ... GROUP BY blob2
   //   by locale:  SELECT blob3, SUM(double1) ... GROUP BY blob3
+  //   by source:  SELECT blob4, SUM(double1) FROM word2md_events WHERE blob1='convert' GROUP BY blob4
   if (url.pathname === '/api/event') {
     if (request.method !== 'POST') {
       return new Response('Method Not Allowed', {
@@ -174,18 +182,23 @@ async function handle(request, env) {
       return new Response('Forbidden', { status: 403 });
     }
     // The endpoint is public, so never write caller-supplied strings verbatim:
-    // bound `outcome` to success/error and `locale` to a known site locale
-    // (anything else → 'other') to keep the dataset's cardinality fixed.
+    // bound `outcome` to success/error, and `locale` and `source` to known
+    // values (anything else → 'other'), to keep the dataset's cardinality
+    // fixed.
     const outcome = url.searchParams.get('o') === 'error' ? 'error' : 'success';
     const requestedLocale = url.searchParams.get('l');
     const locale = LOCALES.includes(requestedLocale)
       ? requestedLocale
       : 'other';
+    const requestedSource = url.searchParams.get('s');
+    const source = SOURCES.includes(requestedSource)
+      ? requestedSource
+      : 'other';
     // The binding is absent on deploys without Analytics Engine (and in
     // `astro preview`, which never runs this Worker), so guard with `?.` to
     // degrade to a no-op rather than throwing.
     env.EVENTS?.writeDataPoint({
-      blobs: ['convert', outcome, locale],
+      blobs: ['convert', outcome, locale, source],
       doubles: [1],
     });
     return new Response(null, { status: 204 });
