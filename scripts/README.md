@@ -59,3 +59,7 @@ npm run gen:icons
 ## Other
 
 - `make-fixtures.mjs` — regenerates the hand-authored synthetic `.docx` fixtures.
+
+## Scaling benchmark
+
+`npm run bench:scaling` builds synthetic documents that grow along one axis at a time (paragraphs, lists, footnotes, links, images, headings, code, merged-cell tables, equations, pasted HTML) and times each pipeline stage at each size, using the internal progress hook. Its last line per axis divides each stage's growth by the size's growth: about 1 is linear, about 2 for a doubling is quadratic. Pass an axis name (or part of one) to run just those, `PEEK=<n>` to print one axis's Markdown at size `n` instead, and `W2M_BUILD=<dir>` to time another `tsc` build, such as one of `main` for a before-and-after.
