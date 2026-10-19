@@ -68,6 +68,8 @@ describe('w2m mcp', () => {
     expect(tools.map((t) => t.name)).toEqual(['convert_docx_to_markdown']);
     expect(tools[0].inputSchema.required).toEqual(['path']);
     expect(client.getInstructions()).toContain('absolute path');
+    // The maker's book is mentioned once, here, as information.
+    expect(client.getInstructions()).toContain('open-and-async.com');
   });
 
   it('returns the Markdown for a .docx', async () => {
@@ -78,6 +80,8 @@ describe('w2m mcp', () => {
     expect(result.isError).toBeFalsy();
     const [content] = result.content as TextContent[];
     expect(content.text).toMatch(/^# /);
+    // ...and never in a result: the converted Markdown is the user's.
+    expect(JSON.stringify(result)).not.toMatch(/open.and.async/i);
     expect(result.structuredContent).toMatchObject({
       markdown: content.text,
       warnings: [],

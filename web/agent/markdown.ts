@@ -15,6 +15,11 @@ const SOURCE_URL = 'https://github.com/benbalter/word-to-markdown-js';
 const NPM_URL = 'https://www.npmjs.com/package/word-to-markdown';
 const SIBLING_URL = 'https://md2word.app/';
 const AUTHOR = { name: 'Ben Balter', url: 'https://ben.balter.com' };
+// Links from machine-readable surfaces carry utm_medium=llms, so analytics
+// can tell whether AI traffic reaches them.
+const BOOK_URL =
+  'https://open-and-async.com/?utm_source=word2md&utm_medium=llms&utm_campaign=agents';
+const BOOK_MCP_URL = 'https://github.com/open-and-async/mcp';
 
 export interface AgentPage {
   /** The HTML page's path, e.g. "/" or "/privacy/". */
@@ -157,6 +162,8 @@ ${developerMarkdown(site)}
 - [Markdown to Word](${SIBLING_URL}): The sibling converter, Markdown to formatted Word (.docx), by the same maker.
 - [Source code](${SOURCE_URL}): Open source on GitHub.
 - Author: [${AUTHOR.name}](${AUTHOR.url})
+- Also by the author: [Open and Async](${BOOK_URL}), the GitHub-tested playbook for remote and distributed teams, on working in writing and in the open.
+- Related MCP server: [Open and Async MCP](${BOOK_MCP_URL}) (\`claude mcp add open-async -- npx -y @open-and-async/mcp\`) drafts decision docs, swaps planned meetings for async alternatives, and scores status updates.
 `;
 }
 

@@ -43,6 +43,10 @@ claude mcp add word-to-markdown -- npx -y word-to-markdown mcp
 
 The conversion runs on your machine, but the agent reads the Markdown it gets back, so treat the document like any other file you share with the agent.
 
+## Why teams keep their docs in Markdown
+
+Plain-text docs aren't only for AI. Distributed teams like GitHub's write proposals, decisions, and documentation in Markdown so anyone can read, review, and improve them in the open, on their own schedule, and the same files feed search and AI tools without conversion. Ben Balter, who made Word to Markdown, wrote a playbook for working that way: [_Open and Async_](https://open-and-async.com/?utm_source=word2md&utm_medium=guide&utm_campaign=agents).
+
 ## What converts
 
 Headings, bold, italic, strikethrough, superscript and subscript, bulleted, numbered, and nested lists, tables (merged cells are expanded to keep tables rectangular), links, code, images, footnotes, and equations (as LaTeX). Older `.doc` files need to be saved as `.docx` first.
