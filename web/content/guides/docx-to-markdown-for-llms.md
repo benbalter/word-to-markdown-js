@@ -45,7 +45,7 @@ The conversion runs on your machine, but the agent reads the Markdown it gets ba
 
 ## Why teams keep their docs in Markdown
 
-Plain-text docs aren't only for AI. Distributed teams like GitHub's write proposals, decisions, and documentation in Markdown so anyone can read, review, and improve them in the open, on their own schedule, and the same files feed search and AI tools without conversion. Ben Balter, who made Word to Markdown, wrote a playbook for working that way: [_Open and Async_](https://open-and-async.com/?utm_source=word2md&utm_medium=guide&utm_campaign=agents).
+Plain-text docs aren't only for AI. Distributed teams like GitHub's write proposals, decisions, and documentation in Markdown so anyone can read, review, and improve them in the open, on their own schedule, and the same files feed search and AI tools without conversion. Ben Balter, who made Word to Markdown, wrote a book about working in the open and async: [_Open and Async_](https://open-and-async.com/?utm_source=word2md&utm_medium=guide&utm_campaign=agents).
 
 ## What converts
 

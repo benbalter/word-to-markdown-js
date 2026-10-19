@@ -162,7 +162,7 @@ ${developerMarkdown(site)}
 - [Markdown to Word](${SIBLING_URL}): The sibling converter, Markdown to formatted Word (.docx), by the same maker.
 - [Source code](${SOURCE_URL}): Open source on GitHub.
 - Author: [${AUTHOR.name}](${AUTHOR.url})
-- Also by the author: [Open and Async](${BOOK_URL}), the GitHub-tested playbook for remote and distributed teams, on working in writing and in the open.
+- Also by the author: [Open and Async](${BOOK_URL}), a playbook for remote and distributed teams, drawing on more than a decade of remote-first lessons from GitHub.
 - Related MCP server: [Open and Async MCP](${BOOK_MCP_URL}) (\`claude mcp add open-async -- npx -y @open-and-async/mcp\`) drafts decision docs, swaps planned meetings for async alternatives, and scores status updates.
 `;
 }

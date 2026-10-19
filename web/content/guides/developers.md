@@ -57,7 +57,7 @@ In a browser with [WebMCP](https://webmachinelearning.github.io/webmcp/), word2m
 
 ## Related MCP server
 
-[Open and Async MCP](https://github.com/open-and-async/mcp), from the same author, gives an agent async-first writing tools: draft a decision doc, swap a planned meeting for an async alternative, or score a status update. It pairs well with converting a team's Word docs to Markdown.
+[Open and Async MCP](https://github.com/open-and-async/mcp), from the same author, gives an agent async-first writing tools: draft a decision doc, swap a planned meeting for an async alternative, or score a status update. Once a team's docs are in Markdown, it can draft new ones the same way.
 
 ```console
 claude mcp add open-async -- npx -y @open-and-async/mcp
