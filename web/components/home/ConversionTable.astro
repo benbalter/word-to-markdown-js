@@ -1,23 +1,11 @@
 ---
 // "What gets converted" reference table. The Markdown-output column is universal
-// syntax, so it stays literal here and pairs with t.conversionRows by index —
-// the two arrays must stay the same length.
+// syntax, so it stays literal (in conversion-outputs.ts, shared with the
+// Markdown twin of the home page) and pairs with t.conversionRows by index.
 import { useTranslations } from '../../i18n';
+import { conversionOutputs } from './conversion-outputs';
 
 const t = useTranslations(Astro.currentLocale);
-
-const conversionOutputs = [
-  '# Heading',
-  '**bold** *italic*',
-  '1. item · - item',
-  '| a | b |',
-  '[text](url)',
-  '`code`',
-  '![alt](image)',
-  '~~text~~',
-  'x<sup>2</sup>',
-  'text[^1]',
-];
 ---
 
 <section class="mx-auto mt-20 max-w-2xl">

@@ -19,11 +19,19 @@ const locale = asLocale(Astro.currentLocale);
 const meta = localeMeta[locale];
 const t = useTranslations(locale);
 
-// Structured data (schema.org) for rich results: the app entity + the FAQ.
+// Structured data (schema.org): the app, its npm package, the steps, and the
+// FAQ. Google shows few of these as rich results any more; they're here for
+// LLMs and other readers that parse schema.org.
 // `inLanguage` and the human-readable copy follow the active locale. It spans
 // multiple sections (FAQ copy lives in Faq.astro), so it stays here at the shell.
 // URLs derive from `site` so the localized page describes its own URL and card.
 const image = `/og/${locale}.png`;
+const siteUrl = new URL('/', Astro.site).href;
+const author = {
+  '@type': 'Person',
+  name: 'Ben Balter',
+  url: 'https://ben.balter.com',
+};
 const structuredData = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -40,11 +48,41 @@ const structuredData = {
       isAccessibleForFree: true,
       featureList: t.schemaFeatureList,
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-      author: {
-        '@type': 'Person',
-        name: 'Ben Balter',
-        url: 'https://ben.balter.com',
+      author,
+      isRelatedTo: {
+        '@type': 'WebApplication',
+        name: 'Markdown to Word Converter',
+        url: 'https://md2word.app/',
       },
+    },
+    {
+      '@type': 'WebSite',
+      name: 'Word to Markdown',
+      url: siteUrl,
+      inLanguage: meta.htmlLang,
+    },
+    {
+      // The same converter as a CLI and Node library, for agents and scripts.
+      '@type': 'SoftwareSourceCode',
+      name: 'word-to-markdown',
+      description: t.cliBody,
+      codeRepository: 'https://github.com/benbalter/word-to-markdown-js',
+      programmingLanguage: 'TypeScript',
+      runtimePlatform: 'Node.js',
+      license: 'https://www.apache.org/licenses/LICENSE-2.0',
+      url: 'https://www.npmjs.com/package/word-to-markdown',
+      author,
+    },
+    {
+      '@type': 'HowTo',
+      name: t.metaTitle,
+      inLanguage: meta.htmlLang,
+      step: t.steps.map((s, i) => ({
+        '@type': 'HowToStep',
+        position: i + 1,
+        name: s.t,
+        text: s.d,
+      })),
     },
     {
       '@type': 'FAQPage',
@@ -64,6 +102,7 @@ const structuredData = {
   image={image}
   structuredData={structuredData}
   i18nPath="/"
+  markdownPath={locale === defaultLocale ? '/index.md' : undefined}
 >
   <Hero />
   <Converter />

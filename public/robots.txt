@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+# Search, AI answers, and AI training are all welcome:
+# https://contentsignals.org
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 Sitemap: https://word2md.com/sitemap-index.xml

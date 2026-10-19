@@ -149,6 +149,78 @@ describe('worker fetch handler', () => {
     });
   });
 
+  describe('Markdown negotiation', () => {
+    const MARKDOWN = { headers: { Accept: 'text/markdown, text/html;q=0.9' } };
+
+    function markdownEnv() {
+      return makeEnv({
+        ASSETS: {
+          fetch: jest.fn(async (req: Request) =>
+            new URL(req.url).pathname.endsWith('.md')
+              ? new Response('# twin', {
+                  headers: { 'Content-Type': 'text/markdown' },
+                })
+              : new Response('<html>', { status: 200 }),
+          ),
+        },
+      });
+    }
+
+    it("serves the root's Markdown twin to agents, ahead of the locale redirect", async () => {
+      const env = markdownEnv();
+      const res = await worker.fetch(
+        new Request('https://word2md.com/', {
+          headers: { ...MARKDOWN.headers, 'Accept-Language': 'de' },
+        }),
+        env,
+      );
+
+      expect(res.status).toBe(200);
+      expect(await res.text()).toBe('# twin');
+      expect(res.headers.get('Vary')).toContain('Accept');
+      const fetched = env.ASSETS.fetch.mock.calls[0][0] as Request;
+      expect(new URL(fetched.url).pathname).toBe('/index.md');
+    });
+
+    it("serves a legal page's twin", async () => {
+      const env = markdownEnv();
+      const res = await worker.fetch(
+        new Request('https://word2md.com/privacy/', MARKDOWN),
+        env,
+      );
+
+      expect(await res.text()).toBe('# twin');
+      const fetched = env.ASSETS.fetch.mock.calls[0][0] as Request;
+      expect(new URL(fetched.url).pathname).toBe('/privacy.md');
+    });
+
+    it('serves browsers HTML that varies on Accept', async () => {
+      const env = markdownEnv();
+      const res = await worker.fetch(
+        new Request('https://word2md.com/privacy/', {
+          headers: { Accept: 'text/html,*/*;q=0.8' },
+        }),
+        env,
+      );
+
+      expect(await res.text()).toBe('<html>');
+      expect(res.headers.get('Vary')).toContain('Accept');
+    });
+
+    it('falls back to HTML when a page has no twin', async () => {
+      const env = makeEnv();
+      env.ASSETS.fetch
+        .mockImplementationOnce(async () => new Response('nf', { status: 404 }))
+        .mockImplementationOnce(async () => new Response('<html>'));
+      const res = await worker.fetch(
+        new Request('https://word2md.com/privacy/', MARKDOWN),
+        env,
+      );
+
+      expect(await res.text()).toBe('<html>');
+    });
+  });
+
   describe('root locale redirect (unchanged by the counter)', () => {
     it('302-redirects a first-time non-English visitor and counts nothing', async () => {
       const env = makeEnv();
@@ -162,7 +234,7 @@ describe('worker fetch handler', () => {
       expect(res.headers.get('Set-Cookie')).toBe(
         'lang=de; Path=/; Max-Age=31536000; SameSite=Lax; Secure',
       );
-      expect(res.headers.get('Vary')).toBe('Accept-Language, Cookie');
+      expect(res.headers.get('Vary')).toBe('Accept-Language, Cookie, Accept');
       expect(res.headers.get('Cache-Control')).toBe('no-store');
       expect(env.ASSETS.fetch).not.toHaveBeenCalled();
       expect(env.EVENTS!.writeDataPoint).not.toHaveBeenCalled();
@@ -190,7 +262,7 @@ describe('worker fetch handler', () => {
       expect(env.ASSETS.fetch).toHaveBeenCalledWith(req);
       // "/" can also be a redirect or a tagged page, so caches must key on
       // the headers that decide which.
-      expect(res.headers.get('Vary')).toBe('Accept-Language, Cookie');
+      expect(res.headers.get('Vary')).toBe('Accept-Language, Cookie, Accept');
       expect(await res.text()).toBe('asset');
     });
 
