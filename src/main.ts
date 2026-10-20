@@ -875,6 +875,22 @@ type TurndownRule = Parameters<TurndownService['addRule']>[1];
 type TurndownNode = Parameters<TurndownRule['replacement']>[1];
 
 function addLongOrderedListItemRule(service: TurndownService): void {
+  // Each list's element positions, indexed once per list. Finding an item's
+  // position with indexOf on every <li> (the filter checks every item, and the
+  // replacement asks again) cost time quadratic in the list's length: an
+  // ordered list of 16,000 items spent about half its Turndown time there. The
+  // DOM doesn't change shape while Turndown converts it, so the index holds.
+  const positions = new WeakMap<TurndownNode, Map<unknown, number>>();
+  const indexIn = (parent: TurndownNode, node: TurndownNode): number => {
+    let index = positions.get(parent);
+    if (!index) {
+      index = new Map();
+      const { children } = parent;
+      for (let i = 0; i < children.length; i++) index.set(children[i], i);
+      positions.set(parent, index);
+    }
+    return index.get(node) ?? -1;
+  };
   const itemNumber = (node: TurndownNode): number | null => {
     const parent = node.parentNode;
     if (!parent) return null;
@@ -882,8 +898,7 @@ function addLongOrderedListItemRule(service: TurndownService): void {
       parent.nodeName === 'OL' || parent.style?.listStyleType === 'decimal';
     if (!ordered) return null;
     const start = parent.getAttribute('start');
-    const index = Array.prototype.indexOf.call(parent.children, node);
-    return (start ? Number(start) : 1) + index;
+    return (start ? Number(start) : 1) + indexIn(parent, node);
   };
   service.addRule('longOrderedListItem', {
     filter: (node) => {
