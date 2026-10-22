@@ -106,16 +106,15 @@ describe('Word structures (end to end)', () => {
     );
   });
 
-  it('numbers a Word list from 1, as mammoth emits it', async () => {
-    // Word continues numId 2 across the paragraph (3., 4.), but mammoth emits
-    // a second plain <ol> with no start, so each part is numbered from 1.
-    // A continuation fix would deliberately change the second half of this.
+  it('continues a Word list after a paragraph interrupts it', async () => {
+    // Word continues numId 2 across the paragraph (3., 4.). Mammoth emits a
+    // second <ol>, which gets Word's number as its start (src/numbering.ts).
     const markdown = await convert(
       await docx(
         `${item('one', 2)}${item('two', 2)}${p('Between')}${item('three', 2)}${item('four', 2)}`,
       ),
     );
-    expect(markdown).toBe('1. one\n2. two\n\nBetween\n\n1. three\n2. four');
+    expect(markdown).toBe('1. one\n2. two\n\nBetween\n\n3. three\n4. four');
   });
 
   it('strips typed bullet glyphs from nested list items too', async () => {

@@ -12,7 +12,10 @@ import type JSZip from 'jszip';
 //
 // Only lists that have a level whose text refers to another level (`%1.%2`) or
 // that force legal numbering (`w:isLgl`) are rewritten: an ordinary list keeps
-// converting as a Markdown list.
+// converting as a Markdown list. Its items only get a marker with Word's
+// number, which applyListStarts turns into the `start` of a list Mammoth
+// restarted after an interruption (Word's `1.`, a paragraph, `2.`), so it
+// doesn't come out as `1.` again.
 
 interface Level {
   start: number;
@@ -305,6 +308,7 @@ function labelParagraphs(
   xml: string,
   defs: NumberingDefinitions,
   compound: Set<string>,
+  token: string,
 ): string | undefined {
   // Counters per list (`w:num`), each its own sequence even when several
   // share an abstract list.
@@ -331,7 +335,7 @@ function labelParagraphs(
     const inherited = styleNumbering(defs.styles, styleId);
     const numId = (numPr && val(numPr, 'numId')) ?? inherited.numId;
     const num = numId === undefined ? undefined : defs.nums.get(numId);
-    if (!num || !compound.has(num.abstractId)) continue;
+    if (!num) continue;
     const directLevel = numPr && val(numPr, 'ilvl');
     const ilvl = Math.min(
       directLevel === undefined ? (inherited.ilvl ?? 0) : Number(directLevel),
@@ -355,6 +359,17 @@ function labelParagraphs(
       }
     }
 
+    // An ordinary list stays a list. An item whose number isn't 1 gets a
+    // marker with the number, so a list Mammoth restarts after a paragraph,
+    // table, or another list's item can continue from where Word's does.
+    if (!compound.has(num.abstractId)) {
+      if (level.format === 'none' || count[ilvl] === 1) continue;
+      out += `${xml.slice(from, end)}<w:r><w:t>${token}${count[ilvl]}Z</w:t></w:r>`;
+      from = end;
+      changed = true;
+      continue;
+    }
+
     const label = level.text.replace(/%(\d)/g, (_, k: string) => {
       const i = Number(k) - 1;
       const n = count[i] ?? startOf(i);
@@ -375,13 +390,17 @@ function labelParagraphs(
 const DOCUMENT_PART = /^word\/document\d*\.xml$/;
 
 /**
- * Writes the number Word shows into each paragraph of a compound-numbered
- * list (see the top of this file), in place in `zip`. Returns whether
- * anything changed.
+ * Writes Word's list numbers into the .docx, in place in `zip`: as text for
+ * each paragraph of a compound-numbered list (see the top of this file), and
+ * as a `<token><n>Z` marker for each item of an ordinary numbered list that
+ * Word numbers other than 1, for applyListStarts to turn into a list's
+ * `start` and remove. `token` is undefined when no marker was written.
  */
-export async function labelCompoundNumbering(zip: JSZip): Promise<boolean> {
+export async function labelNumbering(
+  zip: JSZip,
+): Promise<{ changed: boolean; token?: string }> {
   const numberingXml = await zip.file('word/numbering.xml')?.async('string');
-  if (!numberingXml) return false;
+  if (!numberingXml) return { changed: false };
   const stylesXml = (await zip.file('word/styles.xml')?.async('string')) ?? '';
   const defs = readDefinitions(numberingXml, stylesXml);
   const compound = new Set(
@@ -389,16 +408,55 @@ export async function labelCompoundNumbering(zip: JSZip): Promise<boolean> {
       .filter(([, levels]) => isCompound(levels))
       .map(([id]) => id),
   );
-  if (compound.size === 0) return false;
-  let changed = false;
+  const parts: [string, string][] = [];
   for (const name of Object.keys(zip.files)) {
-    if (!DOCUMENT_PART.test(name)) continue;
-    const xml = await zip.file(name)!.async('string');
-    const rewritten = labelParagraphs(xml, defs, compound);
-    if (rewritten !== undefined) {
-      zip.file(name, rewritten);
-      changed = true;
+    if (DOCUMENT_PART.test(name)) {
+      parts.push([name, await zip.file(name)!.async('string')]);
     }
   }
-  return changed;
+  // Plain letters and digits, so nothing escapes or reflows it, and not
+  // already in the document.
+  let token = 'WTMLI';
+  while (parts.some(([, xml]) => xml.includes(token))) token += 'Q';
+  let changed = false;
+  let marked = false;
+  for (const [name, xml] of parts) {
+    const rewritten = labelParagraphs(xml, defs, compound, token);
+    if (rewritten === undefined) continue;
+    zip.file(name, rewritten);
+    changed = true;
+    marked ||= rewritten.includes(token);
+  }
+  return { changed, token: marked ? token : undefined };
+}
+
+/**
+ * Removes the markers labelNumbering wrote from Mammoth's HTML, and gives
+ * each `<ol>` whose first item had one a `start` of that number.
+ */
+export function applyListStarts(root: Element, token: string): void {
+  const marker = new RegExp(`${token}(\\d+)Z`, 'g');
+  const stack: Node[] = [root];
+  while (stack.length > 0) {
+    const node = stack.pop()!;
+    if (node.nodeType !== 3) {
+      stack.push(...Array.from(node.childNodes));
+      continue;
+    }
+    const text = node as Text;
+    if (!text.data.includes(token)) continue;
+    const number = text.data.match(marker)?.[0].slice(token.length, -1);
+    text.data = text.data.replace(marker, '');
+    let item = text.parentNode;
+    while (item && item.nodeName !== 'LI') item = item.parentNode;
+    const list = item?.parentNode as Element | null;
+    if (
+      number &&
+      list?.nodeName === 'OL' &&
+      list.firstElementChild === item &&
+      !list.hasAttribute('start')
+    ) {
+      list.setAttribute('start', number);
+    }
+  }
 }

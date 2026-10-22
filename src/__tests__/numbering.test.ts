@@ -1,6 +1,6 @@
 import JSZip from 'jszip';
 import convert, { convertHtml } from '../main.js';
-import { labelCompoundNumbering } from '../numbering.js';
+import { labelNumbering } from '../numbering.js';
 
 // Word's compound ("legal") list numbering, such as `1.` → `1.1`, written out
 // as text before Mammoth reads the .docx (src/numbering.ts). Each document is
@@ -14,11 +14,16 @@ const REL =
 const level = (ilvl: number, text: string, extra = '', format = 'decimal') =>
   `<w:lvl w:ilvl="${ilvl}"><w:start w:val="1"/><w:numFmt w:val="${format}"/>${extra}<w:lvlText w:val="${text}"/></w:lvl>`;
 
-// numId 1: legal (`%1.`, `%1.%2`); numId 2: an ordinary two-level list.
+// numId 1: legal (`%1.`, `%1.%2`); numId 2: an ordinary two-level list;
+// numId 3: bullets; numId 4: decimal starting at 5.
 const NUMBERING = `<w:abstractNum w:abstractNumId="1">${level(0, '%1.')}${level(1, '%1.%2')}</w:abstractNum>
 <w:abstractNum w:abstractNumId="2">${level(0, '%1.')}${level(1, '%2.', '', 'lowerLetter')}</w:abstractNum>
 <w:num w:numId="1"><w:abstractNumId w:val="1"/></w:num>
-<w:num w:numId="2"><w:abstractNumId w:val="2"/></w:num>`;
+<w:abstractNum w:abstractNumId="3">${level(0, '•', '', 'bullet')}</w:abstractNum>
+<w:abstractNum w:abstractNumId="4"><w:lvl w:ilvl="0"><w:start w:val="5"/><w:numFmt w:val="decimal"/><w:lvlText w:val="%1."/></w:lvl></w:abstractNum>
+<w:num w:numId="2"><w:abstractNumId w:val="2"/></w:num>
+<w:num w:numId="3"><w:abstractNumId w:val="3"/></w:num>
+<w:num w:numId="4"><w:abstractNumId w:val="4"/></w:num>`;
 
 const STYLES = `<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/></w:style>`;
 
@@ -208,7 +213,7 @@ describe('compound list numbering', () => {
     const runaway = '<w:p><w:pPr>'.repeat(n) + '</w:pPr>'.repeat(n) + '</w:p>';
     const zip = await JSZip.loadAsync(await docx(runaway + heading('First')));
     const started = Date.now();
-    expect(await labelCompoundNumbering(zip)).toBe(true);
+    expect((await labelNumbering(zip)).changed).toBe(true);
     expect(Date.now() - started).toBeLessThan(2000);
     const xml = await zip.file('word/document.xml')!.async('string');
     expect(xml).toContain(runaway);
@@ -239,5 +244,63 @@ describe('numbered headings', () => {
         turndown: { headingStyle: 'setext' },
       }),
     ).toMatch(/^1\\\. Scope\n=+$/);
+  });
+});
+
+describe('ordinary numbered lists', () => {
+  const tbl = `<w:tbl><w:tr><w:tc>${p('Cell')}</w:tc></w:tr></w:tbl>`;
+
+  it('continues after another list and a table interrupt it', async () => {
+    const md = await convert(
+      await docx(
+        item('First item', 0, 2) +
+          item('A bullet', 0, 3) +
+          tbl +
+          item('Second item', 0, 2),
+      ),
+    );
+    expect(md).toMatch(
+      /^1\. First item\n\n- A bullet\n\n[\s\S]*\n\n2\. Second item$/,
+    );
+  });
+
+  it('restarts a nested level under each new parent item', async () => {
+    const md = await convert(
+      await docx(
+        item('One', 0, 2) +
+          item('a', 1, 2) +
+          p('Note') +
+          item('b', 1, 2) +
+          item('Two', 0, 2) +
+          item('c', 1, 2),
+      ),
+    );
+    // Markdown has no letters: the sublists count 1, 2, then 1 again. `b`
+    // has no parent item, so Mammoth gives it an empty one; it stays, since
+    // without it `2. b` and `2. Two` would merge into one list (2., 3.).
+    expect(md).toBe('1. One\n   1. a\n\nNote\n\n- 2. b\n\n2. Two\n   1. c');
+  });
+
+  it('drops the empty item over a sub-item with no parent', async () => {
+    const md = await convert(
+      await docx(item('One', 0, 2) + p('Note') + item('a', 1, 2) + p('After')),
+    );
+    expect(md).toBe('1. One\n\nNote\n\n1. a\n\nAfter');
+  });
+
+  it("keeps Word's start number", async () => {
+    const md = await convert(
+      await docx(item('Five', 0, 4) + item('Six', 0, 4)),
+    );
+    expect(md).toBe('5. Five\n6. Six');
+  });
+
+  it('leaves no marker in a numbered paragraph Mammoth keeps as text', async () => {
+    // Numbering from the paragraph's style, which Mammoth doesn't read.
+    const styles = `${STYLES}<w:style w:type="paragraph" w:styleId="Step"><w:name w:val="Step"/><w:pPr><w:numPr><w:numId w:val="2"/></w:numPr></w:pPr></w:style>`;
+    const step = (text: string) =>
+      `<w:p><w:pPr><w:pStyle w:val="Step"/></w:pPr>${run(text)}</w:p>`;
+    const md = await convert(await docx(step('One') + step('Two'), { styles }));
+    expect(md).toBe('One\n\nTwo');
   });
 });

@@ -13,7 +13,7 @@ import {
   restoreEquations,
   restoreInlineEquations,
 } from './equations.js';
-import { labelCompoundNumbering } from './numbering.js';
+import { applyListStarts, labelNumbering } from './numbering.js';
 import { reportProgress } from './progress.js';
 import fs from 'fs/promises';
 import path from 'path';
@@ -653,12 +653,47 @@ export function processHtml(
     stripImages?: boolean;
     bulletLists?: boolean;
     headingText?: (text: string) => string;
+    // The marker src/numbering.ts wrote Word's list numbers with.
+    listStartToken?: string;
     // Receives the document's visible text once the fixups are done: no tags,
     // attributes, link URLs, or base64 image data.
     onText?: (text: string) => void;
   } = {},
 ): string {
   const root = parseFragment(html);
+
+  // First, so no other fixup (a heading's slug, a list flattened into a
+  // table cell, the document's text) sees a list-number marker.
+  if (opts.listStartToken) applyListStarts(root, opts.listStartToken);
+
+  // Mammoth opens a list item for a missing parent level, so a sub-item
+  // with no item above it (after a paragraph, say) came out under an empty
+  // bullet: `- 1. b`. A list whose one item holds nothing but a list is
+  // replaced by that list, unless a list of its kind sits right next to it:
+  // Markdown would merge the two, renumbering the other list's items. Deepest
+  // first, so a chain unwraps fully.
+  all(root, 'ul, ol')
+    .reverse()
+    .forEach((list) => {
+      const items = Array.from(list.children);
+      if (items.length !== 1 || items[0].tagName !== 'LI') return;
+      const inner = Array.from(items[0].childNodes).filter(
+        (node) =>
+          node.nodeType !== TEXT_NODE || (node as Text).data.trim() !== '',
+      );
+      const only = inner[0] as Element | undefined;
+      if (inner.length !== 1 || !/^(UL|OL)$/.test(only?.nodeName ?? '')) {
+        return;
+      }
+      const kind = only!.nodeName;
+      if (
+        list.previousElementSibling?.nodeName === kind ||
+        list.nextElementSibling?.nodeName === kind
+      ) {
+        return;
+      }
+      replaceNode(list, [only!]);
+    });
 
   // Remove images (Mammoth inlines them as base64 data URIs by default, which
   // can bloat the output for image-heavy documents).
@@ -1675,7 +1710,8 @@ function createImageExtractor(imageDir: string): {
 }
 
 // Edits the .docx before Mammoth reads it, in one read and one write: each
-// paragraph of a compound-numbered list gets its number as text (see
+// paragraph of a compound-numbered list gets its number as text, and an
+// ordinary list's items a marker with theirs for processHtml (see
 // src/numbering.ts), and each equation becomes a placeholder Mammoth keeps
 // (see src/equations.ts), put back as LaTeX once the Markdown is formatted.
 // `bytes` is undefined when nothing changed. Both passes are best-effort
@@ -1688,6 +1724,7 @@ async function rewriteDocx(
 ): Promise<{
   bytes?: ArrayBuffer;
   math?: Awaited<ReturnType<typeof extractEquations>>;
+  listStartToken?: string;
 }> {
   // Bullets were asked for, so a list's numbers aren't written out either.
   const numbering = options.numberedLists !== 'bullets';
@@ -1699,18 +1736,19 @@ async function rewriteDocx(
   } catch {
     return {};
   }
-  const labeled = numbering
-    ? await labelCompoundNumbering(zip).catch(() => false)
-    : false;
+  const labeled: { changed: boolean; token?: string } = numbering
+    ? await labelNumbering(zip).catch(() => ({ changed: false }))
+    : { changed: false };
   const math = equations
     ? await extractEquations(zip).catch(() => undefined)
     : undefined;
-  const changed = labeled || Boolean(math?.equations.length);
+  const changed = labeled.changed || Boolean(math?.equations.length);
   return {
     bytes: changed
       ? await zip.generateAsync({ type: 'arraybuffer' })
       : undefined,
     math,
+    listStartToken: labeled.token,
   };
 }
 
@@ -1771,6 +1809,7 @@ async function runConversionPipeline(
     options,
     math &&
       ((text) => restoreInlineEquations(text, math.token, math.equations)),
+    rewrite.listStartToken,
   );
   if (math?.equations.length) reportProgress('restore-equations');
   return {
@@ -1788,6 +1827,7 @@ async function htmlPipeline(
   html: string,
   options: ConvertOptions,
   headingText?: (text: string) => string,
+  listStartToken?: string,
 ): Promise<string> {
   // Each stage reports as it starts, so the web worker can tell the page it's
   // alive (see src/progress.ts).
@@ -1801,6 +1841,7 @@ async function htmlPipeline(
     stripImages: options.images === 'strip',
     bulletLists: options.numberedLists === 'bullets',
     headingText,
+    listStartToken,
     onText:
       quotes === 'auto'
         ? (text) => (keepQuotes = isMostlyChinese(text))

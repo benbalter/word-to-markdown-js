@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Fixed
 
 - Outline numbering that repeats the parent's number, as contracts, policies, and specs use (`1.` → `1.1`, `1.2`), is written out as text: `## 1. First section`, then `1.1 FIRST CLAUSE`. It used to come out as `- 1.` under an unnumbered heading, restarting at 1 after each body paragraph. Ordinary numbered lists are unchanged, and `--bullet-lists` still drops the numbers. (#359)
+- A numbered list that a paragraph, table, or another list interrupts continues from Word's number (`1.`, then `2.` after the interruption) instead of restarting at `1.`, and a list's own start number is kept. A sub-item with no item above it no longer sits under an empty `- ` bullet, except where that would merge it into a neighboring list. (#359)
 - A heading that starts with a number keeps it unescaped (`## 1. Scope`, not `## 1\. Scope`), since a heading can't be read as a list.
 
 ## [0.8.0] - 2026-10-22
