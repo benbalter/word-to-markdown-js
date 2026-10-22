@@ -587,9 +587,7 @@ function rewriteBookmarkLinks(
     if (HEADING_TAGS.has(el.tagName.toLowerCase())) {
       headingSlugs.set(
         el,
-        // Anchors stay ASCII whatever the quote style, so existing links to
-        // Chinese headings (#…-1 etc.) keep resolving.
-        slugger.slug(normalizeText(headingText(el.textContent ?? ''), 'ascii')),
+        slugger.slug(normalizeText(headingText(el.textContent ?? ''))),
       );
     }
   }
@@ -654,6 +652,9 @@ export function processHtml(
     stripImages?: boolean;
     bulletLists?: boolean;
     headingText?: (text: string) => string;
+    // Receives the document's visible text once the fixups are done: no tags,
+    // attributes, link URLs, or base64 image data.
+    onText?: (text: string) => void;
   } = {},
 ): string {
   const root = parseFragment(html);
@@ -744,6 +745,7 @@ export function processHtml(
     });
   }
 
+  opts.onText?.(root.textContent ?? '');
   return serializeFragment(root);
 }
 
@@ -1031,26 +1033,36 @@ const smartQuoteMap: { [key: string]: string } = {
  * whether curly quotes are Chinese quotation marks. Kana means Japanese, which
  * also uses Han characters, so text with a meaningful share of kana does not
  * count. Mirrors the preset heuristic in markdown-to-word-js.
+ *
+ * Pass the document's visible text, not the Markdown: link URLs and inlined
+ * base64 images are letters too, and would outweigh the Chinese. Counts in one
+ * pass rather than with `match()`, which would build an array per character.
  */
+const LETTER = /\p{L}/u;
+const HAN = /\p{Script=Han}/u;
+const KANA = /[\p{Script=Hiragana}\p{Script=Katakana}]/u;
 function isMostlyChinese(text: string): boolean {
-  const letters = text.match(/\p{L}/gu)?.length ?? 0;
-  const han = text.match(/\p{Script=Han}/gu)?.length ?? 0;
-  const kana =
-    text.match(/[\p{Script=Hiragana}\p{Script=Katakana}]/gu)?.length ?? 0;
+  let letters = 0;
+  let han = 0;
+  let kana = 0;
+  for (const char of text) {
+    if (!LETTER.test(char)) continue;
+    letters++;
+    if (HAN.test(char)) han++;
+    else if (KANA.test(char)) kana++;
+  }
 
   return han >= 10 && han / letters >= 0.5 && kana < han / 10;
 }
 
 // Remove unicode non-breaking spaces and convert smart quotes to ASCII in a
-// single pass. Chinese quotation marks use the same code points, so they are
-// kept when the text is mostly Chinese instead of being flattened to ASCII.
-function normalizeText(md: string, quotes: QuoteStyle = 'auto'): string {
+// single pass. Chinese quotation marks use the same code points, so callers
+// pass `keepQuotes` for mostly-Chinese text instead of flattening them.
+function normalizeText(md: string, keepQuotes = false): string {
   const normalized = md.replace(
     nonBreakingSpacesRegex,
     (char) => nonBreakingSpaceMap[char],
   );
-  const keepQuotes =
-    quotes === 'preserve' || (quotes === 'auto' && isMostlyChinese(normalized));
 
   return keepQuotes
     ? normalized
@@ -1728,11 +1740,19 @@ async function htmlPipeline(
   // Each stage reports as it starts, so the web worker can tell the page it's
   // alive (see src/progress.ts).
   reportProgress('process-html');
+  // Curly quotes are kept on request, or by default when the document's text
+  // (not its Markdown, see isMostlyChinese) is mostly Chinese.
+  const quotes = options.quotes ?? 'auto';
+  let keepQuotes = quotes === 'preserve';
   // Numbered lists stay numbered by default; flatten to bullets on request.
   const processedHtml = processHtml(html, {
     stripImages: options.images === 'strip',
     bulletLists: options.numberedLists === 'bullets',
     headingText,
+    onText:
+      quotes === 'auto'
+        ? (text) => (keepQuotes = isMostlyChinese(text))
+        : undefined,
   });
   // Footnotes become GFM `[^1]` by default; keep Mammoth's markup on request.
   reportProgress('turndown');
@@ -1743,7 +1763,7 @@ async function htmlPipeline(
     options.footnotes !== 'preserve',
   );
   reportProgress('normalize');
-  const normalizedMd = normalizeText(md, options.quotes);
+  const normalizedMd = normalizeText(md, keepQuotes);
   reportProgress('lint');
   const cleanedMd = lint(normalizedMd);
   reportProgress('prettier');

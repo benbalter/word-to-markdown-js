@@ -20,7 +20,7 @@ npm run all          # fix + typecheck + test + build (quick loop; not everythin
 npm run check        # what CI's build job runs: lint + typecheck + knip + build + test + Worker bundle check
 ```
 
-Run a single unit test: `NODE_OPTIONS=--experimental-vm-modules npx jest src/__tests__/smart-quotes.test.ts`
+Run a single unit test: `NODE_OPTIONS=--experimental-vm-modules npx jest src/__tests__/quotes.test.ts`
 
 Run a single e2e spec: `npx playwright test src/__tests__/e2e/i18n.spec.ts`. The preview server uses port 8080; set `E2E_PORT=<port>` to run alongside another checkout's suite (a global setup fails fast if the server on the port isn't serving this checkout's `dist/`).
 

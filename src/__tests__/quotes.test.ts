@@ -13,6 +13,17 @@ describe('curly quotes', () => {
     expect(await convertHtml(`<p>${CHINESE}</p>`)).toBe(CHINESE);
   });
 
+  it('ignores image data and link URLs when deciding the text is Chinese', async () => {
+    // Inlined base64 and URLs are all Latin letters; counted, they would
+    // outweigh the Chinese and flip the quotes back to ASCII.
+    const image = `data:image/png;base64,${'iVBORw0KGgoAAAANSUhEUg'.repeat(50)}`;
+    const md = await convertHtml(
+      `<p>${CHINESE}</p><p><img src="${image}"></p>` +
+        '<p><a href="https://example.com/a/long/path/to/a/page">链接</a></p>',
+    );
+    expect(md).toContain(CHINESE);
+  });
+
   it('converts them in English text by default', async () => {
     expect(await convertHtml(`<p>${ENGLISH}</p>`)).toBe(
       `He said, "hello" and it's fine.`,
@@ -35,15 +46,15 @@ describe('curly quotes', () => {
   });
 
   it('converts Chinese quotes with quotes: "ascii"', async () => {
-    expect(
-      await convertHtml(`<p>${CHINESE}</p>`, { quotes: 'ascii' }),
-    ).toBe('会议指出："各单位要按照《通知》要求，认真\'自查\'，并及时上报。"');
+    expect(await convertHtml(`<p>${CHINESE}</p>`, { quotes: 'ascii' })).toBe(
+      '会议指出："各单位要按照《通知》要求，认真\'自查\'，并及时上报。"',
+    );
   });
 
   it('keeps English curly quotes with quotes: "preserve"', async () => {
-    expect(
-      await convertHtml(`<p>${ENGLISH}</p>`, { quotes: 'preserve' }),
-    ).toBe(ENGLISH);
+    expect(await convertHtml(`<p>${ENGLISH}</p>`, { quotes: 'preserve' })).toBe(
+      ENGLISH,
+    );
   });
 
   it('normalizes non-breaking spaces whatever the quote style', async () => {
