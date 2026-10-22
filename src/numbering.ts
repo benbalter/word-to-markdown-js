@@ -88,7 +88,9 @@ function readLevel(xml: string): Level {
   return {
     start: clampStart(val(xml, 'start') ?? '1'),
     format: val(xml, 'numFmt') ?? 'decimal',
-    text: decodeEntities(val(xml, 'lvlText') ?? ''),
+    // Word's level text is a few characters. Capping it keeps a crafted one
+    // from being copied, huge, into every paragraph of a long list.
+    text: decodeEntities(val(xml, 'lvlText') ?? '').slice(0, 255),
     legal: isOn(xml, 'isLgl'),
     restart: restart === undefined ? undefined : Number(restart),
     suffix: suff === 'nothing' ? '' : ' ',
@@ -310,14 +312,18 @@ function labelParagraphs(
   let out = '';
   let from = 0;
   let changed = false;
+  let scanned = 0;
   for (const open of xml.matchAll(/<w:p(?:\s[^>]*)?>/g)) {
-    // A paragraph inside properties already rewritten (only in malformed
-    // XML, where a <w:pPr> runs on) was copied with them.
-    if (open.index < from) continue;
+    // A paragraph inside properties already scanned (only in malformed XML,
+    // where a <w:pPr> runs on) was read, or copied, with them. Skipping it
+    // also scans each character once: nested runaway properties would
+    // otherwise each be scanned to their end, quadratic in their number.
+    if (open.index < scanned) continue;
     const pPrStart = open.index + open[0].length;
     if (!xml.startsWith('<w:pPr>', pPrStart)) continue;
     const end = pPrEnd(xml, pPrStart);
     if (end === -1) break;
+    scanned = end;
     const pPr = xml.slice(pPrStart, end);
     const own = pPr.replace(/<w:pPrChange\b[\s\S]*<\/w:pPrChange>/, '');
     const numPr = own.match(/<w:numPr>([\s\S]*?)<\/w:numPr>/)?.[1];

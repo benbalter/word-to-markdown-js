@@ -1,5 +1,6 @@
 import JSZip from 'jszip';
 import convert, { convertHtml } from '../main.js';
+import { labelCompoundNumbering } from '../numbering.js';
 
 // Word's compound ("legal") list numbering, such as `1.` → `1.1`, written out
 // as text before Mammoth reads the .docx (src/numbering.ts). Each document is
@@ -187,6 +188,31 @@ describe('compound list numbering', () => {
       await docx(heading('First') + item('A', 1), { numbering }),
     );
     expect(md).toBe('## 1. First\n\n1.32767 A');
+  });
+
+  it('caps level text instead of copying it into every paragraph', async () => {
+    const long = 'x'.repeat(10_000);
+    const numbering = `<w:abstractNum w:abstractNumId="1">${level(0, '%1.')}${level(1, `%1.%2${long}`)}</w:abstractNum>
+<w:num w:numId="1"><w:abstractNumId w:val="1"/></w:num>`;
+    const md = await convert(
+      await docx(heading('First') + item('A', 1), { numbering }),
+    );
+    // 255 characters of level text: `%1.%2` and 250 of the x's.
+    expect(md).toBe(`## 1. First\n\n1.1${'x'.repeat(250)} A`);
+  });
+
+  it('reads runaway nested paragraph properties in one pass', async () => {
+    // Mammoth can't parse XML nested this deep, so this calls the pass
+    // directly: it must neither hang nor rewrite the runaway paragraphs.
+    const n = 20_000;
+    const runaway = '<w:p><w:pPr>'.repeat(n) + '</w:pPr>'.repeat(n) + '</w:p>';
+    const zip = await JSZip.loadAsync(await docx(runaway + heading('First')));
+    const started = Date.now();
+    expect(await labelCompoundNumbering(zip)).toBe(true);
+    expect(Date.now() - started).toBeLessThan(2000);
+    const xml = await zip.file('word/document.xml')!.async('string');
+    expect(xml).toContain(runaway);
+    expect(xml).toContain('>1. </w:t>');
   });
 
   it('links a bookmark to a numbered heading by its numbered slug', async () => {
