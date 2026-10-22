@@ -17,6 +17,13 @@ import { reportProgress } from './progress.js';
 import fs from 'fs/promises';
 import path from 'path';
 
+/**
+ * How to treat curly quotes (“ ” ‘ ’). Chinese quotation marks share these code
+ * points with the curly quotes Word writes for English, so the two can only be
+ * told apart by context.
+ */
+export type QuoteStyle = 'auto' | 'ascii' | 'preserve';
+
 export interface ConvertOptions {
   mammoth?: object;
   turndown?: object;
@@ -64,6 +71,13 @@ export interface ConvertOptions {
    * `'strip'` drops them, as Mammoth does, with a content-loss warning.
    */
   equations?: 'latex' | 'strip';
+  /**
+   * How to handle curly quotes (“ ” ‘ ’). `'auto'` (default) keeps them when the
+   * text is mostly Chinese, where they are the Chinese quotation marks rather
+   * than Word's curly quotes, and converts them to ASCII everywhere else.
+   * `'ascii'` always converts; `'preserve'` always keeps them.
+   */
+  quotes?: QuoteStyle;
 }
 
 // Mammoth's options object, narrowed to the field we merge into. Mammoth appends
@@ -573,7 +587,9 @@ function rewriteBookmarkLinks(
     if (HEADING_TAGS.has(el.tagName.toLowerCase())) {
       headingSlugs.set(
         el,
-        slugger.slug(normalizeText(headingText(el.textContent ?? ''))),
+        // Anchors stay ASCII whatever the quote style, so existing links to
+        // Chinese headings (#…-1 etc.) keep resolving.
+        slugger.slug(normalizeText(headingText(el.textContent ?? ''), 'ascii')),
       );
     }
   }
@@ -1010,11 +1026,35 @@ const smartQuoteMap: { [key: string]: string } = {
   '\u2019': "'", // Right single quotation mark
 };
 
-// Remove unicode non-breaking spaces and convert smart quotes to ASCII in a single pass
-function normalizeText(md: string): string {
-  return md
-    .replace(nonBreakingSpacesRegex, (char) => nonBreakingSpaceMap[char])
-    .replace(smartQuotesRegex, (char) => smartQuoteMap[char]);
+/**
+ * Whether most of the letters in `text` are Chinese characters, used to decide
+ * whether curly quotes are Chinese quotation marks. Kana means Japanese, which
+ * also uses Han characters, so text with a meaningful share of kana does not
+ * count. Mirrors the preset heuristic in markdown-to-word-js.
+ */
+function isMostlyChinese(text: string): boolean {
+  const letters = text.match(/\p{L}/gu)?.length ?? 0;
+  const han = text.match(/\p{Script=Han}/gu)?.length ?? 0;
+  const kana =
+    text.match(/[\p{Script=Hiragana}\p{Script=Katakana}]/gu)?.length ?? 0;
+
+  return han >= 10 && han / letters >= 0.5 && kana < han / 10;
+}
+
+// Remove unicode non-breaking spaces and convert smart quotes to ASCII in a
+// single pass. Chinese quotation marks use the same code points, so they are
+// kept when the text is mostly Chinese instead of being flattened to ASCII.
+function normalizeText(md: string, quotes: QuoteStyle = 'auto'): string {
+  const normalized = md.replace(
+    nonBreakingSpacesRegex,
+    (char) => nonBreakingSpaceMap[char],
+  );
+  const keepQuotes =
+    quotes === 'preserve' || (quotes === 'auto' && isMostlyChinese(normalized));
+
+  return keepQuotes
+    ? normalized
+    : normalized.replace(smartQuotesRegex, (char) => smartQuoteMap[char]);
 }
 
 // Every rule but MD029 (ol-prefix), whose fix renumbers any ordered list to
@@ -1703,7 +1743,7 @@ async function htmlPipeline(
     options.footnotes !== 'preserve',
   );
   reportProgress('normalize');
-  const normalizedMd = normalizeText(md);
+  const normalizedMd = normalizeText(md, options.quotes);
   reportProgress('lint');
   const cleanedMd = lint(normalizedMd);
   reportProgress('prettier');

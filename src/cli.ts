@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-import { Command } from 'commander';
+import { Command, Option } from 'commander';
 import { createRequire } from 'module';
 import { mkdir, writeFile } from 'fs/promises';
 import path from 'path';
-import { convertWithWarnings } from './main.js';
+import { convertWithWarnings, type QuoteStyle } from './main.js';
 
 // Read our own version from package.json. createRequire resolves relative to
 // this module, so `../package.json` points at the package root both from the
@@ -97,6 +97,16 @@ program
     '--strip-equations',
     'Drop Word equations instead of converting them to LaTeX ($…$ and $$…$$)',
   )
+  .addOption(
+    new Option(
+      '--quotes <style>',
+      'How to treat curly quotes: auto (default) keeps them in mostly-Chinese ' +
+        'text, where they are Chinese quotation marks; ascii converts them ' +
+        'everywhere; preserve keeps them everywhere',
+    )
+      .choices(['auto', 'ascii', 'preserve'])
+      .default('auto'),
+  )
   .option(
     '-q, --quiet',
     'Print nothing to stderr except errors: no warnings or progress notes',
@@ -154,6 +164,7 @@ program
         underline: options.underline ? 'preserve' : 'ignore',
         footnotes: options.preserveFootnotes ? 'preserve' : 'gfm',
         equations: options.stripEquations ? 'strip' : 'latex',
+        quotes: options.quotes as QuoteStyle,
       });
 
       // Write extracted images to disk before emitting the Markdown that links
