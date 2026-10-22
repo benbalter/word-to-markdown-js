@@ -13,6 +13,7 @@ import {
   restoreEquations,
   restoreInlineEquations,
 } from './equations.js';
+import { applyListStarts, labelNumbering } from './numbering.js';
 import { reportProgress } from './progress.js';
 import fs from 'fs/promises';
 import path from 'path';
@@ -652,12 +653,47 @@ export function processHtml(
     stripImages?: boolean;
     bulletLists?: boolean;
     headingText?: (text: string) => string;
+    // The marker src/numbering.ts wrote Word's list numbers with.
+    listStartToken?: string;
     // Receives the document's visible text once the fixups are done: no tags,
     // attributes, link URLs, or base64 image data.
     onText?: (text: string) => void;
   } = {},
 ): string {
   const root = parseFragment(html);
+
+  // First, so no other fixup (a heading's slug, a list flattened into a
+  // table cell, the document's text) sees a list-number marker.
+  if (opts.listStartToken) applyListStarts(root, opts.listStartToken);
+
+  // Mammoth opens a list item for a missing parent level, so a sub-item
+  // with no item above it (after a paragraph, say) came out under an empty
+  // bullet: `- 1. b`. A list whose one item holds nothing but a list is
+  // replaced by that list, unless a list of its kind sits right next to it:
+  // Markdown would merge the two, renumbering the other list's items. Deepest
+  // first, so a chain unwraps fully.
+  all(root, 'ul, ol')
+    .reverse()
+    .forEach((list) => {
+      const items = Array.from(list.children);
+      if (items.length !== 1 || items[0].tagName !== 'LI') return;
+      const inner = Array.from(items[0].childNodes).filter(
+        (node) =>
+          node.nodeType !== TEXT_NODE || (node as Text).data.trim() !== '',
+      );
+      const only = inner[0] as Element | undefined;
+      if (inner.length !== 1 || !/^(UL|OL)$/.test(only?.nodeName ?? '')) {
+        return;
+      }
+      const kind = only!.nodeName;
+      if (
+        list.previousElementSibling?.nodeName === kind ||
+        list.nextElementSibling?.nodeName === kind
+      ) {
+        return;
+      }
+      replaceNode(list, [only!]);
+    });
 
   // Remove images (Mammoth inlines them as base64 data URIs by default, which
   // can bloat the output for image-heavy documents).
@@ -945,18 +981,36 @@ function addLongOrderedListItemRule(service: TurndownService): void {
   });
 }
 
+// A heading that starts with a number, such as `1. Scope` from a numbered
+// heading (see src/numbering.ts) or one typed by hand. Turndown escapes a
+// leading `1. ` so a paragraph doesn't turn into a list, which gave
+// `## 1\. Scope`, but an ATX heading can't be a list item, so the escape is
+// only noise. Setext headings (levels 1 and 2 with `headingStyle: 'setext'`)
+// keep it: their text is a line of its own, which `1. ` would make a list.
+function addNumberedHeadingRule(
+  service: TurndownService,
+  setext: boolean,
+): void {
+  service.addRule('numberedHeading', {
+    filter: (node) =>
+      /^H[1-6]$/.test(node.nodeName) &&
+      (!setext || Number(node.nodeName[1]) > 2),
+    replacement: (content, node) =>
+      `\n\n${'#'.repeat(Number(node.nodeName[1]))} ${content.replace(/^(\d+)\\\. /, '$1. ')}\n\n`,
+  });
+}
+
 function createTurndownService(
   options: object,
   keepTags: string[],
   gfmFootnotes: boolean,
 ): TurndownService {
-  const service = new TurndownService({
-    ...defaultTurndownOptions,
-    ...options,
-  });
+  const merged: turndownOptions = { ...defaultTurndownOptions, ...options };
+  const service = new TurndownService(merged);
   service.use(turndownPluginGfm.gfm);
   addTableCellLineBreakRule(service);
   addLongOrderedListItemRule(service);
+  addNumberedHeadingRule(service, merged.headingStyle === 'setext');
   if (keepTags.length > 0) service.keep(keepTags);
   if (gfmFootnotes) addFootnoteRules(service);
   addLinkAllowlistRule(service);
@@ -1655,6 +1709,49 @@ function createImageExtractor(imageDir: string): {
   return { images, convertImage };
 }
 
+// Edits the .docx before Mammoth reads it, in one read and one write: each
+// paragraph of a compound-numbered list gets its number as text, and an
+// ordinary list's items a marker with theirs for processHtml (see
+// src/numbering.ts), and each equation becomes a placeholder Mammoth keeps
+// (see src/equations.ts), put back as LaTeX once the Markdown is formatted.
+// `bytes` is undefined when nothing changed. Both passes are best-effort
+// extras: if one fails outright, the document converts without it, as it did
+// before the pass existed, rather than failing. An unreadable .docx is
+// Mammoth's to report, with the error it always has.
+async function rewriteDocx(
+  bytes: ArrayBuffer,
+  options: ConvertOptions,
+): Promise<{
+  bytes?: ArrayBuffer;
+  math?: Awaited<ReturnType<typeof extractEquations>>;
+  listStartToken?: string;
+}> {
+  // Bullets were asked for, so a list's numbers aren't written out either.
+  const numbering = options.numberedLists !== 'bullets';
+  const equations = options.equations !== 'strip';
+  if (!numbering && !equations) return {};
+  let zip: JSZip;
+  try {
+    zip = await JSZip.loadAsync(bytes);
+  } catch {
+    return {};
+  }
+  const labeled: { changed: boolean; token?: string } = numbering
+    ? await labelNumbering(zip).catch(() => ({ changed: false }))
+    : { changed: false };
+  const math = equations
+    ? await extractEquations(zip).catch(() => undefined)
+    : undefined;
+  const changed = labeled.changed || Boolean(math?.equations.length);
+  return {
+    bytes: changed
+      ? await zip.generateAsync({ type: 'arraybuffer' })
+      : undefined,
+    math,
+    listStartToken: labeled.token,
+  };
+}
+
 // The shared conversion pipeline: mammoth HTML -> cleaned, formatted Markdown.
 // Returns mammoth's messages so callers can surface content-loss warnings, and
 // (in extract mode) the extracted image assets.
@@ -1690,19 +1787,12 @@ async function runConversionPipeline(
     };
   }
 
-  // Mammoth drops equations, so swap them for placeholders it keeps, and put
-  // them back as LaTeX once the Markdown is formatted.
-  // Equations are a best-effort extra: if extracting them fails outright,
-  // convert the document without them (Mammoth drops them and says so)
-  // rather than failing a document that converted fine before.
-  if (options.equations !== 'strip') reportProgress('equations');
-  const math =
-    options.equations === 'strip'
-      ? undefined
-      : await extractEquations(loaded.bytes).catch(() => undefined);
+  reportProgress('rewrite-docx');
+  const rewrite = await rewriteDocx(loaded.bytes, options);
+  const math = rewrite.math;
   reportProgress('mammoth');
   const mammothResult = await mammoth.convertToHtml(
-    math?.equations.length ? toMammothInput(math.bytes) : loaded.mammothInput,
+    rewrite.bytes ? toMammothInput(rewrite.bytes) : loaded.mammothInput,
     mammothOptions,
   );
   const messages: MammothMessage[] = [...mammothResult.messages];
@@ -1719,6 +1809,7 @@ async function runConversionPipeline(
     options,
     math &&
       ((text) => restoreInlineEquations(text, math.token, math.equations)),
+    rewrite.listStartToken,
   );
   if (math?.equations.length) reportProgress('restore-equations');
   return {
@@ -1736,6 +1827,7 @@ async function htmlPipeline(
   html: string,
   options: ConvertOptions,
   headingText?: (text: string) => string,
+  listStartToken?: string,
 ): Promise<string> {
   // Each stage reports as it starts, so the web worker can tell the page it's
   // alive (see src/progress.ts).
@@ -1749,6 +1841,7 @@ async function htmlPipeline(
     stripImages: options.images === 'strip',
     bulletLists: options.numberedLists === 'bullets',
     headingText,
+    listStartToken,
     onText:
       quotes === 'auto'
         ? (text) => (keepQuotes = isMostlyChinese(text))

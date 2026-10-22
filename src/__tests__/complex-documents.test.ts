@@ -659,10 +659,10 @@ describe('M365 professional document features', () => {
     // Verify overall structure
     expect(result).toContain('# Meeting Notes 📝');
     expect(result).toContain('## Discussion Points 💬');
-    // Note: periods after numbers get escaped by markdown linting to prevent ordered list interpretation
-    expect(result).toContain('### 1\\. Budget Review 💰');
-    expect(result).toContain('### 2\\. Timeline Update ⏰');
-    expect(result).toContain('### 3\\. Resource Allocation 👥');
+    // A heading can't be a list item, so its leading number isn't escaped
+    expect(result).toContain('### 1. Budget Review 💰');
+    expect(result).toContain('### 2. Timeline Update ⏰');
+    expect(result).toContain('### 3. Resource Allocation 👥');
     expect(result).toContain('## Action Items ✍️');
 
     // Verify formatting combinations

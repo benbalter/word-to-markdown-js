@@ -1,4 +1,4 @@
-import JSZip from 'jszip';
+import type JSZip from 'jszip';
 
 // Word equations (Office Math, OMML) as LaTeX. Mammoth drops <m:oMath> and
 // <m:oMathPara> with an "unrecognised element" warning, so before it reads the
@@ -619,23 +619,16 @@ function pickToken(texts: string[]): string {
 }
 
 /**
- * Rewrites a .docx so each equation is a placeholder mammoth keeps. Returns
- * the original bytes untouched when the document has no equations. `failed`
- * counts equations that couldn't be converted and were left out.
+ * Rewrites an open .docx in place so each equation is a placeholder mammoth
+ * keeps, leaving it untouched when it has no equations (`equations` is then
+ * empty). `failed` counts equations that couldn't be converted and were left
+ * out.
  */
-export async function extractEquations(bytes: ArrayBuffer): Promise<{
-  bytes: ArrayBuffer;
+export async function extractEquations(zip: JSZip): Promise<{
   token: string;
   equations: string[];
   failed: number;
 }> {
-  // An unreadable .docx is mammoth's to report, with the error it always has.
-  let zip: JSZip;
-  try {
-    zip = await JSZip.loadAsync(bytes);
-  } catch {
-    return { bytes, token: '', equations: [], failed: 0 };
-  }
   const parts: [string, string, string][] = [];
   // Every part mammoth reads, with or without math, so the placeholder can't
   // match text in a footnote or comment that has no equations.
@@ -653,17 +646,12 @@ export async function extractEquations(bytes: ArrayBuffer): Promise<{
   }
   const equations: string[] = [];
   const token = pickToken(texts);
-  if (parts.length === 0) return { bytes, token, equations, failed: 0 };
+  if (parts.length === 0) return { token, equations, failed: 0 };
   const failures = { count: 0 };
   for (const [name, xml, prefix] of parts) {
     zip.file(name, replaceEquations(xml, prefix, token, equations, failures));
   }
-  return {
-    bytes: await zip.generateAsync({ type: 'arraybuffer' }),
-    token,
-    equations,
-    failed: failures.count,
-  };
+  return { token, equations, failed: failures.count };
 }
 
 /**
