@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-22
+
+### Added
+
+- Each GitHub Release now carries `word-to-markdown.mcpb`, a one-click install of the MCP server for Claude Desktop. (#347)
+
 ### Changed
 
 - Chinese quotation marks (“ ” ‘ ’) are kept instead of being turned into ASCII quotes. They share their code points with the curly quotes Word writes for English, which the converter normalizes, so a quote can't be classified on its own; the text is now checked for being mostly Chinese (at least 10 Han characters, Han making up at least half the letters, and no meaningful share of kana, which would mean Japanese). English documents convert exactly as before. Pass `{ quotes: 'ascii' }` or `--quotes ascii` for the old behavior, or `preserve` to keep curly quotes in any language. (#357) Thanks to [@naturalwill](https://github.com/naturalwill).
@@ -15,6 +21,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Table-heavy documents convert much faster. markdownlint's table parsing grew quadratically with the number of table rows in a document, so a document of 80 tables of 100 rows spent over 20 seconds in that step alone; pinning micromark-extension-gfm-table to 2.1.2, which has the fix from [micromark-extension-gfm-table#17](https://github.com/micromark/micromark-extension-gfm-table/pull/17), makes it linear and brings that step under a second. Output is unchanged.
 - Large tables convert much faster. Turndown's GFM table rules re-read each table's row list in loops, and the DOM it uses outside the browser rebuilt that list on every read, so a single table of 2,000 rows spent about 20 seconds in that step. word2md now caches the list, and the same table takes a fraction of a second. Output is unchanged.
 - Long numbered lists convert faster. To number items from 100 on, word2md looked up every item's position by scanning the whole list, so a list of 16,000 items spent about half its Turndown time on lookups. word2md now indexes each list once, which brings that list from about 0.5 to 0.3 seconds. Output is unchanged.
+- An equation that can't be converted to LaTeX is left out, with a content-loss warning, instead of failing the whole document. Since 0.7.0 started converting equations, one unusual equation (such as very deeply nested fractions) turned the entire conversion into an error. (#350)
+- `convertHtml` no longer returns an empty result for some rich text pasted from Google Docs. When markup ahead of the Google Docs wrapper was removed, the DOM library inserted the wrapper's contents at the wrong position and the whole selection was lost, while still reporting success. (#350)
+- word2md.com no longer gives up on slow conversions after a fixed time. A large document that keeps making progress now finishes however long it takes; a conversion is called failed only after two minutes without any progress. (#350, #352)
 
 ## [0.7.0] - 2026-10-19
 
@@ -159,7 +168,8 @@ These change the Markdown produced for affected documents.
 - Documented the `images`, `imageDir`, `numberedLists`, and `underline` options for both the library and the CLI.
 - Corrected the docs and web UI: **superscript and subscript are preserved** as inline `<sup>`/`<sub>` tags. This was already the case in 0.2.0 — only the documentation, which previously listed them as unsupported, was wrong.
 
-[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.8.0
 [0.7.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.7.0
 [0.6.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.6.0
 [0.5.1]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.5.1
