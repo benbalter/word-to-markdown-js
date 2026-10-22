@@ -1,5 +1,5 @@
 import JSZip from 'jszip';
-import convert, { convertHtml } from '../main.js';
+import convert, { convertHtml, processHtml } from '../main.js';
 import { labelNumbering } from '../numbering.js';
 
 // Word's compound ("legal") list numbering, such as `1.` → `1.1`, written out
@@ -302,5 +302,12 @@ describe('ordinary numbered lists', () => {
       `<w:p><w:pPr><w:pStyle w:val="Step"/></w:pPr>${run(text)}</w:p>`;
     const md = await convert(await docx(step('One') + step('Two'), { styles }));
     expect(md).toBe('One\n\nTwo');
+  });
+
+  it('reads a long document without overflowing the stack', () => {
+    const html =
+      '<p>x</p>'.repeat(300_000) + '<ol><li>WTMLI2ZSecond item</li></ol>';
+    const out = processHtml(html, { listStartToken: 'WTMLI' });
+    expect(out).toContain('<ol start="2"><li>Second item</li></ol>');
   });
 });

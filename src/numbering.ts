@@ -440,7 +440,9 @@ export function applyListStarts(root: Element, token: string): void {
   while (stack.length > 0) {
     const node = stack.pop()!;
     if (node.nodeType !== 3) {
-      stack.push(...Array.from(node.childNodes));
+      // One push per child: spreading a long document's children into a
+      // single push() call overflows the call stack.
+      for (const child of Array.from(node.childNodes)) stack.push(child);
       continue;
     }
     const text = node as Text;
