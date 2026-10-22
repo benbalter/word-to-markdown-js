@@ -130,7 +130,7 @@ describe('converter worker', () => {
       'start',
       'load',
       'properties',
-      'equations',
+      'rewrite-docx',
       'mammoth',
       'process-html',
       'turndown',

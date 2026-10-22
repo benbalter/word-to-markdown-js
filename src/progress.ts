@@ -9,7 +9,7 @@
 export type ConversionStage =
   | 'load'
   | 'properties'
-  | 'equations'
+  | 'rewrite-docx'
   | 'mammoth'
   | 'process-html'
   | 'turndown'

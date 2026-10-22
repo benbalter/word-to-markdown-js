@@ -13,6 +13,7 @@ import {
   restoreEquations,
   restoreInlineEquations,
 } from './equations.js';
+import { labelCompoundNumbering } from './numbering.js';
 import { reportProgress } from './progress.js';
 import fs from 'fs/promises';
 import path from 'path';
@@ -945,18 +946,36 @@ function addLongOrderedListItemRule(service: TurndownService): void {
   });
 }
 
+// A heading that starts with a number, such as `1. Scope` from a numbered
+// heading (see src/numbering.ts) or one typed by hand. Turndown escapes a
+// leading `1. ` so a paragraph doesn't turn into a list, which gave
+// `## 1\. Scope`, but an ATX heading can't be a list item, so the escape is
+// only noise. Setext headings (levels 1 and 2 with `headingStyle: 'setext'`)
+// keep it: their text is a line of its own, which `1. ` would make a list.
+function addNumberedHeadingRule(
+  service: TurndownService,
+  setext: boolean,
+): void {
+  service.addRule('numberedHeading', {
+    filter: (node) =>
+      /^H[1-6]$/.test(node.nodeName) &&
+      (!setext || Number(node.nodeName[1]) > 2),
+    replacement: (content, node) =>
+      `\n\n${'#'.repeat(Number(node.nodeName[1]))} ${content.replace(/^(\d+)\\\. /, '$1. ')}\n\n`,
+  });
+}
+
 function createTurndownService(
   options: object,
   keepTags: string[],
   gfmFootnotes: boolean,
 ): TurndownService {
-  const service = new TurndownService({
-    ...defaultTurndownOptions,
-    ...options,
-  });
+  const merged: turndownOptions = { ...defaultTurndownOptions, ...options };
+  const service = new TurndownService(merged);
   service.use(turndownPluginGfm.gfm);
   addTableCellLineBreakRule(service);
   addLongOrderedListItemRule(service);
+  addNumberedHeadingRule(service, merged.headingStyle === 'setext');
   if (keepTags.length > 0) service.keep(keepTags);
   if (gfmFootnotes) addFootnoteRules(service);
   addLinkAllowlistRule(service);
@@ -1655,6 +1674,46 @@ function createImageExtractor(imageDir: string): {
   return { images, convertImage };
 }
 
+// Edits the .docx before Mammoth reads it, in one read and one write: each
+// paragraph of a compound-numbered list gets its number as text (see
+// src/numbering.ts), and each equation becomes a placeholder Mammoth keeps
+// (see src/equations.ts), put back as LaTeX once the Markdown is formatted.
+// `bytes` is undefined when nothing changed. Both passes are best-effort
+// extras: if one fails outright, the document converts without it, as it did
+// before the pass existed, rather than failing. An unreadable .docx is
+// Mammoth's to report, with the error it always has.
+async function rewriteDocx(
+  bytes: ArrayBuffer,
+  options: ConvertOptions,
+): Promise<{
+  bytes?: ArrayBuffer;
+  math?: Awaited<ReturnType<typeof extractEquations>>;
+}> {
+  // Bullets were asked for, so a list's numbers aren't written out either.
+  const numbering = options.numberedLists !== 'bullets';
+  const equations = options.equations !== 'strip';
+  if (!numbering && !equations) return {};
+  let zip: JSZip;
+  try {
+    zip = await JSZip.loadAsync(bytes);
+  } catch {
+    return {};
+  }
+  const labeled = numbering
+    ? await labelCompoundNumbering(zip).catch(() => false)
+    : false;
+  const math = equations
+    ? await extractEquations(zip).catch(() => undefined)
+    : undefined;
+  const changed = labeled || Boolean(math?.equations.length);
+  return {
+    bytes: changed
+      ? await zip.generateAsync({ type: 'arraybuffer' })
+      : undefined,
+    math,
+  };
+}
+
 // The shared conversion pipeline: mammoth HTML -> cleaned, formatted Markdown.
 // Returns mammoth's messages so callers can surface content-loss warnings, and
 // (in extract mode) the extracted image assets.
@@ -1690,19 +1749,12 @@ async function runConversionPipeline(
     };
   }
 
-  // Mammoth drops equations, so swap them for placeholders it keeps, and put
-  // them back as LaTeX once the Markdown is formatted.
-  // Equations are a best-effort extra: if extracting them fails outright,
-  // convert the document without them (Mammoth drops them and says so)
-  // rather than failing a document that converted fine before.
-  if (options.equations !== 'strip') reportProgress('equations');
-  const math =
-    options.equations === 'strip'
-      ? undefined
-      : await extractEquations(loaded.bytes).catch(() => undefined);
+  reportProgress('rewrite-docx');
+  const rewrite = await rewriteDocx(loaded.bytes, options);
+  const math = rewrite.math;
   reportProgress('mammoth');
   const mammothResult = await mammoth.convertToHtml(
-    math?.equations.length ? toMammothInput(math.bytes) : loaded.mammothInput,
+    rewrite.bytes ? toMammothInput(rewrite.bytes) : loaded.mammothInput,
     mammothOptions,
   );
   const messages: MammothMessage[] = [...mammothResult.messages];
