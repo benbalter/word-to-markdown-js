@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- Chinese quotation marks (“ ” ‘ ’) are kept instead of being turned into ASCII quotes. They share their code points with the curly quotes Word writes for English, which the converter normalizes, so a quote can't be classified on its own; the text is now checked for being mostly Chinese (at least 10 Han characters, Han making up at least half the letters, and no meaningful share of kana, which would mean Japanese). English documents convert exactly as before. Pass `{ quotes: 'ascii' }` or `--quotes ascii` for the old behavior, or `preserve` to keep curly quotes in any language. (#357) Thanks to [@naturalwill](https://github.com/naturalwill).
+
 ### Fixed
 
 - Table-heavy documents convert much faster. markdownlint's table parsing grew quadratically with the number of table rows in a document, so a document of 80 tables of 100 rows spent over 20 seconds in that step alone; pinning micromark-extension-gfm-table to 2.1.2, which has the fix from [micromark-extension-gfm-table#17](https://github.com/micromark/micromark-extension-gfm-table/pull/17), makes it linear and brings that step under a second. Output is unchanged.

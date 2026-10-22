@@ -17,6 +17,13 @@ import { reportProgress } from './progress.js';
 import fs from 'fs/promises';
 import path from 'path';
 
+/**
+ * How to treat curly quotes (“ ” ‘ ’). Chinese quotation marks share these code
+ * points with the curly quotes Word writes for English, so the two can only be
+ * told apart by context.
+ */
+export type QuoteStyle = 'auto' | 'ascii' | 'preserve';
+
 export interface ConvertOptions {
   mammoth?: object;
   turndown?: object;
@@ -64,6 +71,13 @@ export interface ConvertOptions {
    * `'strip'` drops them, as Mammoth does, with a content-loss warning.
    */
   equations?: 'latex' | 'strip';
+  /**
+   * How to handle curly quotes (“ ” ‘ ’). `'auto'` (default) keeps them when the
+   * text is mostly Chinese, where they are the Chinese quotation marks rather
+   * than Word's curly quotes, and converts them to ASCII everywhere else.
+   * `'ascii'` always converts; `'preserve'` always keeps them.
+   */
+  quotes?: QuoteStyle;
 }
 
 // Mammoth's options object, narrowed to the field we merge into. Mammoth appends
@@ -638,6 +652,9 @@ export function processHtml(
     stripImages?: boolean;
     bulletLists?: boolean;
     headingText?: (text: string) => string;
+    // Receives the document's visible text once the fixups are done: no tags,
+    // attributes, link URLs, or base64 image data.
+    onText?: (text: string) => void;
   } = {},
 ): string {
   const root = parseFragment(html);
@@ -728,6 +745,7 @@ export function processHtml(
     });
   }
 
+  opts.onText?.(root.textContent ?? '');
   return serializeFragment(root);
 }
 
@@ -1010,11 +1028,45 @@ const smartQuoteMap: { [key: string]: string } = {
   '\u2019': "'", // Right single quotation mark
 };
 
-// Remove unicode non-breaking spaces and convert smart quotes to ASCII in a single pass
-function normalizeText(md: string): string {
-  return md
-    .replace(nonBreakingSpacesRegex, (char) => nonBreakingSpaceMap[char])
-    .replace(smartQuotesRegex, (char) => smartQuoteMap[char]);
+/**
+ * Whether most of the letters in `text` are Chinese characters, used to decide
+ * whether curly quotes are Chinese quotation marks. Kana means Japanese, which
+ * also uses Han characters, so text with a meaningful share of kana does not
+ * count. Mirrors the preset heuristic in markdown-to-word-js.
+ *
+ * Pass the document's visible text, not the Markdown: link URLs and inlined
+ * base64 images are letters too, and would outweigh the Chinese. Counts in one
+ * pass rather than with `match()`, which would build an array per character.
+ */
+const LETTER = /\p{L}/u;
+const HAN = /\p{Script=Han}/u;
+const KANA = /[\p{Script=Hiragana}\p{Script=Katakana}]/u;
+function isMostlyChinese(text: string): boolean {
+  let letters = 0;
+  let han = 0;
+  let kana = 0;
+  for (const char of text) {
+    if (!LETTER.test(char)) continue;
+    letters++;
+    if (HAN.test(char)) han++;
+    else if (KANA.test(char)) kana++;
+  }
+
+  return han >= 10 && han / letters >= 0.5 && kana < han / 10;
+}
+
+// Remove unicode non-breaking spaces and convert smart quotes to ASCII in a
+// single pass. Chinese quotation marks use the same code points, so callers
+// pass `keepQuotes` for mostly-Chinese text instead of flattening them.
+function normalizeText(md: string, keepQuotes = false): string {
+  const normalized = md.replace(
+    nonBreakingSpacesRegex,
+    (char) => nonBreakingSpaceMap[char],
+  );
+
+  return keepQuotes
+    ? normalized
+    : normalized.replace(smartQuotesRegex, (char) => smartQuoteMap[char]);
 }
 
 // Every rule but MD029 (ol-prefix), whose fix renumbers any ordered list to
@@ -1688,11 +1740,19 @@ async function htmlPipeline(
   // Each stage reports as it starts, so the web worker can tell the page it's
   // alive (see src/progress.ts).
   reportProgress('process-html');
+  // Curly quotes are kept on request, or by default when the document's text
+  // (not its Markdown, see isMostlyChinese) is mostly Chinese.
+  const quotes = options.quotes ?? 'auto';
+  let keepQuotes = quotes === 'preserve';
   // Numbered lists stay numbered by default; flatten to bullets on request.
   const processedHtml = processHtml(html, {
     stripImages: options.images === 'strip',
     bulletLists: options.numberedLists === 'bullets',
     headingText,
+    onText:
+      quotes === 'auto'
+        ? (text) => (keepQuotes = isMostlyChinese(text))
+        : undefined,
   });
   // Footnotes become GFM `[^1]` by default; keep Mammoth's markup on request.
   reportProgress('turndown');
@@ -1703,7 +1763,7 @@ async function htmlPipeline(
     options.footnotes !== 'preserve',
   );
   reportProgress('normalize');
-  const normalizedMd = normalizeText(md);
+  const normalizedMd = normalizeText(md, keepQuotes);
   reportProgress('lint');
   const cleanedMd = lint(normalizedMd);
   reportProgress('prettier');

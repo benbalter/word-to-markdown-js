@@ -29,6 +29,7 @@ npx word-to-markdown input.docx > output.md
 - **Numbered lists** are kept as `1./2./3.` ordered lists. Pass `{ numberedLists: 'bullets' }` (library) or `--bullet-lists` (CLI) to convert them to bullet lists instead (matching the original word-to-markdown).
 - **Images** are inlined as base64 data URIs by default. To extract them to files with relative links instead, use `{ images: 'extract' }` (library — the bytes come back on `ConvertResult.images`) or `--image-dir <dir>` (CLI). Drop them entirely with `{ images: 'strip' }` / `--strip-images`. On the web, documents with images offer a **Download .zip** (Markdown + an `images/` folder). For full control, pass a custom [Mammoth image handler](https://github.com/mwilliamson/mammoth.js/#images) via `options.mammoth`.
 - **Underline** is dropped by default (Mammoth's default, since underlines are easily confused with links). Pass `{ underline: 'preserve' }` (library) or `--underline` (CLI) to keep it as an inline `<u>` tag.
+- **Curly quotes** (“ ” ‘ ’) are kept when the text is mostly Chinese, where they are the Chinese quotation marks, and converted to ASCII everywhere else. Word writes the same code points for English curly quotes, so a quote can't be classified on its own. Pass `{ quotes: 'ascii' }` (library) or `--quotes ascii` (CLI) to always convert, or `'preserve'` / `--quotes preserve` to always keep them.
 - **Footnotes and endnotes** become standard GFM/Pandoc footnotes — a `[^1]` reference in the body and a `[^1]: …` definition at the end — which render on GitHub and in the web preview. Pass `{ footnotes: 'preserve' }` (library) or `--preserve-footnotes` (CLI) to instead keep Mammoth's raw `<sup>` links and numbered note list (useful for CommonMark targets that lack footnote support). Notes whose bodies span multiple paragraphs are converted with indented continuation paragraphs.
 - **Text boxes** are converted as paragraphs after the containing paragraph. A text box saved without Word's VML fallback (as some other tools write them) is dropped, and `convertWithWarnings` warns.
 - **Comments** are dropped during the `.docx` → HTML step, and `convertWithWarnings` warns with how many had text. To keep them, map them in a Mammoth style map, e.g. `{ mammoth: { styleMap: ['comment-reference => sup'] } }`.
@@ -85,6 +86,7 @@ Options:
 - `--image-dir <dir>` — extract images to `<dir>` and link them relatively, instead of embedding base64. Links resolve relative to where you save the Markdown, e.g. `w2m --image-dir images report.docx > report.md`, or with `-o`, `w2m -o out/report.md --image-dir images report.docx` (images land in `out/images/`).
 - `--preserve-footnotes` — keep Word footnotes as raw `<sup>` links and a numbered note list instead of GFM `[^1]` footnotes.
 - `--strip-equations` — drop Word equations instead of converting them to LaTeX.
+- `--quotes <style>` — how to treat curly quotes: `auto` (default) keeps them in mostly-Chinese text, `ascii` converts them everywhere, `preserve` keeps them everywhere.
 - `-q, --quiet` — print nothing to stderr except errors: no warnings and no "Wrote …" notes.
 - `--strict` — exit with status **2** if the document has warnings, so a script can tell "converted, but check it" (2) from "failed" (1). The Markdown is still written. Combine with `--quiet` to rely on the exit status alone.
 - `--verbose` — On failure, also print the underlying error and stack trace.
@@ -167,6 +169,7 @@ const { markdown } = await convertWithWarnings(arrayBuffer);
 - **`underline`** — `'ignore'` (default) drops underlines; `'preserve'` keeps them as inline `<u>` tags.
 - **`footnotes`** — `'gfm'` (default) converts footnotes and endnotes to `[^1]` references and definitions; `'preserve'` keeps Mammoth's raw `<sup>` links and numbered note list.
 - **`equations`** — `'latex'` (default) converts Word equations to `$…$` / `$$…$$` LaTeX; `'strip'` drops them.
+- **`quotes`** — `'auto'` (default) keeps Chinese quotation marks when the text is mostly Chinese and converts curly quotes to ASCII otherwise; `'ascii'` always converts; `'preserve'` always keeps them.
 - **`mammoth`** / **`turndown`** — escape hatches forwarded to [Mammoth](https://github.com/mwilliamson/mammoth.js/) and [Turndown](https://github.com/mixmark-io/turndown) respectively.
 
 ```js

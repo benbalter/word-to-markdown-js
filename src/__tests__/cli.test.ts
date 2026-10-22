@@ -1,4 +1,5 @@
 import { execFileSync, spawnSync } from 'child_process';
+import { Document, Packer, Paragraph } from 'docx';
 import {
   existsSync,
   mkdtempSync,
@@ -262,5 +263,24 @@ describe('w2m CLI', () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('- One');
     expect(result.stdout).not.toMatch(/^\s*1\.\s/m);
+  });
+
+  it('--quotes picks how curly quotes are treated', async () => {
+    const docx = await Packer.toBuffer(
+      new Document({
+        sections: [
+          {
+            children: [
+              new Paragraph('会议指出：“各单位要按照《通知》要求，及时上报。”'),
+            ],
+          },
+        ],
+      }),
+    );
+    expect(runCli([], docx).stdout).toContain('“各单位');
+    expect(runCli(['--quotes', 'ascii'], docx).stdout).toContain('"各单位');
+    const rejected = runCli(['--quotes', 'smart'], docx);
+    expect(rejected.status).toBe(1);
+    expect(rejected.stderr).toContain('auto, ascii, preserve');
   });
 });
