@@ -15,7 +15,8 @@ import type JSZip from 'jszip';
 // converting as a Markdown list. Its items only get a marker with Word's
 // number, which applyListStarts turns into the `start` of a list Mammoth
 // restarted after an interruption (Word's `1.`, a paragraph, `2.`), so it
-// doesn't come out as `1.` again.
+// doesn't come out as `1.` again. Its headings, which Mammoth makes headings
+// and not list items, get their number as text: `## 1. Introduction`.
 
 interface Level {
   start: number;
@@ -36,6 +37,8 @@ interface Num {
 }
 
 interface Style {
+  // Named `heading 1` to `heading 6`, which Mammoth makes a heading.
+  heading: boolean;
   basedOn?: string;
   numId?: string;
   ilvl?: number;
@@ -120,6 +123,7 @@ function readStyles(xml: string): Map<string, Style> {
     const numPr = body.match(/<w:numPr>([\s\S]*?)<\/w:numPr>/)?.[1] ?? '';
     const ilvl = val(numPr, 'ilvl');
     styles.set(id, {
+      heading: /^heading [1-6]$/i.test(val(body, 'name') ?? ''),
       basedOn: val(body, 'basedOn'),
       numId: val(numPr, 'numId'),
       ilvl: ilvl === undefined ? undefined : Number(ilvl),
@@ -215,6 +219,8 @@ function formatNumber(n: number, format: string): string {
 
 interface NumberingDefinitions {
   nums: Map<string, Num>;
+  // The definition whose count a linked definition (`w:numStyleLink`) shares.
+  links: Map<string, string>;
   abstracts: Map<string, Map<number, Level>>;
   styles: Map<string, Style>;
 }
@@ -257,12 +263,16 @@ function readDefinitions(
   }
   // A list that links to a numbering style uses the levels of the list that
   // style points to.
+  const shared = new Map<string, string>();
   for (const [id, link] of links) {
     const target = nums.get(styles.get(link)?.numId ?? '');
     const levels = target && abstracts.get(target.abstractId);
-    if (levels && target.abstractId !== id) abstracts.set(id, levels);
+    if (levels && target.abstractId !== id) {
+      abstracts.set(id, levels);
+      shared.set(id, target.abstractId);
+    }
   }
-  return { nums, abstracts, styles };
+  return { nums, links: shared, abstracts, styles };
 }
 
 // The end of the `<w:pPr>` that starts at `start`, counting the `<w:pPr>`
@@ -310,9 +320,15 @@ function labelParagraphs(
   compound: Set<string>,
   token: string,
 ): string | undefined {
-  // Counters per list (`w:num`), each its own sequence even when several
-  // share an abstract list.
+  // Counters per list definition (`w:abstractNum`): in Word, lists made from
+  // one definition count on from one another, while those of two definitions
+  // count on their own. A list that starts a level at its own number
+  // (`w:startOverride`, or a `w:lvl` of its own) does so once, at its first
+  // paragraph of that level, and the others go on from there. As observed in
+  // Word 16 by docx's layout probes (dolanmiu/docx,
+  // scripts/layout-probes/word-lists.ts).
   const counters = new Map<string, (number | undefined)[]>();
+  const restarted = new Set<string>();
   let out = '';
   let from = 0;
   let changed = false;
@@ -348,10 +364,18 @@ function labelParagraphs(
     // A bullet level reads fine as a list item: leave it to Mammoth.
     if (!level || level.format === 'bullet') continue;
 
-    let count = counters.get(numId!);
-    if (!count) counters.set(numId!, (count = []));
+    const key = defs.links.get(num.abstractId) ?? num.abstractId;
+    let count = counters.get(key);
+    if (!count) counters.set(key, (count = []));
     const previous = count[ilvl];
-    count[ilvl] = previous === undefined ? startOf(ilvl) : previous + 1;
+    const override = num.starts.get(ilvl) ?? num.levels.get(ilvl)?.start;
+    if (override !== undefined && !restarted.has(`${numId}:${ilvl}`)) {
+      restarted.add(`${numId}:${ilvl}`);
+      count[ilvl] = override;
+    } else {
+      count[ilvl] =
+        previous === undefined ? (levelOf(ilvl)?.start ?? 1) : previous + 1;
+    }
     for (let deeper = ilvl + 1; deeper < count.length; deeper++) {
       const restart = levelOf(deeper)?.restart;
       if (restart === undefined || (restart > 0 && ilvl < restart)) {
@@ -361,8 +385,11 @@ function labelParagraphs(
 
     // An ordinary list stays a list. An item whose number isn't 1 gets a
     // marker with the number, so a list Mammoth restarts after a paragraph,
-    // table, or another list's item can continue from where Word's does.
-    if (!compound.has(num.abstractId)) {
+    // table, or another list's item can continue from where Word's does. A
+    // heading isn't a list item to Mammoth, so it gets its number as text,
+    // as every paragraph of a compound list does.
+    const heading = defs.styles.get(styleId ?? '')?.heading ?? false;
+    if (!compound.has(num.abstractId) && !heading) {
       if (level.format === 'none' || count[ilvl] === 1) continue;
       out += `${xml.slice(from, end)}<w:r><w:t>${token}${count[ilvl]}Z</w:t></w:r>`;
       from = end;

@@ -15,7 +15,8 @@ const level = (ilvl: number, text: string, extra = '', format = 'decimal') =>
   `<w:lvl w:ilvl="${ilvl}"><w:start w:val="1"/><w:numFmt w:val="${format}"/>${extra}<w:lvlText w:val="${text}"/></w:lvl>`;
 
 // numId 1: legal (`%1.`, `%1.%2`); numId 2: an ordinary two-level list;
-// numId 3: bullets; numId 4: decimal starting at 5.
+// numId 3: bullets; numId 4: decimal starting at 5; numId 5: another list of
+// numId 2's definition; numId 6: one that starts it again at 1.
 const NUMBERING = `<w:abstractNum w:abstractNumId="1">${level(0, '%1.')}${level(1, '%1.%2')}</w:abstractNum>
 <w:abstractNum w:abstractNumId="2">${level(0, '%1.')}${level(1, '%2.', '', 'lowerLetter')}</w:abstractNum>
 <w:num w:numId="1"><w:abstractNumId w:val="1"/></w:num>
@@ -23,7 +24,9 @@ const NUMBERING = `<w:abstractNum w:abstractNumId="1">${level(0, '%1.')}${level(
 <w:abstractNum w:abstractNumId="4"><w:lvl w:ilvl="0"><w:start w:val="5"/><w:numFmt w:val="decimal"/><w:lvlText w:val="%1."/></w:lvl></w:abstractNum>
 <w:num w:numId="2"><w:abstractNumId w:val="2"/></w:num>
 <w:num w:numId="3"><w:abstractNumId w:val="3"/></w:num>
-<w:num w:numId="4"><w:abstractNumId w:val="4"/></w:num>`;
+<w:num w:numId="4"><w:abstractNumId w:val="4"/></w:num>
+<w:num w:numId="5"><w:abstractNumId w:val="2"/></w:num>
+<w:num w:numId="6"><w:abstractNumId w:val="2"/><w:lvlOverride w:ilvl="0"><w:startOverride w:val="1"/></w:lvlOverride></w:num>`;
 
 const STYLES = `<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/></w:style>`;
 
@@ -309,5 +312,67 @@ describe('ordinary numbered lists', () => {
       '<p>x</p>'.repeat(300_000) + '<ol><li>WTMLI2ZSecond item</li></ol>';
     const out = processHtml(html, { listStartToken: 'WTMLI' });
     expect(out).toContain('<ol start="2"><li>Second item</li></ol>');
+  });
+
+  // Lists that share a definition, as Word 16 numbers them in docx's layout
+  // probes (dolanmiu/docx, scripts/layout-probes/word-lists.ts, LO1 to LO8).
+  // A paragraph between items keeps Mammoth from joining them in one <ol>.
+  const sequence = (...items: [string, number][]) =>
+    items.map(([text, numId]) => item(text, 0, numId) + p('·')).join('');
+  const numbers = (md: string) => md.match(/^\d+(?=\. )/gm)?.map(Number) ?? [];
+
+  it('counts on across lists made from one definition', async () => {
+    const md = await convert(
+      await docx(sequence(['A', 2], ['A', 2], ['B', 5], ['B', 5], ['A', 2])),
+    );
+    expect(numbers(md)).toEqual([1, 2, 3, 4, 5]);
+  });
+
+  it('starts a list again once, at its own first item', async () => {
+    const md = await convert(
+      await docx(
+        sequence(
+          ['A', 2],
+          ['A', 2],
+          ['B', 6],
+          ['B', 6],
+          ['A', 2],
+          ['A', 2],
+          ['B', 6],
+        ),
+      ),
+    );
+    expect(numbers(md)).toEqual([1, 2, 1, 2, 3, 4, 5]);
+  });
+
+  it('counts lists of two definitions on their own', async () => {
+    const md = await convert(
+      await docx(sequence(['P', 2], ['Q', 4], ['P', 2], ['Q', 4])),
+    );
+    expect(numbers(md)).toEqual([1, 5, 2, 6]);
+  });
+});
+
+describe('headings numbered by an ordinary list', () => {
+  it('keeps the number Word shows', async () => {
+    const md = await convert(
+      await docx(
+        item('Introduction', 0, 2, 'Heading2') +
+          p('Body.') +
+          item('Scope', 0, 2, 'Heading2'),
+      ),
+    );
+    expect(md).toBe('## 1. Introduction\n\nBody.\n\n## 2. Scope');
+  });
+
+  it('counts on with list items of the same list', async () => {
+    const md = await convert(
+      await docx(
+        item('Introduction', 0, 2, 'Heading2') +
+          item('A step', 0, 2) +
+          item('Scope', 0, 2, 'Heading2'),
+      ),
+    );
+    expect(md).toBe('## 1. Introduction\n\n2. A step\n\n## 3. Scope');
   });
 });
