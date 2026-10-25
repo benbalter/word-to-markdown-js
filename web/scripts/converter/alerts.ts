@@ -172,6 +172,7 @@ export function conversionErrorKind(
   if (fileName && !/\.docx?$/i.test(fileName) && unreadable) return 'not-docx';
   if (name === 'InvalidFileError') return 'invalid';
   if (name === 'UnsupportedFileError') return 'protected';
+  if (name === 'DocumentTooLargeError') return 'too-large';
   if (name === 'ConversionTimeoutError') return 'timeout';
   if (name === 'ConverterLoadError') return 'load';
   return 'conversion';
@@ -187,6 +188,7 @@ const CONVERSION_ERROR_STRINGS = {
   timeout: 'errorGeneric',
   load: 'errorGeneric',
   conversion: 'errorGeneric',
+  'too-large': 'documentTooLargeError',
 } as const satisfies Record<ConversionErrorKind, UIStringKey>;
 
 // The localized message for a conversion error.

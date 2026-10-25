@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Security
+
+- A `.docx` that unpacks to more than 200 MB is refused up front with a new `DocumentTooLargeError`, judged from the sizes its zip declares, before anything is decompressed. A `.docx` is a zip, so a small file can expand enormously (a "zip bomb"): one under 1 MB that unpacked to 700 MB used over 3 GB of memory and then failed with a generic "ensure the file is a valid .docx" error. word2md.com, the CLI, and the MCP server now say the document is too large. A zip that understates its sizes isn't caught by this check.
+
 ### Fixed
 
 - Outline numbering that repeats the parent's number, as contracts, policies, and specs use (`1.` → `1.1`, `1.2`), is written out as text: `## 1. First section`, then `1.1 FIRST CLAUSE`. It used to come out as `- 1.` under an unnumbered heading, restarting at 1 after each body paragraph. Ordinary numbered lists stay Markdown lists, and `--bullet-lists` still drops the numbers. (#359)

@@ -135,6 +135,7 @@
   ],
   "errorGeneric": "Ocurrió un error inesperado al convertir el documento. Inténtalo de nuevo.",
   "docFileError": "Esta herramienta lee archivos .docx modernos, no archivos .doc más antiguos. En Word, abre tu documento y elige Archivo → Guardar como → Documento de Word (.docx), y luego arrastra el .docx aquí.",
+  "documentTooLargeError": "Este documento es demasiado grande para convertirlo: descomprimido ocupa más de 200 MB. Si es un documento real, prueba a dividirlo en otros más pequeños.",
   "fileTooLargeError": "Este archivo es demasiado grande para convertirlo en tu navegador. Prueba con un .docx de menos de 20 MB.",
   "invalidFileError": "No se pudo leer este archivo como documento de Word. Puede estar dañado o no ser un archivo .docx. Prueba a abrirlo en Word y guardarlo de nuevo como .docx.",
   "notWordFileError": "Esto no es un documento de Word, así que no se puede convertir. Elige un archivo .docx en su lugar.",

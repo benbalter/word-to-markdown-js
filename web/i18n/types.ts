@@ -151,6 +151,8 @@ export interface UIStrings {
   // Converter runtime (injected into the DOM as data-* and read by src/index.ts)
   errorGeneric: string;
   docFileError: string;
+  /** A .docx that unpacks to more than the converter's limit (a zip bomb, or a huge document). */
+  documentTooLargeError: string;
   /** Shown when a dropped file exceeds the in-browser size limit. */
   fileTooLargeError: string;
   /** Shown when the file can't be read as a .docx (corrupt, or not Word at all). */

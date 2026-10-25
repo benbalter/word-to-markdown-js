@@ -135,6 +135,7 @@
   ],
   "errorGeneric": "Đã xảy ra lỗi không mong muốn khi chuyển đổi tài liệu. Vui lòng thử lại.",
   "docFileError": "Công cụ này đọc các tệp .docx hiện đại, không phải tệp .doc cũ. Trong Word, hãy mở tài liệu của bạn và chọn Tệp → Lưu dưới dạng → Tài liệu Word (.docx), rồi kéo tệp .docx đó vào đây.",
+  "documentTooLargeError": "Tài liệu này quá lớn để chuyển đổi: khi giải nén, nó vượt quá 200 MB. Nếu đây là tài liệu thật, hãy thử chia nó thành các tài liệu nhỏ hơn.",
   "fileTooLargeError": "Tệp này quá lớn để chuyển đổi trong trình duyệt của bạn. Vui lòng thử tệp .docx nhỏ hơn 20 MB.",
   "invalidFileError": "Không thể đọc tệp này dưới dạng tài liệu Word. Tệp có thể bị hỏng hoặc không phải tệp .docx. Hãy thử mở tệp trong Word rồi lưu lại dưới dạng .docx.",
   "notWordFileError": "Đây không phải tài liệu Word nên không thể chuyển đổi. Hãy chọn một tệp .docx thay thế.",

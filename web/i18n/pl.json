@@ -135,6 +135,7 @@
   ],
   "errorGeneric": "Wystąpił nieoczekiwany błąd podczas konwersji dokumentu. Spróbuj ponownie.",
   "docFileError": "To narzędzie odczytuje nowoczesne pliki .docx, a nie starsze pliki .doc. W Word otwórz dokument i wybierz File → Save As → Word Document (.docx), a następnie upuść tutaj plik .docx.",
+  "documentTooLargeError": "Ten dokument jest zbyt duży, aby go przekonwertować: po rozpakowaniu ma ponad 200 MB. Jeśli to prawdziwy dokument, spróbuj podzielić go na mniejsze.",
   "fileTooLargeError": "Ten plik jest zbyt duży, aby przekonwertować go w Twojej przeglądarce. Spróbuj użyć pliku .docx mniejszego niż 20 MB.",
   "invalidFileError": "Nie udało się odczytać tego pliku jako dokumentu Word. Może być uszkodzony lub nie jest plikiem .docx. Otwórz go w Word i zapisz ponownie jako .docx.",
   "notWordFileError": "To nie jest dokument Word, więc nie można go przekonwertować. Wybierz zamiast tego plik .docx.",

@@ -135,6 +135,7 @@
   ],
   "errorGeneric": "轉換檔案時發生未預期的錯誤。請再試一次。",
   "docFileError": "此工具可讀取較新的 .docx 檔案，不支援較舊的 .doc 檔案。請在 Word 中開啟你的檔案，然後選擇 檔案 → 另存新檔 → Word 文件 (.docx)，再將該 .docx 拖曳到這裡。",
+  "documentTooLargeError": "這份文件太大，無法轉換：解壓縮後超過 200 MB。如果這是真正的文件，請試著將它拆分成較小的文件。",
   "fileTooLargeError": "這個檔案太大，無法在你的瀏覽器中轉換。請改用小於 20 MB 的 .docx。",
   "invalidFileError": "無法將此檔案讀取為 Word 文件。檔案可能已損毀，或不是 .docx 檔案。請試著在 Word 中開啟並重新另存為 .docx。",
   "notWordFileError": "這不是 Word 文件，因此無法轉換。請改選 .docx 檔案。",

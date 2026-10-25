@@ -11,6 +11,7 @@
 //   timeout     the conversion outlived its time limit in the Web Worker
 //   load        the converter's code couldn't be downloaded
 //   conversion  anything else (the generic "something went wrong")
+//   too-large   a .docx that unpacks to more than the converter's limit
 export const CONVERSION_ERROR_KINDS = [
   'not-docx',
   'protected',
@@ -18,6 +19,7 @@ export const CONVERSION_ERROR_KINDS = [
   'timeout',
   'load',
   'conversion',
+  'too-large',
 ] as const;
 
 export type ConversionErrorKind = (typeof CONVERSION_ERROR_KINDS)[number];

@@ -135,6 +135,7 @@
   ],
   "errorGeneric": "文書の変換中に予期しないエラーが発生しました。もう一度お試しください。",
   "docFileError": "このツールが読み込めるのは新しい .docx ファイルで、古い .doc ファイルには対応していません。Word で文書を開き、File → Save As → Word Document (.docx) を選んで .docx として保存してから、ここにドロップしてください。",
+  "documentTooLargeError": "この文書は大きすぎるため変換できません。展開すると 200 MB を超えます。実際の文書であれば、小さな文書に分割してお試しください。",
   "fileTooLargeError": "このファイルは大きすぎるため、ブラウザ内では変換できません。20 MB 未満の .docx をお試しください。",
   "invalidFileError": "このファイルを Word 文書として読み込めませんでした。破損しているか、.docx ファイルではない可能性があります。Word で開き、.docx として保存し直してください。",
   "notWordFileError": "これは Word 文書ではないため、変換できません。代わりに .docx ファイルを選んでください。",
