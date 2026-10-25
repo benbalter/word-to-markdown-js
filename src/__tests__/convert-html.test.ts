@@ -110,6 +110,20 @@ describe('convertHtml', () => {
     );
   });
 
+  it('flattens a table holding both a code block and a nested table', async () => {
+    // Each used to make the other's flattening bail out.
+    const md = await convertHtml(
+      '<table><tr><td>Cmd</td><td>Where</td></tr><tr><td><pre><code>npm i</code></pre></td><td><table><tr><td>k</td><td><pre>v1<br>v2</pre></td></tr></table></td></tr></table>',
+    );
+    expect(md).toBe(
+      [
+        '| Cmd     | Where            |',
+        '| ------- | ---------------- |',
+        '| `npm i` | k · `v1`<br>`v2` |',
+      ].join('\n'),
+    );
+  });
+
   it('reads <br> in a code block in a cell as a line break', async () => {
     const md = await convertHtml(
       '<table><tr><td>Cmd</td><td>Notes</td></tr><tr><td><pre>foo<br>bar</pre></td><td>x</td></tr></table>',
