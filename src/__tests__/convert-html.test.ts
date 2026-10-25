@@ -123,6 +123,15 @@ describe('convertHtml', () => {
     );
   });
 
+  it('leaves wrapper-like text in a code block alone', () => {
+    const md = htmlToMd(
+      '<pre><code>&lt;div class="joplin-table-wrapper"&gt;&lt;table&gt;x&lt;/table&gt;&lt;/div&gt;</code></pre>',
+    );
+    expect(md).toContain(
+      '<div class="joplin-table-wrapper"><table>x</table></div>',
+    );
+  });
+
   it("never emits Joplin's table wrapper div, even for a table kept as HTML", () => {
     // htmlToMd skips processHtml, so a list in a cell still falls back to HTML.
     const md = htmlToMd(

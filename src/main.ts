@@ -1056,6 +1056,36 @@ function addNumberedHeadingRule(
   });
 }
 
+// The GFM plugin wraps a table it can't convert in a Joplin-specific scroll
+// container div before emitting it as HTML. processHtml flattens the cell
+// content that triggers this, but if some table still falls back, emit the
+// plain <table> rather than markup that only means something to Joplin. This
+// wraps the plugin's own table rule, so only its output for a real table is
+// touched, never text that merely looks like the wrapper (in a code block).
+const JOPLIN_TABLE_WRAPPER =
+  /^(\s*)<div class="joplin-table-wrapper">([\s\S]*)<\/div>(\s*)$/;
+
+function useGfmWithoutTableWrapper(service: TurndownService): void {
+  const addRule = service.addRule;
+  let gfmTable: TurndownRule | undefined;
+  service.addRule = function (key, rule) {
+    if (key === 'table') gfmTable = rule;
+    return addRule.call(this, key, rule);
+  };
+  try {
+    service.use(turndownPluginGfm.gfm);
+  } finally {
+    service.addRule = addRule;
+  }
+  if (!gfmTable) return;
+  const { filter, replacement } = gfmTable;
+  service.addRule('tableWithoutJoplinWrapper', {
+    filter,
+    replacement: (content, node) =>
+      replacement(content, node).replace(JOPLIN_TABLE_WRAPPER, '$1$2$3'),
+  });
+}
+
 function createTurndownService(
   options: object,
   keepTags: string[],
@@ -1063,7 +1093,7 @@ function createTurndownService(
 ): TurndownService {
   const merged: turndownOptions = { ...defaultTurndownOptions, ...options };
   const service = new TurndownService(merged);
-  service.use(turndownPluginGfm.gfm);
+  useGfmWithoutTableWrapper(service);
   addTableCellLineBreakRule(service);
   addLongOrderedListItemRule(service);
   addNumberedHeadingRule(service, merged.headingStyle === 'setext');
@@ -1114,18 +1144,8 @@ export function htmlToMd(
   // that would turn literal text like `&#60;b&#62;` into markup and truncate
   // attribute values containing `&quot;`.
   const turndownService = getTurndownService(options, keepTags, gfmFootnotes);
-  return turndownService
-    .turndown(html)
-    .replace(JOPLIN_TABLE_WRAPPER, '$1')
-    .trim();
+  return turndownService.turndown(html).trim();
 }
-
-// The GFM plugin wraps a table it can't convert in a Joplin-specific scroll
-// container div before emitting it as HTML. processHtml flattens the cell
-// content that triggers this, but if some table still falls back, emit the
-// plain <table> rather than markup that only means something to Joplin.
-const JOPLIN_TABLE_WRAPPER =
-  /<div class="joplin-table-wrapper">(<table[\s\S]*?<\/table>)<\/div>/g;
 
 // Pre-compiled regex patterns for better performance
 const nonBreakingSpacesRegex = /[\u00A0\u2007\u202F\u2060\uFEFF]/g;
