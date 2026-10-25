@@ -24,6 +24,17 @@ describe('convertHtml', () => {
     );
   });
 
+  it('flattens a nested table inside a wrapper element in a cell', async () => {
+    // Pasted HTML can wrap the nested table (here in a <figure>); the wrapper
+    // must not carry the table past the flattening to the GFM plugin.
+    const md = await convertHtml(
+      '<table><tr><td><p>Name</p></td><td><p>Details</p></td></tr><tr><td><p>Alpha</p></td><td><figure><table><tr><td>k</td><td>v</td></tr></table></figure></td></tr></table>',
+    );
+    expect(md).toBe(
+      '| Name  | Details |\n| ----- | ------- |\n| Alpha | k · v   |',
+    );
+  });
+
   it("drops Word's clipboard noise: head elements, styles, XML islands, <o:p>", async () => {
     const md = await convertHtml(
       '<html><head><meta charset=utf-8><title>Doc title</title><style>p.MsoNormal{margin:0}</style><xml><o:DocumentProperties>props</o:DocumentProperties></xml></head><body><!--StartFragment--><p class=MsoNormal>Body text<o:p></o:p></p><!--EndFragment--></body></html>',

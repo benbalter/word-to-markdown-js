@@ -488,6 +488,7 @@ const CELL_FALLBACK_BLOCKS = new Set([
   'table',
 ]);
 const CELL_BLOCKS = new Set([...CELL_FALLBACK_BLOCKS, 'p', 'div', 'li']);
+const CELL_FALLBACK_SELECTOR = [...CELL_FALLBACK_BLOCKS].join(', ');
 // Bullet markers for list items in a cell, by nesting depth.
 const CELL_BULLETS = ['•', '◦', '▪'];
 // Joins a nested table's cells on its one line per row.
@@ -508,7 +509,14 @@ function cellLines(node: Element, depth = 0): string[] {
       childNode.nodeType === ELEMENT_NODE
         ? (childNode as Element).tagName.toLowerCase()
         : undefined;
-    if (!tag || !CELL_BLOCKS.has(tag)) {
+    // Any other element (a <figure>, <section>, or <span> from pasted HTML)
+    // is inline content, unless it wraps a block: then it's flattened like a
+    // <div>, or the block would reach the GFM plugin intact.
+    if (
+      !tag ||
+      (!CELL_BLOCKS.has(tag) &&
+        !(childNode as Element).querySelector(CELL_FALLBACK_SELECTOR))
+    ) {
       inline += serializeNode(childNode);
       continue;
     }
@@ -558,10 +566,8 @@ function flattenCellBlocks(table: Element): void {
   if (cells.length <= 1) return;
   if (table.querySelector('pre, code')) return;
   for (const cell of cells) {
-    const hasFallbackBlock = all(cell, '*').some((el) =>
-      CELL_FALLBACK_BLOCKS.has(el.tagName.toLowerCase()),
-    );
-    if (hasFallbackBlock) cell.innerHTML = cellLines(cell).join('<br>');
+    if (cell.querySelector(CELL_FALLBACK_SELECTOR))
+      cell.innerHTML = cellLines(cell).join('<br>');
   }
 }
 
