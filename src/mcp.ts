@@ -158,7 +158,8 @@ function createMcpServer(version: string): McpServer {
             structuredContent: summary,
           };
         }
-        const notes = result.warnings.map((w) => `Warning: ${w}`).join('\n');
+        // Each warning already starts with "Warning:".
+        const notes = result.warnings.join('\n');
         return {
           content: [
             { type: 'text', text: result.markdown },

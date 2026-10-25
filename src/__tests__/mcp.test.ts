@@ -89,6 +89,20 @@ describe('w2m mcp', () => {
     });
   });
 
+  it('lists warnings after the Markdown, each prefixed once', async () => {
+    const result = await client.callTool({
+      name: 'convert_docx_to_markdown',
+      arguments: { path: fixture('dropped-content.docx') },
+    });
+    expect(result.isError).toBeFalsy();
+    const { warnings } = result.structuredContent as { warnings: string[] };
+    expect(warnings.length).toBeGreaterThan(0);
+    const [, notes] = result.content as TextContent[];
+    // The converter's messages already start with "Warning:".
+    expect(notes.text.split('\n')).toEqual(warnings);
+    expect(notes.text).not.toContain('Warning: Warning:');
+  });
+
   it('drops images by default and extracts them when asked', async () => {
     const dropped = await client.callTool({
       name: 'convert_docx_to_markdown',
