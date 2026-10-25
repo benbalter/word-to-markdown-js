@@ -579,21 +579,21 @@ function cellLines(node: Element, depth = 0): string[] {
   return lines;
 }
 
+// A backslash right before a pipe. In a GFM table cell that pipe needs its
+// own escape, but in code a backslash is literal, so `\\|` would show both
+// backslashes: code containing `\|` can't sit in a Markdown table unchanged.
+const UNSAFE_CODE_PIPES = /\\\|/;
+
 // Flatten lists, headings, code blocks, nested tables, and other blocks in a
 // table's cells into lines joined by <br>, so the table stays a GFM table
 // instead of falling back to raw HTML or losing its grid. Leaves alone a
 // one-cell table, which the plugin renders as plain content, so its blocks
 // survive.
-const UNSAFE_CODE_PIPES = /\|\||\\\|/;
-
 function flattenCellBlocks(table: Element): void {
   const rows = ownRows(table);
   const cells = rows.flatMap(gridCells);
   if (cells.length <= 1) return;
-  // The GFM plugin escapes a cell's pipes by replacing each run of them with
-  // one `\|`, backslash included, so `a || b` would lose a pipe and `a \| b`
-  // break the row. Code must come through exactly, so a table with such code
-  // stays HTML.
+  // Code must come through exactly, so a table whose code has `\|` stays HTML.
   if (all(table, 'pre').some((pre) => UNSAFE_CODE_PIPES.test(codeText(pre)))) {
     return;
   }
@@ -1068,17 +1068,38 @@ function addNumberedHeadingRule(
 // The GFM plugin wraps a table it can't convert in a Joplin-specific scroll
 // container div before emitting it as HTML. processHtml flattens the cell
 // content that triggers this, but if some table still falls back, emit the
-// plain <table> rather than markup that only means something to Joplin. This
-// wraps the plugin's own table rule, so only its output for a real table is
-// touched, never text that merely looks like the wrapper (in a code block).
+// plain <table> rather than markup that only means something to Joplin. Only
+// the plugin's output for a real table is touched, never text that merely
+// looks like the wrapper (in a code block).
 const JOPLIN_TABLE_WRAPPER =
   /^(\s*)<div class="joplin-table-wrapper">([\s\S]*)<\/div>(\s*)$/;
 
-function useGfmWithoutTableWrapper(service: TurndownService): void {
+// The plugin escapes a cell's pipes by replacing each run of them with one
+// `\|`, so `a || b` came out as `a | b`. Hide each pipe from it behind a
+// private-use character and escape them one by one afterwards.
+// The placeholder is a private-use character the cell doesn't already hold,
+// so a literal one in the document is never mistaken for a pipe.
+function escapeCellPipes(
+  content: string,
+  escapeRuns: (hidden: string) => string,
+): string {
+  if (!content.includes('|')) return escapeRuns(content);
+  let code = 0xe000;
+  while (content.includes(String.fromCharCode(code)) && code < 0xf8ff) code++;
+  const placeholder = String.fromCharCode(code);
+  return escapeRuns(content.replaceAll('|', placeholder)).replaceAll(
+    placeholder,
+    '\\|',
+  );
+}
+
+// Add the GFM plugin, then wrap two of its rules (each wrapper is added later,
+// so Turndown tries it first and it calls the plugin's own replacement).
+function useGfm(service: TurndownService): void {
   const addRule = service.addRule;
-  let gfmTable: TurndownRule | undefined;
+  const gfmRules = new Map<string, TurndownRule>();
   service.addRule = function (key, rule) {
-    if (key === 'table') gfmTable = rule;
+    gfmRules.set(key, rule);
     return addRule.call(this, key, rule);
   };
   try {
@@ -1086,13 +1107,26 @@ function useGfmWithoutTableWrapper(service: TurndownService): void {
   } finally {
     service.addRule = addRule;
   }
-  if (!gfmTable) return;
-  const { filter, replacement } = gfmTable;
-  service.addRule('tableWithoutJoplinWrapper', {
-    filter,
-    replacement: (content, node) =>
-      replacement(content, node).replace(JOPLIN_TABLE_WRAPPER, '$1$2$3'),
-  });
+  const table = gfmRules.get('table');
+  if (table) {
+    service.addRule('tableWithoutJoplinWrapper', {
+      filter: table.filter,
+      replacement: (content, node) =>
+        table
+          .replacement(content, node)
+          .replace(JOPLIN_TABLE_WRAPPER, '$1$2$3'),
+    });
+  }
+  const tableCell = gfmRules.get('tableCell');
+  if (tableCell) {
+    service.addRule('tableCellPipes', {
+      filter: tableCell.filter,
+      replacement: (content, node) =>
+        escapeCellPipes(content, (hidden) =>
+          tableCell.replacement(hidden, node),
+        ),
+    });
+  }
 }
 
 function createTurndownService(
@@ -1102,7 +1136,7 @@ function createTurndownService(
 ): TurndownService {
   const merged: turndownOptions = { ...defaultTurndownOptions, ...options };
   const service = new TurndownService(merged);
-  useGfmWithoutTableWrapper(service);
+  useGfm(service);
   addTableCellLineBreakRule(service);
   addLongOrderedListItemRule(service);
   addNumberedHeadingRule(service, merged.headingStyle === 'setext');

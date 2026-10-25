@@ -124,15 +124,32 @@ describe('convertHtml', () => {
     );
   });
 
-  it('keeps a table as HTML when its code has pipes GFM would mangle', async () => {
-    // The GFM plugin turns `||` into one escaped pipe and `\|` into `\\|`.
-    for (const code of ['a || b', 'x \\| y']) {
-      const md = await convertHtml(
-        `<table><tr><td>Cmd</td><td>Notes</td></tr><tr><td><pre><code>${code}</code></pre></td><td>x</td></tr></table>`,
-      );
-      expect(md).toContain('<table>');
-      expect(md).toContain(code);
-    }
+  it('keeps a table as HTML when its code has a backslash before a pipe', async () => {
+    // In a cell the pipe needs its own escape, but a backslash in code is
+    // literal, so code with `\|` can't be written into a cell unchanged.
+    const md = await convertHtml(
+      '<table><tr><td>Cmd</td><td>Notes</td></tr><tr><td><pre><code>x \\| y</code></pre></td><td>x</td></tr></table>',
+    );
+    expect(md).toContain('<table>');
+    expect(md).toContain('x \\| y');
+  });
+
+  it('escapes each pipe in a table cell, in text and in code', async () => {
+    // The GFM plugin used to escape a run of pipes as one, so `a || b`
+    // rendered as `a | b`.
+    const md = await convertHtml(
+      '<table><tr><td>Text</td><td>Code</td><td>Block</td></tr><tr><td>a || b</td><td><code>c || d</code></td><td><pre><code>e || f</code></pre></td></tr></table>',
+    );
+    expect(md.split('\n')[2]).toBe(
+      '| a \\|\\| b | `c \\|\\| d` | `e \\|\\| f` |',
+    );
+  });
+
+  it('keeps a private-use character in a cell that also has a pipe', async () => {
+    const md = await convertHtml(
+      '<table><tr><td>A</td><td>B</td></tr><tr><td>\uE000 a | b</td><td>x</td></tr></table>',
+    );
+    expect(md).toContain('\uE000 a \\| b');
   });
 
   it('reads <br> in a code block in a cell as a line break', async () => {
