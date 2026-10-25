@@ -1,5 +1,7 @@
 export default {
   testEnvironment: 'node',
+  // Builds build/ once for the suites that spawn the CLI (see the file).
+  globalSetup: '<rootDir>/jest.global-setup.mjs',
   preset: 'ts-jest/presets/default-esm',
   transform: {
     '^.+\\.m?[tj]s$': ['ts-jest', { useESM: true }],
