@@ -200,6 +200,19 @@ test.describe('conversion beacon', () => {
     Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]),
     Buffer.alloc(504),
   ]);
+  // A zip bomb: h1.docx with its central directory claiming
+  // word/document.xml unpacks to 300 MB (error-messages.test.ts has more).
+  const bomb = readFileSync(path.join(fixtures, 'h1.docx'));
+  for (let i = bomb.indexOf('PK\x01\x02'); i !== -1;) {
+    const nameLength = bomb.readUInt16LE(i + 28);
+    if (
+      bomb.toString('latin1', i + 46, i + 46 + nameLength) ===
+      'word/document.xml'
+    ) {
+      bomb.writeUInt32LE(300 * 1024 * 1024, i + 24);
+    }
+    i = bomb.indexOf('PK\x01\x02', i + 46 + nameLength);
+  }
   for (const { kind, name, buffer, message } of [
     {
       kind: 'invalid',
@@ -218,6 +231,12 @@ test.describe('conversion beacon', () => {
       name: 'notes.pdf',
       buffer: Buffer.from('%PDF-1.7'),
       message: /isn.t a Word document/i,
+    },
+    {
+      kind: 'too-large',
+      name: 'bomb.docx',
+      buffer: bomb,
+      message: /unpacks to more than 200 MB/i,
     },
   ]) {
     test(`a failed conversion sends o=error, its source, and e=${kind}`, async ({

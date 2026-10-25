@@ -180,6 +180,18 @@ export class InvalidFileError extends WordToMarkdownError {
   }
 }
 
+// A .docx that unpacks to more than MAX_UNCOMPRESSED_SIZE: a decompression
+// bomb, or a document too big to convert in memory
+export class DocumentTooLargeError extends WordToMarkdownError {
+  constructor(filePath?: string) {
+    const location = filePath ? `: "${filePath}"` : '';
+    super(
+      `Document too large${location}. It unpacks to more than ${MAX_UNCOMPRESSED_SIZE / 1024 / 1024} MB, too much to convert in memory, which can mean it's damaged or built to exhaust memory. If it's a real document, try splitting it into smaller ones.`,
+    );
+    this.name = 'DocumentTooLargeError';
+  }
+}
+
 // Custom error class for permission errors
 export class FilePermissionError extends WordToMarkdownError {
   constructor(filePath?: string) {
@@ -1289,8 +1301,22 @@ export async function extractDocumentProperties(
     );
   }
 
+  let zip: JSZip | undefined;
   try {
-    const zip = await JSZip.loadAsync(arrayBuffer);
+    zip = await JSZip.loadAsync(arrayBuffer);
+  } catch {
+    // Not a readable zip: no properties to find
+  }
+  // Outside the lenient try below, since it reads (inflates) parts
+  if (zip) {
+    assertUnpackedSizeWithinLimit(
+      zip,
+      typeof input === 'string' ? input : undefined,
+    );
+  }
+
+  try {
+    if (!zip) return properties;
 
     // Check for encryption - encrypted files have EncryptionInfo and EncryptedPackage
     const encryptionInfo = zip.file('EncryptionInfo');
@@ -1470,6 +1496,31 @@ function isCompoundFile(bytes: ArrayBuffer): boolean {
   );
 }
 
+// The most a .docx may unpack to. A .docx is a zip, so a small file can
+// inflate to gigabytes (a "zip bomb"): one of 714 KB whose document.xml
+// unpacks to 700 MB drove memory past 3 GB before failing. V8 can't hold a
+// string over about 512 MB, and Mammoth parses the XML into a DOM on top of
+// that, so 200 MB leaves headroom while staying far above real documents
+// (the web UI's 20 MB limit is on the compressed file).
+const MAX_UNCOMPRESSED_SIZE = 200 * 1024 * 1024;
+
+// Refuse a zip whose parts add up to more than MAX_UNCOMPRESSED_SIZE, judged
+// from the sizes in its central directory, which JSZip reads without
+// inflating anything. Those sizes are only declared: a forged header can
+// understate them, which this doesn't catch.
+function assertUnpackedSizeWithinLimit(zip: JSZip, filePath?: string): void {
+  let total = 0;
+  for (const entry of Object.values(zip.files)) {
+    // JSZip keeps the declared size on a private field; its typings note it.
+    const size = (entry as { _data?: { uncompressedSize?: number } })._data
+      ?.uncompressedSize;
+    total += size ?? 0;
+    if (total > MAX_UNCOMPRESSED_SIZE) {
+      throw new DocumentTooLargeError(filePath);
+    }
+  }
+}
+
 interface LoadedInput {
   bytes: ArrayBuffer;
   mammothInput: MammothInput;
@@ -1489,6 +1540,16 @@ async function loadInput(input: string | ArrayBuffer): Promise<LoadedInput> {
   if (isCompoundFile(bytes)) {
     throw new UnsupportedFileError(
       'This file is password-protected or is a legacy .doc file. Please remove the password or save it as a .docx file and try again.',
+    );
+  }
+
+  // Before anything inflates a part. A file that isn't a zip at all is left
+  // for Mammoth to reject, so it's classified as before.
+  const zip = await JSZip.loadAsync(bytes).catch(() => undefined);
+  if (zip) {
+    assertUnpackedSizeWithinLimit(
+      zip,
+      typeof input === 'string' ? input : undefined,
     );
   }
 

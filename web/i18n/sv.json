@@ -135,6 +135,7 @@
   ],
   "errorGeneric": "Ett oväntat fel uppstod när dokumentet konverterades. Försök igen.",
   "docFileError": "Det här verktyget läser moderna .docx-filer, inte äldre .doc-filer. Öppna dokumentet i Word och välj File → Save As → Word Document (.docx), och släpp sedan .docx-filen här.",
+  "documentTooLargeError": "Det här dokumentet är för stort för att konverteras: uppackat är det större än 200 MB. Om det är ett riktigt dokument kan du försöka dela upp det i mindre dokument.",
   "fileTooLargeError": "Den här filen är för stor för att konverteras i din webbläsare. Försök med en .docx som är mindre än 20 MB.",
   "invalidFileError": "Filen kunde inte läsas som ett Word-dokument. Den kan vara skadad eller inte vara en .docx-fil. Öppna den i Word och spara den igen som .docx.",
   "notWordFileError": "Det här är inte ett Word-dokument, så det går inte att konvertera. Välj en .docx-fil i stället.",

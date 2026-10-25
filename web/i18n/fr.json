@@ -135,6 +135,7 @@
   ],
   "errorGeneric": "Une erreur inattendue s'est produite lors de la conversion du document. Veuillez réessayer.",
   "docFileError": "Cet outil lit les fichiers .docx modernes, pas les anciens fichiers .doc. Dans Word, ouvrez votre document et choisissez Fichier → Enregistrer sous → Document Word (.docx), puis déposez le .docx ici.",
+  "documentTooLargeError": "Ce document est trop volumineux pour être converti : décompressé, il dépasse 200 Mo. S'il s'agit d'un vrai document, essayez de le diviser en documents plus petits.",
   "fileTooLargeError": "Ce fichier est trop volumineux pour être converti dans votre navigateur. Essayez un fichier .docx de moins de 20 Mo.",
   "invalidFileError": "Impossible de lire ce fichier comme un document Word. Il est peut-être endommagé ou n'est pas un fichier .docx. Essayez de l'ouvrir dans Word et de l'enregistrer à nouveau au format .docx.",
   "notWordFileError": "Ce n'est pas un document Word, il ne peut donc pas être converti. Choisissez plutôt un fichier .docx.",

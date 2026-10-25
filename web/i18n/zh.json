@@ -135,6 +135,7 @@
   ],
   "errorGeneric": "转换文档时发生意外错误。请重试。",
   "docFileError": "此工具读取现代 .docx 文件，不支持较旧的 .doc 文件。请在 Word 中打开您的文档并选择 文件 → 另存为 → Word 文档 (.docx)，然后将该 .docx 拖到这里。",
+  "documentTooLargeError": "此文档过大，无法转换：解压后超过 200 MB。如果这是真实的文档，请尝试将其拆分为较小的文档。",
   "fileTooLargeError": "此文件过大，无法在浏览器中转换。请尝试小于 20 MB 的 .docx 文件。",
   "invalidFileError": "无法将此文件读取为 Word 文档。文件可能已损坏，或不是 .docx 文件。请尝试在 Word 中打开并重新另存为 .docx。",
   "notWordFileError": "这不是 Word 文档，因此无法转换。请改为选择 .docx 文件。",

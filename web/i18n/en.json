@@ -135,6 +135,7 @@
   ],
   "errorGeneric": "An unexpected error occurred while converting the document. Please try again.",
   "docFileError": "This tool reads modern .docx files, not older .doc files. In Word, open your document and choose File → Save As → Word Document (.docx), then drop the .docx here.",
+  "documentTooLargeError": "This document is too large to convert: it unpacks to more than 200 MB. If it's a real document, try splitting it into smaller ones.",
   "fileTooLargeError": "This file is too large to convert in your browser. Please try a .docx smaller than 20 MB.",
   "invalidFileError": "This file couldn't be read as a Word document. It may be damaged or not a .docx file. Try opening it in Word and saving it again as .docx.",
   "notWordFileError": "This isn't a Word document, so it can't be converted. Choose a .docx file instead.",

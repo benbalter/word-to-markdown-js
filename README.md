@@ -190,6 +190,7 @@ import convert, {
   FileNotFoundError,
   InvalidFileError,
   FilePermissionError,
+  DocumentTooLargeError,
   ConversionError,
 } from 'word-to-markdown';
 
@@ -204,6 +205,8 @@ try {
     // not a valid or parseable .docx (or the path is a directory)
   } else if (error instanceof FilePermissionError) {
     // the file couldn't be read, or is in a blocked system directory
+  } else if (error instanceof DocumentTooLargeError) {
+    // unpacks to more than 200 MB (a zip bomb, or too big to convert in memory)
   } else if (error instanceof ConversionError) {
     // something failed mid-conversion — see error.cause
   }

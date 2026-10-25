@@ -140,6 +140,7 @@ describe('worker fetch handler', () => {
       'timeout',
       'load',
       'conversion',
+      'too-large',
     ])('records error kind %s as blob5, after the source', async (kind) => {
       const env = makeEnv();
       await worker.fetch(

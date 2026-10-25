@@ -2,6 +2,7 @@
 import {
   errorGeneric,
   docFileError,
+  documentTooLargeError,
   invalidFileError,
   notWordFileError,
   protectedFileError,
@@ -25,6 +26,7 @@ import {
 const ENGLISH_STRINGS = {
   errorGeneric,
   docFileError,
+  documentTooLargeError,
   invalidFileError,
   notWordFileError,
   protectedFileError,
