@@ -1,7 +1,9 @@
 import { execFileSync } from 'child_process';
 import {
   existsSync,
+  mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   statSync,
@@ -186,6 +188,25 @@ describe('w2m mcp', () => {
     expect(result.isError).toBe(true);
     expect((result.content as TextContent[])[0].text).toContain('symlink');
     expect(readFileSync(target, 'utf8')).toBe('keep me');
+  });
+
+  it('refuses to write images through a symlinked folder', async () => {
+    const out = path.join(tmp, 'linked-images');
+    const elsewhere = path.join(tmp, 'elsewhere');
+    mkdirSync(out);
+    mkdirSync(elsewhere);
+    symlinkSync(elsewhere, path.join(out, 'images'));
+    const result = await client.callTool({
+      name: 'convert_docx_to_markdown',
+      arguments: {
+        path: fixture('image.docx'),
+        output_path: path.join(out, 'image.md'),
+        image_dir: 'images',
+      },
+    });
+    expect(result.isError).toBe(true);
+    expect((result.content as TextContent[])[0].text).toContain('symlink');
+    expect(readdirSync(elsewhere)).toEqual([]);
   });
 
   it('reports bad input as a tool error, not a crash', async () => {
