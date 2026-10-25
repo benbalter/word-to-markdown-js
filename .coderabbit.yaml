@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit review config: https://docs.coderabbit.ai/reference/configuration
+# Conventions live in CLAUDE.md (read via code_guidelines below), so don't restate them here.
+language: en-US
+tone_instructions: Be brief and direct. Flag real bugs, regressions, and missing tests. Skip style nits that ESLint and Prettier already enforce.
+reviews:
+  profile: chill
+  poem: false
+  auto_review:
+    enabled: true
+    drafts: false
+    # Renovate bumps are covered by CI; reviewing them would bury the reviews that matter.
+    ignore_usernames:
+      - renovate[bot]
+  path_filters:
+    - '!package-lock.json'
+    - '!dist/**'
+    - '!build/**'
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - CLAUDE.md
