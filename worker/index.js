@@ -138,6 +138,9 @@ export function prefersMarkdown(accept) {
   return markdown > 0 && markdown >= html;
 }
 
+// The Markdown twins' media type, with the charset RFC 7763 requires.
+const MARKDOWN_CONTENT_TYPE = 'text/markdown; charset=utf-8';
+
 // Copy a response with `value` appended to its Vary header.
 function withVary(response, value) {
   const varied = new Response(response.body, response);
@@ -233,7 +236,14 @@ async function handle(request, env) {
     const markdown = await env.ASSETS.fetch(
       new Request(new URL(twin, url), { method: request.method }),
     );
-    if (markdown.ok) return markdown;
+    if (markdown.ok) {
+      // The twin is UTF-8, and RFC 7763 requires text/markdown to say so.
+      // Set it here as well as in public/_headers, so the type doesn't depend
+      // on how the assets binding applies those rules to a Worker's fetch.
+      const labeled = new Response(markdown.body, markdown);
+      labeled.headers.set('Content-Type', MARKDOWN_CONTENT_TYPE);
+      return labeled;
+    }
   }
 
   // Only the root is a candidate for the locale redirect. (run_worker_first

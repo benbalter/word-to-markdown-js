@@ -21,3 +21,17 @@
 # CDN and proxy does too, so a fix or the kill switch reaches users quickly.
 /sw.js
   Cache-Control: no-cache
+
+# The Markdown twins and llms.txt files are UTF-8 with non-ASCII text, but
+# Static Assets labels them by extension alone, without a charset. RFC 7763
+# requires one on text/markdown, and browsers read unlabeled text/plain as
+# windows-1252, so curly quotes and accents come out garbled. The Worker sets
+# the same type on a twin it serves for `Accept: text/markdown`.
+/*.md
+  Content-Type: text/markdown; charset=utf-8
+
+/llms.txt
+  Content-Type: text/plain; charset=utf-8
+
+/llms-full.txt
+  Content-Type: text/plain; charset=utf-8

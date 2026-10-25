@@ -19,6 +19,27 @@ function runWorkerFirst(): string[] {
   return [...match[1].matchAll(/"([^"]*)"/g)].map((m) => m[1]);
 }
 
+// The headers public/_headers gives `path`, matching rules the way Static
+// Assets does: `*` is a splat (any characters), `:name` one path segment.
+function headersFor(path: string): string[] {
+  const file = readFileSync(new URL('public/_headers', root), 'utf8');
+  return file
+    .split(/\n(?=\S)/)
+    .filter((block) => !block.startsWith('#'))
+    .flatMap((block) => {
+      const [pattern, ...lines] = block.split('\n');
+      const regex = new RegExp(
+        `^${pattern
+          .trim()
+          .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
+          .replace(/\*/g, '.*')
+          .replace(/:[A-Za-z]\w*/g, '[^/]+')}$`,
+      );
+      return regex.test(path) ? lines.map((line) => line.trim()) : [];
+    })
+    .filter(Boolean);
+}
+
 describe('Markdown twins', () => {
   const pagesIn = (dir: string): string[] =>
     readdirSync(new URL(`web/content/${dir}/`, root))
@@ -31,6 +52,18 @@ describe('Markdown twins', () => {
       expect(runWorkerFirst()).toContain(path);
     },
   );
+
+  it.each([
+    ['/index.md', 'text/markdown'],
+    ...pagesIn('guides').map((p) => [`${p.slice(0, -1)}.md`, 'text/markdown']),
+    ...pagesIn('legal').map((p) => [`${p.slice(0, -1)}.md`, 'text/markdown']),
+    ['/llms.txt', 'text/plain'],
+    ['/llms-full.txt', 'text/plain'],
+  ])('serves %s as %s in UTF-8', (path, type) => {
+    // Static Assets labels files by extension with no charset; browsers read
+    // unlabeled text/plain as windows-1252, garbling non-ASCII text.
+    expect(headersFor(path)).toContain(`Content-Type: ${type}; charset=utf-8`);
+  });
 
   it('maps page paths to their twins', () => {
     expect(markdownTwin('/')).toBe('/index.md');

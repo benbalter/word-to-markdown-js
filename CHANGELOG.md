@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Headings numbered by an ordinary list keep their number (`## 1. Introduction`), and lists Word makes from one definition, such as a list continued after a copy and paste, count on from one another as in Word instead of each starting at 1.
 - A heading that starts with a number keeps it unescaped (`## 1. Scope`, not `## 1\. Scope`), since a heading can't be read as a list.
 - The MCP server no longer prints each warning as "Warning: Warning: …". The converter's warnings already start with "Warning:", and the server added it again.
+- word2md.com serves its Markdown pages (`/index.md` and the other twins, including the ones agents get with `Accept: text/markdown`) and `llms.txt`/`llms-full.txt` with `charset=utf-8`. Without it, browsers read `llms.txt` as windows-1252 and garbled its non-ASCII characters, and `text/markdown` lacked the charset RFC 7763 requires.
 
 ## [0.8.0] - 2026-10-22
 
