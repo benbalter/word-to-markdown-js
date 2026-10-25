@@ -153,7 +153,15 @@ function createMcpServer(version: string): McpServer {
           if (await escapes()) return escaped;
           await mkdir(imageDir, { recursive: true });
           if (await escapes()) return escaped;
-          await writeSafely(target, image.bytes, overwrite);
+          // Write through the folder's checked real path, so no symlink in
+          // the path at check time is followed. That narrows, but can't close,
+          // the race with a folder swapped for a symlink in between: Node has
+          // no openat() to write relative to a verified directory handle.
+          await writeSafely(
+            path.join(await realpath(imageDir), path.basename(target)),
+            image.bytes,
+            overwrite,
+          );
         }
 
         const structured = {
@@ -232,7 +240,12 @@ async function realDir(dir: string): Promise<string> {
 
 function isInside(child: string, parent: string): boolean {
   const relative = path.relative(parent, child);
-  return !relative.startsWith('..') && !path.isAbsolute(relative);
+  // Only a whole `..` component leaves the folder; `..assets` is a name.
+  return (
+    relative !== '..' &&
+    !relative.startsWith(`..${path.sep}`) &&
+    !path.isAbsolute(relative)
+  );
 }
 
 function toolError(text: string) {

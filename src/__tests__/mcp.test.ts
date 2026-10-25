@@ -209,6 +209,22 @@ describe('w2m mcp', () => {
     expect(readdirSync(elsewhere)).toEqual([]);
   });
 
+  it('writes images to a folder whose name starts with ..', async () => {
+    // `..assets` is a folder inside, not a step out of, the Markdown's folder.
+    const out = path.join(tmp, 'dotdot-name');
+    mkdirSync(out);
+    const result = await client.callTool({
+      name: 'convert_docx_to_markdown',
+      arguments: {
+        path: fixture('image.docx'),
+        output_path: path.join(out, 'image.md'),
+        image_dir: '..assets',
+      },
+    });
+    expect(result.isError).toBeFalsy();
+    expect(readdirSync(path.join(out, '..assets')).length).toBeGreaterThan(0);
+  });
+
   it('reports bad input as a tool error, not a crash', async () => {
     const result = await client.callTool({
       name: 'convert_docx_to_markdown',
