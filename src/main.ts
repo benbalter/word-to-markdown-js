@@ -584,10 +584,19 @@ function cellLines(node: Element, depth = 0): string[] {
 // instead of falling back to raw HTML or losing its grid. Leaves alone a
 // one-cell table, which the plugin renders as plain content, so its blocks
 // survive.
+const UNSAFE_CODE_PIPES = /\|\||\\\|/;
+
 function flattenCellBlocks(table: Element): void {
   const rows = ownRows(table);
   const cells = rows.flatMap(gridCells);
   if (cells.length <= 1) return;
+  // The GFM plugin escapes a cell's pipes by replacing each run of them with
+  // one `\|`, backslash included, so `a || b` would lose a pipe and `a \| b`
+  // break the row. Code must come through exactly, so a table with such code
+  // stays HTML.
+  if (all(table, 'pre').some((pre) => UNSAFE_CODE_PIPES.test(codeText(pre)))) {
+    return;
+  }
   for (const cell of cells) {
     if (cell.querySelector(CELL_FALLBACK_SELECTOR))
       cell.innerHTML = cellLines(cell).join('<br>');

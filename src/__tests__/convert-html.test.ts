@@ -124,6 +124,17 @@ describe('convertHtml', () => {
     );
   });
 
+  it('keeps a table as HTML when its code has pipes GFM would mangle', async () => {
+    // The GFM plugin turns `||` into one escaped pipe and `\|` into `\\|`.
+    for (const code of ['a || b', 'x \\| y']) {
+      const md = await convertHtml(
+        `<table><tr><td>Cmd</td><td>Notes</td></tr><tr><td><pre><code>${code}</code></pre></td><td>x</td></tr></table>`,
+      );
+      expect(md).toContain('<table>');
+      expect(md).toContain(code);
+    }
+  });
+
   it('reads <br> in a code block in a cell as a line break', async () => {
     const md = await convertHtml(
       '<table><tr><td>Cmd</td><td>Notes</td></tr><tr><td><pre>foo<br>bar</pre></td><td>x</td></tr></table>',
