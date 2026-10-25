@@ -1,4 +1,4 @@
-import { convertHtml } from '../main.js';
+import { convertHtml, htmlToMd } from '../main.js';
 
 // convertHtml takes rich text pasted onto word2md.com: HTML copied from Word,
 // Google Docs, or a web page. It skips mammoth but gets the same cleanup.
@@ -88,5 +88,34 @@ describe('convertHtml', () => {
     const html = '<p>Text <img src="data:image/png;base64,AAAA" alt="x"></p>';
     expect(await convertHtml(html)).toContain('data:image/png');
     expect(await convertHtml(html, { images: 'strip' })).toBe('Text');
+  });
+
+  it('keeps a table with a code block in a cell as a GFM table', async () => {
+    // A <pre> in a cell used to make the GFM plugin emit the whole table as
+    // HTML in a Joplin wrapper div.
+    const md = await convertHtml(
+      '<table><tr><td><p>Cmd</p></td><td><p>Notes</p></td></tr>' +
+        '<tr><td><pre><code>npm i</code></pre></td><td><p>Install</p></td></tr>' +
+        '<tr><td><pre><code>a | b\nif (x &lt; 1) {\n\n}</code></pre></td><td>x</td></tr></table>',
+    );
+    expect(md).not.toContain('joplin-table-wrapper');
+    expect(md).not.toContain('<table');
+    expect(md).toBe(
+      [
+        '| Cmd                               | Notes   |',
+        '| --------------------------------- | ------- |',
+        '| `npm i`                           | Install |',
+        '| `a \\| b`<br>`if (x < 1) {`<br>`}` | x       |',
+      ].join('\n'),
+    );
+  });
+
+  it("never emits Joplin's table wrapper div, even for a table kept as HTML", () => {
+    // htmlToMd skips processHtml, so a list in a cell still falls back to HTML.
+    const md = htmlToMd(
+      '<table><tr><td>a</td><td>b</td></tr><tr><td><ul><li>x</li></ul></td><td>1</td></tr></table>',
+    );
+    expect(md).toContain('<table>');
+    expect(md).not.toContain('joplin-table-wrapper');
   });
 });

@@ -486,6 +486,7 @@ const CELL_FALLBACK_BLOCKS = new Set([
   'hr',
   'blockquote',
   'table',
+  'pre',
 ]);
 const CELL_BLOCKS = new Set([...CELL_FALLBACK_BLOCKS, 'p', 'div', 'li']);
 const CELL_FALLBACK_SELECTOR = [...CELL_FALLBACK_BLOCKS].join(', ');
@@ -497,6 +498,7 @@ const NESTED_CELL_SEPARATOR = ' · ';
 // A cell's content as lines of inline HTML, one per paragraph, heading, or list
 // item. Headings become bold; list items keep a bullet (or their number), with
 // a different bullet per nesting level, since a cell can't hold a real list.
+// A code block becomes inline code, one line per line of code.
 function cellLines(node: Element, depth = 0): string[] {
   const lines: string[] = [];
   let inline = '';
@@ -553,6 +555,13 @@ function cellLines(node: Element, depth = 0): string[] {
           .join(NESTED_CELL_SEPARATOR);
         if (line) lines.push(line);
       }
+    } else if (tag === 'pre') {
+      for (const text of (child.textContent ?? '').split('\n')) {
+        if (!text.trim()) continue;
+        const code = child.ownerDocument.createElement('code');
+        code.textContent = text.trimEnd();
+        lines.push(code.outerHTML);
+      }
     } else if (tag !== 'hr') {
       lines.push(...cellLines(child, depth));
     }
@@ -561,16 +570,15 @@ function cellLines(node: Element, depth = 0): string[] {
   return lines;
 }
 
-// Flatten lists, headings, nested tables, and other blocks in a table's cells
-// into lines joined by <br>, so the table stays a GFM table instead of falling
-// back to raw HTML or losing its grid. Leaves alone what the plugin handles
-// differently anyway: a one-cell table (rendered as plain content, so its
-// blocks survive), and a table holding code (kept as HTML either way).
+// Flatten lists, headings, code blocks, nested tables, and other blocks in a
+// table's cells into lines joined by <br>, so the table stays a GFM table
+// instead of falling back to raw HTML or losing its grid. Leaves alone a
+// one-cell table, which the plugin renders as plain content, so its blocks
+// survive.
 function flattenCellBlocks(table: Element): void {
   const rows = ownRows(table);
   const cells = rows.flatMap(gridCells);
   if (cells.length <= 1) return;
-  if (table.querySelector('pre, code')) return;
   for (const cell of cells) {
     if (cell.querySelector(CELL_FALLBACK_SELECTOR))
       cell.innerHTML = cellLines(cell).join('<br>');
@@ -1097,8 +1105,18 @@ export function htmlToMd(
   // that would turn literal text like `&#60;b&#62;` into markup and truncate
   // attribute values containing `&quot;`.
   const turndownService = getTurndownService(options, keepTags, gfmFootnotes);
-  return turndownService.turndown(html).trim();
+  return turndownService
+    .turndown(html)
+    .replace(JOPLIN_TABLE_WRAPPER, '$1')
+    .trim();
 }
+
+// The GFM plugin wraps a table it can't convert in a Joplin-specific scroll
+// container div before emitting it as HTML. processHtml flattens the cell
+// content that triggers this, but if some table still falls back, emit the
+// plain <table> rather than markup that only means something to Joplin.
+const JOPLIN_TABLE_WRAPPER =
+  /<div class="joplin-table-wrapper">(<table[\s\S]*?<\/table>)<\/div>/g;
 
 // Pre-compiled regex patterns for better performance
 const nonBreakingSpacesRegex = /[\u00A0\u2007\u202F\u2060\uFEFF]/g;
