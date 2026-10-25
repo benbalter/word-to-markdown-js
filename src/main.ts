@@ -1507,14 +1507,17 @@ const MAX_UNCOMPRESSED_SIZE = 200 * 1024 * 1024;
 // Refuse a zip whose parts add up to more than MAX_UNCOMPRESSED_SIZE, judged
 // from the sizes in its central directory, which JSZip reads without
 // inflating anything. Those sizes are only declared: a forged header can
-// understate them, which this doesn't catch.
+// understate them, which this doesn't catch. JSZip reads them as signed
+// 32-bit ints, so `>>> 0` restores sizes of 2 GiB and up (which would
+// otherwise count as negative); a ZIP64 size of 4 GiB or more reaches us
+// with its high bits already dropped, the same blind spot as a forged one.
 function assertUnpackedSizeWithinLimit(zip: JSZip, filePath?: string): void {
   let total = 0;
   for (const entry of Object.values(zip.files)) {
     // JSZip keeps the declared size on a private field; its typings note it.
     const size = (entry as { _data?: { uncompressedSize?: number } })._data
       ?.uncompressedSize;
-    total += size ?? 0;
+    total += (size ?? 0) >>> 0;
     if (total > MAX_UNCOMPRESSED_SIZE) {
       throw new DocumentTooLargeError(filePath);
     }

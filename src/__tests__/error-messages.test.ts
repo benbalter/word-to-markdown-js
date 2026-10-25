@@ -174,7 +174,7 @@ describe('error messages', () => {
     // word/document.xml unpacks to 300 MB. The real part is tiny, so if the
     // converter inflated it, JSZip would fail on the size mismatch instead;
     // a DocumentTooLargeError means it refused from the declared size alone.
-    async function zipBomb(): Promise<ArrayBuffer> {
+    async function zipBomb(size = 300 * 1024 * 1024): Promise<ArrayBuffer> {
       const docx = await JSZip.loadAsync(
         fs.readFileSync(path.join('src/__fixtures__', 'h1.docx')),
       );
@@ -193,7 +193,7 @@ describe('error messages', () => {
           entry.every((byte, j) => byte === name[j]) &&
           nameLength === name.length
         ) {
-          view.setUint32(i + 24, 300 * 1024 * 1024, true); // uncompressed size
+          view.setUint32(i + 24, size, true); // uncompressed size
           return buffer;
         }
       }
@@ -209,6 +209,14 @@ describe('error messages', () => {
       await expect(extractDocumentProperties(bomb)).rejects.toThrow(
         DocumentTooLargeError,
       );
+    });
+
+    it('reads a declared size of 2 GiB or more as unsigned', async () => {
+      // JSZip parses sizes as signed 32-bit ints, so 0x80000000 came back
+      // negative and lowered the total instead of exceeding the limit.
+      await expect(
+        convertWithWarnings(await zipBomb(0x80000000)),
+      ).rejects.toThrow(DocumentTooLargeError);
     });
 
     it('names the file, and is a WordToMarkdownError', async () => {
