@@ -1077,9 +1077,21 @@ const JOPLIN_TABLE_WRAPPER =
 // The plugin escapes a cell's pipes by replacing each run of them with one
 // `\|`, so `a || b` came out as `a | b`. Hide each pipe from it behind a
 // private-use character and escape them one by one afterwards.
-const CELL_PIPE = /\|/g;
-const PIPE_PLACEHOLDER = '\uE000';
-const PIPE_PLACEHOLDERS = new RegExp(PIPE_PLACEHOLDER, 'g');
+// The placeholder is a private-use character the cell doesn't already hold,
+// so a literal one in the document is never mistaken for a pipe.
+function escapeCellPipes(
+  content: string,
+  escapeRuns: (hidden: string) => string,
+): string {
+  if (!content.includes('|')) return escapeRuns(content);
+  let code = 0xe000;
+  while (content.includes(String.fromCharCode(code)) && code < 0xf8ff) code++;
+  const placeholder = String.fromCharCode(code);
+  return escapeRuns(content.replaceAll('|', placeholder)).replaceAll(
+    placeholder,
+    '\\|',
+  );
+}
 
 // Add the GFM plugin, then wrap two of its rules (each wrapper is added later,
 // so Turndown tries it first and it calls the plugin's own replacement).
@@ -1110,9 +1122,9 @@ function useGfm(service: TurndownService): void {
     service.addRule('tableCellPipes', {
       filter: tableCell.filter,
       replacement: (content, node) =>
-        tableCell
-          .replacement(content.replace(CELL_PIPE, PIPE_PLACEHOLDER), node)
-          .replace(PIPE_PLACEHOLDERS, '\\|'),
+        escapeCellPipes(content, (hidden) =>
+          tableCell.replacement(hidden, node),
+        ),
     });
   }
 }

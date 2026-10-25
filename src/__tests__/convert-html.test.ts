@@ -145,6 +145,13 @@ describe('convertHtml', () => {
     );
   });
 
+  it('keeps a private-use character in a cell that also has a pipe', async () => {
+    const md = await convertHtml(
+      '<table><tr><td>A</td><td>B</td></tr><tr><td>\uE000 a | b</td><td>x</td></tr></table>',
+    );
+    expect(md).toContain('\uE000 a \\| b');
+  });
+
   it('reads <br> in a code block in a cell as a line break', async () => {
     const md = await convertHtml(
       '<table><tr><td>Cmd</td><td>Notes</td></tr><tr><td><pre>foo<br>bar</pre></td><td>x</td></tr></table>',
