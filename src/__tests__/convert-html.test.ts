@@ -13,6 +13,17 @@ describe('convertHtml', () => {
     );
   });
 
+  it('keeps a table whose cell holds a nested table, flattening the nested one', async () => {
+    // A nested table used to make the GFM plugin drop the outer table's grid
+    // and print its cells as paragraphs, with only the nested table left.
+    const md = await convertHtml(
+      '<table><tr><td><p>Name</p></td><td><p>Details</p></td></tr><tr><td><p>Alpha</p></td><td><table><tr><td>k</td><td>v</td></tr><tr><td>a</td><td>1</td></tr></table></td></tr></table>',
+    );
+    expect(md).toBe(
+      '| Name  | Details        |\n| ----- | -------------- |\n| Alpha | k · v<br>a · 1 |',
+    );
+  });
+
   it("drops Word's clipboard noise: head elements, styles, XML islands, <o:p>", async () => {
     const md = await convertHtml(
       '<html><head><meta charset=utf-8><title>Doc title</title><style>p.MsoNormal{margin:0}</style><xml><o:DocumentProperties>props</o:DocumentProperties></xml></head><body><!--StartFragment--><p class=MsoNormal>Body text<o:p></o:p></p><!--EndFragment--></body></html>',

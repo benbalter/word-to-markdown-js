@@ -211,20 +211,21 @@ describe('edge cases and advanced features', () => {
   });
 
   it("should not apply an outer table's merges to a nested table", async () => {
-    const { processHtml } = await import('../main.js');
-    const domino = (await import('@mixmark-io/domino')).default;
+    const { htmlToMd, processHtml } = await import('../main.js');
 
     const html =
       '<table><tr><td>H1</td><td>H2</td></tr><tr><td rowspan="2">A<table><tr><td>x</td><td>y</td></tr><tr><td>z</td><td>w</td></tr></table></td><td>1</td></tr><tr><td>2</td></tr></table>';
 
-    const { body } = domino.createDocument('');
-    body.innerHTML = processHtml(html);
-    const inner = body.querySelector('td table')!;
-    const widths = Array.from(inner.querySelectorAll('tr')).map(
-      (row) => row.querySelectorAll('td, th').length,
+    // The nested table is flattened into its cell, one line per row, and the
+    // outer grid keeps one filler for its own rowspan only.
+    expect(htmlToMd(processHtml(html))).toEqual(
+      [
+        '| H1  | H2  |',
+        '| --- | --- |',
+        '| A<br>x · y<br>z · w | 1   |',
+        '|     | 2   |',
+      ].join('\n'),
     );
-
-    expect(widths).toEqual([2, 2]);
   });
 
   it('should expand merges in a repeating header row', async () => {
@@ -398,8 +399,9 @@ describe('edge cases and advanced features', () => {
     const html = processHtml(
       '<table><tr><td>A<table><tr><td>x</td></tr><tr><td>y</td></tr></table></td><td>B</td></tr><tr><td>1</td><td>2</td></tr></table>',
     );
-    // The nested table's second row must stay a data row.
-    expect(html).toContain('<tr><td>y</td></tr>');
+    // The nested table is flattened into the header cell, so none of its rows
+    // can be promoted.
+    expect(html).toContain('<th>A<br>x<br>y</th>');
     expect(html).toContain('<th>B</th>');
   });
 
