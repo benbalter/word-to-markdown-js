@@ -9,7 +9,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { constants } from 'fs';
-import { lstat, mkdir, open } from 'fs/promises';
+import { lstat, mkdir, open, realpath } from 'fs/promises';
 import path from 'path';
 import { z } from 'zod';
 import { convertWithWarnings } from './main.js';
@@ -135,14 +135,33 @@ function createMcpServer(version: string): McpServer {
           const target = path.resolve(markdownDir, image.path);
           // Belt and braces after the image_dir check: the resolved file
           // itself must land inside the Markdown's folder.
-          const relative = path.relative(markdownDir, target);
-          if (relative.startsWith('..') || path.isAbsolute(relative)) {
+          if (!isInside(target, markdownDir)) {
             return toolError(
               `Refusing to write an image outside ${markdownDir}.`,
             );
           }
-          await mkdir(path.dirname(target), { recursive: true });
-          await writeSafely(target, image.bytes, overwrite);
+          // That check is lexical, but mkdir and the write follow a
+          // symlinked folder (images -> ../elsewhere); O_NOFOLLOW covers only
+          // the file itself. So compare real paths too: before mkdir, so
+          // nothing is created outside, and again after it.
+          const imageDir = path.dirname(target);
+          const escaped = toolError(
+            `${imageDir} leads outside ${markdownDir} through a symlink; refusing to write images there.`,
+          );
+          const escapes = async (): Promise<boolean> =>
+            !isInside(await realDir(imageDir), await realDir(markdownDir));
+          if (await escapes()) return escaped;
+          await mkdir(imageDir, { recursive: true });
+          if (await escapes()) return escaped;
+          // Write through the folder's checked real path, so no symlink in
+          // the path at check time is followed. That narrows, but can't close,
+          // the race with a folder swapped for a symlink in between: Node has
+          // no openat() to write relative to a verified directory handle.
+          await writeSafely(
+            path.join(await realpath(imageDir), path.basename(target)),
+            image.bytes,
+            overwrite,
+          );
         }
 
         const structured = {
@@ -203,6 +222,30 @@ function createMcpServer(version: string): McpServer {
   );
 
   return server;
+}
+
+// The real path of a folder that may not exist yet: its deepest existing
+// ancestor resolved (symlinks and all), plus the parts still to be created.
+async function realDir(dir: string): Promise<string> {
+  try {
+    return await realpath(dir);
+  } catch (error) {
+    const parent = path.dirname(dir);
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT' || parent === dir) {
+      throw error;
+    }
+    return path.join(await realDir(parent), path.basename(dir));
+  }
+}
+
+function isInside(child: string, parent: string): boolean {
+  const relative = path.relative(parent, child);
+  // Only a whole `..` component leaves the folder; `..assets` is a name.
+  return (
+    relative !== '..' &&
+    !relative.startsWith(`..${path.sep}`) &&
+    !path.isAbsolute(relative)
+  );
 }
 
 function toolError(text: string) {
