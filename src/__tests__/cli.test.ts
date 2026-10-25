@@ -1,4 +1,4 @@
-import { execFileSync, spawnSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { Document, Packer, Paragraph } from 'docx';
 import {
   existsSync,
@@ -23,24 +23,11 @@ const root = path.resolve(
   '../..',
 );
 const cliPath = path.join(root, 'build/cli.js');
-const tscPath = path.join(root, 'node_modules/typescript/bin/tsc');
 const fixture = (name: string): string =>
   path.join(root, 'src/__fixtures__', name);
 
-// build/ is gitignored. CI runs `npm run build` before the tests,
-// and local dev usually has build/ already, but build it here if it's missing
-// or older than the sources, so the suite never exercises a stale CLI.
-const isStale = (): boolean =>
-  !existsSync(cliPath) ||
-  ['src/cli.ts', 'src/main.ts'].some(
-    (src) => statSync(path.join(root, src)).mtimeMs > statSync(cliPath).mtimeMs,
-  );
-
-beforeAll(() => {
-  if (isStale()) {
-    execFileSync(process.execPath, [tscPath], { cwd: root, stdio: 'inherit' });
-  }
-}, 60000);
+// build/ is gitignored; jest.global-setup.mjs builds it (once, before any
+// worker starts) if it's missing or older than the sources.
 
 interface CliResult {
   stdout: string;

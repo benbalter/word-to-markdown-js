@@ -1,4 +1,3 @@
-import { execFileSync } from 'child_process';
 import {
   existsSync,
   mkdirSync,
@@ -6,7 +5,6 @@ import {
   readdirSync,
   readFileSync,
   rmSync,
-  statSync,
   symlinkSync,
   writeFileSync,
 } from 'fs';
@@ -25,17 +23,10 @@ const root = path.resolve(
   '../..',
 );
 const cliPath = path.join(root, 'build/cli.js');
-const tscPath = path.join(root, 'node_modules/typescript/bin/tsc');
 const fixture = (name: string): string =>
   path.join(root, 'src/__fixtures__', name);
 
-// Same freshness check as cli.test.ts: build/ is gitignored, so build it if
-// it's missing or older than the sources.
-const isStale = (): boolean =>
-  !existsSync(cliPath) ||
-  ['src/cli.ts', 'src/main.ts', 'src/mcp.ts'].some(
-    (src) => statSync(path.join(root, src)).mtimeMs > statSync(cliPath).mtimeMs,
-  );
+// build/ is gitignored; jest.global-setup.mjs builds it if it's stale.
 
 interface TextContent {
   type: 'text';
@@ -46,9 +37,6 @@ let client: Client;
 let tmp: string;
 
 beforeAll(async () => {
-  if (isStale()) {
-    execFileSync(process.execPath, [tscPath], { cwd: root, stdio: 'inherit' });
-  }
   tmp = mkdtempSync(path.join(os.tmpdir(), 'w2m-mcp-'));
   client = new Client({ name: 'test', version: '0.0.0' });
   await client.connect(
