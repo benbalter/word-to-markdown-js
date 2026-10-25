@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - A numbered list that a paragraph, table, or another list interrupts continues from Word's number (`1.`, then `2.` after the interruption) instead of restarting at `1.`, and a list's own start number is kept. A sub-item with no item above it no longer sits under an empty `- ` bullet, except where that would merge it into a neighboring list. (#359)
 - Headings numbered by an ordinary list keep their number (`## 1. Introduction`), and lists Word makes from one definition, such as a list continued after a copy and paste, count on from one another as in Word instead of each starting at 1.
 - A heading that starts with a number keeps it unescaped (`## 1. Scope`, not `## 1\. Scope`), since a heading can't be read as a list.
+- The MCP server no longer prints each warning as "Warning: Warning: …". The converter's warnings already start with "Warning:", and the server added it again.
 
 ## [0.8.0] - 2026-10-22
 
