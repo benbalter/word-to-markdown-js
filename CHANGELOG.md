@@ -6,9 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-25
+
 ### Security
 
-- A `.docx` that unpacks to more than 200 MB is refused up front with a new `DocumentTooLargeError`, judged from the sizes its zip declares, before anything is decompressed. A `.docx` is a zip, so a small file can expand enormously (a "zip bomb"): one under 1 MB that unpacked to 700 MB used over 3 GB of memory and then failed with a generic "ensure the file is a valid .docx" error. word2md.com, the CLI, and the MCP server now say the document is too large. A zip that understates its sizes isn't caught by this check.
+- A `.docx` that unpacks to more than 200 MB is refused up front with a new `DocumentTooLargeError`, judged from the sizes its zip declares, before anything is decompressed. A `.docx` is a zip, so a small file can expand enormously (a "zip bomb"): one under 1 MB that unpacked to 700 MB used over 3 GB of memory and then failed with a generic "ensure the file is a valid .docx" error. word2md.com, the CLI, and the MCP server now say the document is too large. A zip that understates its sizes isn't caught by this check. (#368)
 
 ### Fixed
 
@@ -16,12 +18,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - A numbered list that a paragraph, table, or another list interrupts continues from Word's number (`1.`, then `2.` after the interruption) instead of restarting at `1.`, and a list's own start number is kept. A sub-item with no item above it no longer sits under an empty `- ` bullet, except where that would merge it into a neighboring list. (#359)
 - Headings numbered by an ordinary list keep their number (`## 1. Introduction`), and lists Word makes from one definition, such as a list continued after a copy and paste, count on from one another as in Word instead of each starting at 1.
 - A heading that starts with a number keeps it unescaped (`## 1. Scope`, not `## 1\. Scope`), since a heading can't be read as a list.
-- The MCP server no longer prints each warning as "Warning: Warning: …". The converter's warnings already start with "Warning:", and the server added it again.
-- word2md.com serves its Markdown pages (`/index.md` and the other twins, including the ones agents get with `Accept: text/markdown`) and `llms.txt`/`llms-full.txt` with `charset=utf-8`. Without it, browsers read `llms.txt` as windows-1252 and garbled its non-ASCII characters, and `text/markdown` lacked the charset RFC 7763 requires.
-- The MCP server no longer writes extracted images outside the Markdown's folder when `image_dir` is, or passes through, a symlink to a folder elsewhere. Its path check compared paths as text, so `images` linked to `../elsewhere` passed it, and the images landed in `elsewhere`. It now compares real paths and refuses. A folder whose name merely starts with `..`, such as `..assets`, is no longer mistaken for one outside and refused.
-- A table with another table nested in a cell stays a Markdown table. The nested table used to make the whole outer table fall apart into a run of paragraphs, losing its rows and columns; now the nested table is written into its cell as one line per row, cells separated by a middle dot (`·`).
-- A table with a code block in a cell stays a Markdown table, with the code as inline code (one line per line of code), instead of coming out as raw HTML wrapped in a `<div class="joplin-table-wrapper">`. Code with an escaped pipe (`\|`) keeps its table as HTML, since a Markdown table can't carry it unchanged. A table that still can't be a Markdown table is emitted as a plain HTML `<table>`, without that wrapper.
-- A run of pipes in a table cell keeps every pipe: `a || b` used to come out as `a | b`, in text and in code alike, because each run was escaped as a single pipe.
+- The MCP server no longer prints each warning as "Warning: Warning: …". The converter's warnings already start with "Warning:", and the server added it again. (#363)
+- word2md.com serves its Markdown pages (`/index.md` and the other twins, including the ones agents get with `Accept: text/markdown`) and `llms.txt`/`llms-full.txt` with `charset=utf-8`. Without it, browsers read `llms.txt` as windows-1252 and garbled its non-ASCII characters, and `text/markdown` lacked the charset RFC 7763 requires. (#367)
+- The MCP server no longer writes extracted images outside the Markdown's folder when `image_dir` is, or passes through, a symlink to a folder elsewhere. Its path check compared paths as text, so `images` linked to `../elsewhere` passed it, and the images landed in `elsewhere`. It now compares real paths and refuses. A folder whose name merely starts with `..`, such as `..assets`, is no longer mistaken for one outside and refused. (#365)
+- A table with another table nested in a cell stays a Markdown table. The nested table used to make the whole outer table fall apart into a run of paragraphs, losing its rows and columns; now the nested table is written into its cell as one line per row, cells separated by a middle dot (`·`). (#364)
+- A table with a code block in a cell stays a Markdown table, with the code as inline code (one line per line of code), instead of coming out as raw HTML wrapped in a `<div class="joplin-table-wrapper">`. Code with an escaped pipe (`\|`) keeps its table as HTML, since a Markdown table can't carry it unchanged. A table that still can't be a Markdown table is emitted as a plain HTML `<table>`, without that wrapper. (#366)
+- A run of pipes in a table cell keeps every pipe: `a || b` used to come out as `a | b`, in text and in code alike, because each run was escaped as a single pipe. (#370)
 
 ## [0.8.0] - 2026-10-22
 
@@ -185,7 +187,8 @@ These change the Markdown produced for affected documents.
 - Documented the `images`, `imageDir`, `numberedLists`, and `underline` options for both the library and the CLI.
 - Corrected the docs and web UI: **superscript and subscript are preserved** as inline `<sup>`/`<sub>` tags. This was already the case in 0.2.0 — only the documentation, which previously listed them as unsupported, was wrong.
 
-[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.9.0
 [0.8.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.8.0
 [0.7.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.7.0
 [0.6.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.6.0
