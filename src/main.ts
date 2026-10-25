@@ -471,7 +471,9 @@ function isEmptyRow(row: Element): boolean {
 
 // Block elements that make Turndown's GFM plugin give up on a table and emit
 // it as raw HTML (in a Joplin-specific wrapper div). Word cells routinely hold
-// them: a bulleted list of open items, a heading-styled label.
+// them: a bulleted list of open items, a heading-styled label. A nested table
+// is worse: the plugin drops the outer table's grid entirely and renders its
+// cells one after another as paragraphs.
 const CELL_FALLBACK_BLOCKS = new Set([
   'ul',
   'ol',
@@ -483,10 +485,14 @@ const CELL_FALLBACK_BLOCKS = new Set([
   'h6',
   'hr',
   'blockquote',
+  'table',
 ]);
 const CELL_BLOCKS = new Set([...CELL_FALLBACK_BLOCKS, 'p', 'div', 'li']);
+const CELL_FALLBACK_SELECTOR = [...CELL_FALLBACK_BLOCKS].join(', ');
 // Bullet markers for list items in a cell, by nesting depth.
 const CELL_BULLETS = ['•', '◦', '▪'];
+// Joins a nested table's cells on its one line per row.
+const NESTED_CELL_SEPARATOR = ' · ';
 
 // A cell's content as lines of inline HTML, one per paragraph, heading, or list
 // item. Headings become bold; list items keep a bullet (or their number), with
@@ -503,7 +509,14 @@ function cellLines(node: Element, depth = 0): string[] {
       childNode.nodeType === ELEMENT_NODE
         ? (childNode as Element).tagName.toLowerCase()
         : undefined;
-    if (!tag || !CELL_BLOCKS.has(tag)) {
+    // Any other element (a <figure>, <section>, or <span> from pasted HTML)
+    // is inline content, unless it wraps a block: then it's flattened like a
+    // <div>, or the block would reach the GFM plugin intact.
+    if (
+      !tag ||
+      (!CELL_BLOCKS.has(tag) &&
+        !(childNode as Element).querySelector(CELL_FALLBACK_SELECTOR))
+    ) {
       inline += serializeNode(childNode);
       continue;
     }
@@ -524,6 +537,22 @@ function cellLines(node: Element, depth = 0): string[] {
       lines.push(
         ...cellLines(child, depth).map((line) => `<strong>${line}</strong>`),
       );
+    } else if (tag === 'table') {
+      // A table nested in a cell: its caption, then one line per row, its
+      // cells joined by a separator (a table nested deeper still collapses
+      // the same way, keeping its own row breaks).
+      for (const caption of Array.from(child.children)) {
+        if (caption.tagName.toLowerCase() === 'caption') {
+          lines.push(...cellLines(caption, depth));
+        }
+      }
+      for (const row of ownRows(child)) {
+        const line = gridCells(row)
+          .map((cell) => cellLines(cell, depth).join('<br>'))
+          .filter(Boolean)
+          .join(NESTED_CELL_SEPARATOR);
+        if (line) lines.push(line);
+      }
     } else if (tag !== 'hr') {
       lines.push(...cellLines(child, depth));
     }
@@ -532,21 +561,19 @@ function cellLines(node: Element, depth = 0): string[] {
   return lines;
 }
 
-// Flatten lists, headings, and other blocks in a table's cells into lines
-// joined by <br>, so the table stays a GFM table instead of falling back to
-// raw HTML. Leaves alone what the plugin handles differently anyway: a
-// one-cell table (rendered as plain content, so its blocks survive), and a
-// table holding code or a nested table (kept as HTML either way).
+// Flatten lists, headings, nested tables, and other blocks in a table's cells
+// into lines joined by <br>, so the table stays a GFM table instead of falling
+// back to raw HTML or losing its grid. Leaves alone what the plugin handles
+// differently anyway: a one-cell table (rendered as plain content, so its
+// blocks survive), and a table holding code (kept as HTML either way).
 function flattenCellBlocks(table: Element): void {
   const rows = ownRows(table);
   const cells = rows.flatMap(gridCells);
   if (cells.length <= 1) return;
-  if (table.querySelector('pre, code, table')) return;
+  if (table.querySelector('pre, code')) return;
   for (const cell of cells) {
-    const hasFallbackBlock = all(cell, '*').some((el) =>
-      CELL_FALLBACK_BLOCKS.has(el.tagName.toLowerCase()),
-    );
-    if (hasFallbackBlock) cell.innerHTML = cellLines(cell).join('<br>');
+    if (cell.querySelector(CELL_FALLBACK_SELECTOR))
+      cell.innerHTML = cellLines(cell).join('<br>');
   }
 }
 

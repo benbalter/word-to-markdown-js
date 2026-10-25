@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - The MCP server no longer prints each warning as "Warning: Warning: …". The converter's warnings already start with "Warning:", and the server added it again.
 - word2md.com serves its Markdown pages (`/index.md` and the other twins, including the ones agents get with `Accept: text/markdown`) and `llms.txt`/`llms-full.txt` with `charset=utf-8`. Without it, browsers read `llms.txt` as windows-1252 and garbled its non-ASCII characters, and `text/markdown` lacked the charset RFC 7763 requires.
 - The MCP server no longer writes extracted images outside the Markdown's folder when `image_dir` is, or passes through, a symlink to a folder elsewhere. Its path check compared paths as text, so `images` linked to `../elsewhere` passed it, and the images landed in `elsewhere`. It now compares real paths and refuses. A folder whose name merely starts with `..`, such as `..assets`, is no longer mistaken for one outside and refused.
+- A table with another table nested in a cell stays a Markdown table. The nested table used to make the whole outer table fall apart into a run of paragraphs, losing its rows and columns; now the nested table is written into its cell as one line per row, cells separated by a middle dot (`·`).
 
 ## [0.8.0] - 2026-10-22
 

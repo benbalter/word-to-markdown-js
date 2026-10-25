@@ -13,6 +13,35 @@ describe('convertHtml', () => {
     );
   });
 
+  it('keeps a table whose cell holds a nested table, flattening the nested one', async () => {
+    // A nested table used to make the GFM plugin drop the outer table's grid
+    // and print its cells as paragraphs, with only the nested table left.
+    const md = await convertHtml(
+      '<table><tr><td><p>Name</p></td><td><p>Details</p></td></tr><tr><td><p>Alpha</p></td><td><table><tr><td>k</td><td>v</td></tr><tr><td>a</td><td>1</td></tr></table></td></tr></table>',
+    );
+    expect(md).toBe(
+      '| Name  | Details        |\n| ----- | -------------- |\n| Alpha | k · v<br>a · 1 |',
+    );
+  });
+
+  it("keeps a nested table's caption and a deeper table's row breaks", async () => {
+    const md = await convertHtml(
+      '<table><tr><td>Name</td><td>Details</td></tr><tr><td>Alpha</td><td><table><caption>Limits</caption><tr><td><table><tr><td>x</td></tr><tr><td>y</td></tr></table></td><td>z</td></tr></table></td></tr></table>',
+    );
+    expect(md).toContain('| Alpha | Limits<br>x<br>y · z |');
+  });
+
+  it('flattens a nested table inside a wrapper element in a cell', async () => {
+    // Pasted HTML can wrap the nested table (here in a <figure>); the wrapper
+    // must not carry the table past the flattening to the GFM plugin.
+    const md = await convertHtml(
+      '<table><tr><td><p>Name</p></td><td><p>Details</p></td></tr><tr><td><p>Alpha</p></td><td><figure><table><tr><td>k</td><td>v</td></tr></table></figure></td></tr></table>',
+    );
+    expect(md).toBe(
+      '| Name  | Details |\n| ----- | ------- |\n| Alpha | k · v   |',
+    );
+  });
+
   it("drops Word's clipboard noise: head elements, styles, XML islands, <o:p>", async () => {
     const md = await convertHtml(
       '<html><head><meta charset=utf-8><title>Doc title</title><style>p.MsoNormal{margin:0}</style><xml><o:DocumentProperties>props</o:DocumentProperties></xml></head><body><!--StartFragment--><p class=MsoNormal>Body text<o:p></o:p></p><!--EndFragment--></body></html>',
