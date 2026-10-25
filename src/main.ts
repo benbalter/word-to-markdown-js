@@ -538,11 +538,17 @@ function cellLines(node: Element, depth = 0): string[] {
         ...cellLines(child, depth).map((line) => `<strong>${line}</strong>`),
       );
     } else if (tag === 'table') {
-      // A table nested in a cell: one line per row, its cells joined by a
-      // separator (a table nested deeper still collapses the same way).
+      // A table nested in a cell: its caption, then one line per row, its
+      // cells joined by a separator (a table nested deeper still collapses
+      // the same way, keeping its own row breaks).
+      for (const caption of Array.from(child.children)) {
+        if (caption.tagName.toLowerCase() === 'caption') {
+          lines.push(...cellLines(caption, depth));
+        }
+      }
       for (const row of ownRows(child)) {
         const line = gridCells(row)
-          .map((cell) => cellLines(cell, depth).join(' '))
+          .map((cell) => cellLines(cell, depth).join('<br>'))
           .filter(Boolean)
           .join(NESTED_CELL_SEPARATOR);
         if (line) lines.push(line);

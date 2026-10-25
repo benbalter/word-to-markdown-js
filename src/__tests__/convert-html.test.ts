@@ -24,6 +24,13 @@ describe('convertHtml', () => {
     );
   });
 
+  it("keeps a nested table's caption and a deeper table's row breaks", async () => {
+    const md = await convertHtml(
+      '<table><tr><td>Name</td><td>Details</td></tr><tr><td>Alpha</td><td><table><caption>Limits</caption><tr><td><table><tr><td>x</td></tr><tr><td>y</td></tr></table></td><td>z</td></tr></table></td></tr></table>',
+    );
+    expect(md).toContain('| Alpha | Limits<br>x<br>y · z |');
+  });
+
   it('flattens a nested table inside a wrapper element in a cell', async () => {
     // Pasted HTML can wrap the nested table (here in a <figure>); the wrapper
     // must not carry the table past the flattening to the GFM plugin.
