@@ -289,6 +289,18 @@ describe('worker fetch handler', () => {
       expect(new URL(fetched.url).pathname).toBe('/index.md');
     });
 
+    it('labels the twin as UTF-8, as RFC 7763 requires', async () => {
+      // The mock asset, like Static Assets by default, has no charset.
+      const res = await worker.fetch(
+        new Request('https://word2md.com/', MARKDOWN),
+        markdownEnv(),
+      );
+
+      expect(res.headers.get('Content-Type')).toBe(
+        'text/markdown; charset=utf-8',
+      );
+    });
+
     it("serves a legal page's twin", async () => {
       const env = markdownEnv();
       const res = await worker.fetch(
