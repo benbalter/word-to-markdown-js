@@ -495,6 +495,15 @@ const CELL_BULLETS = ['•', '◦', '▪'];
 // Joins a nested table's cells on its one line per row.
 const NESTED_CELL_SEPARATOR = ' · ';
 
+// A code block's text, with each <br> read as the line break it renders as
+// (textContent alone would run the lines together).
+function codeText(node: Node): string {
+  if (node.nodeType === TEXT_NODE) return (node as Text).data;
+  if (node.nodeType !== ELEMENT_NODE) return '';
+  if ((node as Element).tagName.toLowerCase() === 'br') return '\n';
+  return Array.from(node.childNodes, codeText).join('');
+}
+
 // A cell's content as lines of inline HTML, one per paragraph, heading, or list
 // item. Headings become bold; list items keep a bullet (or their number), with
 // a different bullet per nesting level, since a cell can't hold a real list.
@@ -556,7 +565,7 @@ function cellLines(node: Element, depth = 0): string[] {
         if (line) lines.push(line);
       }
     } else if (tag === 'pre') {
-      for (const text of (child.textContent ?? '').split('\n')) {
+      for (const text of codeText(child).split('\n')) {
         if (!text.trim()) continue;
         const code = child.ownerDocument.createElement('code');
         code.textContent = text.trimEnd();

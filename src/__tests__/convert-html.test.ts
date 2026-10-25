@@ -110,6 +110,19 @@ describe('convertHtml', () => {
     );
   });
 
+  it('reads <br> in a code block in a cell as a line break', async () => {
+    const md = await convertHtml(
+      '<table><tr><td>Cmd</td><td>Notes</td></tr><tr><td><pre>foo<br>bar</pre></td><td>x</td></tr></table>',
+    );
+    expect(md).toBe(
+      [
+        '| Cmd            | Notes |',
+        '| -------------- | ----- |',
+        '| `foo`<br>`bar` | x     |',
+      ].join('\n'),
+    );
+  });
+
   it("never emits Joplin's table wrapper div, even for a table kept as HTML", () => {
     // htmlToMd skips processHtml, so a list in a cell still falls back to HTML.
     const md = htmlToMd(
