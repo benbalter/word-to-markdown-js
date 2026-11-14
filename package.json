@@ -108,7 +108,7 @@
     "github-slugger": "^2.0.0",
     "jszip": "^3.10.2",
     "mammoth": "^1.13.0",
-    "markdownlint": "0.42.0",
+    "markdownlint": "0.42.1",
     "prettier": "~3.9",
     "zod": "^4.6.7"
   },
