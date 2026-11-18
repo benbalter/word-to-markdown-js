@@ -109,7 +109,7 @@
     "jszip": "^3.10.2",
     "mammoth": "^1.13.0",
     "markdownlint": "0.42.1",
-    "prettier": "~3.9",
+    "prettier": "~3.10.0",
     "zod": "^4.6.7"
   },
   "volta": {
