@@ -6,10 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-25
+
 ### Added
 
-- Confluence wiki markup output: a **Confluence wiki markup** checkbox under each result on word2md.com (remembered between visits; Copy, Download, and the .zip follow it), `--confluence` on the CLI, and `markdownToConfluence()` in the library. It writes `h1.`, `*bold*`, `||header||`, `{code}`, and friends for Confluence's Insert → Markup → Confluence wiki, escapes text that Confluence would otherwise read as macros, links, or emoticons, and names images as attachments (`!image1.png!`) matching the files in the .zip.
-- Self-hosters can leave out the plug for _Open and Async_ by building with `W2M_PROMO=off`. That drops the promo card, the line under a result, the book in the page's structured data and `llms.txt`, and the book's sections in the guides. word2md.com is unchanged.
+- Confluence wiki markup output: a **Confluence wiki markup** checkbox under each result on word2md.com (remembered between visits; Copy, Download, and the .zip follow it), `--confluence` on the CLI, and `markdownToConfluence()` in the library. It writes `h1.`, `*bold*`, `||header||`, `{code}`, and friends for Confluence's Insert → Markup → Confluence wiki, escapes text that Confluence would otherwise read as macros, links, or emoticons, and names images as attachments (`!image1.png!`) matching the files in the .zip. (#434)
+- Self-hosters can leave out the plug for _Open and Async_ by building with `W2M_PROMO=off`. That drops the promo card, the line under a result, the book in the page's structured data and `llms.txt`, and the book's sections in the guides. word2md.com is unchanged. (#436)
 
 ## [0.9.0] - 2026-10-25
 
@@ -192,7 +194,8 @@ These change the Markdown produced for affected documents.
 - Documented the `images`, `imageDir`, `numberedLists`, and `underline` options for both the library and the CLI.
 - Corrected the docs and web UI: **superscript and subscript are preserved** as inline `<sup>`/`<sub>` tags. This was already the case in 0.2.0 — only the documentation, which previously listed them as unsupported, was wrong.
 
-[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/benbalter/word-to-markdown-js/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.10.0
 [0.9.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.9.0
 [0.8.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.8.0
 [0.7.0]: https://github.com/benbalter/word-to-markdown-js/releases/tag/v0.7.0
