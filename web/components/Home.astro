@@ -9,6 +9,7 @@ import { asLocale, defaultLocale, localeMeta, useTranslations } from '../i18n';
 import Hero from './home/Hero.astro';
 import Converter from './home/Converter.astro';
 import Promo from './home/Promo.astro';
+import { showPromo } from '../promo';
 import HowItWorks from './home/HowItWorks.astro';
 import ConversionTable from './home/ConversionTable.astro';
 import Callout from './home/Callout.astro';
@@ -76,14 +77,19 @@ const structuredData = {
       url: 'https://www.npmjs.com/package/word-to-markdown',
       author,
     },
-    {
-      // Defined in full on open-and-async.com; referenced by @id here.
-      '@type': 'Book',
-      '@id': 'https://open-and-async.com/#book',
-      name: 'Open and Async',
-      url: 'https://open-and-async.com/',
-      author: { '@id': author['@id'] },
-    },
+    // Left out, like the rest of the plug, when the build turns it off.
+    ...(showPromo
+      ? [
+          {
+            // Defined in full on open-and-async.com; referenced by @id here.
+            '@type': 'Book',
+            '@id': 'https://open-and-async.com/#book',
+            name: 'Open and Async',
+            url: 'https://open-and-async.com/',
+            author: { '@id': author['@id'] },
+          },
+        ]
+      : []),
     {
       '@type': 'HowTo',
       name: t.metaTitle,
@@ -123,7 +129,7 @@ const structuredData = {
        never hides. */}
   <div id="pre-result">
     <HowItWorks />
-    <Promo />
+    {showPromo && <Promo />}
     <ConversionTable />
     <Callout
       heading={t.reverseHeading}

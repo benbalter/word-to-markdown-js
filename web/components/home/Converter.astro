@@ -4,6 +4,7 @@
 // logic in src/index.ts and web/scripts/converter/ — keep them in sync with
 // those modules.
 import { useTranslations } from '../../i18n';
+import { showPromo } from '../../promo';
 
 const t = useTranslations(Astro.currentLocale);
 ---
@@ -476,20 +477,23 @@ const t = useTranslations(Astro.currentLocale);
          Promo card on success), but it stays quiet: a hairline row with a text
          link after the output, so the filled accent belongs to Copy, the next
          conversion action. utm_campaign=results tells this placement apart
-         from the card. */}
-    <aside
-      class="mt-6 flex flex-col gap-1.5 rounded-xl border border-rule-light px-4 py-3 text-start text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4 dark:border-rule-dark"
-    >
-      <p class="leading-relaxed text-navy-soft dark:text-mist">
-        {t.promo.resultsLead}
-      </p>
-      <a
-        href="https://open-and-async.com/?utm_source=word2md&utm_medium=referral&utm_campaign=results"
-        class="inline-flex shrink-0 items-center gap-1.5 font-medium whitespace-nowrap text-chartreuse-deep underline decoration-chartreuse/50 decoration-2 underline-offset-4 transition-colors hover:decoration-chartreuse dark:text-chartreuse"
+         from the card.
+         Left out when the build turns the plug off (web/promo.ts). */}
+    {showPromo && (
+      <aside
+        class="mt-6 flex flex-col gap-1.5 rounded-xl border border-rule-light px-4 py-3 text-start text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4 dark:border-rule-dark"
       >
-        {t.promo.resultsCta}
-        <span aria-hidden="true" class="rtl:-scale-x-100">&rarr;</span>
-      </a>
-    </aside>
+        <p class="leading-relaxed text-navy-soft dark:text-mist">
+          {t.promo.resultsLead}
+        </p>
+        <a
+          href="https://open-and-async.com/?utm_source=word2md&utm_medium=referral&utm_campaign=results"
+          class="inline-flex shrink-0 items-center gap-1.5 font-medium whitespace-nowrap text-chartreuse-deep underline decoration-chartreuse/50 decoration-2 underline-offset-4 transition-colors hover:decoration-chartreuse dark:text-chartreuse"
+        >
+          {t.promo.resultsCta}
+          <span aria-hidden="true" class="rtl:-scale-x-100">&rarr;</span>
+        </a>
+      </aside>
+    )}
   </div>
 </section>

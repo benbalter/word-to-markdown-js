@@ -4,6 +4,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { withoutPromo } from './promo';
 
 const legal = defineCollection({
   loader: glob({ pattern: '*.md', base: './web/content/legal' }),
@@ -16,8 +17,10 @@ const legal = defineCollection({
 // English-only task pages (/google-docs-to-markdown/, /developers/, …):
 // the same Markdown feeds the HTML page, its .md twin, and llms-full.txt.
 // `order` sets their order in llms.txt and the footer.
+// withoutPromo drops their Open & Async sections when the build sets
+// W2M_PROMO=off (see web/promo.ts).
 const guides = defineCollection({
-  loader: glob({ pattern: '*.md', base: './web/content/guides' }),
+  loader: withoutPromo(glob({ pattern: '*.md', base: './web/content/guides' })),
   schema: z.object({
     title: z.string().min(1),
     description: z.string().min(1),

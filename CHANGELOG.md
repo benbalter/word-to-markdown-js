@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - Confluence wiki markup output: a **Confluence wiki markup** checkbox under each result on word2md.com (remembered between visits; Copy, Download, and the .zip follow it), `--confluence` on the CLI, and `markdownToConfluence()` in the library. It writes `h1.`, `*bold*`, `||header||`, `{code}`, and friends for Confluence's Insert → Markup → Confluence wiki, escapes text that Confluence would otherwise read as macros, links, or emoticons, and names images as attachments (`!image1.png!`) matching the files in the .zip.
+- Self-hosters can leave out the plug for _Open and Async_ by building with `W2M_PROMO=off`. That drops the promo card, the line under a result, the book in the page's structured data and `llms.txt`, and the book's sections in the guides. word2md.com is unchanged.
 
 ## [0.9.0] - 2026-10-25
 
