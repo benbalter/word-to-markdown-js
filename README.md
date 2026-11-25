@@ -233,7 +233,7 @@ Run `npm run build:js` once, then `node build/cli.js path/to/your/file.docx`.
 To self-host the static site using Docker Compose:
 
 1. Clone the repository
-2. Run `npm install && npm run build`
+2. Run `npm install && npm run build` (or `npm install && W2M_PROMO=off npm run build` to leave out the plug for the maker's book, _Open and Async_, say for a copy on a company intranet)
 3. Run `docker compose up -d`
 4. Access at http://localhost:3000
 

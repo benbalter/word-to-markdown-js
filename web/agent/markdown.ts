@@ -9,6 +9,7 @@
 import { getCollection } from 'astro:content';
 import { useTranslations } from '../i18n';
 import { conversionOutputs } from '../components/home/conversion-outputs';
+import { showPromo } from '../promo';
 
 const SITE_NAME = 'Word to Markdown';
 const SOURCE_URL = 'https://github.com/benbalter/word-to-markdown-js';
@@ -23,6 +24,11 @@ const AUTHOR = { name: 'Ben Balter', url: 'https://ben.balter.com' };
 const BOOK_URL =
   'https://open-and-async.com/?utm_source=word2md&utm_medium=llms&utm_campaign=agents';
 const BOOK_MCP_URL = 'https://github.com/open-and-async/mcp';
+// The Open & Async lines in llms.txt, left out when the build turns the plug
+// off (web/promo.ts).
+const BOOK_LINES = `- Also by the author: [Open and Async](${BOOK_URL}), a playbook for remote and distributed teams, drawing on more than a decade of remote-first lessons from GitHub.
+- Related MCP server: [Open and Async MCP](${BOOK_MCP_URL}) (\`claude mcp add open-async -- npx -y @open-and-async/mcp\`) drafts decision docs, swaps planned meetings for async alternatives, and scores status updates.
+`;
 
 export interface AgentPage {
   /** The HTML page's path, e.g. "/" or "/privacy/". */
@@ -166,9 +172,7 @@ ${developerMarkdown(site)}
 - [Markdown to Word](${SIBLING_URL}): The sibling converter, Markdown to formatted Word (.docx), by the same maker.
 - [Source code](${SOURCE_URL}): Open source on GitHub.
 - Author: [${AUTHOR.name}](${AUTHOR.url})
-- Also by the author: [Open and Async](${BOOK_URL}), a playbook for remote and distributed teams, drawing on more than a decade of remote-first lessons from GitHub.
-- Related MCP server: [Open and Async MCP](${BOOK_MCP_URL}) (\`claude mcp add open-async -- npx -y @open-and-async/mcp\`) drafts decision docs, swaps planned meetings for async alternatives, and scores status updates.
-`;
+${showPromo ? BOOK_LINES : ''}`;
 }
 
 /** llms-full.txt: every page's Markdown, one after another. */
