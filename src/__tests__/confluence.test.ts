@@ -90,6 +90,32 @@ describe('toConfluenceWiki', () => {
     );
   });
 
+  it('keeps code from closing its own block', () => {
+    expect(toConfluenceWiki('```\na\n{noformat}\n{html}x{html}\n```')).toBe(
+      '{noformat}\na\n{\u200Bnoformat}\n{html}x{html}\n{noformat}',
+    );
+    expect(toConfluenceWiki('```js\n{code}\n```')).toBe(
+      '{code:language=javascript}\n{\u200Bcode}\n{code}',
+    );
+  });
+
+  it('keeps an image path from breaking out of the image', () => {
+    expect(toConfluenceWiki('![](<images/a!b|c d.png>)')).toBe(
+      '!a%21b%7Cc%20d.png!',
+    );
+  });
+
+  it('drops links and images with unsafe schemes, keeping the text', () => {
+    expect(toConfluenceWiki('[click](javascript:alert(1))')).toBe('click');
+    expect(toConfluenceWiki('[x](https://e.com/{html})')).toBe(
+      '[x|https://e.com/%7Bhtml%7D]',
+    );
+    expect(toConfluenceWiki('![x](javascript:alert(1))')).toBe('');
+    expect(toConfluenceWiki('[mail](mailto:a@example.com) [top](#top)')).toBe(
+      '[mail|mailto:a@example.com] [top|#top]',
+    );
+  });
+
   it('keeps a LaTeX block verbatim', () => {
     expect(toConfluenceWiki('$$\nx_1^2\n$$')).toBe(
       '{noformat}\n$$\nx_1^2\n$$\n{noformat}',

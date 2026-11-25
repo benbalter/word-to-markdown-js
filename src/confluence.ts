@@ -149,7 +149,30 @@ const HTML_MARKERS: Record<string, string> = {
 
 // A link or image target, with what would end the link escaped.
 function safeUrl(url: string): string {
-  return url.replace(/\|/g, '%7C').replace(/\]/g, '%5D').replace(/!/g, '%21');
+  return url
+    .replace(/\s/g, '%20')
+    .replace(/\|/g, '%7C')
+    .replace(/\]/g, '%5D')
+    .replace(/!/g, '%21')
+    .replace(/\{/g, '%7B')
+    .replace(/\}/g, '%7D');
+}
+
+// Schemes a link or image may use, besides relative paths and #anchors. A
+// document is untrusted input, so `javascript:` and friends become plain text.
+const SAFE_SCHEME = /^(?:https?|mailto):/i;
+const HAS_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
+
+function allowedUrl(url: string): boolean {
+  return !HAS_SCHEME.test(url) || SAFE_SCHEME.test(url);
+}
+
+// Code can't be escaped inside {code} or {noformat}, so a `{code}` or
+// `{noformat}` in the code itself would end the block and let the rest run as
+// markup. A zero-width space after the brace keeps it from matching and shows
+// nothing.
+function verbatim(value: string): string {
+  return value.replace(/\{(code|noformat)/gi, '{\u200B$1');
 }
 
 function imageTarget(url: string, ctx: Context): string {
@@ -161,11 +184,12 @@ function imageTarget(url: string, ctx: Context): string {
   }
   // Confluence attachment names are flat: images/image1.png is attached as
   // image1.png.
-  if (!/^[a-z][a-z0-9+.-]*:/i.test(url)) return url.split('/').pop() || url;
+  if (!HAS_SCHEME.test(url)) return safeUrl(url.split('/').pop() || url);
   return safeUrl(url);
 }
 
 function link(text: Piece[], url: string): Piece[] {
+  if (!allowedUrl(url)) return text;
   const label = finalize(text);
   const target = safeUrl(url);
   return [
@@ -221,7 +245,7 @@ function inline(nodes: PhrasingContent[], ctx: Context): Piece[] {
           node.type === 'image'
             ? node.url
             : ctx.definitions.get(node.identifier)?.url;
-        if (!url) break;
+        if (!url || !(allowedUrl(url) || /^data:image\//i.test(url))) break;
         const alt = (node.alt ?? '').replace(/["|!\n]/g, ' ').trim();
         const target = imageTarget(url, ctx);
         pieces.push({
@@ -401,7 +425,7 @@ function block(node: RootContent, ctx: Context): string {
       // A LaTeX block ($$…$$, from a Word equation) stays verbatim.
       const only = node.children.length === 1 ? node.children[0] : undefined;
       if (only?.type === 'text' && /^\$\$[\s\S]*\$\$$/.test(only.value)) {
-        return `{noformat}\n${only.value}\n{noformat}`;
+        return `{noformat}\n${verbatim(only.value)}\n{noformat}`;
       }
       return phrasing(node.children, ctx)
         .split('\n')
@@ -417,8 +441,8 @@ function block(node: RootContent, ctx: Context): string {
     case 'code': {
       const language = LANGUAGES[(node.lang ?? '').toLowerCase()];
       return language
-        ? `{code:language=${language}}\n${node.value}\n{code}`
-        : `{noformat}\n${node.value}\n{noformat}`;
+        ? `{code:language=${language}}\n${verbatim(node.value)}\n{code}`
+        : `{noformat}\n${verbatim(node.value)}\n{noformat}`;
     }
     case 'list':
       return list(node, '', ctx);
