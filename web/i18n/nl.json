@@ -13,14 +13,19 @@
   "convertSectionAria": "Een document converteren",
   "convertedLabel": "Geconverteerd",
   "copyButton": "Markdown kopiëren",
+  "copyConfluenceButton": "Wikimarkup kopiëren",
   "copiedButton": "Gekopieerd!",
   "downloadButton": ".md downloaden",
+  "downloadTxtButton": ".txt downloaden",
   "downloadedButton": "Gedownload",
   "downloadZipButton": ".zip downloaden",
   "downloadAllButton": "Alles downloaden (.zip)",
   "downloadedZipButton": "Gedownload",
   "convertAnother": "Nog een bestand converteren",
   "imagesNote": "Afbeeldingen zijn rechtstreeks in deze Markdown ingesloten. De .zip bevat ze als losse bestanden.",
+  "confluenceToggle": "Confluence-wikimarkup",
+  "confluenceHint": "Plak het in Confluence via Insert → Markup → Confluence wiki.",
+  "confluenceImagesNote": "Afbeeldingen zijn gekoppeld op bestandsnaam: voeg de bestanden uit de .zip als bijlage toe aan de Confluence-pagina.",
   "warnings": {
     "encrypted": "Dit document lijkt versleuteld te zijn, dus er kan inhoud ontbreken.",
     "sensitivity": "Dit document heeft een vertrouwelijkheidslabel ({label}). Controleer of je het mag converteren en delen.",
@@ -41,6 +46,7 @@
     "technical": "Technische details"
   },
   "panelMarkdown": "Markdown",
+  "panelConfluence": "Confluence-wiki",
   "panelPreview": "Voorbeeld",
   "steps": [
     {

@@ -389,10 +389,42 @@ const t = useTranslations(Astro.currentLocale);
       </div>
       <p
         id="images-note"
+        data-markdown={t.imagesNote}
+        data-confluence={t.confluenceImagesNote}
         class="hidden max-w-prose text-center text-sm leading-relaxed text-navy-soft sm:text-start dark:text-mist"
       >
         {t.imagesNote}
       </p>
+      {/* Show (and copy, and download) Confluence wiki markup instead of
+           Markdown. It re-renders the result without converting again, and
+           the choice is remembered. The data-* labels are what the buttons
+           and the panel say in each format; see
+           web/scripts/converter/format.ts. */}
+      <div class="flex flex-col items-center gap-1 sm:items-start">
+        <label
+          class="inline-flex cursor-pointer items-center gap-2 text-sm text-navy-soft dark:text-mist"
+        >
+          <input
+            type="checkbox"
+            id="confluence-toggle"
+            aria-describedby="confluence-hint"
+            data-copy-markdown={t.copyButton}
+            data-copy-confluence={t.copyConfluenceButton}
+            data-download-markdown={t.downloadButton}
+            data-download-confluence={t.downloadTxtButton}
+            data-panel-markdown={t.panelMarkdown}
+            data-panel-confluence={t.panelConfluence}
+            class="h-4 w-4 cursor-pointer accent-chartreuse-deep dark:accent-chartreuse"
+          />
+          {t.confluenceToggle}
+        </label>
+        <p
+          id="confluence-hint"
+          class="hidden max-w-prose text-center text-xs leading-relaxed text-navy-soft sm:text-start dark:text-mist"
+        >
+          {t.confluenceHint}
+        </p>
+      </div>
     </div>
 
     <div id="result-panels" class="mt-4 grid gap-4 lg:grid-cols-2">
@@ -409,7 +441,7 @@ const t = useTranslations(Astro.currentLocale);
           <span class="md-dot h-2.5 w-2.5 rounded-full bg-chartreuse"></span>
           <span
             class="font-mono text-xs font-medium tracking-wide rtl:font-sans rtl:tracking-normal text-navy-soft uppercase dark:text-mist"
-            >{t.panelMarkdown}</span
+            id="output-label">{t.panelMarkdown}</span
           >
         </div>
         <pre

@@ -2,6 +2,7 @@ import { convertBuffer } from '../../../src/worker-client.ts';
 import { showConversionError } from './alerts.ts';
 import { zipLayout } from './batch.ts';
 import { announce, flashConfirmed } from './dom.ts';
+import { formatOutput, outputFile } from './format.ts';
 import { session } from './session.ts';
 import { uiString } from './strings.ts';
 
@@ -28,14 +29,13 @@ function downloadBaseName(): string {
   return sourceName.replace(/\.(?:docx|md)$/i, '') || 'document';
 }
 
-// Download the converted Markdown as a .md file named after the source document.
+// Download what the output panel shows, named after the source document: the
+// Markdown as .md, or its Confluence wiki markup as .txt.
 export function downloadMarkdown(): void {
-  const markdown = session.lastMarkdown;
-  if (!markdown) return;
-  saveBlob(
-    new Blob([markdown], { type: 'text/markdown;charset=utf-8' }),
-    `${downloadBaseName()}.md`,
-  );
+  const text = session.lastOutput;
+  if (!text) return;
+  const { extension, type } = outputFile();
+  saveBlob(new Blob([text], { type }), `${downloadBaseName()}.${extension}`);
   // Briefly confirm the download on the button label.
   flashConfirmed('download-button', 'download-label', uiString('downloaded'));
 }
@@ -85,7 +85,10 @@ export async function downloadZip(): Promise<void> {
     ]);
 
     const zip = new JSZip();
-    zip.file(`${baseName}.md`, result.markdown);
+    zip.file(
+      `${baseName}.${outputFile().extension}`,
+      await formatOutput(result.markdown),
+    );
     for (const image of result.images ?? []) {
       zip.file(image.path, image.bytes);
     }
@@ -105,16 +108,19 @@ export async function downloadAll(): Promise<void> {
   await zipDownload('download-all-button', 'download-all-label', async () => {
     const { default: JSZip } = await import('jszip');
     const zip = new JSZip();
-    const layout = zipLayout(converted.map((entry) => entry.base));
+    const layout = zipLayout(
+      converted.map((entry) => entry.base),
+      outputFile().extension,
+    );
     for (const [index, entry] of converted.entries()) {
       const { markdown, imageDir } = layout[index];
       if (!entry.buffer) {
-        zip.file(markdown, entry.markdown ?? '');
+        zip.file(markdown, await formatOutput(entry.markdown ?? ''));
         continue;
       }
       // One at a time, like the conversions themselves, to bound memory.
       const result = await convertBuffer(entry.buffer, true, imageDir);
-      zip.file(markdown, result.markdown);
+      zip.file(markdown, await formatOutput(result.markdown));
       for (const image of result.images ?? []) {
         zip.file(image.path, image.bytes);
       }

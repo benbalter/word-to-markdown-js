@@ -11,6 +11,9 @@ export const session = {
   // here rather than read back from the rendered #output, whose innerText
   // depends on layout.
   lastMarkdown: '',
+  // What the output panel shows, and so what Copy and Download take: the
+  // Markdown, or its Confluence wiki markup (see format.ts).
+  lastOutput: '',
   // The most recently converted document's bytes, retained so "Download .zip"
   // can re-run the conversion in extract mode (the on-screen Markdown inlines
   // images as base64; the zip needs them as separate files). Null for pasted

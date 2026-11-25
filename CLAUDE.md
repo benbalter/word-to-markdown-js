@@ -46,6 +46,8 @@ The core converter is environment-agnostic (accepts a file path string in Node, 
 4. `normalizeText` (strip non-breaking spaces, smart quotes → ASCII)
 5. **markdownlint** `applyFixes` → **prettier** (markdown parser)
 
+`markdownToConfluence()` (`src/confluence.ts`, loaded by a dynamic import so plain conversions skip its parser) turns the finished Markdown into Confluence wiki markup with remark's mdast, after the pipeline rather than as a stage of it, so every fix above carries over and the web page's **Confluence wiki markup** checkbox (`web/scripts/converter/format.ts`) re-renders a result without converting again. The CLI's `--confluence` uses it too.
+
 `convertHtml()` runs steps 2–5 on an HTML string (rich text pasted onto word2md.com; the worker accepts `{ id, html }` messages), after stripping Word and Google Docs clipboard markup. `convert()` returns just the markdown string; `convertWithWarnings()` additionally calls `extractDocumentProperties()` (reads the `.docx` zip via JSZip to detect encryption, MIP/sensitivity labels, confidentiality markers, document protection) and returns a `ConvertResult`: `{ markdown, warnings, warningDetails, images? }`, where `warningDetails` gives each warning a machine-readable `kind` and `images` is set only with `images: 'extract'`. The CLI and web UI both use `convertWithWarnings`. Typed error classes (`UnsupportedFileError`, `FileNotFoundError`, `InvalidFileError`, `FilePermissionError`, `DocumentTooLargeError`, `ConversionError`) are thrown for user-facing messaging — preserve them when refactoring.
 
 ### Browser entry (`src/index.ts`)

@@ -46,9 +46,13 @@ export interface UIStrings {
   // Results
   convertedLabel: string;
   copyButton: string;
+  /** The copy button's label while the Confluence wiki markup box is checked. */
+  copyConfluenceButton: string;
   /** Transient confirmation shown on the copy button after a successful copy. */
   copiedButton: string;
   downloadButton: string;
+  /** The download button's label while the Confluence box is checked. */
+  downloadTxtButton: string;
   /** Transient confirmation shown on the download button after a download. */
   downloadedButton: string;
   /** Label for the button that downloads a .zip of the Markdown + extracted images. */
@@ -67,6 +71,18 @@ export interface UIStrings {
    * inline (base64) in the Markdown, and the .zip has them as files.
    */
   imagesNote: string;
+  /**
+   * Checkbox that switches the result to Confluence wiki markup. "Confluence"
+   * is a product name and stays untranslated.
+   */
+  confluenceToggle: string;
+  /**
+   * Shown while the box is checked: where to paste it. The menu path
+   * (Insert → Markup → Confluence wiki) is kept in English.
+   */
+  confluenceHint: string;
+  /** Replaces `imagesNote` while the box is checked: images link by file name. */
+  confluenceImagesNote: string;
   /**
    * Converter warnings, shown after a conversion. `sensitivity` and
    * `confidentiality` contain a literal `{label}` placeholder, replaced with
@@ -99,6 +115,8 @@ export interface UIStrings {
     technical: string;
   };
   panelMarkdown: string;
+  /** The output panel's label while the Confluence box is checked. */
+  panelConfluence: string;
   panelPreview: string;
 
   // How it works — exactly three steps are expected (paired with the step icons

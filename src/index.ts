@@ -41,6 +41,11 @@ import {
 } from '../web/scripts/converter/downloads.ts';
 import { rejectionFor } from '../web/scripts/converter/files.ts';
 import {
+  initFormatToggle,
+  prefetchFormat,
+  showOutput,
+} from '../web/scripts/converter/format.ts';
+import {
   prefetchRenderer,
   renderPreview,
 } from '../web/scripts/converter/preview.ts';
@@ -65,7 +70,8 @@ function prefetchConverter(): void {
 // synchronously inside the click handler (no await before it) so browsers that
 // require transient user activation, notably iOS Safari, still honor it.
 function copyMarkdown(): void {
-  const markdown = session.lastMarkdown;
+  // What's on screen: the Markdown, or its Confluence wiki markup.
+  const markdown = session.lastOutput;
   if (!markdown) return;
   const copyFailed = (): void => {
     // Clipboard access can be denied (permissions policy, insecure context,
@@ -94,6 +100,7 @@ function copyMarkdown(): void {
 // usually ready by the result.
 function startBusy(status: string): void {
   prefetchRenderer();
+  prefetchFormat();
   document.getElementById('error-alert')?.remove();
   document.getElementById('input')?.setAttribute('aria-busy', 'true');
   document.getElementById('dropzone')?.classList.add('is-converting');
@@ -186,8 +193,7 @@ function showDocument(
   }
 
   session.lastMarkdown = markdown;
-  const outputElement = document.getElementById('output');
-  if (outputElement) outputElement.textContent = markdown;
+  showOutput();
   const renderedElement = document.getElementById('rendered');
   if (renderedElement) renderedElement.innerHTML = '';
 
@@ -391,6 +397,7 @@ function showBatch(entries: BatchEntry[], leftSomeOut: boolean): void {
   } else {
     // Nothing to show: drop the previous document, whose panels are hidden.
     session.lastMarkdown = '';
+    session.lastOutput = '';
     session.lastConvertedBuffer = null;
     const rendered = document.getElementById('rendered');
     if (rendered) rendered.innerHTML = '';
@@ -470,6 +477,7 @@ function resetConverter(): void {
   endBatch();
   session.lastConvertedBuffer = null;
   session.lastMarkdown = '';
+  session.lastOutput = '';
   setImageMode(false);
 
   document.getElementById('error-alert')?.remove();
@@ -512,6 +520,7 @@ async function convertForAgent(
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initFormatToggle();
   registerWebMcpTools({
     convert: convertForAgent,
     current: () =>

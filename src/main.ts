@@ -15,6 +15,7 @@ import {
 } from './equations.js';
 import { applyListStarts, labelNumbering } from './numbering.js';
 import { reportProgress } from './progress.js';
+import { extensionForContentType } from './image-types.js';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -1823,34 +1824,6 @@ function withCodeTransform(mammothOptions: MammothOptions): MammothOptions {
   return { ...mammothOptions, transformDocument };
 }
 
-// Common image content types → file extension. Word most often embeds PNG and
-// JPEG; the rest cover formats Mammoth may surface. EMF/WMF are extracted as
-// bytes for completeness but browsers can't render them (Mammoth won't transcode).
-const CONTENT_TYPE_EXTENSIONS: { [contentType: string]: string } = {
-  'image/png': 'png',
-  'image/jpeg': 'jpg',
-  'image/jpg': 'jpg',
-  'image/gif': 'gif',
-  'image/tiff': 'tiff',
-  'image/bmp': 'bmp',
-  'image/webp': 'webp',
-  'image/svg+xml': 'svg',
-  'image/x-emf': 'emf',
-  'image/x-wmf': 'wmf',
-};
-
-// Pick a file extension for an extracted image. Falls back to the content
-// type's subtype when it's a clean alphanumeric token, else `bin`. Exported for
-// unit testing since only a PNG fixture exists.
-/** @internal */
-export function extensionForContentType(contentType: string): string {
-  const normalized = contentType.toLowerCase();
-  const known = CONTENT_TYPE_EXTENSIONS[normalized];
-  if (known) return known;
-  const subtype = normalized.split('/')[1] ?? '';
-  return /^[a-z0-9]+$/.test(subtype) ? subtype : 'bin';
-}
-
 // The image object Mammoth passes to a `convertImage` handler (not exported).
 type MammothImage = Parameters<
   Parameters<typeof mammoth.images.imgElement>[0]
@@ -2277,4 +2250,18 @@ export default async function convert(
   } catch (error) {
     classifyConversionError(error, filePath);
   }
+}
+
+/**
+ * Convert the Markdown `convert()` returns to Confluence wiki markup
+ * (`h1.`, `*bold*`, `||header||`, `{code}`), for Confluence's Insert → Markup →
+ * "Confluence wiki" dialog. Footnotes become superscript numbers with the
+ * notes at the end; images link by file name (`!image1.png!`), to be attached
+ * to the page; ordered lists lose any start number.
+ *
+ * Loaded on first use, so plain conversions don't pay for its parser.
+ */
+export async function markdownToConfluence(markdown: string): Promise<string> {
+  const { toConfluenceWiki } = await import('./confluence.js');
+  return toConfluenceWiki(markdown);
 }

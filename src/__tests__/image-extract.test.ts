@@ -1,9 +1,7 @@
 import fs from 'fs';
 import JSZip from 'jszip';
-import convert, {
-  convertWithWarnings,
-  extensionForContentType,
-} from '../main.js';
+import convert, { convertWithWarnings } from '../main.js';
+import { extensionForContentType } from '../image-types.js';
 
 const IMAGE = 'src/__fixtures__/image.docx';
 

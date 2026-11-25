@@ -43,10 +43,21 @@ export function flashConfirmed(
   restoreTimers.set(
     label,
     window.setTimeout(() => {
+      restoreTimers.delete(label);
       label.textContent = labelDefaults.get(label) ?? '';
       button?.classList.remove('is-confirmed');
     }, 2000),
   );
+}
+
+// Change a result button's own label (Copy Markdown → Copy wiki markup). A
+// confirmation showing right now keeps showing, then gives way to the new
+// label rather than the old one.
+export function setLabel(labelId: string, text: string): void {
+  const label = document.getElementById(labelId);
+  if (!label) return;
+  labelDefaults.set(label, text);
+  if (!restoreTimers.has(label)) label.textContent = text;
 }
 
 // Match an inline (base64) image in Markdown image syntax, not a bare
