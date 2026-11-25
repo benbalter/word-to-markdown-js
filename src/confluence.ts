@@ -150,7 +150,10 @@ const HTML_MARKERS: Record<string, string> = {
 // A link or image target, with what would end the link escaped.
 function safeUrl(url: string): string {
   return url
-    .replace(/\s/g, '%20')
+    .replace(/\\/g, '%5C')
+    .replace(/[\s\p{Cc}]/gu, (ch) =>
+      encodeURIComponent(ch).replace(/^%(?=.$)/, '%0'),
+    )
     .replace(/\|/g, '%7C')
     .replace(/\]/g, '%5D')
     .replace(/!/g, '%21')
@@ -163,8 +166,11 @@ function safeUrl(url: string): string {
 const SAFE_SCHEME = /^(?:https?|mailto):/i;
 const HAS_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 
+// Browsers drop tabs, newlines, and other control characters inside a URL,
+// so `java\tscript:` is still javascript: and is judged without them.
 function allowedUrl(url: string): boolean {
-  return !HAS_SCHEME.test(url) || SAFE_SCHEME.test(url);
+  const bare = url.replace(/[\s\p{Cc}]/gu, '');
+  return !HAS_SCHEME.test(bare) || SAFE_SCHEME.test(bare);
 }
 
 // Code can't be escaped inside {code} or {noformat}, so a `{code}` or

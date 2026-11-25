@@ -107,6 +107,10 @@ describe('toConfluenceWiki', () => {
 
   it('drops links and images with unsafe schemes, keeping the text', () => {
     expect(toConfluenceWiki('[click](javascript:alert(1))')).toBe('click');
+    expect(toConfluenceWiki('[tab](<java\tscript:alert(1)>)')).toBe('tab');
+    expect(toConfluenceWiki('[x](https://e.com/a\\b)')).toBe(
+      '[x|https://e.com/a%5Cb]',
+    );
     expect(toConfluenceWiki('[x](https://e.com/{html})')).toBe(
       '[x|https://e.com/%7Bhtml%7D]',
     );
