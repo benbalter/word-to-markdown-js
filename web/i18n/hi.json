@@ -13,14 +13,19 @@
   "convertSectionAria": "दस्तावेज़ कन्वर्ट करें",
   "convertedLabel": "कन्वर्ट किया गया",
   "copyButton": "Markdown कॉपी करें",
+  "copyConfluenceButton": "विकी मार्कअप कॉपी करें",
   "copiedButton": "कॉपी हो गया!",
   "downloadButton": ".md डाउनलोड करें",
+  "downloadTxtButton": ".txt डाउनलोड करें",
   "downloadedButton": "डाउनलोड हो गया",
   "downloadZipButton": ".zip डाउनलोड करें",
   "downloadAllButton": "सभी डाउनलोड करें (.zip)",
   "downloadedZipButton": "डाउनलोड हो गया",
   "convertAnother": "एक और फ़ाइल कन्वर्ट करें",
   "imagesNote": "इस Markdown में चित्र सीधे एम्बेड किए गए हैं। .zip में वे अलग-अलग फ़ाइलों के रूप में हैं।",
+  "confluenceToggle": "Confluence विकी मार्कअप",
+  "confluenceHint": "Confluence में Insert → Markup → Confluence wiki से पेस्ट करें।",
+  "confluenceImagesNote": "छवियाँ फ़ाइल नाम से लिंक हैं: .zip की फ़ाइलें Confluence पेज पर संलग्न करें।",
   "warnings": {
     "encrypted": "यह दस्तावेज़ एन्क्रिप्टेड लगता है, इसलिए कुछ सामग्री छूट सकती है।",
     "sensitivity": "इस दस्तावेज़ पर संवेदनशीलता लेबल ({label}) है। सुनिश्चित करें कि आपको इसे कन्वर्ट और साझा करने की अनुमति है।",
@@ -41,6 +46,7 @@
     "technical": "तकनीकी विवरण"
   },
   "panelMarkdown": "Markdown",
+  "panelConfluence": "Confluence विकी",
   "panelPreview": "पूर्वावलोकन",
   "steps": [
     {

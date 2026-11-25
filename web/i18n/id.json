@@ -13,14 +13,19 @@
   "convertSectionAria": "Konversi dokumen",
   "convertedLabel": "Dikonversi",
   "copyButton": "Salin Markdown",
+  "copyConfluenceButton": "Salin markup wiki",
   "copiedButton": "Tersalin!",
   "downloadButton": "Unduh .md",
+  "downloadTxtButton": "Unduh .txt",
   "downloadedButton": "Terunduh",
   "downloadZipButton": "Unduh .zip",
   "downloadAllButton": "Unduh semua (.zip)",
   "downloadedZipButton": "Terunduh",
   "convertAnother": "Konversi berkas lain",
   "imagesNote": "Gambar disematkan langsung di Markdown ini. Berkas .zip berisi gambar tersebut sebagai berkas terpisah.",
+  "confluenceToggle": "Markup wiki Confluence",
+  "confluenceHint": "Di Confluence, tempel lewat Insert → Markup → Confluence wiki.",
+  "confluenceImagesNote": "Gambar ditautkan berdasarkan nama file: lampirkan file dari .zip ke halaman Confluence.",
   "warnings": {
     "encrypted": "Dokumen ini tampaknya terenkripsi, jadi sebagian konten mungkin hilang.",
     "sensitivity": "Dokumen ini memiliki label sensitivitas ({label}). Pastikan Anda diizinkan untuk mengonversi dan membagikannya.",
@@ -41,6 +46,7 @@
     "technical": "Detail teknis"
   },
   "panelMarkdown": "Markdown",
+  "panelConfluence": "Wiki Confluence",
   "panelPreview": "Pratinjau",
   "steps": [
     {

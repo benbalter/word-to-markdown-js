@@ -44,6 +44,7 @@ export function uniqueBaseNames(names: string[]): string[] {
 // characters that work unescaped there (no spaces or parentheses).
 export function zipLayout(
   bases: string[],
+  extension = 'md',
 ): { markdown: string; imageDir: string }[] {
   const used = new Set<string>();
   return bases.map((base) => {
@@ -55,7 +56,7 @@ export function zipLayout(
       imageDir = `${slug}-${n}-images`;
     }
     used.add(imageDir.toLowerCase());
-    return { markdown: `${base}.md`, imageDir };
+    return { markdown: `${base}.${extension}`, imageDir };
   });
 }
 

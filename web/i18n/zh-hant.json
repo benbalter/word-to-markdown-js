@@ -13,14 +13,19 @@
   "convertSectionAria": "轉換檔案",
   "convertedLabel": "已轉換",
   "copyButton": "複製 Markdown",
+  "copyConfluenceButton": "複製 Wiki 標記",
   "copiedButton": "已複製！",
   "downloadButton": "下載 .md",
+  "downloadTxtButton": "下載 .txt",
   "downloadedButton": "已下載",
   "downloadZipButton": "下載 .zip",
   "downloadAllButton": "全部下載 (.zip)",
   "downloadedZipButton": "已下載",
   "convertAnother": "轉換另一個檔案",
   "imagesNote": "圖片已直接嵌入此 Markdown。.zip 檔案則將它們作為個別檔案提供。",
+  "confluenceToggle": "Confluence Wiki 標記",
+  "confluenceHint": "在 Confluence 中透過 Insert → Markup → Confluence wiki 貼上。",
+  "confluenceImagesNote": "圖片依檔名連結：請將 .zip 中的檔案附加到 Confluence 頁面。",
   "warnings": {
     "encrypted": "這份文件似乎已加密，因此可能缺少部分內容。",
     "sensitivity": "這份文件帶有敏感度標籤（{label}）。請確認你有權轉換並分享它。",
@@ -41,6 +46,7 @@
     "technical": "技術細節"
   },
   "panelMarkdown": "Markdown",
+  "panelConfluence": "Confluence Wiki",
   "panelPreview": "預覽",
   "steps": [
     {

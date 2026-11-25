@@ -13,14 +13,19 @@
   "convertSectionAria": "Konvertera ett dokument",
   "convertedLabel": "Konverterad",
   "copyButton": "Kopiera Markdown",
+  "copyConfluenceButton": "Kopiera wikimarkering",
   "copiedButton": "Kopierat!",
   "downloadButton": "Ladda ner .md",
+  "downloadTxtButton": "Ladda ner .txt",
   "downloadedButton": "Nedladdat",
   "downloadZipButton": "Ladda ner .zip",
   "downloadAllButton": "Ladda ner alla (.zip)",
   "downloadedZipButton": "Nedladdat",
   "convertAnother": "Konvertera en annan fil",
   "imagesNote": "Bilderna är inbäddade direkt i den här Markdown-koden. .zip-filen innehåller dem som separata filer.",
+  "confluenceToggle": "Confluence-wikimarkering",
+  "confluenceHint": "Klistra in i Confluence via Insert → Markup → Confluence wiki.",
+  "confluenceImagesNote": "Bilder länkas med filnamn: bifoga filerna från .zip-filen till Confluence-sidan.",
   "warnings": {
     "encrypted": "Dokumentet verkar vara krypterat, så en del innehåll kan saknas.",
     "sensitivity": "Dokumentet har en känslighetsetikett ({label}). Kontrollera att du får konvertera och dela det.",
@@ -41,6 +46,7 @@
     "technical": "Tekniska detaljer"
   },
   "panelMarkdown": "Markdown",
+  "panelConfluence": "Confluence-wiki",
   "panelPreview": "Förhandsvisning",
   "steps": [
     {

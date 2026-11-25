@@ -13,14 +13,19 @@
   "convertSectionAria": "حوّل مستندًا",
   "convertedLabel": "تم التحويل",
   "copyButton": "انسخ Markdown",
+  "copyConfluenceButton": "انسخ ترميز الويكي",
   "copiedButton": "تم النسخ!",
   "downloadButton": "نزّل \u2066.md\u2069",
+  "downloadTxtButton": "نزّل \u2066.txt\u2069",
   "downloadedButton": "تم التنزيل",
   "downloadZipButton": "نزّل \u2066.zip\u2069",
   "downloadAllButton": "نزّل الكل (\u2066.zip\u2069)",
   "downloadedZipButton": "تم التنزيل",
   "convertAnother": "حوّل ملفًا آخر",
   "imagesNote": "الصور مضمّنة مباشرةً في نص Markdown هذا. ويحتويها ملف \u2066.zip\u2069 كملفات منفصلة.",
+  "confluenceToggle": "ترميز ويكي Confluence",
+  "confluenceHint": "في Confluence، الصقه عبر \u2066Insert → Markup → Confluence wiki\u2069.",
+  "confluenceImagesNote": "الصور مرتبطة باسم الملف: أرفق الملفات من \u2066.zip\u2069 بصفحة Confluence.",
   "warnings": {
     "encrypted": "يبدو أن هذا المستند مشفّر، لذا قد يكون بعض المحتوى مفقودًا.",
     "sensitivity": "يحمل هذا المستند تسمية حساسية (\u2066{label}\u2069). تأكد من أنه مسموح لك بتحويله ومشاركته.",
@@ -41,6 +46,7 @@
     "technical": "تفاصيل تقنية"
   },
   "panelMarkdown": "Markdown",
+  "panelConfluence": "ويكي Confluence",
   "panelPreview": "معاينة",
   "steps": [
     {

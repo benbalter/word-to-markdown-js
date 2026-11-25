@@ -13,14 +13,19 @@
   "convertSectionAria": "Конвертація документа",
   "convertedLabel": "Конвертовано",
   "copyButton": "Скопіювати Markdown",
+  "copyConfluenceButton": "Скопіювати вікі-розмітку",
   "copiedButton": "Скопійовано!",
   "downloadButton": "Завантажити .md",
+  "downloadTxtButton": "Завантажити .txt",
   "downloadedButton": "Завантажено",
   "downloadZipButton": "Завантажити .zip",
   "downloadAllButton": "Завантажити все (.zip)",
   "downloadedZipButton": "Завантажено",
   "convertAnother": "Конвертувати інший файл",
   "imagesNote": "Зображення вбудовано безпосередньо в цей Markdown. В архіві .zip вони збережені окремими файлами.",
+  "confluenceToggle": "Вікі-розмітка Confluence",
+  "confluenceHint": "У Confluence вставте через Insert → Markup → Confluence wiki.",
+  "confluenceImagesNote": "Зображення пов’язані за назвою файлу: прикріпіть файли з .zip до сторінки Confluence.",
   "warnings": {
     "encrypted": "Схоже, цей документ зашифровано, тому частина вмісту може бути відсутня.",
     "sensitivity": "Цей документ має мітку конфіденційності ({label}). Переконайтеся, що вам дозволено конвертувати його й ділитися ним.",
@@ -41,6 +46,7 @@
     "technical": "Технічні подробиці"
   },
   "panelMarkdown": "Markdown",
+  "panelConfluence": "Вікі Confluence",
   "panelPreview": "Перегляд",
   "steps": [
     {

@@ -13,14 +13,19 @@
   "convertSectionAria": "文書を変換",
   "convertedLabel": "変換済み",
   "copyButton": "Markdownをコピー",
+  "copyConfluenceButton": "Wiki マークアップをコピー",
   "copiedButton": "コピーしました！",
   "downloadButton": ".md をダウンロード",
+  "downloadTxtButton": ".txt をダウンロード",
   "downloadedButton": "ダウンロード済み",
   "downloadZipButton": ".zip をダウンロード",
   "downloadAllButton": "すべてダウンロード (.zip)",
   "downloadedZipButton": "ダウンロード済み",
   "convertAnother": "別のファイルを変換",
   "imagesNote": "画像はこの Markdown に直接埋め込まれています。.zip には画像が個別のファイルとして含まれます。",
+  "confluenceToggle": "Confluence Wiki マークアップ",
+  "confluenceHint": "Confluence では Insert → Markup → Confluence wiki から貼り付けます。",
+  "confluenceImagesNote": "画像はファイル名でリンクされています。.zip 内のファイルを Confluence ページに添付してください。",
   "warnings": {
     "encrypted": "このドキュメントは暗号化されているようです。一部の内容が欠けている可能性があります。",
     "sensitivity": "このドキュメントには秘密度ラベル（{label}）が付いています。変換・共有してよいか確認してください。",
@@ -41,6 +46,7 @@
     "technical": "技術的な詳細"
   },
   "panelMarkdown": "Markdown",
+  "panelConfluence": "Confluence Wiki",
   "panelPreview": "プレビュー",
   "steps": [
     {

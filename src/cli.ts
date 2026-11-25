@@ -4,7 +4,11 @@ import { Command, Option } from 'commander';
 import { createRequire } from 'module';
 import { mkdir, writeFile } from 'fs/promises';
 import path from 'path';
-import { convertWithWarnings, type QuoteStyle } from './main.js';
+import {
+  convertWithWarnings,
+  markdownToConfluence,
+  type QuoteStyle,
+} from './main.js';
 
 // Read our own version from package.json. createRequire resolves relative to
 // this module, so `../package.json` points at the package root both from the
@@ -35,6 +39,7 @@ Examples:
   $ w2m report.docx > report.md
   $ w2m -o out/report.md --image-dir images report.docx
   $ cat report.docx | w2m > report.md
+  $ w2m --confluence --image-dir images report.docx > report.txt
   $ w2m --strict --quiet report.docx > report.md || echo "check report.md"`;
 
 const program = new Command();
@@ -96,6 +101,12 @@ program
   .option(
     '--strip-equations',
     'Drop Word equations instead of converting them to LaTeX ($…$ and $$…$$)',
+  )
+  .option(
+    '--confluence',
+    'Output Confluence wiki markup (h1., *bold*, ||header||) instead of ' +
+      'Markdown, to paste into Insert > Markup > Confluence wiki. Images ' +
+      'link by file name, to attach to the page (pair with --image-dir)',
   )
   .addOption(
     new Option(
@@ -192,14 +203,32 @@ program
         note(''); // Empty line for separation
       }
 
-      // Write the Markdown to the requested file, or stdout by default.
+      const text = options.confluence
+        ? await markdownToConfluence(result.markdown)
+        : result.markdown;
+      // Wiki markup names inline images as attachments (!image1.png!), files
+      // that only --image-dir writes.
+      if (
+        options.confluence &&
+        images === 'inline' &&
+        /!image\d+\.\w+[|!]/.test(text)
+      ) {
+        note(
+          'The wiki markup links images by file name. Add --image-dir to write ' +
+            'them out, then attach them to the Confluence page.',
+        );
+      }
+
+      // Write the output to the requested file, or stdout by default.
       if (output) {
         await mkdir(path.dirname(output), { recursive: true });
         // End with a newline, as stdout (console.log) does (markdownlint MD047).
-        await writeFile(output, `${result.markdown}\n`);
-        note(`Wrote Markdown to ${output}`);
+        await writeFile(output, `${text}\n`);
+        note(
+          `Wrote ${options.confluence ? 'Confluence wiki markup' : 'Markdown'} to ${output}`,
+        );
       } else {
-        console.log(result.markdown);
+        console.log(text);
       }
 
       // Set rather than call process.exit(), so stdout finishes flushing.

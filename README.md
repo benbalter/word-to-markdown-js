@@ -24,6 +24,8 @@ npx word-to-markdown input.docx > output.md
 - Images — embedded inline as base64 data URIs, or extracted to files
 - Equations — converted to LaTeX: inline `$…$`, or a `$$` block for an equation on its own line
 
+Need it in Confluence instead? Tick **Confluence wiki markup** under a result on [word2md.com](https://word2md.com), pass `--confluence` to the CLI, or call `markdownToConfluence()`, and you get wiki markup (`h1.`, `*bold*`, `||header||`, `{code}`) to paste with Insert → Markup → Confluence wiki. Images are linked by file name (`!image1.png!`), as the .zip and `--image-dir` name them, so attach those files to the page. Footnotes become superscript numbers with the notes at the end, and a numbered list's start number is lost, since wiki markup has neither.
+
 ### Notes and limitations
 
 - **Numbered lists** are kept as `1./2./3.` ordered lists, numbered as Word numbers them, so a list interrupted by a paragraph, table, or another list continues where it left off. Pass `{ numberedLists: 'bullets' }` (library) or `--bullet-lists` (CLI) to convert them to bullet lists instead (matching the original word-to-markdown). Outline numbering that repeats the parent's number, like contracts' `1.` → `1.1`, `1.2`, is written out as text (`## 1. Scope`, `1.1 Purpose`), since Markdown lists can't show it.
@@ -86,6 +88,7 @@ Options:
 - `--image-dir <dir>` — extract images to `<dir>` and link them relatively, instead of embedding base64. Links resolve relative to where you save the Markdown, e.g. `w2m --image-dir images report.docx > report.md`, or with `-o`, `w2m -o out/report.md --image-dir images report.docx` (images land in `out/images/`).
 - `--preserve-footnotes` — keep Word footnotes as raw `<sup>` links and a numbered note list instead of GFM `[^1]` footnotes.
 - `--strip-equations` — drop Word equations instead of converting them to LaTeX.
+- `--confluence` — output Confluence wiki markup instead of Markdown, e.g. `w2m --confluence --image-dir images report.docx > report.txt`.
 - `--quotes <style>` — how to treat curly quotes: `auto` (default) keeps them in mostly-Chinese text, `ascii` converts them everywhere, `preserve` keeps them everywhere.
 - `-q, --quiet` — print nothing to stderr except errors: no warnings and no "Wrote …" notes.
 - `--strict` — exit with status **2** if the document has warnings, so a script can tell "converted, but check it" (2) from "failed" (1). The Markdown is still written. Combine with `--quiet` to rely on the exit status alone.
@@ -159,6 +162,7 @@ const { markdown } = await convertWithWarnings(arrayBuffer);
 
 - **`convert(input, options?): Promise<string>`** — resolves to the Markdown.
 - **`convertWithWarnings(input, options?): Promise<{ markdown: string; warnings: string[]; warningDetails: WarningDetail[]; images? }>`** — also returns human-readable warnings for encrypted, protected, or sensitivity-labeled documents and for dropped content, and (in `extract` mode) the extracted images. `warningDetails` has one `{ kind, message, detail? }` entry per warning, where `kind` is `encrypted`, `sensitivity`, `confidentiality`, `protected`, or `content-loss` and `detail` is the document's label or Mammoth's raw message. Use it to present or translate warnings without parsing the English text.
+- **`markdownToConfluence(markdown): Promise<string>`** — converts the Markdown from `convert()` (or any GitHub-flavored Markdown) to Confluence wiki markup. Its parser loads on first call.
 - **`convertHtml(html, options?): Promise<string>`** — converts an HTML string, such as rich text copied from Word, Google Docs, or a web page, with the same cleanup. There's no `.docx`, so `mammoth`, `images: 'extract'`, and `imageDir` don't apply.
 
 `input` is a file-path `string` (Node) or an `ArrayBuffer`. `options` (type `ConvertOptions`) is optional:

@@ -162,6 +162,22 @@ describe('w2m CLI', () => {
     expect(result.stdout).toContain('<u>underlined</u>');
   });
 
+  it('--confluence writes Confluence wiki markup instead of Markdown', () => {
+    const result = runCli(['--confluence', fixture('h1.docx')]);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toMatch(/^h1\. /);
+    expect(result.stdout).not.toMatch(/^# /m);
+  });
+
+  it('--confluence suggests --image-dir when images have no files', () => {
+    const inline = runCli(['--confluence', fixture('image.docx')]);
+    expect(inline.stdout).toContain('!image1.png');
+    expect(inline.stderr).toContain('--image-dir');
+    expect(runCli(['--confluence', '-q', fixture('image.docx')]).stderr).toBe(
+      '',
+    );
+  });
+
   it('--preserve-footnotes keeps raw footnote markup', () => {
     expect(runCli([fixture('footnote.docx')]).stdout).toContain('[^1]');
     const result = runCli(['--preserve-footnotes', fixture('footnote.docx')]);

@@ -13,14 +13,19 @@
   "convertSectionAria": "Bir belgeyi dönüştür",
   "convertedLabel": "Dönüştürüldü",
   "copyButton": "Markdown'ı kopyala",
+  "copyConfluenceButton": "Wiki biçimlendirmesini kopyala",
   "copiedButton": "Kopyalandı!",
   "downloadButton": ".md dosyasını indir",
+  "downloadTxtButton": ".txt dosyasını indir",
   "downloadedButton": "İndirildi",
   "downloadZipButton": ".zip dosyasını indir",
   "downloadAllButton": "Tümünü indir (.zip)",
   "downloadedZipButton": "İndirildi",
   "convertAnother": "Başka bir dosyayı dönüştür",
   "imagesNote": "Görseller doğrudan bu Markdown'ın içine gömülü. .zip dosyası onları ayrı dosyalar olarak içerir.",
+  "confluenceToggle": "Confluence wiki biçimlendirmesi",
+  "confluenceHint": "Confluence'ta Insert → Markup → Confluence wiki ile yapıştırın.",
+  "confluenceImagesNote": "Görseller dosya adıyla bağlanır: .zip içindeki dosyaları Confluence sayfasına ekleyin.",
   "warnings": {
     "encrypted": "Bu belge şifrelenmiş görünüyor, bu nedenle bazı içerikler eksik olabilir.",
     "sensitivity": "Bu belgede bir duyarlılık etiketi var ({label}). Dönüştürme ve paylaşma izniniz olduğundan emin olun.",
@@ -41,6 +46,7 @@
     "technical": "Teknik ayrıntılar"
   },
   "panelMarkdown": "Markdown",
+  "panelConfluence": "Confluence wiki",
   "panelPreview": "Önizleme",
   "steps": [
     {

@@ -13,14 +13,19 @@
   "convertSectionAria": "Konwertuj dokument",
   "convertedLabel": "Przekonwertowano",
   "copyButton": "Kopiuj Markdown",
+  "copyConfluenceButton": "Kopiuj znaczniki wiki",
   "copiedButton": "Skopiowano!",
   "downloadButton": "Pobierz .md",
+  "downloadTxtButton": "Pobierz .txt",
   "downloadedButton": "Pobrano",
   "downloadZipButton": "Pobierz .zip",
   "downloadAllButton": "Pobierz wszystko (.zip)",
   "downloadedZipButton": "Pobrano",
   "convertAnother": "Konwertuj kolejny plik",
   "imagesNote": "Obrazy są osadzone bezpośrednio w tym Markdownie. Plik .zip zawiera je jako osobne pliki.",
+  "confluenceToggle": "Znaczniki wiki Confluence",
+  "confluenceHint": "W Confluence wklej przez Insert → Markup → Confluence wiki.",
+  "confluenceImagesNote": "Obrazy są połączone po nazwie pliku: dołącz pliki z archiwum .zip do strony Confluence.",
   "warnings": {
     "encrypted": "Ten dokument wygląda na zaszyfrowany, więc może brakować części treści.",
     "sensitivity": "Ten dokument ma etykietę poufności ({label}). Upewnij się, że możesz go konwertować i udostępniać.",
@@ -41,6 +46,7 @@
     "technical": "Szczegóły techniczne"
   },
   "panelMarkdown": "Markdown",
+  "panelConfluence": "Wiki Confluence",
   "panelPreview": "Podgląd",
   "steps": [
     {

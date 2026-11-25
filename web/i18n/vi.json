@@ -13,14 +13,19 @@
   "convertSectionAria": "Chuyển đổi tài liệu",
   "convertedLabel": "Đã chuyển đổi",
   "copyButton": "Sao chép Markdown",
+  "copyConfluenceButton": "Sao chép markup wiki",
   "copiedButton": "Đã sao chép!",
   "downloadButton": "Tải .md",
+  "downloadTxtButton": "Tải .txt",
   "downloadedButton": "Đã tải xuống",
   "downloadZipButton": "Tải .zip",
   "downloadAllButton": "Tải tất cả (.zip)",
   "downloadedZipButton": "Đã tải xuống",
   "convertAnother": "Chuyển đổi tệp khác",
   "imagesNote": "Hình ảnh được nhúng trực tiếp trong Markdown này. Tệp .zip chứa chúng dưới dạng các tệp riêng.",
+  "confluenceToggle": "Markup wiki Confluence",
+  "confluenceHint": "Trong Confluence, dán qua Insert → Markup → Confluence wiki.",
+  "confluenceImagesNote": "Hình ảnh được liên kết theo tên tệp: hãy đính kèm các tệp trong .zip vào trang Confluence.",
   "warnings": {
     "encrypted": "Tài liệu này có vẻ đã được mã hóa, nên có thể thiếu một số nội dung.",
     "sensitivity": "Tài liệu này có nhãn độ nhạy cảm ({label}). Hãy đảm bảo bạn được phép chuyển đổi và chia sẻ tài liệu.",
@@ -41,6 +46,7 @@
     "technical": "Chi tiết kỹ thuật"
   },
   "panelMarkdown": "Markdown",
+  "panelConfluence": "Wiki Confluence",
   "panelPreview": "Xem trước",
   "steps": [
     {

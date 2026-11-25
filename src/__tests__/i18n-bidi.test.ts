@@ -32,7 +32,7 @@ function strings(value: unknown, prefix = ''): [string, string][] {
 
 // A file extension the UI names, not preceded by a letter (so "word2md.com"
 // and "README.md"-style names inside a longer LTR run don't count twice).
-const BARE_EXTENSION = /(?<![\p{L}\p{N}])\.(?:docx|doc|md|zip)\b/u;
+const BARE_EXTENSION = /(?<![\p{L}\p{N}])\.(?:docx|doc|md|txt|zip)\b/u;
 const ISOLATED_RUN = /⁦[^⁩]*⁩/gu;
 
 describe('RTL translations isolate left-to-right file extensions', () => {
@@ -40,13 +40,18 @@ describe('RTL translations isolate left-to-right file extensions', () => {
     expect(rtlLocales.length).toBeGreaterThan(0);
   });
 
-  it.each(rtlLocales)('%s wraps every .docx/.doc/.md/.zip in ⁦…⁩', (locale) => {
-    const dict = JSON.parse(
-      readFileSync(path.join(i18nDir, `${locale}.json`), 'utf8'),
-    );
-    const unwrapped = strings(dict)
-      .filter(([, text]) => BARE_EXTENSION.test(text.replace(ISOLATED_RUN, '')))
-      .map(([key]) => key);
-    expect(unwrapped).toEqual([]);
-  });
+  it.each(rtlLocales)(
+    '%s wraps every .docx/.doc/.md/.txt/.zip in ⁦…⁩',
+    (locale) => {
+      const dict = JSON.parse(
+        readFileSync(path.join(i18nDir, `${locale}.json`), 'utf8'),
+      );
+      const unwrapped = strings(dict)
+        .filter(([, text]) =>
+          BARE_EXTENSION.test(text.replace(ISOLATED_RUN, '')),
+        )
+        .map(([key]) => key);
+      expect(unwrapped).toEqual([]);
+    },
+  );
 });
