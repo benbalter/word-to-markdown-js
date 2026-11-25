@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Self-hosters can leave out the plug for _Open and Async_ by building with `W2M_PROMO=off`. That drops the promo card, the line under a result, the book in the page's structured data and `llms.txt`, and the book's sections in the guides. word2md.com is unchanged.
+
 ## [0.9.0] - 2026-10-25
 
 ### Security
